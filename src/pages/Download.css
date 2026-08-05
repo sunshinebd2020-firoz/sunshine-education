@@ -1,0 +1,53 @@
+.download {
+  padding: 30px;
+}
+
+.download-header {
+  text-align: center;
+  background: #f1f8f5;
+  padding: 30px;
+  border-radius: 10px;
+}
+
+.download-header h1 {
+  color: #0b5d3b;
+}
+
+.download-list {
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.download-card {
+  flex: 1;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px #ddd;
+  text-align: center;
+}
+
+.download-card h2 {
+  color: #0b5d3b;
+}
+
+.download-card button {
+  background: #0b5d3b;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.download-card button:hover {
+  background: #09462d;
+}
+
+
+@media(max-width:768px){
+  .download-list {
+    flex-direction: column;
+  }
+}

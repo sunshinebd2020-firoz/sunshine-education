@@ -1,0 +1,56 @@
+.notice {
+  padding: 30px;
+}
+
+.notice-header {
+  text-align: center;
+  background: #f1f8f5;
+  padding: 30px;
+  border-radius: 10px;
+}
+
+.notice-header h1 {
+  color: #0b5d3b;
+}
+
+
+.notice-list {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+.notice-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px #ddd;
+}
+
+
+.notice-card h2 {
+  color: #0b5d3b;
+}
+
+
+.date {
+  color: #777;
+  font-size: 14px;
+}
+
+
+.notice-card button {
+  background: #0b5d3b;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+.notice-card button:hover {
+  background: #09462d;
+}
