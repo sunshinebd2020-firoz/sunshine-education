@@ -1,7 +1,164 @@
 .footer {
-  background-color: #222;
+  width: 100%;
+  background: #1e293b;
   color: white;
-  text-align: center;
-  padding: 15px 10px;
   margin-top: auto;
+}
+
+
+/* =========================
+   Footer Main
+========================= */
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  padding: 30px 25px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================
+   Brand
+========================= */
+
+.footer-brand h2 {
+  margin: 0 0 8px;
+
+  font-size: 25px;
+  font-weight: 700;
+
+  color: #ffffff;
+
+  transition: 0.25s;
+}
+
+.footer-brand h2:hover {
+  color: #60a5fa;
+}
+
+.footer-brand p {
+  margin: 0;
+
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+
+/* =========================
+   Contact
+========================= */
+
+.footer-contact {
+  text-align: right;
+}
+
+.footer-contact p {
+  margin: 6px 0;
+
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+
+/* =========================
+   Footer Bottom
+========================= */
+
+.footer-bottom {
+  border-top: 1px solid #334155;
+
+  text-align: center;
+
+  padding: 15px 20px;
+}
+
+.footer-bottom p {
+  margin: 0;
+
+  color: #94a3b8;
+
+  font-size: 13px;
+}
+
+
+/* =========================
+   Developer
+========================= */
+
+.developer {
+  margin-top: 7px !important;
+}
+
+.developer a {
+  color: #60a5fa;
+
+  text-decoration: none;
+
+  font-weight: 600;
+
+  transition: 0.25s;
+}
+
+.developer a:hover {
+  color: #93c5fd;
+
+  text-decoration: underline;
+}
+
+
+/* =========================
+   Mobile
+========================= */
+
+@media (max-width: 600px) {
+
+  .footer-container {
+    flex-direction: column;
+
+    text-align: center;
+
+    gap: 20px;
+
+    padding: 25px 15px;
+  }
+
+
+  .footer-contact {
+    text-align: center;
+  }
+
+
+  .footer-brand h2 {
+    font-size: 21px;
+  }
+
+
+  .footer-brand p {
+    font-size: 13px;
+  }
+
+
+  .footer-contact p {
+    font-size: 13px;
+  }
+
+
+  .footer-bottom {
+    padding: 14px 10px;
+  }
+
+
+  .footer-bottom p {
+    font-size: 12px;
+
+    line-height: 1.6;
+  }
+
 }

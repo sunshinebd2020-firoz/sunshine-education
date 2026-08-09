@@ -3,6 +3,10 @@ import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header/Header";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
+import Login from "./admin/Login";
+import Dashboard from "./admin/pages/Dashboard";
+import StudentEntry from "./admin/pages/students/StudentEntry";
+import StudentList from "./admin/pages/students/StudentList";
 
 import Home from "./pages/Home";
 import Gallery from "./pages/Gallery";
@@ -32,6 +36,10 @@ export default function App() {
           <Route path="/courses" element={<Courses />} />
           <Route path="/admission" element={<Admission />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/admin/login" element={<Login />} />
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/students" element={<StudentEntry />}/>
+          <Route path="/admin/student-list" element={<StudentList />} />
         </Routes>
       </main>
 

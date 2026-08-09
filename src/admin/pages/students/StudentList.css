@@ -1,0 +1,77 @@
+.student-list {
+  padding: 30px;
+}
+
+.student-list h1 {
+  margin-bottom: 5px;
+}
+
+.student-list > p {
+  color: #64748b;
+}
+
+
+/* =========================
+   Search
+========================= */
+
+.student-search {
+  margin: 25px 0 20px;
+}
+
+.student-search input {
+  width: 100%;
+  max-width: 450px;
+  padding: 12px 15px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  font-size: 15px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.student-search input:focus {
+  border-color: #64748b;
+}
+
+
+/* =========================
+   Table
+========================= */
+
+.table-container {
+  margin-top: 10px;
+  overflow-x: auto;
+  background: white;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+
+tr:hover {
+  background: #f8fafc;
+}
+
+
+/* No Student */
+
+.no-student {
+  padding: 20px;
+  text-align: center;
+  color: #64748b;
+}
