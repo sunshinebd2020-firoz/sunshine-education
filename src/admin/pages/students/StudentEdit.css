@@ -1,0 +1,206 @@
+.student-edit {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.edit-header h1 {
+  margin: 0 0 5px;
+  color: #1e293b;
+  font-size: 28px;
+}
+
+.edit-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.student-id-box {
+  min-width: 150px;
+  padding: 12px 18px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  color: #475569;
+  font-size: 13px;
+  text-align: center;
+}
+
+.student-id-box strong {
+  display: block;
+  margin-top: 4px;
+  color: #1d4ed8;
+  font-size: 16px;
+}
+
+.student-edit form {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.06);
+}
+
+.student-edit h2 {
+  margin: 25px 0 18px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e2e8f0;
+  color: #1e293b;
+  font-size: 20px;
+}
+
+.student-edit h2:first-child {
+  margin-top: 0;
+}
+
+.student-edit h3 {
+  margin: 25px 0 15px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-left: 4px solid #3b82f6;
+  color: #334155;
+  font-size: 17px;
+  border-radius: 4px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 7px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 11px 13px;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #fff;
+  color: #334155;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.form-group input[type="file"] {
+  padding: 9px;
+  cursor: pointer;
+}
+
+.edit-student-photo {
+  width: 90px;
+  height: 90px;
+  margin-bottom: 10px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+}
+
+.edit-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.update-button,
+.cancel-button {
+  padding: 11px 22px;
+  border: none;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.update-button {
+  background: #2563eb;
+  color: #fff;
+}
+
+.update-button:hover {
+  background: #1d4ed8;
+}
+
+.cancel-button {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.cancel-button:hover {
+  background: #cbd5e1;
+}
+
+.student-message {
+  margin-top: 18px;
+  padding: 12px 15px;
+  border-radius: 7px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .student-edit {
+    padding: 20px 15px;
+  }
+
+  .edit-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .student-id-box {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .student-edit form {
+    padding: 18px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-buttons {
+    flex-direction: column;
+  }
+
+  .update-button,
+  .cancel-button {
+    width: 100%;
+  }
+}
