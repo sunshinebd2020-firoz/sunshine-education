@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./TeacherEntry.css";
 
 export default function TeacherEntry() {
   const [formData, setFormData] = useState({
+    teacherId: "",
     nameBn: "",
     nameEn: "",
     shortName: "",
@@ -12,47 +13,72 @@ export default function TeacherEntry() {
     mobile: "",
     email: "",
     dateOfBirth: "",
-    joiningDate: new Date().toISOString().split("T")[0], // ডিফল্ট আজকের তারিখ
+    joiningDate: "",
     qualification: "",
     address: "",
-    status: "Present", // 'active' বাদ দিয়ে Present করা হয়েছে
+    status: "Present",
   });
 
   const [photo, setPhoto] = useState(null);
-  const [teacherIdPreview, setTeacherIdPreview] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
+  const [message, setMessage] = useState({
+    type: "",
+    text: "",
+  });
 
-  // Joining Date পরিবর্তনের ভিত্তিতে Auto Teacher ID Preview (SEYYMMDDXX)
-  useEffect(() => {
-    if (formData.joiningDate) {
-      const cleanDate = formData.joiningDate.replace(/-/g, "").substring(2); // YYYY-MM-DD -> YYMMDD
-      setTeacherIdPreview(`SE${cleanDate}XX`);
-    } else {
-      setTeacherIdPreview("SEYYMMDDXX");
-    }
-  }, [formData.joiningDate]);
-
-  // ইনপুট হ্যান্ডলার
+  // =========================
+  // Input Change
+  // =========================
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [name]: value,
+      };
+
+      // Joining Date পরিবর্তন হলে
+      // শুধু SEYYMMDD অংশ তৈরি হবে
+      // শেষের serial server থেকে আসবে
+      if (name === "joiningDate") {
+        if (value) {
+          const cleanDate = value.replace(/-/g, "").substring(2);
+
+          updated.teacherId = `SE${cleanDate}`;
+        } else {
+          updated.teacherId = "";
+        }
+      }
+
+      return updated;
+    });
   };
 
-  // ফটো ফাইল হ্যান্ডলার
+  // =========================
+  // Photo Change
+  // =========================
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setPhoto(e.target.files[0]);
     }
   };
-  
-  // ফর্ম সাবমিশন (API Call)
+
+  // =========================
+  // Submit
+  // =========================
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setLoading(true);
-    setMessage({ type: "", text: "" });
+
+    setMessage({
+      type: "",
+      text: "",
+    });
 
     const data = new FormData();
+
     Object.keys(formData).forEach((key) => {
       data.append(key, formData[key]);
     });
@@ -62,33 +88,49 @@ export default function TeacherEntry() {
     }
 
     try {
-      const response = await fetch("http://localhost/sunshine-api/api/teacher_entry.php", {
-        method: "POST",
-        body: data,
-      });
+      const response = await fetch(
+        "http://localhost/sunshine-api/api/teacher_entry.php",
+        {
+          method: "POST",
+          body: data,
+        }
+      );
 
       const result = await response.json();
 
       if (result.success) {
-        setMessage({ 
-          type: "success", 
-          text: result.message || `Teacher added successfully! ID: ${result.teacher_id}` 
+        setMessage({
+          type: "success",
+          text:
+            result.message ||
+            `Teacher added successfully! ID: ${result.teacher_id}`,
         });
+
         handleReset();
       } else {
-        setMessage({ type: "error", text: result.message || "Failed to save teacher." });
+        setMessage({
+          type: "error",
+          text: result.message || "Failed to save teacher.",
+        });
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      setMessage({ type: "error", text: "Server connection failed!" });
+
+      setMessage({
+        type: "error",
+        text: "Server connection failed!",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // রিসেট হ্যান্ডলার
+  // =========================
+  // Reset
+  // =========================
   const handleReset = () => {
     setFormData({
+      teacherId: "",
       nameBn: "",
       nameEn: "",
       shortName: "",
@@ -98,22 +140,31 @@ export default function TeacherEntry() {
       mobile: "",
       email: "",
       dateOfBirth: "",
-      joiningDate: new Date().toISOString().split("T")[0],
+      joiningDate: "",
       qualification: "",
       address: "",
       status: "Present",
     });
+
     setPhoto(null);
+
+    const photoInput = document.getElementById("photo");
+
+    if (photoInput) {
+      photoInput.value = "";
+    }
   };
 
   return (
     <div className="teacher-entry">
+
+      {/* Header */}
       <div className="teacher-entry-header">
         <h2>Teacher Entry</h2>
         <p>Enter teacher information</p>
       </div>
 
-      {/* মেসেজ বা অ্যালার্ট */}
+      {/* Message */}
       {message.text && (
         <div className={`alert-message ${message.type}`}>
           {message.text}
@@ -121,21 +172,35 @@ export default function TeacherEntry() {
       )}
 
       <form className="teacher-form" onSubmit={handleSubmit}>
-        {/* Auto Generated Teacher ID */}
+
+        {/* Teacher ID */}
         <div className="form-group">
-          <label htmlFor="teacherId">Teacher ID (Auto Generated)</label>
+          <label htmlFor="teacherId">
+            Teacher ID
+          </label>
+
           <input
             type="text"
             id="teacherId"
-            value={teacherIdPreview}
-            disabled
-            className="disabled-input"
+            name="teacherId"
+            value={formData.teacherId}
+            onChange={handleChange}
+            placeholder="Joining Date দিন"
+            disabled={!formData.joiningDate}
           />
+
+          <small>
+            Joining Date দিলে ID-এর prefix তৈরি হবে।
+            শেষের serial server থেকে নির্ধারিত হবে।
+          </small>
         </div>
 
-        {/* Name (English) - Required */}
+        {/* English Name */}
         <div className="form-group">
-          <label htmlFor="nameEn">Teacher Name (English) *</label>
+          <label htmlFor="nameEn">
+            Teacher Name (English) *
+          </label>
+
           <input
             type="text"
             id="nameEn"
@@ -147,9 +212,12 @@ export default function TeacherEntry() {
           />
         </div>
 
-        {/* Name (Bangla) */}
+        {/* Bangla Name */}
         <div className="form-group">
-          <label htmlFor="nameBn">Teacher Name (Bangla)</label>
+          <label htmlFor="nameBn">
+            Teacher Name (Bangla)
+          </label>
+
           <input
             type="text"
             id="nameBn"
@@ -162,7 +230,10 @@ export default function TeacherEntry() {
 
         {/* Short Name */}
         <div className="form-group">
-          <label htmlFor="shortName">Short Name</label>
+          <label htmlFor="shortName">
+            Short Name
+          </label>
+
           <input
             type="text"
             id="shortName"
@@ -175,7 +246,10 @@ export default function TeacherEntry() {
 
         {/* Designation */}
         <div className="form-group">
-          <label htmlFor="designation">Designation</label>
+          <label htmlFor="designation">
+            Designation
+          </label>
+
           <input
             type="text"
             id="designation"
@@ -188,7 +262,10 @@ export default function TeacherEntry() {
 
         {/* Course */}
         <div className="form-group">
-          <label htmlFor="course">Course</label>
+          <label htmlFor="course">
+            Course
+          </label>
+
           <input
             type="text"
             id="course"
@@ -201,7 +278,10 @@ export default function TeacherEntry() {
 
         {/* Branch */}
         <div className="form-group">
-          <label htmlFor="branch">Branch</label>
+          <label htmlFor="branch">
+            Branch
+          </label>
+
           <input
             type="text"
             id="branch"
@@ -214,7 +294,10 @@ export default function TeacherEntry() {
 
         {/* Mobile */}
         <div className="form-group">
-          <label htmlFor="mobile">Mobile Number</label>
+          <label htmlFor="mobile">
+            Mobile Number
+          </label>
+
           <input
             type="tel"
             id="mobile"
@@ -227,7 +310,10 @@ export default function TeacherEntry() {
 
         {/* Email */}
         <div className="form-group">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">
+            Email
+          </label>
+
           <input
             type="email"
             id="email"
@@ -240,7 +326,10 @@ export default function TeacherEntry() {
 
         {/* Date of Birth */}
         <div className="form-group">
-          <label htmlFor="dateOfBirth">Date of Birth</label>
+          <label htmlFor="dateOfBirth">
+            Date of Birth
+          </label>
+
           <input
             type="date"
             id="dateOfBirth"
@@ -252,7 +341,10 @@ export default function TeacherEntry() {
 
         {/* Joining Date */}
         <div className="form-group">
-          <label htmlFor="joiningDate">Joining Date *</label>
+          <label htmlFor="joiningDate">
+            Joining Date *
+          </label>
+
           <input
             type="date"
             id="joiningDate"
@@ -265,7 +357,10 @@ export default function TeacherEntry() {
 
         {/* Status */}
         <div className="form-group">
-          <label htmlFor="status">Status *</label>
+          <label htmlFor="status">
+            Status *
+          </label>
+
           <select
             id="status"
             name="status"
@@ -280,7 +375,10 @@ export default function TeacherEntry() {
 
         {/* Qualification */}
         <div className="form-group">
-          <label htmlFor="qualification">Qualification</label>
+          <label htmlFor="qualification">
+            Qualification
+          </label>
+
           <input
             type="text"
             id="qualification"
@@ -293,7 +391,10 @@ export default function TeacherEntry() {
 
         {/* Address */}
         <div className="form-group full-width">
-          <label htmlFor="address">Address</label>
+          <label htmlFor="address">
+            Address
+          </label>
+
           <textarea
             id="address"
             name="address"
@@ -301,12 +402,15 @@ export default function TeacherEntry() {
             value={formData.address}
             onChange={handleChange}
             placeholder="Enter teacher address"
-          ></textarea>
+          />
         </div>
 
-        {/* Photo Upload */}
+        {/* Photo */}
         <div className="form-group full-width">
-          <label htmlFor="photo">Teacher Photo</label>
+          <label htmlFor="photo">
+            Teacher Photo
+          </label>
+
           <input
             type="file"
             id="photo"
@@ -318,7 +422,12 @@ export default function TeacherEntry() {
 
         {/* Buttons */}
         <div className="form-actions">
-          <button type="submit" className="save-teacher" disabled={loading}>
+
+          <button
+            type="submit"
+            className="save-teacher"
+            disabled={loading}
+          >
             {loading ? "💾 Saving..." : "💾 Save Teacher"}
           </button>
 
@@ -330,7 +439,9 @@ export default function TeacherEntry() {
           >
             🔄 Reset
           </button>
+
         </div>
+
       </form>
     </div>
   );
