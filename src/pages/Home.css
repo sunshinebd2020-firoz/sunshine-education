@@ -1,12 +1,15 @@
 .home-page {
   width: 100%;
   background: #f8fafc;
+  box-sizing: border-box;
 }
+
 
 /* ================= BANNER ================= */
 
 .home-banner {
   min-height: 420px;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,53 +25,104 @@
   color: white;
 }
 
+
 .banner-content {
   max-width: 800px;
   padding: 30px;
 }
 
+
 .banner-content h1 {
   font-size: 42px;
-  margin-bottom: 15px;
+  margin: 0 0 15px;
 }
+
 
 .banner-content p {
   font-size: 20px;
-  margin-bottom: 25px;
+  margin: 0 0 25px;
 }
+
 
 .banner-content button {
   padding: 12px 28px;
   border: none;
   border-radius: 6px;
+
   background: #2563eb;
   color: white;
+
   font-size: 16px;
   cursor: pointer;
 }
+
 
 .banner-content button:hover {
   background: #1d4ed8;
 }
 
 
+/* ================= MAIN LAYOUT ================= */
+
+.home-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  padding: 35px 20px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 2fr)
+    minmax(300px, 1fr);
+
+  gap: 30px;
+
+  align-items: start;
+}
+
+
+/* ================= LEFT MAIN ================= */
+
+.home-main {
+  min-width: 0;
+}
+
+
 /* ================= WELCOME ================= */
 
 .welcome {
-  max-width: 1000px;
-  margin: auto;
-  padding: 55px 20px;
+  background: white;
+
+  padding: 35px 30px;
+
+  margin-bottom: 30px;
+
+  border-radius: 12px;
+
   text-align: center;
+
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.07);
 }
+
 
 .welcome h1 {
-  margin-bottom: 15px;
+  margin: 0 0 15px;
+
   font-size: 32px;
+
+  color: #1e293b;
 }
 
+
 .welcome p {
+  margin: 0;
+
   color: #475569;
+
   line-height: 1.8;
+
   font-size: 17px;
 }
 
@@ -76,15 +130,18 @@
 /* ================= COMMON SECTION ================= */
 
 .home-section {
-  max-width: 1100px;
-  margin: auto;
-  padding: 45px 20px;
+  padding: 0;
+  margin-bottom: 30px;
 }
+
 
 .section-title {
   text-align: center;
-  font-size: 28px;
-  margin-bottom: 30px;
+
+  font-size: 27px;
+
+  margin: 0 0 25px;
+
   color: #1e293b;
 }
 
@@ -93,161 +150,322 @@
 
 .course-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 18px;
 }
+
 
 .home-card {
   background: white;
-  padding: 28px;
+
+  padding: 25px 20px;
+
   border-radius: 10px;
+
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.07);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
+
+
+.home-card:hover {
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.10);
+}
+
 
 .home-card h3 {
   margin: 12px 0;
 }
 
+
 .home-card p {
   color: #64748b;
+
   line-height: 1.7;
+
+  margin: 0;
 }
 
+
 .card-icon {
-  font-size: 45px;
+  font-size: 42px;
+}
+
+
+/* ================= NOTICE ================= */
+
+.notice-section {
+  margin-top: 10px;
+}
+
+
+.notice-box {
+  background: white;
+
+  border-radius: 10px;
+
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.07);
+
+  overflow: hidden;
+}
+
+
+.notice-item {
+  padding: 18px 20px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+.notice-item:last-child {
+  border-bottom: none;
+}
+
+
+.notice-item p {
+  margin: 7px 0 0;
+
+  color: #334155;
+
+  line-height: 1.6;
+}
+
+
+.notice-date {
+  display: inline-block;
+
+  padding: 4px 9px;
+
+  border-radius: 4px;
+
+  background: #eff6ff;
+
+  color: #2563eb;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+
+/* ================= RIGHT SIDEBAR ================= */
+
+.home-sidebar {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 25px;
+}
+
+
+/* ================= SIDEBAR SECTION ================= */
+
+.sidebar-section {
+  background: white;
+
+  padding: 20px;
+
+  border-radius: 10px;
+
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.07);
+}
+
+
+.sidebar-title {
+  margin: 0 0 18px;
+
+  padding-bottom: 12px;
+
+  border-bottom: 2px solid #e5e7eb;
+
+  font-size: 21px;
+
+  color: #1e293b;
 }
 
 
 /* ================= YOUTUBE ================= */
 
 .youtube-container {
-  max-width: 800px;
-  margin: auto;
+  width: 100%;
+
   aspect-ratio: 16 / 9;
+
   overflow: hidden;
-  border-radius: 10px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+
+  border-radius: 8px;
+
+  background: #000;
 }
+
 
 .youtube-container iframe {
   width: 100%;
   height: 100%;
+
   border: none;
-}
-
-
-/* ================= FACEBOOK ================= */
-
-.facebook-section {
-  text-align: center;
-}
-
-.facebook-box {
-  max-width: 650px;
-  margin: auto;
-  padding: 35px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.facebook-box p {
-  color: #64748b;
-  line-height: 1.7;
-}
-
-.facebook-button {
-  display: inline-block;
-  margin-top: 15px;
-  padding: 11px 25px;
-  border-radius: 6px;
-  background: #1877f2;
-  color: white;
-  text-decoration: none;
-}
-
-.facebook-button:hover {
-  background: #0d65d9;
 }
 
 
 /* ================= APP ================= */
 
-.app-cards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
-  max-width: 800px;
-  margin: auto;
+.app-sidebar-card {
+  text-align: center;
 }
 
-.app-card {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
 
 .app-image img {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
+
   object-fit: contain;
+
+  margin-bottom: 10px;
+}
+
+
+.app-sidebar-card h3 {
+  margin: 5px 0 10px;
+
+  color: #1e293b;
+}
+
+
+.app-sidebar-card p {
+  color: #64748b;
+
+  line-height: 1.6;
+
   margin-bottom: 15px;
 }
 
-.app-card p {
-  color: #64748b;
-  line-height: 1.6;
-}
 
-.app-card a {
+.app-sidebar-card a {
   display: inline-block;
-  margin-top: 10px;
+
   padding: 10px 20px;
+
   border-radius: 6px;
+
   background: #16a34a;
+
   color: white;
+
   text-decoration: none;
 }
 
-.app-card a:hover {
+
+.app-sidebar-card a:hover {
   background: #15803d;
 }
 
 
 /* ================= BRANCH ================= */
 
-.branch-cards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+.sidebar-branch {
+  padding: 15px 0;
+
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.branch-card {
-  background: white;
-  padding: 25px;
-  border-radius: 10px;
-  border-left: 5px solid #2563eb;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+
+.sidebar-branch:last-child {
+  border-bottom: none;
 }
 
-.branch-card h3 {
-  margin-top: 0;
+
+.sidebar-branch h3 {
+  margin: 0 0 7px;
+
+  font-size: 17px;
+
   color: #1e293b;
 }
 
-.branch-card p {
+
+.sidebar-branch p {
+  margin: 4px 0;
+
   color: #64748b;
+
+  font-size: 14px;
+}
+
+
+/* ================= FACEBOOK ================= */
+
+.facebook-box {
+  text-align: center;
+}
+
+
+.facebook-box h3 {
+  margin-top: 0;
+}
+
+
+.facebook-box p {
+  color: #64748b;
+
+  line-height: 1.7;
+}
+
+
+.facebook-button {
+  display: inline-block;
+
+  margin-top: 10px;
+
+  padding: 10px 20px;
+
+  border-radius: 6px;
+
+  background: #1877f2;
+
+  color: white;
+
+  text-decoration: none;
+}
+
+
+.facebook-button:hover {
+  background: #0d65d9;
 }
 
 
 /* ================= FEATURES ================= */
 
+.features-section {
+  max-width: 1200px;
+
+  margin: 0 auto;
+
+  padding: 15px 20px 40px;
+}
+
+
 .features {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
   gap: 25px;
 }
 
@@ -256,21 +474,62 @@
 
 .about-home {
   max-width: 1000px;
-  margin: 20px auto 50px;
-  padding: 45px 25px;
+
+  margin: 0 auto 50px;
+
+  padding: 40px 25px;
+
   text-align: center;
+
   background: white;
+
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.07);
 }
+
 
 .about-home h2 {
-  margin-bottom: 15px;
+  margin: 0 0 15px;
+
+  color: #1e293b;
 }
 
+
 .about-home p {
+  margin: 0;
+
   color: #64748b;
+
   line-height: 1.8;
+}
+
+
+/* ================= TABLET ================= */
+
+@media (max-width: 900px) {
+
+  .home-layout {
+    grid-template-columns: 1fr;
+  }
+
+
+  .home-sidebar {
+    display: grid;
+
+    grid-template-columns:
+      repeat(2, 1fr);
+
+    align-items: start;
+  }
+
+
+  .course-cards {
+    grid-template-columns:
+      repeat(3, 1fr);
+  }
+
 }
 
 
@@ -282,30 +541,101 @@
     min-height: 350px;
   }
 
+
   .banner-content h1 {
     font-size: 30px;
   }
+
 
   .banner-content p {
     font-size: 16px;
   }
 
-  .course-cards,
-  .features,
-  .branch-cards,
-  .app-cards {
+
+  .home-layout {
+    padding: 25px 15px;
+
+    display: block;
+  }
+
+
+  .welcome {
+    padding: 30px 20px;
+  }
+
+
+  .welcome h1 {
+    font-size: 27px;
+  }
+
+
+  .course-cards {
     grid-template-columns: 1fr;
   }
 
-  .home-section {
-    padding: 35px 15px;
+
+  .home-sidebar {
+    display: flex;
+
+    margin-top: 30px;
   }
+
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+
+
+  .features-section {
+    padding: 15px;
+  }
+
 
   .section-title {
     font-size: 24px;
   }
 
-  .welcome h1 {
-    font-size: 27px;
+}
+
+
+/* ================= SMALL MOBILE ================= */
+
+@media (max-width: 500px) {
+
+  .home-banner {
+    min-height: 320px;
   }
+
+
+  .banner-content {
+    padding: 20px;
+  }
+
+
+  .banner-content h1 {
+    font-size: 26px;
+  }
+
+
+  .banner-content p {
+    font-size: 15px;
+  }
+
+
+  .banner-content button {
+    padding: 10px 22px;
+
+    font-size: 14px;
+  }
+
+
+  .sidebar-section {
+    padding: 18px;
+  }
+
+
+  .sidebar-title {
+    font-size: 19px;
+  }
+
 }
