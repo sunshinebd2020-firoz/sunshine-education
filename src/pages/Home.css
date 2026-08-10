@@ -299,6 +299,45 @@
   color: #1e293b;
 }
 
+/* ================= FACEBOOK ================= */
+
+.facebook-box {
+  text-align: center;
+}
+
+
+.facebook-box h3 {
+  margin-top: 0;
+}
+
+
+.facebook-box p {
+  color: #64748b;
+
+  line-height: 1.7;
+}
+
+
+.facebook-button {
+  display: inline-block;
+
+  margin-top: 10px;
+
+  padding: 10px 20px;
+
+  border-radius: 6px;
+
+  background: #1877f2;
+
+  color: white;
+
+  text-decoration: none;
+}
+
+
+.facebook-button:hover {
+  background: #0d65d9;
+}
 
 /* ================= YOUTUBE ================= */
 
@@ -408,45 +447,6 @@
 }
 
 
-/* ================= FACEBOOK ================= */
-
-.facebook-box {
-  text-align: center;
-}
-
-
-.facebook-box h3 {
-  margin-top: 0;
-}
-
-
-.facebook-box p {
-  color: #64748b;
-
-  line-height: 1.7;
-}
-
-
-.facebook-button {
-  display: inline-block;
-
-  margin-top: 10px;
-
-  padding: 10px 20px;
-
-  border-radius: 6px;
-
-  background: #1877f2;
-
-  color: white;
-
-  text-decoration: none;
-}
-
-
-.facebook-button:hover {
-  background: #0d65d9;
-}
 
 
 /* ================= FEATURES ================= */
