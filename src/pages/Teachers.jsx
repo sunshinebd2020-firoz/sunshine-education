@@ -33,22 +33,29 @@ export default function Teachers() {
       });
   }, []);
 
-  // Present Teachers
-  const presentTeachers = teachers.filter(
+  // Present Teachers - Ascending Order
+const presentTeachers = teachers
+  .filter(
     (teacher) =>
       teacher.status?.toLowerCase() === "present"
+  )
+  .sort((a, b) =>
+    a.teacher_id.localeCompare(b.teacher_id)
   );
 
-  // Ex Teachers
-  const exTeachers = teachers.filter(
-    (teacher) => {
-      const status = teacher.status?.toLowerCase();
 
-      return (
-        status === "ex teacher" ||
-        status === "ex"
-      );
-    }
+// Ex Teachers - Ascending Order
+const exTeachers = teachers
+  .filter((teacher) => {
+    const status = teacher.status?.toLowerCase();
+
+    return (
+      status === "ex teacher" ||
+      status === "ex"
+    );
+  })
+  .sort((a, b) =>
+    a.teacher_id.localeCompare(b.teacher_id)
   );
 
   // Teacher Card
