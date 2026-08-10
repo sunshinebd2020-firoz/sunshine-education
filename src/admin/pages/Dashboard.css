@@ -1,158 +1,24 @@
-.admin-dashboard {
-  min-height: 100vh;
-  display: flex;
-  background: #f5f7fa;
-}
-
-
-/* =========================
-   Sidebar
-========================= */
-
-.sidebar {
-  width: 240px;
-  min-height: 100vh;
-  background: #1e293b;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  padding: 25px 15px;
-  box-sizing: border-box;
-}
-
-
-/* Sidebar Logo */
-
-.sidebar-logo {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.sidebar-logo h2 {
-  margin: 0;
-  font-size: 24px;
-}
-
-.sidebar-logo span {
-  font-size: 13px;
-  opacity: 0.7;
-}
-
-
-/* Sidebar Menu */
-
-.sidebar-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.sidebar-menu > a {
-  color: white;
-  text-decoration: none;
-  padding: 12px 15px;
-  border-radius: 7px;
-  transition: 0.2s;
-}
-
-.sidebar-menu > a:hover {
-  background: #334155;
-}
-
-
-/* =========================
-   Students Sub Menu
-========================= */
-
-.sidebar-group {
-  margin: 2px 0;
-}
-
-
-/* Main Students Menu */
-
-.sidebar-parent {
-  color: white;
-  padding: 12px 15px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-
-/* Sub Menu */
-
-.sidebar-submenu {
-  display: flex;
-  flex-direction: column;
-  padding-left: 20px;
-}
-
-.sidebar-submenu a {
-  color: #cbd5e1;
-  text-decoration: none;
-  padding: 9px 15px;
-  font-size: 14px;
-  border-radius: 6px;
-  transition: 0.2s;
-}
-
-.sidebar-submenu a:hover {
-  background: #334155;
-  color: white;
-}
-
-
-/* =========================
-   Logout Button
-========================= */
-
-.logout-button {
-  margin-top: auto;
-  border: none;
-  padding: 12px;
-  border-radius: 7px;
-  cursor: pointer;
-  font-size: 15px;
-  background: #f1f5f9;
-  color: #1e293b;
-}
-
-.logout-button:hover {
-  background: #e2e8f0;
-}
-
-
-/* =========================
-   Main Content
-========================= */
-
 .dashboard-content {
-  flex: 1;
+  width: 100%;
   padding: 30px;
   box-sizing: border-box;
 }
-
-
-/* Dashboard Header */
 
 .dashboard-header {
   margin-bottom: 30px;
 }
 
 .dashboard-header h1 {
-  margin: 0 0 5px;
+  margin: 0;
   font-size: 30px;
+  color: #1f2937;
 }
 
 .dashboard-header p {
-  margin: 0;
-  color: #64748b;
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 15px;
 }
-
-
-/* =========================
-   Dashboard Cards
-========================= */
 
 .dashboard-cards {
   display: grid;
@@ -161,49 +27,44 @@
 }
 
 .dashboard-card {
-  background: white;
+  background: #ffffff;
   padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
 }
 
 .dashboard-card h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
+  margin: 0 0 15px;
+  font-size: 17px;
+  color: #374151;
 }
 
 .dashboard-card p {
-  font-size: 30px;
-  font-weight: bold;
   margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #2563eb;
 }
 
-
-/* =========================
-   Responsive
-========================= */
-
+/* Tablet */
 @media (max-width: 900px) {
-
   .dashboard-cards {
     grid-template-columns: repeat(2, 1fr);
   }
-
 }
 
-
+/* Mobile */
 @media (max-width: 600px) {
-
-  .sidebar {
-    width: 200px;
+  .dashboard-content {
+    padding: 20px 15px;
   }
 
-  .dashboard-content {
-    padding: 20px;
+  .dashboard-header h1 {
+    font-size: 24px;
   }
 
   .dashboard-cards {
     grid-template-columns: 1fr;
   }
-
 }

@@ -1,119 +1,62 @@
 import "./Dashboard.css";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export default function Dashboard() {
+  const [studentCount, setStudentCount] = useState(0);
+
+  useEffect(() => {
+    fetch("http://localhost/sunshine-api/api/student_count.php")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Server error");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          setStudentCount(data.total);
+        }
+      })
+      .catch((error) => {
+        console.error("Student count error:", error);
+      });
+  }, []);
+
   return (
-    <div className="admin-dashboard">
+    <div className="dashboard-content">
 
-      {/* Sidebar */}
-      <aside className="sidebar">
+      <header className="dashboard-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p>
+            Welcome to Sunshine Education Admin Panel
+          </p>
+        </div>
+      </header>
 
-        <div className="sidebar-logo">
-          <h2>Sunshine</h2>
-          <span>Admin Panel</span>
+      <section className="dashboard-cards">
+
+        <div className="dashboard-card">
+          <h3>👨‍🎓 Students</h3>
+          <p>{studentCount}</p>
         </div>
 
-        <nav className="sidebar-menu">
+        <div className="dashboard-card">
+          <h3>📚 Courses</h3>
+          <p>3</p>
+        </div>
 
-          <Link to="/admin/dashboard">
-            🏠 Dashboard
-          </Link>
+        <div className="dashboard-card">
+          <h3>👨‍🏫 Teachers</h3>
+          <p>0</p>
+        </div>
 
-          {/* Students */}
-          <div className="sidebar-group">
+        <div className="dashboard-card">
+          <h3>📢 Notices</h3>
+          <p>0</p>
+        </div>
 
-            <div className="sidebar-parent">
-              👨‍🎓 Students
-            </div>
-
-            <div className="sidebar-submenu">
-
-              <Link to="/admin/students">
-                ➕ Student Entry
-              </Link>
-
-              <Link to="/admin/student-list">
-                📋 Student List
-              </Link>
-
-            </div>
-
-          </div>
-
-          <Link to="/admin/courses">
-            📚 Courses
-          </Link>
-
-          <Link to="/admin/teachers">
-            👨‍🏫 Teachers
-          </Link>
-
-          <Link to="/admin/notices">
-            📢 Notices
-          </Link>
-
-          <Link to="/admin/gallery">
-            🖼️ Gallery
-          </Link>
-
-          <Link to="/admin/downloads">
-            📥 Downloads
-          </Link>
-
-          <Link to="/admin/settings">
-            ⚙️ Settings
-          </Link>
-
-        </nav>
-
-        <button className="logout-button">
-          🚪 Logout
-        </button>
-
-      </aside>
-
-
-      {/* Main Content */}
-      <main className="dashboard-content">
-
-        <header className="dashboard-header">
-
-          <div>
-            <h1>Dashboard</h1>
-            <p>
-              Welcome to Sunshine Education Admin Panel
-            </p>
-          </div>
-
-        </header>
-
-
-        {/* Dashboard Cards */}
-        <section className="dashboard-cards">
-
-          <div className="dashboard-card">
-            <h3>👨‍🎓 Students</h3>
-            <p>0</p>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>📚 Courses</h3>
-            <p>3</p>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>👨‍🏫 Teachers</h3>
-            <p>0</p>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>📢 Notices</h3>
-            <p>0</p>
-          </div>
-
-        </section>
-
-      </main>
+      </section>
 
     </div>
   );

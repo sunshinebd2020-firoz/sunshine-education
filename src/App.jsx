@@ -5,11 +5,17 @@ import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 
 import Login from "./admin/Login";
+import AdminLayout from "./admin/AdminLayout";
+
 import Dashboard from "./admin/pages/Dashboard";
+
 import StudentEntry from "./admin/pages/students/StudentEntry";
 import StudentList from "./admin/pages/students/StudentList";
 import StudentEdit from "./admin/pages/students/StudentEdit";
 import StudentProfile from "./admin/pages/students/StudentProfile";
+
+import TeacherEntry from "./admin/pages/teachers/TeacherEntry";
+import TeacherList from "./admin/pages/teachers/TeacherList";
 
 import Home from "./pages/Home";
 import Gallery from "./pages/Gallery";
@@ -29,44 +35,116 @@ export default function App() {
       <Navbar />
 
       <main className="content">
+
         <Routes>
 
-          {/* Website Pages */}
+          {/* ================= WEBSITE ================= */}
+
           <Route path="/" element={<Home />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/notice" element={<Notice />} />
-          <Route path="/teachers" element={<Teachers />} />
-          <Route path="/download" element={<Download />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/admission" element={<Admission />} />
-          <Route path="/contact" element={<Contact />} />
-
-          {/* Admin Pages */}
-          <Route path="/admin/login" element={<Login />} />
-          <Route path="/admin/dashboard" element={<Dashboard />} />
 
           <Route
-            path="/admin/students"
-            element={<StudentEntry />}
+            path="/gallery"
+            element={<Gallery />}
           />
 
           <Route
-            path="/admin/student-list"
-            element={<StudentList />}
+            path="/notice"
+            element={<Notice />}
           />
 
           <Route
-            path="/admin/student-profile/:id"
-            element={<StudentProfile />}
+            path="/teachers"
+            element={<Teachers />}
           />
 
           <Route
-            path="/admin/student-edit/:id"
-            element={<StudentEdit />}
+            path="/download"
+            element={<Download />}
           />
+
+          <Route
+            path="/about"
+            element={<About />}
+          />
+
+          <Route
+            path="/courses"
+            element={<Courses />}
+          />
+
+          <Route
+            path="/admission"
+            element={<Admission />}
+          />
+
+          <Route
+            path="/contact"
+            element={<Contact />}
+          />
+
+
+          {/* ================= ADMIN LOGIN ================= */}
+
+          <Route
+            path="/admin/login"
+            element={<Login />}
+          />
+
+
+          {/* ================= ADMIN PANEL ================= */}
+
+          <Route
+            path="/admin"
+            element={<AdminLayout />}
+          >
+
+            {/* Dashboard */}
+
+            <Route
+              path="dashboard"
+              element={<Dashboard />}
+            />
+
+
+            {/* ================= STUDENTS ================= */}
+
+            <Route
+              path="students"
+              element={<StudentEntry />}
+            />
+
+            <Route
+              path="student-list"
+              element={<StudentList />}
+            />
+
+            <Route
+              path="student-profile/:id"
+              element={<StudentProfile />}
+            />
+
+            <Route
+              path="student-edit/:id"
+              element={<StudentEdit />}
+            />
+
+
+            {/* ================= TEACHERS ================= */}
+
+            <Route
+              path="teachers"
+              element={<TeacherEntry />}
+            />
+
+            <Route
+              path="teacher-list"
+              element={<TeacherList />}
+            />
+
+          </Route>
 
         </Routes>
+
       </main>
 
       <Footer />
