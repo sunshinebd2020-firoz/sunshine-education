@@ -1,144 +1,438 @@
+/* =========================================
+   Teachers Page
+========================================= */
+
 .teachers-page {
   width: 100%;
   padding: 50px 20px;
   box-sizing: border-box;
 }
 
-/* Header Section (লেখা সেন্টার করার সমাধান) */
+
+/* =========================================
+   Main Header
+========================================= */
+
 .teacher-header {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   text-align: center;
-  margin-bottom: 40px;
+
+  margin-bottom: 50px;
+
   width: 100%;
 }
+
 
 .teacher-header h1 {
   margin: 0 0 12px;
+
   font-size: 32px;
+
   color: #222;
-  width: 100%;
 }
+
 
 .teacher-header p {
   margin: 0;
+
   color: #666;
+
   font-size: 16px;
-  max-width: 650px; /* সুন্দর ফিনিশিংয়ের জন্য টেক্সট চওড়া লিমিট করা */
+
+  max-width: 650px;
+
   line-height: 1.6;
 }
 
-/* Teacher Card Grid */
-.teacher-list {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
+
+/* =========================================
+   Teacher Group
+========================================= */
+
+.teacher-group {
+  width: 100%;
+
+  max-width: 1400px;
+
+  margin: 0 auto 60px;
 }
 
-.teacher-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 25px 20px;
+
+/* =========================================
+   Group Header
+========================================= */
+
+.teacher-group-header {
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  margin-bottom: 30px;
 }
 
-.teacher-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
-}
 
-.teacher-image {
-  width: 150px;
-  height: 150px;
-  margin: 0 auto 18px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 4px solid #eee;
-}
+.teacher-group-header h2 {
+  margin: 0 0 8px;
 
-.teacher-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
+  font-size: 26px;
 
-.no-photo {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f1f1f1;
-  color: #888;
-}
-
-.teacher-card h2 {
-  margin: 5px 0;
-  font-size: 21px;
   color: #222;
 }
 
-.teacher-card h3 {
-  margin: 0 0 10px;
+
+.teacher-group-header p {
+  margin: 0;
+
+  color: #777;
+
   font-size: 15px;
-  font-weight: 400;
-  color: #666;
 }
 
-.teacher-card p {
-  margin: 5px 0;
-  font-size: 15px;
+
+/* =========================================
+   Teacher Grid
+========================================= */
+
+.teacher-list {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns: repeat(5, 1fr);
+
+  gap: 25px;
 }
+
+
+/* =========================================
+   Teacher Card
+========================================= */
+
+.teacher-card {
+  background: #fff;
+
+  border-radius: 12px;
+
+  padding: 25px 20px;
+
+  text-align: center;
+
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.08);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+
+  box-sizing: border-box;
+}
+
+
+.teacher-card:hover {
+  transform: translateY(-5px);
+
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================
+   Teacher Image
+========================================= */
+
+.teacher-image {
+  width: 150px;
+
+  height: 150px;
+
+  margin: 0 auto 18px;
+
+  border-radius: 50%;
+
+  overflow: hidden;
+
+  border: 4px solid #eee;
+
+  box-sizing: border-box;
+}
+
+
+.teacher-image img {
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+}
+
+
+/* =========================================
+   No Photo
+========================================= */
+
+.no-photo {
+  width: 100%;
+
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: #f1f1f1;
+
+  color: #888;
+
+  font-size: 14px;
+}
+
+
+/* =========================================
+   Names
+========================================= */
+
+.teacher-card h2 {
+  margin: 5px 0;
+
+  font-size: 21px;
+
+  color: #222;
+
+  line-height: 1.4;
+}
+
+
+.teacher-card h3 {
+  margin: 0 0 10px;
+
+  font-size: 15px;
+
+  font-weight: 400;
+
+  color: #666;
+
+  line-height: 1.4;
+}
+
+
+/* =========================================
+   Teacher Information
+========================================= */
+
+.teacher-card p {
+  margin: 6px 0;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+
+/* Designation */
 
 .teacher-card .designation {
   font-weight: 600;
+
   color: #333;
+
+  margin-bottom: 10px;
 }
+
+
+/* Subject */
 
 .teacher-card .course {
   color: #555;
 }
 
+
+/* Branch */
+
 .teacher-card .branch {
   color: #777;
-  font-size: 14px;
 }
+
+
+/* Mobile */
+
+.teacher-card .mobile {
+  color: #333;
+
+  margin-top: 8px;
+}
+
+
+.teacher-card .mobile a {
+  color: inherit;
+
+  text-decoration: none;
+
+  font-weight: 500;
+}
+
+
+.teacher-card .mobile a:hover {
+  text-decoration: underline;
+}
+
+
+/* =========================================
+   Ex Teacher Section
+========================================= */
+
+.ex-teachers {
+  margin-top: 70px;
+}
+
+
+/* =========================================
+   Messages
+========================================= */
 
 .teacher-message {
   text-align: center;
+
   padding: 30px;
+
   color: #666;
+
+  font-size: 16px;
 }
+
 
 .teacher-message.error {
   color: #d32f2f;
 }
 
-/* Responsive Styles */
-@media (max-width: 768px) {
+
+/* =========================================
+   Large Tablet / Small Desktop
+========================================= */
+
+@media (max-width: 1200px) {
+
   .teacher-list {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
+
 }
 
+
+/* =========================================
+   Tablet
+========================================= */
+
+@media (max-width: 950px) {
+
+  .teacher-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+}
+
+
+/* =========================================
+   Small Tablet
+========================================= */
+
+@media (max-width: 768px) {
+
+  .teachers-page {
+    padding: 40px 15px;
+  }
+
+
+  .teacher-header h1 {
+    font-size: 28px;
+  }
+
+
+  .teacher-list {
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 20px;
+  }
+
+
+  .teacher-card {
+    padding: 20px 15px;
+  }
+
+
+  .teacher-image {
+    width: 130px;
+
+    height: 130px;
+  }
+
+}
+
+
+/* =========================================
+   Mobile
+========================================= */
+
 @media (max-width: 500px) {
+
   .teachers-page {
     padding: 35px 15px;
   }
+
+
+  .teacher-header {
+    margin-bottom: 35px;
+  }
+
 
   .teacher-header h1 {
     font-size: 26px;
   }
 
+
+  .teacher-header p {
+    font-size: 14px;
+  }
+
+
+  .teacher-group-header h2 {
+    font-size: 23px;
+  }
+
+
+  .teacher-group-header p {
+    font-size: 14px;
+  }
+
+
   .teacher-list {
     grid-template-columns: 1fr;
+
     max-width: 350px;
+
+    margin: 0 auto;
   }
+
+
+  .teacher-card {
+    padding: 25px 20px;
+  }
+
+
+  .teacher-image {
+    width: 140px;
+
+    height: 140px;
+  }
+
+
+  .teacher-card h2 {
+    font-size: 20px;
+  }
+
 }
