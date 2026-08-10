@@ -1,62 +1,144 @@
-.teachers {
-  padding: 30px;
+.teachers-page {
+  width: 100%;
+  padding: 50px 20px;
+  box-sizing: border-box;
 }
 
-
+/* Header Section (লেখা সেন্টার করার সমাধান) */
 .teacher-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  background: #f1f8f5;
-  padding: 30px;
-  border-radius: 10px;
+  margin-bottom: 40px;
+  width: 100%;
 }
 
 .teacher-header h1 {
-  color: #0b5d3b;
+  margin: 0 0 12px;
+  font-size: 32px;
+  color: #222;
+  width: 100%;
 }
 
+.teacher-header p {
+  margin: 0;
+  color: #666;
+  font-size: 16px;
+  max-width: 650px; /* সুন্দর ফিনিশিংয়ের জন্য টেক্সট চওড়া লিমিট করা */
+  line-height: 1.6;
+}
 
+/* Teacher Card Grid */
 .teacher-list {
-  display: flex;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 25px;
-  margin-top: 30px;
-  justify-content: center;
 }
-
 
 .teacher-card {
-  width: 250px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px 20px;
   text-align: center;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 3px 10px #ddd;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
+.teacher-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+}
 
-.teacher-card img {
+.teacher-image {
   width: 150px;
   height: 150px;
+  margin: 0 auto 18px;
   border-radius: 50%;
-  object-fit: cover;
+  overflow: hidden;
+  border: 4px solid #eee;
 }
 
+.teacher-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.no-photo {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f1f1;
+  color: #888;
+}
 
 .teacher-card h2 {
-  color: #0b5d3b;
-  margin-top: 15px;
+  margin: 5px 0;
+  font-size: 21px;
+  color: #222;
 }
 
+.teacher-card h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 400;
+  color: #666;
+}
 
 .teacher-card p {
+  margin: 5px 0;
+  font-size: 15px;
+}
+
+.teacher-card .designation {
+  font-weight: 600;
+  color: #333;
+}
+
+.teacher-card .course {
   color: #555;
 }
 
+.teacher-card .branch {
+  color: #777;
+  font-size: 14px;
+}
 
-@media(max-width:768px){
+.teacher-message {
+  text-align: center;
+  padding: 30px;
+  color: #666;
+}
 
+.teacher-message.error {
+  color: #d32f2f;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
   .teacher-list {
-    flex-direction: column;
-    align-items: center;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .teachers-page {
+    padding: 35px 15px;
   }
 
+  .teacher-header h1 {
+    font-size: 26px;
+  }
+
+  .teacher-list {
+    grid-template-columns: 1fr;
+    max-width: 350px;
+  }
 }

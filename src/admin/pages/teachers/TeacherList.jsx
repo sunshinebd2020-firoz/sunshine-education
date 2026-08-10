@@ -1,263 +1,231 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "./TeacherList.css";
 
-export default function TeacherList() {
-  const navigate = useNavigate();
+const API_BASE_URL = "http://localhost/sunshine-api/api";
+const IMAGE_BASE_URL = "http://localhost/sunshine-api/uploads/teachers";
 
+export default function TeacherList({ onEditTeacher }) {
   const [teachers, setTeachers] = useState([]);
-  const [message, setMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const loadTeachers = async () => {
-    try {
-      const response = await fetch(
-        "http://localhost/sunshine-api/api/teacher_list.php"
-      );
-
-      if (!response.ok) {
-        throw new Error("HTTP Error: " + response.status);
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        setTeachers(data.teachers || []);
-      } else {
-        setMessage(data.message || "Failed to load teachers");
-      }
-    } catch (error) {
-      console.error("Teacher List Error:", error);
-      setMessage("Server connection failed");
-    } finally {
-      setLoading(false);
-    }
+  // শিক্ষক তালিকা লোড করা
+  const fetchTeachers = (signal) => {
+    fetch(`${API_BASE_URL}/teacher_list.php`, { signal })
+      .then((res) => {
+        if (!res.ok) throw new Error("Server error");
+        return res.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          setTeachers(data.teachers || []);
+        } else {
+          setError(data.message || "Teacher information not found.");
+        }
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          console.error("Teacher API Error:", err);
+          setError("Server-এর সাথে সংযোগ করা যাচ্ছে না।");
+        }
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    loadTeachers();
+    const controller = new AbortController();
+    fetchTeachers(controller.signal);
+    return () => controller.abort();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this teacher?")) {
-      return;
-    }
+  // 🗑️ Delete Handler
+  const handleDelete = async (teacherId) => {
+    if (!window.confirm(`আপনি কি নিশ্চিতভাবে ID: ${teacherId} ডিলিট করতে চান?`)) return;
 
     try {
-      const formData = new FormData();
-      formData.append("id", id);
+      const res = await fetch(`${API_BASE_URL}/teacher_delete.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teacher_id: teacherId }),
+      });
+      const result = await res.json();
 
-      const response = await fetch(
-        "http://localhost/sunshine-api/api/teacher_delete.php",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        setTeachers((previous) =>
-          previous.filter((teacher) => teacher.id !== id)
-        );
+      if (result.success) {
+        alert("Teacher deleted successfully!");
+        setTeachers((prev) => prev.filter((t) => t.teacher_id !== teacherId));
       } else {
-        alert(data.message || "Delete failed");
+        alert(result.message || "Delete failed!");
       }
-    } catch (error) {
-      console.error("Delete Error:", error);
-      alert("Server connection failed");
+    } catch (err) {
+      console.error("Delete Error:", err);
+      alert("Server error occurred while deleting.");
     }
   };
 
-  if (loading) {
+  // ✏️ Edit Handler
+  const handleEdit = (teacher) => {
+    if (onEditTeacher) {
+      onEditTeacher(teacher); // মূল পেজ বা মডালে ডাটা পাঠানোর জন্য
+    } else {
+      alert(`Edit Clicked for: ${teacher.name_en || teacher.name_bn}`);
+    }
+  };
+
+  // সার্চ ফিল্টারিং
+  const filteredTeachers = teachers.filter((teacher) => {
+    const query = searchTerm.toLowerCase();
     return (
-      <div className="teacher-list-page">
-        <p className="teacher-loading">Loading teachers...</p>
-      </div>
+      (teacher.teacher_id && teacher.teacher_id.toLowerCase().includes(query)) ||
+      (teacher.name_en && teacher.name_en.toLowerCase().includes(query)) ||
+      (teacher.name_bn && teacher.name_bn.toLowerCase().includes(query)) ||
+      (teacher.mobile && teacher.mobile.toLowerCase().includes(query)) ||
+      (teacher.course && teacher.course.toLowerCase().includes(query)) ||
+      (teacher.branch && teacher.branch.toLowerCase().includes(query))
     );
-  }
+  });
 
   return (
-    <div className="teacher-list-page">
-
-      <div className="teacher-list-header">
-
-        <div>
+    <div className="teacher-container">
+      {/* ১. হেডার সেকশন */}
+      <div className="teacher-header">
+        <div className="header-text">
           <h1>Teacher List</h1>
-          <p>সকল শিক্ষকের তালিকা</p>
+          <p>নিবন্ধিত শিক্ষকদের তালিকা</p>
         </div>
-
-        <button
-          className="add-teacher-button"
-          onClick={() => navigate("/admin/teachers")}
-        >
-          ➕ Add Teacher
-        </button>
-
+        <div className="total-badge">Total: {filteredTeachers.length}</div>
       </div>
 
+      {/* ২. সার্চ বার */}
+      <div className="search-section">
+        <input
+          type="text"
+          placeholder="Search by ID, name, mobile, course, designation or branch..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+      </div>
 
-      {message && (
-        <div className="teacher-list-message">
-          {message}
+      {/* লোডিং ও এরর স্ট্যাটাস */}
+      {loading && <div className="teacher-message">Loading teachers...</div>}
+      {error && <div className="teacher-message error">{error}</div>}
+
+      {/* ৩. মূল টেবিল */}
+      {!loading && !error && (
+        <div className="table-card">
+          {filteredTeachers.length === 0 ? (
+            <div className="teacher-message">No teachers found.</div>
+          ) : (
+            <div className="table-responsive">
+              <table className="teacher-table">
+                <thead>
+                  <tr>
+                    <th>Photo</th>
+                    <th>ID No</th>
+                    <th>Name</th>
+                    <th>Course</th>
+                    <th>Designation</th>
+                    <th>Branch</th>
+                    <th>Mobile</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTeachers.map((teacher) => (
+                    <tr key={teacher.id || teacher.teacher_id}>
+                      {/* Photo */}
+                      <td>
+                        <div className="teacher-photo">
+                          {teacher.photo ? (
+                            <img
+                              src={`${IMAGE_BASE_URL}/${teacher.photo}`}
+                              alt={teacher.name_en || "Teacher"}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="no-photo">No Photo</div>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* ID No */}
+                      <td className="teacher-id">{teacher.teacher_id}</td>
+
+                      {/* Name */}
+                      <td>
+                        <div className="name-wrapper">
+                          <span className="name-en">{teacher.name_en || teacher.name_bn}</span>
+                          {teacher.name_bn && teacher.name_en && (
+                            <span className="name-bn">{teacher.name_bn}</span>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Details */}
+                      <td>{teacher.course || "N/A"}</td>
+                      <td>{teacher.designation || "N/A"}</td>
+                      <td>{teacher.branch || "N/A"}</td>
+                      <td>{teacher.mobile || "N/A"}</td>
+
+                      {/* Status */}
+                      <td>
+                        <span
+                          className={`status-pill ${
+                            teacher.status === "Present" || teacher.status === "active"
+                              ? "active"
+                              : "inactive"
+                          }`}
+                        >
+                          {teacher.status || "Present"}
+                        </span>
+                      </td>
+
+                      {/* Action Buttons (Square Shaped: Details, Edit, Delete) */}
+                      <td>
+                        <div className="action-buttons">
+                          {/* Details Button */}
+                          <button className="btn-action btn-details" title="Details">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                              <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                          </button>
+
+                          {/* Edit Button */}
+                          <button
+                            className="btn-action btn-edit"
+                            title="Edit"
+                            onClick={() => handleEdit(teacher)}
+                          >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                          </button>
+
+                          {/* Delete Button */}
+                          <button
+                            className="btn-action btn-delete"
+                            title="Delete"
+                            onClick={() => handleDelete(teacher.teacher_id)}
+                          >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <polyline points="3 6 5 6 21 6"></polyline>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
-
-
-      <div className="teacher-table-wrapper">
-
-        <table className="teacher-table">
-
-          <thead>
-            <tr>
-              <th>Photo</th>
-              <th>Teacher ID</th>
-              <th>Name</th>
-              <th>Course</th>
-              <th>Branch</th>
-              <th>Designation</th>
-              <th>Mobile</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-
-            {teachers.length === 0 ? (
-              <tr>
-                <td
-                  colSpan="9"
-                  className="no-teacher"
-                >
-                  No teacher found
-                </td>
-              </tr>
-            ) : (
-
-              teachers.map((teacher) => (
-
-                <tr key={teacher.id}>
-
-                  <td>
-                    {teacher.photo ? (
-                      <img
-                        src={`http://localhost/sunshine-api/uploads/teachers/${teacher.photo}`}
-                        alt={teacher.name_en}
-                        className="teacher-photo"
-                      />
-                    ) : (
-                      <div className="no-photo">
-                        👨‍🏫
-                      </div>
-                    )}
-                  </td>
-
-
-                  <td>
-                    {teacher.teacher_id || "-"}
-                  </td>
-
-
-                  <td>
-                    <strong>
-                      {teacher.name_en}
-                    </strong>
-
-                    {teacher.name_bn && (
-                      <small>
-                        {teacher.name_bn}
-                      </small>
-                    )}
-                  </td>
-
-
-                  <td>
-                    {teacher.course || "-"}
-                  </td>
-
-
-                  <td>
-                    {teacher.branch || "-"}
-                  </td>
-
-
-                  <td>
-                    {teacher.designation || "-"}
-                  </td>
-
-
-                  <td>
-                    {teacher.mobile || "-"}
-                  </td>
-
-
-                  <td>
-                    <span
-                      className={
-                        teacher.status === "active"
-                          ? "status-active"
-                          : "status-inactive"
-                      }
-                    >
-                      {teacher.status}
-                    </span>
-                  </td>
-
-
-                  <td>
-
-                    <div className="teacher-actions">
-
-                      <button
-                        className="details-button"
-                        onClick={() =>
-                          navigate(
-                            `/admin/teacher-profile/${teacher.id}`
-                          )
-                        }
-                      >
-                        👁️
-                      </button>
-
-
-                      <button
-                        className="edit-button"
-                        onClick={() =>
-                          navigate(
-                            `/admin/teacher-edit/${teacher.id}`
-                          )
-                        }
-                      >
-                        ✏️
-                      </button>
-
-
-                      <button
-                        className="delete-button"
-                        onClick={() =>
-                          handleDelete(teacher.id)
-                        }
-                      >
-                        🗑️
-                      </button>
-
-                    </div>
-
-                  </td>
-
-                </tr>
-
-              ))
-            )}
-
-          </tbody>
-
-        </table>
-
-      </div>
-
     </div>
   );
 }

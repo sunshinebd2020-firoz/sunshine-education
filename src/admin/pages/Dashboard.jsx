@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 
 export default function Dashboard() {
   const [studentCount, setStudentCount] = useState(0);
+  const [teacherCount, setTeacherCount] = useState(0); // টিচার কাউন্টের জন্য স্টেট
 
   useEffect(() => {
+    // ১. স্টুডেন্ট কাউন্ট ফেচ
     fetch("http://localhost/sunshine-api/api/student_count.php")
       .then((response) => {
         if (!response.ok) {
@@ -20,22 +22,35 @@ export default function Dashboard() {
       .catch((error) => {
         console.error("Student count error:", error);
       });
+
+    // ২. টিচার কাউন্ট ফেচ (teacher_count.php থেকে)
+    fetch("http://localhost/sunshine-api/api/teacher_count.php")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Server error");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          setTeacherCount(data.total);
+        }
+      })
+      .catch((error) => {
+        console.error("Teacher count error:", error);
+      });
   }, []);
 
   return (
     <div className="dashboard-content">
-
       <header className="dashboard-header">
         <div>
           <h1>Dashboard</h1>
-          <p>
-            Welcome to Sunshine Education Admin Panel
-          </p>
+          <p>Welcome to Sunshine Education Admin Panel</p>
         </div>
       </header>
 
       <section className="dashboard-cards">
-
         <div className="dashboard-card">
           <h3>👨‍🎓 Students</h3>
           <p>{studentCount}</p>
@@ -48,16 +63,14 @@ export default function Dashboard() {
 
         <div className="dashboard-card">
           <h3>👨‍🏫 Teachers</h3>
-          <p>0</p>
+          <p>{teacherCount}</p> {/* ডাইনামিক টিচার কাউন্ট */}
         </div>
 
         <div className="dashboard-card">
           <h3>📢 Notices</h3>
           <p>0</p>
         </div>
-
       </section>
-
     </div>
   );
 }

@@ -1,244 +1,131 @@
-* {
+/* Box sizing reset for entire admin layout */
+.admin-layout-container * {
   box-sizing: border-box;
 }
 
-.admin-layout {
+/* Main Layout Wrapper */
+.admin-layout-container {
   display: flex;
-  min-height: 100vh;
-  background: #f4f6f9;
+  width: 100%;
+  min-height: calc(100vh - 120px); /* হেডার ও ফুটারের মাঝের খালি জায়গা নিবে */
+  background-color: #f8fafc;
 }
 
-/* =========================
-   Sidebar
-========================= */
-
+/* Sidebar Wrapper */
 .admin-sidebar {
-  width: 250px;
-  min-height: 100vh;
-  background: #172554;
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
+  background-color: #1e293b;
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  overflow-y: auto;
+  height: auto;
+  overflow-x: hidden; /* ডানে-বামে স্ক্রল বন্ধ করবে */
 }
 
 /* Sidebar Header */
-
 .sidebar-header {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #334155;
   text-align: center;
-  padding: 22px 15px;
-  background: #1e3a8a;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .sidebar-header h2 {
   margin: 0;
-  font-size: 25px;
-  font-weight: 700;
+  font-size: 1.4rem;
+  color: #ffffff;
 }
 
 .sidebar-header p {
-  margin: 5px 0 0;
-  font-size: 13px;
-  color: #dbeafe;
+  margin: 4px 0 0 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
 }
 
-
-/* =========================
-   Sidebar Menu
-========================= */
-
+/* Navigation Links Area */
 .sidebar-menu {
-  padding: 15px 10px;
   flex: 1;
+  padding: 0.75rem 0;
+  overflow-y: auto;  /* মেনু বড় হলে শুধু উপরে-নিচে স্ক্রল হবে */
+  overflow-x: hidden; /* হরাইজন্টাল স্ক্রল সম্পূর্ণ বন্ধ */
 }
 
-/* Main NavLink */
-
-.sidebar-menu > a {
-  display: flex;
-  align-items: center;
-  padding: 12px 14px;
-  margin-bottom: 5px;
-  color: #e0e7ff;
-  text-decoration: none;
-  border-radius: 6px;
-  font-size: 15px;
-  transition: 0.2s;
-}
-
-.sidebar-menu > a:hover {
-  background: #1e40af;
-  color: #ffffff;
-}
-
-.sidebar-menu > a.active {
-  background: #2563eb;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-
-/* =========================
-   Parent Menu
-========================= */
-
-.sidebar-group {
-  margin-bottom: 5px;
-}
-
+.sidebar-link,
 .sidebar-parent {
-  width: 100%;
-  border: none;
-  background: transparent;
-  color: #e0e7ff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  border-radius: 6px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  text-decoration: none;
   cursor: pointer;
-  font-size: 15px;
   text-align: left;
-  transition: 0.2s;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-.sidebar-parent:hover {
-  background: #1e40af;
+.sidebar-link:hover,
+.sidebar-parent:hover,
+.sidebar-link.active {
+  background-color: #334155;
   color: #ffffff;
 }
 
-
-/* =========================
-   Sub Menu
-========================= */
-
+/* Submenu Area */
 .sidebar-submenu {
-  margin: 3px 0 6px 10px;
-  padding-left: 8px;
-  border-left: 2px solid #3b82f6;
+  background-color: #0f172a;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-submenu a {
   display: block;
-  padding: 9px 12px;
-  margin: 2px 0;
-  color: #bfdbfe;
+  padding: 10px 16px 10px 32px;
+  color: #94a3b8;
+  font-size: 0.85rem;
   text-decoration: none;
-  font-size: 14px;
-  border-radius: 5px;
-  transition: 0.2s;
+  transition: all 0.2s;
+  white-space: nowrap;     /* টেক্সট ভেঙ্গে নিচে যাবে না */
+  overflow: hidden;
+  text-overflow: ellipsis; /* বড় নাম হলে ভেঙে না গিয়ে ডট (...) দেখাবে */
 }
 
-.sidebar-submenu a:hover {
-  background: #1e40af;
-  color: #ffffff;
-}
-
+.sidebar-submenu a:hover,
 .sidebar-submenu a.active {
-  background: #2563eb;
-  color: #ffffff;
-  font-weight: 600;
+  color: #38bdf8;
+  background-color: #1e293b;
 }
 
-
-/* =========================
-   Logout
-========================= */
-
+/* Logout Button Fix */
 .logout-button {
-  margin: 10px;
-  padding: 12px;
+  width: calc(100% - 2rem);
+  margin: 1rem;
+  padding: 10px;
+  background-color: #ef4444;
+  color: #ffffff;
   border: none;
   border-radius: 6px;
-  background: #dc2626;
-  color: #ffffff;
-  font-size: 15px;
   cursor: pointer;
-  transition: 0.2s;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s;
 }
 
 .logout-button:hover {
-  background: #b91c1c;
+  background-color: #dc2626;
 }
 
-
-/* =========================
-   Admin Main
-========================= */
-
+/* Main Content Area */
 .admin-main {
-  margin-left: 250px;
-  width: calc(100% - 250px);
-  min-height: 100vh;
-  padding: 25px;
-  background: #f8fafc;
-}
-
-
-/* =========================
-   Scrollbar
-========================= */
-
-.admin-sidebar::-webkit-scrollbar {
-  width: 5px;
-}
-
-.admin-sidebar::-webkit-scrollbar-track {
-  background: #172554;
-}
-
-.admin-sidebar::-webkit-scrollbar-thumb {
-  background: #3b82f6;
-  border-radius: 10px;
-}
-
-
-/* =========================
-   Mobile Responsive
-========================= */
-
-@media (max-width: 768px) {
-
-  .admin-sidebar {
-    width: 220px;
-  }
-
-  .admin-main {
-    margin-left: 220px;
-    width: calc(100% - 220px);
-    padding: 15px;
-  }
-
-}
-
-@media (max-width: 600px) {
-
-  .admin-sidebar {
-    width: 200px;
-  }
-
-  .admin-main {
-    margin-left: 200px;
-    width: calc(100% - 200px);
-    padding: 12px;
-  }
-
-  .sidebar-header h2 {
-    font-size: 21px;
-  }
-
-  .sidebar-menu > a,
-  .sidebar-parent {
-    font-size: 14px;
-  }
-
-  .sidebar-submenu a {
-    font-size: 13px;
-  }
-
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
 }

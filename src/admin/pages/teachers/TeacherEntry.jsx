@@ -1,412 +1,337 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import "./TeacherEntry.css";
 
 export default function TeacherEntry() {
-  const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    teacherId: "",
+  const [formData, setFormData] = useState({
     nameBn: "",
     nameEn: "",
     shortName: "",
-    branch: "",
-    course: "",
     designation: "",
+    course: "",
+    branch: "",
     mobile: "",
     email: "",
     dateOfBirth: "",
-    joiningDate: "",
+    joiningDate: new Date().toISOString().split("T")[0], // ডিফল্ট আজকের তারিখ
     qualification: "",
     address: "",
-    status: "active",
+    status: "Present", // 'active' বাদ দিয়ে Present করা হয়েছে
   });
 
   const [photo, setPhoto] = useState(null);
-  const [message, setMessage] = useState("");
+  const [teacherIdPreview, setTeacherIdPreview] = useState("");
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
 
+  // Joining Date পরিবর্তনের ভিত্তিতে Auto Teacher ID Preview (SEYYMMDDXX)
+  useEffect(() => {
+    if (formData.joiningDate) {
+      const cleanDate = formData.joiningDate.replace(/-/g, "").substring(2); // YYYY-MM-DD -> YYMMDD
+      setTeacherIdPreview(`SE${cleanDate}XX`);
+    } else {
+      setTeacherIdPreview("SEYYMMDDXX");
+    }
+  }, [formData.joiningDate]);
+
+  // ইনপুট হ্যান্ডলার
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePhotoChange = (e) => {
-    setPhoto(e.target.files[0] || null);
+  // ফটো ফাইল হ্যান্ডলার
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setPhoto(e.target.files[0]);
+    }
   };
-
+  
+  // ফর্ম সাবমিশন (API Call)
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    setMessage("");
     setLoading(true);
+    setMessage({ type: "", text: "" });
 
-    const formData = new FormData();
-
-    Object.entries(form).forEach(([key, value]) => {
-      formData.append(key, value);
+    const data = new FormData();
+    Object.keys(formData).forEach((key) => {
+      data.append(key, formData[key]);
     });
 
     if (photo) {
-      formData.append("photo", photo);
+      data.append("photo", photo);
     }
 
     try {
-      const response = await fetch(
-        "http://localhost/sunshine-api/api/teacher_entry.php",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch("http://localhost/sunshine-api/api/teacher_entry.php", {
+        method: "POST",
+        body: data,
+      });
 
-      if (!response.ok) {
-        throw new Error("HTTP Error: " + response.status);
-      }
+      const result = await response.json();
 
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage("Teacher added successfully");
-
-        setForm({
-          teacherId: "",
-          nameBn: "",
-          nameEn: "",
-          shortName: "",
-          branch: "",
-          course: "",
-          designation: "",
-          mobile: "",
-          email: "",
-          dateOfBirth: "",
-          joiningDate: "",
-          qualification: "",
-          address: "",
-          status: "active",
+      if (result.success) {
+        setMessage({ 
+          type: "success", 
+          text: result.message || `Teacher added successfully! ID: ${result.teacher_id}` 
         });
-
-        setPhoto(null);
-
-        const photoInput = document.getElementById("teacher-photo");
-
-        if (photoInput) {
-          photoInput.value = "";
-        }
-
-        setTimeout(() => {
-          navigate("/admin/teacher-list");
-        }, 1000);
+        handleReset();
       } else {
-        setMessage(data.message || "Failed to add teacher");
+        setMessage({ type: "error", text: result.message || "Failed to save teacher." });
       }
     } catch (error) {
-      console.error("Teacher Entry Error:", error);
-      setMessage("Server connection failed");
+      console.error("Error submitting form:", error);
+      setMessage({ type: "error", text: "Server connection failed!" });
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="teacher-entry-page">
+  // রিসেট হ্যান্ডলার
+  const handleReset = () => {
+    setFormData({
+      nameBn: "",
+      nameEn: "",
+      shortName: "",
+      designation: "",
+      course: "",
+      branch: "",
+      mobile: "",
+      email: "",
+      dateOfBirth: "",
+      joiningDate: new Date().toISOString().split("T")[0],
+      qualification: "",
+      address: "",
+      status: "Present",
+    });
+    setPhoto(null);
+  };
 
+  return (
+    <div className="teacher-entry">
       <div className="teacher-entry-header">
-        <div>
-          <h1>Teacher Entry</h1>
-          <p>নতুন শিক্ষকের তথ্য যোগ করুন</p>
-        </div>
+        <h2>Teacher Entry</h2>
+        <p>Enter teacher information</p>
       </div>
 
-      <form
-        className="teacher-entry-form"
-        onSubmit={handleSubmit}
-      >
+      {/* মেসেজ বা অ্যালার্ট */}
+      {message.text && (
+        <div className={`alert-message ${message.type}`}>
+          {message.text}
+        </div>
+      )}
 
-        {/* Personal Information */}
-
-        <h2>Personal Information</h2>
-
-        <div className="teacher-form-grid">
-
-          <div className="teacher-form-group">
-            <label>Teacher ID</label>
-
-            <input
-              type="text"
-              name="teacherId"
-              value={form.teacherId}
-              onChange={handleChange}
-              placeholder="Teacher ID"
-            />
-          </div>
-
-          <div className="teacher-form-group">
-            <label>Teacher Photo</label>
-
-            <input
-              id="teacher-photo"
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoChange}
-            />
-          </div>
-
-          <div className="teacher-form-group">
-            <label>Name (Bangla)</label>
-
-            <input
-              type="text"
-              name="nameBn"
-              value={form.nameBn}
-              onChange={handleChange}
-              placeholder="বাংলায় নাম"
-            />
-          </div>
-
-          <div className="teacher-form-group">
-            <label>Name (English)</label>
-
-            <input
-              type="text"
-              name="nameEn"
-              value={form.nameEn}
-              onChange={handleChange}
-              placeholder="English Name"
-              required
-            />
-          </div>
-
-          <div className="teacher-form-group">
-            <label>Short Name</label>
-
-            <input
-              type="text"
-              name="shortName"
-              value={form.shortName}
-              onChange={handleChange}
-              placeholder="Short Name"
-            />
-          </div>
-
-          <div className="teacher-form-group">
-            <label>Designation</label>
-
-            <input
-              type="text"
-              name="designation"
-              value={form.designation}
-              onChange={handleChange}
-              placeholder="Designation"
-            />
-          </div>
-
+      <form className="teacher-form" onSubmit={handleSubmit}>
+        {/* Auto Generated Teacher ID */}
+        <div className="form-group">
+          <label htmlFor="teacherId">Teacher ID (Auto Generated)</label>
+          <input
+            type="text"
+            id="teacherId"
+            value={teacherIdPreview}
+            disabled
+            className="disabled-input"
+          />
         </div>
 
-
-        {/* Teaching Information */}
-
-        <h2>Teaching Information</h2>
-
-        <div className="teacher-form-grid">
-
-          <div className="teacher-form-group">
-            <label>Branch</label>
-
-            <select
-              name="branch"
-              value={form.branch}
-              onChange={handleChange}
-            >
-              <option value="">Select Branch</option>
-
-              <option value="Rajshahi Main Branch">
-                Rajshahi Main Branch
-              </option>
-
-              <option value="Ramchandrapur Branch">
-                Ramchandrapur Branch
-              </option>
-
-              <option value="Khulna Branch">
-                Khulna Branch
-              </option>
-
-              <option value="Tangail Branch">
-                Tangail Branch
-              </option>
-            </select>
-          </div>
-
-
-          <div className="teacher-form-group">
-            <label>Course / Subject</label>
-
-            <select
-              name="course"
-              value={form.course}
-              onChange={handleChange}
-            >
-              <option value="">Select Course</option>
-              <option value="Japanese">Japanese</option>
-              <option value="German">German</option>
-              <option value="Korean">Korean</option>
-            </select>
-          </div>
-
-
-          <div className="teacher-form-group">
-            <label>Status</label>
-
-            <select
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
+        {/* Name (English) - Required */}
+        <div className="form-group">
+          <label htmlFor="nameEn">Teacher Name (English) *</label>
+          <input
+            type="text"
+            id="nameEn"
+            name="nameEn"
+            value={formData.nameEn}
+            onChange={handleChange}
+            placeholder="Enter teacher name in English"
+            required
+          />
         </div>
 
-
-        {/* Contact Information */}
-
-        <h2>Contact Information</h2>
-
-        <div className="teacher-form-grid">
-
-          <div className="teacher-form-group">
-            <label>Mobile</label>
-
-            <input
-              type="text"
-              name="mobile"
-              value={form.mobile}
-              onChange={handleChange}
-              placeholder="Mobile Number"
-            />
-          </div>
-
-
-          <div className="teacher-form-group">
-            <label>Email</label>
-
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Email Address"
-            />
-          </div>
-
-
-          <div className="teacher-form-group">
-            <label>Date of Birth</label>
-
-            <input
-              type="date"
-              name="dateOfBirth"
-              value={form.dateOfBirth}
-              onChange={handleChange}
-            />
-          </div>
-
-
-          <div className="teacher-form-group">
-            <label>Joining Date</label>
-
-            <input
-              type="date"
-              name="joiningDate"
-              value={form.joiningDate}
-              onChange={handleChange}
-            />
-          </div>
-
+        {/* Name (Bangla) */}
+        <div className="form-group">
+          <label htmlFor="nameBn">Teacher Name (Bangla)</label>
+          <input
+            type="text"
+            id="nameBn"
+            name="nameBn"
+            value={formData.nameBn}
+            onChange={handleChange}
+            placeholder="বাংলা নাম লিখুন"
+          />
         </div>
 
-
-        {/* Educational Qualification */}
-
-        <h2>Educational Qualification</h2>
-
-        <div className="teacher-form-full">
-
-          <div className="teacher-form-group">
-            <label>Qualification</label>
-
-            <textarea
-              name="qualification"
-              value={form.qualification}
-              onChange={handleChange}
-              placeholder="Educational Qualification"
-              rows="4"
-            />
-          </div>
-
+        {/* Short Name */}
+        <div className="form-group">
+          <label htmlFor="shortName">Short Name</label>
+          <input
+            type="text"
+            id="shortName"
+            name="shortName"
+            value={formData.shortName}
+            onChange={handleChange}
+            placeholder="e.g. AR"
+          />
         </div>
 
+        {/* Designation */}
+        <div className="form-group">
+          <label htmlFor="designation">Designation</label>
+          <input
+            type="text"
+            id="designation"
+            name="designation"
+            value={formData.designation}
+            onChange={handleChange}
+            placeholder="Enter designation"
+          />
+        </div>
+
+        {/* Course */}
+        <div className="form-group">
+          <label htmlFor="course">Course</label>
+          <input
+            type="text"
+            id="course"
+            name="course"
+            value={formData.course}
+            onChange={handleChange}
+            placeholder="Enter course name"
+          />
+        </div>
+
+        {/* Branch */}
+        <div className="form-group">
+          <label htmlFor="branch">Branch</label>
+          <input
+            type="text"
+            id="branch"
+            name="branch"
+            value={formData.branch}
+            onChange={handleChange}
+            placeholder="Enter branch name"
+          />
+        </div>
+
+        {/* Mobile */}
+        <div className="form-group">
+          <label htmlFor="mobile">Mobile Number</label>
+          <input
+            type="tel"
+            id="mobile"
+            name="mobile"
+            value={formData.mobile}
+            onChange={handleChange}
+            placeholder="Enter mobile number"
+          />
+        </div>
+
+        {/* Email */}
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter email address"
+          />
+        </div>
+
+        {/* Date of Birth */}
+        <div className="form-group">
+          <label htmlFor="dateOfBirth">Date of Birth</label>
+          <input
+            type="date"
+            id="dateOfBirth"
+            name="dateOfBirth"
+            value={formData.dateOfBirth}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Joining Date */}
+        <div className="form-group">
+          <label htmlFor="joiningDate">Joining Date *</label>
+          <input
+            type="date"
+            id="joiningDate"
+            name="joiningDate"
+            value={formData.joiningDate}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* Status */}
+        <div className="form-group">
+          <label htmlFor="status">Status *</label>
+          <select
+            id="status"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            required
+          >
+            <option value="Present">Present</option>
+            <option value="Ex Teacher">Ex Teacher</option>
+          </select>
+        </div>
+
+        {/* Qualification */}
+        <div className="form-group">
+          <label htmlFor="qualification">Qualification</label>
+          <input
+            type="text"
+            id="qualification"
+            name="qualification"
+            value={formData.qualification}
+            onChange={handleChange}
+            placeholder="e.g. M.Sc in Mathematics"
+          />
+        </div>
 
         {/* Address */}
-
-        <h2>Address</h2>
-
-        <div className="teacher-form-full">
-
-          <div className="teacher-form-group">
-            <label>Address</label>
-
-            <textarea
-              name="address"
-              value={form.address}
-              onChange={handleChange}
-              placeholder="Full Address"
-              rows="4"
-            />
-          </div>
-
+        <div className="form-group full-width">
+          <label htmlFor="address">Address</label>
+          <textarea
+            id="address"
+            name="address"
+            rows="3"
+            value={formData.address}
+            onChange={handleChange}
+            placeholder="Enter teacher address"
+          ></textarea>
         </div>
 
+        {/* Photo Upload */}
+        <div className="form-group full-width">
+          <label htmlFor="photo">Teacher Photo</label>
+          <input
+            type="file"
+            id="photo"
+            name="photo"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+        </div>
 
         {/* Buttons */}
-
-        <div className="teacher-form-buttons">
-
-          <button
-            type="submit"
-            className="teacher-save-button"
-            disabled={loading}
-          >
-            {loading ? "Saving..." : "Save Teacher"}
+        <div className="form-actions">
+          <button type="submit" className="save-teacher" disabled={loading}>
+            {loading ? "💾 Saving..." : "💾 Save Teacher"}
           </button>
-
 
           <button
             type="button"
-            className="teacher-cancel-button"
-            onClick={() => navigate("/admin/teacher-list")}
+            className="reset-teacher"
+            onClick={handleReset}
+            disabled={loading}
           >
-            Cancel
+            🔄 Reset
           </button>
-
         </div>
-
-
-        {message && (
-          <p className="teacher-message">
-            {message}
-          </p>
-        )}
-
       </form>
-
     </div>
   );
 }
