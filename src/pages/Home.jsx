@@ -132,25 +132,40 @@ export default function Home() {
         {/* ================= RIGHT SIDEBAR ================= */}
         <aside className="home-sidebar">
 
+{/* FACEBOOK ACTIVITY */}
+<section className="sidebar-section">
 
-          {/* YOUTUBE */}
-          <section className="sidebar-section">
+  <div className="facebook-activity">
 
-            <h2 className="sidebar-title">
-              ▶ আমাদের ভিডিও
-            </h2>
+    <iframe
+      src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fsunshine.eduraj%2F&tabs=timeline&width=340&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true"
+      width="100%"
+      height="500"
+      style={{ border: "none", overflow: "hidden" }}
+      scrolling="no"
+      frameBorder="0"
+      allowFullScreen={true}
+      title="Sunshine Education Facebook Activity"
+    ></iframe>
 
-            <div className="youtube-container">
+  </div>
 
-              <iframe
-                src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
-                title="Sunshine Education YouTube Video"
-                allowFullScreen
-              ></iframe>
+</section>
 
-            </div>
+{/* YOUTUBE CHANNEL */}
+<section className="sidebar-section">
 
-          </section>
+  <div className="youtube-container">
+    <iframe
+      src="https://www.youtube.com/embed/BvjzXbMtSpA"
+      title="Sunshine Education YouTube Video"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowFullScreen
+    ></iframe>
+  </div>
+
+</section>
+
 
 
           {/* MOBILE APP */}
@@ -252,36 +267,6 @@ export default function Home() {
               <p>
                 📞 01XXXXXXXXX
               </p>
-
-            </div>
-
-          </section>
-
-
-          {/* FACEBOOK */}
-          <section className="sidebar-section">
-
-            <h2 className="sidebar-title">
-              Facebook
-            </h2>
-
-            <div className="facebook-box">
-
-              <h3>Sunshine Education</h3>
-
-              <p>
-                আমাদের সর্বশেষ খবর, নোটিশ ও কার্যক্রম জানতে
-                Facebook Page-এ Follow করুন।
-              </p>
-
-              <a
-                href="https://www.facebook.com/YOUR_PAGE"
-                target="_blank"
-                rel="noreferrer"
-                className="facebook-button"
-              >
-                Visit Facebook Page
-              </a>
 
             </div>
 

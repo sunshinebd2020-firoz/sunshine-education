@@ -20,21 +20,21 @@ export default function Footer() {
       <div className="footer-bottom">
 
 <p>
-  © {new Date().getFullYear()} Sunshine Education.{" "}
+  Copyright © {new Date().getFullYear()} Sunshine Education.{" "}
+  All rights reserved
   <a
     href="/admin/login"
     className="admin-login-link"
   >
-    All
-  </a>{" "}
-  rights reserved.
+    .
+  </a>{" "}  
 </p>
 
 
         <p className="developer">
           Website Developed by{" "}
           <a
-            href="#"
+            href="https://www.facebook.com/fmfiroz18"
             target="_blank"
             rel="noopener noreferrer"
           >

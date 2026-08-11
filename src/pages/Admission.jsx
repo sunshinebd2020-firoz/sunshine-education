@@ -170,20 +170,6 @@ export default function Admission() {
       </section>
 
 
-      <section className="contact-admission">
-
-        <h2>ভর্তি সংক্রান্ত যোগাযোগ</h2>
-
-        <p>
-          মোবাইল: 01XXXXXXXXX
-        </p>
-
-        <p>
-          ইমেইল: info@sunshineeducation.com
-        </p>
-
-      </section>
-
     </div>
   );
 }
