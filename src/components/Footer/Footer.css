@@ -1,69 +1,89 @@
+/* =========================
+   Footer
+========================= */
+
 .footer {
-  width: 100%;
-  background: #1e293b;
-  color: white;
+  background: #0f172a;
+  color: #ffffff;
   margin-top: auto;
 }
 
 
 /* =========================
-   Footer Main
+   Main Footer
 ========================= */
 
 .footer-container {
   max-width: 1200px;
   margin: 0 auto;
-
   padding: 30px 25px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  box-sizing: border-box;
 }
 
 
 /* =========================
-   Brand
+   Branches Title
 ========================= */
 
-.footer-brand h2 {
-  margin: 0 0 8px;
-
-  font-size: 25px;
-  font-weight: 700;
-
-  color: #ffffff;
-
-  transition: 0.25s;
-}
-
-.footer-brand h2:hover {
-  color: #60a5fa;
-}
-
-.footer-brand p {
+.branches-title {
   margin: 0;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+}
 
-  color: #cbd5e1;
-  font-size: 14px;
+
+/* Long Line */
+
+.branches-line {
+  width: 100%;
+  height: 1px;
+  background: #475569;
+  margin: 15px 0 20px;
 }
 
 
 /* =========================
-   Contact
+   Branch List
 ========================= */
 
-.footer-contact {
-  text-align: right;
+.branches-list {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin: 0;
+  padding: 0;
 }
 
-.footer-contact p {
-  margin: 6px 0;
 
+/* Individual Branch */
+
+.branch {
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+
+.branch h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.branch p {
+  margin: 4px 0;
   color: #cbd5e1;
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+/* Hover */
+
+.branch p:hover {
+  color: #ffffff;
 }
 
 
@@ -73,43 +93,48 @@
 
 .footer-bottom {
   border-top: 1px solid #334155;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 25px;
 
-  text-align: center;
-
-  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
 }
 
 .footer-bottom p {
   margin: 0;
-
   color: #94a3b8;
-
   font-size: 13px;
 }
 
 
-/* =========================
-   Developer
-========================= */
-
-.developer {
-  margin-top: 7px !important;
-}
+/* Developer */
 
 .developer a {
   color: #60a5fa;
-
   text-decoration: none;
-
   font-weight: 600;
-
-  transition: 0.25s;
 }
 
 .developer a:hover {
   color: #93c5fd;
-
   text-decoration: underline;
+}
+
+
+/* =========================
+   Tablet
+========================= */
+
+@media (max-width: 900px) {
+
+  .branches-list {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 25px;
+  }
+
 }
 
 
@@ -117,48 +142,49 @@
    Mobile
 ========================= */
 
-@media (max-width: 600px) {
+@media (max-width: 480px) {
 
   .footer-container {
-    flex-direction: column;
-
-    text-align: center;
-
-    gap: 20px;
-
-    padding: 25px 15px;
+    padding: 25px 18px;
   }
 
-
-  .footer-contact {
-    text-align: center;
-  }
-
-
-  .footer-brand h2 {
+  .branches-title {
     font-size: 21px;
   }
 
-
-  .footer-brand p {
-    font-size: 13px;
+  .branches-list {
+    grid-template-columns: 1fr;
+    gap: 22px;
   }
 
-
-  .footer-contact p {
-    font-size: 13px;
+  .branch h3 {
+    font-size: 14px;
   }
 
+  .branch p {
+    font-size: 13px;
+  }
 
   .footer-bottom {
-    padding: 14px 10px;
+    padding: 15px 18px;
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
   }
-
 
   .footer-bottom p {
     font-size: 12px;
-
-    line-height: 1.6;
   }
+
+.admin-login-link {
+  color: none;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.admin-login-link:hover {
+  color: none;
+  text-decoration: none;
+}
 
 }
