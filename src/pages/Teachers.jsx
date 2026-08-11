@@ -146,20 +146,6 @@ const exTeachers = teachers
   return (
     <div className="teachers-page">
 
-      {/* ==============================
-          Header
-      ============================== */}
-
-      <div className="teacher-header">
-
-        <h1>Our Teachers</h1>
-
-        <p>
-          অভিজ্ঞ ও দক্ষ প্রশিক্ষকদের মাধ্যমে
-          মানসম্মত ভাষা শিক্ষা প্রদান করা হয়।
-        </p>
-
-      </div>
 
 
       {/* ==============================

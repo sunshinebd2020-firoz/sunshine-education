@@ -273,7 +273,7 @@ export default function StudentList() {
                           `/admin/student-profile/${student.id}`)
                       }
                     >
-                      👁️ Details
+                      👁️
                     </button>
 
                     {/* Edit */}
@@ -284,7 +284,7 @@ export default function StudentList() {
                           `/admin/student-edit/${student.id}`)
                       }
                     >
-                      ✏️ Edit
+                      ✏️
                     </button>
 
                     {/* Active / Inactive */}
@@ -298,7 +298,7 @@ export default function StudentList() {
                           )
                         }
                       >
-                        🔴 Inactive
+                        🔴
                       </button>
                     ) : (
                       <button
@@ -310,7 +310,7 @@ export default function StudentList() {
                           )
                         }
                       >
-                        🟢 Active
+                        🟢
                       </button>
                     )}
 
@@ -321,7 +321,7 @@ export default function StudentList() {
                         handleDelete(student.id)
                       }
                     >
-                      🗑️ Delete
+                      🗑️
                     </button>
 
                   </div>

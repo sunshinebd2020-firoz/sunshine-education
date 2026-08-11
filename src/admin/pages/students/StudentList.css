@@ -69,12 +69,12 @@
 
 /* Table */
 
-.table-container {
-  overflow-x: auto;
-  background: #fff;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.06);
+th,
+td {
+  padding: 7px 8px;   /* আগের 11px 12px থেকে কমানো */
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  white-space: nowrap;
 }
 
 table {
@@ -180,16 +180,109 @@ tbody tr:last-child td {
   display: flex;
   gap: 5px;
   align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.student-actions button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: 0.2s;
+}
+
+.table-container {
+  height: calc(100vh - 300px);
+  min-height: 350px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+/* Table */
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Header fixed থাকবে */
+.table-container thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f5f5f5;
+}
+
+/* Cells */
+.table-container th,
+.table-container td {
+  padding: 5px 6px;
+  font-size: 13px;
+}
+
+/* Photo */
+.student-photo {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.no-photo {
+  color: #999;
+  font-size: 12px;
+}
+
+/* Name */
+.student-name {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.student-name span {
+  font-size: 13px;
+  color: #666;
+}
+
+/* Actions */
+.student-actions {
+  display: flex;
+  gap: 5px;
 }
 
 .student-actions button {
   border: none;
-  border-radius: 6px;
   padding: 6px 8px;
-  font-size: 11px;
-  font-weight: 600;
+  border-radius: 5px;
   cursor: pointer;
-  transition: 0.2s;
+}
+
+/* Status */
+.status-active {
+  color: green;
+  font-weight: bold;
+}
+
+.status-inactive {
+  color: red;
+  font-weight: bold;
+}
+
+/* Empty */
+.no-student {
+  text-align: center;
+  padding: 30px;
 }
 
 /* Details */

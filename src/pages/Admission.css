@@ -1,60 +1,306 @@
 .admission {
-  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 25px 20px;
 }
 
+/* =========================
+   Admission Header
+========================= */
 
 .admission-header {
   text-align: center;
-  background: #f1f8f5;
-  padding: 30px;
+  padding: 35px 20px;
+  background: #1e3a8a;
+  color: white;
   border-radius: 10px;
 }
 
 .admission-header h1 {
-  color: #0b5d3b;
+  margin: 0 0 10px;
+  font-size: 32px;
+}
+
+.admission-header p {
+  margin: 0;
+  font-size: 17px;
 }
 
 
-.admission-content {
-  display: flex;
-  gap: 20px;
-  margin-top: 30px;
+/* =========================
+   Latest Students
+========================= */
+
+.latest-students {
+  margin-top: 25px;
+  padding: 20px 0;
+  overflow: hidden;
 }
 
-
-.admission-card {
-  flex: 1;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 3px 10px #ddd;
-}
-
-
-.admission-card h2 {
-  color: #0b5d3b;
-}
-
-
-.admission-card li {
-  margin-bottom: 8px;
-}
-
-
-.contact-admission {
-  margin-top: 30px;
-  background: #0b5d3b;
-  color: white;
-  padding: 25px;
-  border-radius: 10px;
+.latest-students h2 {
+  margin: 0 0 18px;
   text-align: center;
+  color: #1e3a8a;
+  font-size: 22px;
+}
+
+.student-slider {
+  width: 100%;
+  overflow: hidden;
+}
+
+.student-slider-track {
+  display: flex;
+  width: max-content;
+  animation: studentSlide 35s linear infinite;
+}
+
+.student-slider:hover .student-slider-track {
+  animation-play-state: paused;
+}
+
+.student-slide {
+  width: 150px;
+  flex-shrink: 0;
+  margin-right: 18px;
+}
+
+.student-card {
+  text-align: center;
+  padding: 12px 8px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: 0.2s;
+}
+
+.student-card:hover {
+  transform: translateY(-3px);
+}
+
+.student-round-photo {
+  display: block;
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 8px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #1e3a8a;
+}
+
+.student-card-name {
+  min-height: 22px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e3a8a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.student-card-course {
+  margin-top: 3px;
+  font-size: 12px;
+  color: #555;
+}
+
+.student-card-level {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #777;
 }
 
 
-@media(max-width:768px){
+/* =========================
+   Student Slider Loop
+========================= */
 
-  .admission-content {
-    flex-direction: column;
+@keyframes studentSlide {
+  from {
+    transform: translateX(0);
   }
 
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+
+/* =========================
+   Admission Content
+========================= */
+
+.admission-content {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 25px;
+}
+
+.admission-card {
+  padding: 22px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.admission-card h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #1e3a8a;
+  font-size: 20px;
+}
+
+.admission-card ul,
+.admission-card ol {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.admission-card li {
+  margin-bottom: 9px;
+  color: #444;
+  line-height: 1.5;
+}
+
+
+/* =========================
+   Available Courses
+========================= */
+
+.course-item {
+  padding: 12px 10px;
+  margin-bottom: 10px;
+
+  background: #f8fafc;
+
+  border-left: 4px solid #1e3a8a;
+  border-radius: 6px;
+
+  transition: 0.2s;
+}
+
+.course-item:last-child {
+  margin-bottom: 0;
+}
+
+.course-item:hover {
+  background: #f1f5f9;
+  transform: translateX(3px);
+}
+
+
+/* Course Name */
+
+.course-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: #1e3a8a;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.course-flag {
+  font-size: 21px;
+}
+
+
+/* Course Subtitle */
+
+.course-subtitle {
+  margin-top: 5px;
+  padding-left: 30px;
+
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.course-subtitle span {
+  margin: 0 4px;
+  color: #94a3b8;
+  font-weight: bold;
+}
+
+
+/* =========================
+   Contact
+========================= */
+
+.contact-admission {
+  margin-top: 25px;
+  padding: 25px;
+  text-align: center;
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.contact-admission h2 {
+  margin-top: 0;
+  color: #1e3a8a;
+}
+
+.contact-admission p {
+  margin: 6px 0;
+  color: #444;
+}
+
+
+/* =========================
+   Mobile
+========================= */
+
+@media (max-width: 768px) {
+
+  .admission {
+    padding: 15px 10px;
+  }
+
+  .admission-header {
+    padding: 25px 15px;
+  }
+
+  .admission-header h1 {
+    font-size: 26px;
+  }
+
+  .admission-header p {
+    font-size: 15px;
+  }
+
+  .latest-students h2 {
+    font-size: 19px;
+  }
+
+  .student-slide {
+    width: 125px;
+    margin-right: 12px;
+  }
+
+  .student-round-photo {
+    width: 75px;
+    height: 75px;
+  }
+
+  .student-card {
+    padding: 10px 6px;
+  }
+
+  .admission-content {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .course-title {
+    font-size: 15px;
+  }
+
+  .course-subtitle {
+    padding-left: 28px;
+    font-size: 11px;
+  }
 }
