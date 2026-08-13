@@ -16,10 +16,16 @@ import StudentProfile from "./admin/pages/students/StudentProfile";
 
 import TeacherEntry from "./admin/pages/teachers/TeacherEntry";
 import TeacherList from "./admin/pages/teachers/TeacherList";
+
 import GalleryEntry from "./admin/pages/GalleryEntry";
 import GalleryList from "./admin/pages/GalleryList";
+
 import BannerEntry from "./admin/pages/BannerEntry";
 import BannerList from "./admin/pages/BannerList";
+
+import IncomeEntry from "./admin/pages/IncomeEntry";
+import IncomeList from "./admin/pages/IncomeList";
+import IncomeEdit from "./admin/pages/IncomeEdit";
 
 import Home from "./pages/Home";
 import Gallery from "./pages/Gallery";
@@ -102,7 +108,7 @@ export default function App() {
             element={<AdminLayout />}
           >
 
-            {/* Dashboard */}
+            {/* ================= DASHBOARD ================= */}
 
             <Route
               path="dashboard"
@@ -145,13 +151,39 @@ export default function App() {
               element={<TeacherList />}
             />
 
+
             {/* ================= GALLERY ================= */}
-            <Route path="gallery" element={<GalleryEntry />} />
-            <Route path="gallery-list" element={<GalleryList />} />
+
+            <Route
+              path="gallery"
+              element={<GalleryEntry />}
+            />
+
+            <Route
+              path="gallery-list"
+              element={<GalleryList />}
+            />
+
 
             {/* ================= BANNER ================= */}
-            <Route path="banner-entry" element={<BannerEntry />} />
-            <Route path="banner-list" element={<BannerList />} />
+
+            <Route
+              path="banner-entry"
+              element={<BannerEntry />}
+            />
+
+            <Route
+              path="banner-list"
+              element={<BannerList />}
+            />
+
+
+            {/* ================= INCOME & EXPENSE ================= */}
+
+            {/* Income Entry */}
+            <Route path="income" element={<IncomeEntry />} />
+            <Route path="income-list" element={<IncomeList />} />
+            <Route path="income-edit/:id" element={<IncomeEdit />}/>
 
           </Route>
 

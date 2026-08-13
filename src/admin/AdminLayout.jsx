@@ -24,7 +24,7 @@ export default function AdminLayout() {
         {/* Sidebar Menu */}
         <nav className="sidebar-menu">
 
-          {/* Dashboard */}
+          {/* ================= DASHBOARD ================= */}
           <NavLink
             to="/admin/dashboard"
             className="sidebar-link"
@@ -48,6 +48,7 @@ export default function AdminLayout() {
 
             {openMenu === "students" && (
               <div className="sidebar-submenu">
+
                 <NavLink to="/admin/students">
                   ➕ Student Entry
                 </NavLink>
@@ -55,6 +56,7 @@ export default function AdminLayout() {
                 <NavLink to="/admin/student-list">
                   📋 Student List
                 </NavLink>
+
               </div>
             )}
           </div>
@@ -75,6 +77,7 @@ export default function AdminLayout() {
 
             {openMenu === "courses" && (
               <div className="sidebar-submenu">
+
                 <NavLink to="/admin/courses">
                   📖 Course List
                 </NavLink>
@@ -82,6 +85,7 @@ export default function AdminLayout() {
                 <NavLink to="/admin/course-entry">
                   ➕ Course Entry
                 </NavLink>
+
               </div>
             )}
           </div>
@@ -89,12 +93,14 @@ export default function AdminLayout() {
 
           {/* ================= INCOME & EXPENSE ================= */}
           <div className="sidebar-group">
+
             <button
               type="button"
               className="sidebar-parent"
               onClick={() => toggleMenu("accounts")}
             >
               <span>💰 Income & Expense</span>
+
               <span>
                 {openMenu === "accounts" ? "▲" : "▼"}
               </span>
@@ -103,31 +109,47 @@ export default function AdminLayout() {
             {openMenu === "accounts" && (
               <div className="sidebar-submenu">
 
+                {/* Income Entry */}
                 <NavLink to="/admin/income">
-                  💵 Income
+                  ➕ Income Entry
                 </NavLink>
 
+                {/* Income List */}
+                <NavLink to="/admin/income-list">
+                  📋 Income List
+                </NavLink>
+
+                {/* Expense Entry */}
                 <NavLink to="/admin/expense">
-                  💸 Expense
+                  ➕ Expense Entry
                 </NavLink>
 
+                {/* Expense List */}
+                <NavLink to="/admin/expense-list">
+                  📋 Expense List
+                </NavLink>
+
+                {/* Report */}
                 <NavLink to="/admin/accounts">
                   📊 Income & Expense Report
                 </NavLink>
 
               </div>
             )}
+
           </div>
 
 
           {/* ================= TEACHERS ================= */}
           <div className="sidebar-group">
+
             <button
               type="button"
               className="sidebar-parent"
               onClick={() => toggleMenu("teachers")}
             >
               <span>👨‍🏫 Teachers</span>
+
               <span>
                 {openMenu === "teachers" ? "▲" : "▼"}
               </span>
@@ -146,17 +168,20 @@ export default function AdminLayout() {
 
               </div>
             )}
+
           </div>
 
 
           {/* ================= NOTICES ================= */}
           <div className="sidebar-group">
+
             <button
               type="button"
               className="sidebar-parent"
               onClick={() => toggleMenu("notices")}
             >
               <span>📢 Notices</span>
+
               <span>
                 {openMenu === "notices" ? "▲" : "▼"}
               </span>
@@ -175,17 +200,20 @@ export default function AdminLayout() {
 
               </div>
             )}
+
           </div>
 
 
           {/* ================= GALLERY ================= */}
           <div className="sidebar-group">
+
             <button
               type="button"
               className="sidebar-parent"
               onClick={() => toggleMenu("gallery")}
             >
               <span>🖼️ Gallery</span>
+
               <span>
                 {openMenu === "gallery" ? "▲" : "▼"}
               </span>
@@ -204,17 +232,20 @@ export default function AdminLayout() {
 
               </div>
             )}
+
           </div>
 
 
           {/* ================= BANNERS ================= */}
           <div className="sidebar-group">
+
             <button
               type="button"
               className="sidebar-parent"
               onClick={() => toggleMenu("banners")}
             >
               <span>🎞️ Banners</span>
+
               <span>
                 {openMenu === "banners" ? "▲" : "▼"}
               </span>
@@ -233,17 +264,20 @@ export default function AdminLayout() {
 
               </div>
             )}
+
           </div>
 
 
           {/* ================= DOWNLOADS ================= */}
           <div className="sidebar-group">
+
             <button
               type="button"
               className="sidebar-parent"
               onClick={() => toggleMenu("downloads")}
             >
               <span>📥 Downloads</span>
+
               <span>
                 {openMenu === "downloads" ? "▲" : "▼"}
               </span>
@@ -262,17 +296,20 @@ export default function AdminLayout() {
 
               </div>
             )}
+
           </div>
 
 
           {/* ================= SETTINGS ================= */}
           <div className="sidebar-group">
+
             <button
               type="button"
               className="sidebar-parent"
               onClick={() => toggleMenu("settings")}
             >
               <span>⚙️ Settings</span>
+
               <span>
                 {openMenu === "settings" ? "▲" : "▼"}
               </span>
@@ -291,6 +328,7 @@ export default function AdminLayout() {
 
               </div>
             )}
+
           </div>
 
         </nav>

@@ -1,0 +1,321 @@
+/* =====================================================
+   INCOME LIST
+===================================================== */
+
+.income-list {
+  padding: 30px;
+}
+
+
+/* ================= HEADER ================= */
+
+.income-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.income-list-header h1 {
+  margin: 0 0 5px;
+  color: #1e293b;
+  font-size: 28px;
+}
+
+.income-list-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+
+/* ================= TOTAL ================= */
+
+.income-total {
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 9px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.income-total span {
+  margin-right: 10px;
+}
+
+.income-total strong {
+  color: #15803d;
+  font-size: 16px;
+}
+
+
+/* ================= FILTER ================= */
+
+.income-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.income-filters input,
+.income-filters select {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  background: #fff;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.income-filters input[type="text"] {
+  width: 300px;
+}
+
+.income-filters select {
+  width: 200px;
+}
+
+.income-filters input[type="date"] {
+  width: 160px;
+}
+
+.income-filters input:focus,
+.income-filters select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+
+/* ================= CLEAR ================= */
+
+.clear-filter {
+  height: 40px;
+  padding: 0 15px;
+  border: none;
+  border-radius: 7px;
+  background: #64748b;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.clear-filter:hover {
+  background: #475569;
+}
+
+
+/* =====================================================
+   SCROLL BOX
+===================================================== */
+
+.income-table-wrapper {
+  height: calc(100vh - 300px);
+  min-height: 350px;
+
+  overflow-y: auto;
+  overflow-x: auto;
+
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
+  background: #fff;
+}
+
+
+/* ================= TABLE ================= */
+
+.income-table {
+  width: 100%;
+  min-width: 1000px;
+  border-collapse: collapse;
+}
+
+
+/* ================= FIXED HEADER ================= */
+
+.income-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  background: #f5f5f5;
+  color: #334155;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  padding: 7px 8px;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  text-align: left;
+  white-space: nowrap;
+}
+
+
+/* ================= CELLS ================= */
+
+.income-table td {
+  padding: 6px 8px;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  text-align: left;
+  white-space: nowrap;
+
+  color: #475569;
+  font-size: 13px;
+}
+
+.income-table tbody tr:hover {
+  background: #f8fbff;
+}
+
+.income-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* ================= INCOME TYPE ================= */
+
+.income-type {
+  display: inline-block;
+
+  padding: 4px 8px;
+
+  border-radius: 5px;
+
+  background: #eff6ff;
+  color: #1d4ed8;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+/* ================= AMOUNT ================= */
+
+.income-amount {
+  color: #15803d !important;
+  font-weight: 600;
+}
+
+
+/* ================= ACTIONS ================= */
+
+.income-actions {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.income-actions button {
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 6px;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: 0.2s;
+}
+
+
+/* ================= EDIT ================= */
+
+.edit-btn {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.edit-btn:hover {
+  background: #bfdbfe;
+}
+
+
+/* ================= DELETE ================= */
+
+.delete-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.delete-btn:hover {
+  background: #fecaca;
+}
+
+
+/* ================= LOADING ================= */
+
+.income-loading {
+  padding: 30px;
+  text-align: center;
+  color: #64748b;
+}
+
+
+/* ================= EMPTY ================= */
+
+.income-empty {
+  padding: 30px;
+  text-align: center;
+  color: #64748b;
+  background: #fff;
+}
+
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+
+  .income-list {
+    padding: 20px 15px;
+  }
+
+  .income-list-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .income-list-header h1 {
+    font-size: 24px;
+  }
+
+  .income-total {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .income-filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .income-filters input[type="text"],
+  .income-filters select,
+  .income-filters input[type="date"],
+  .clear-filter {
+    width: 100%;
+  }
+
+  .income-table-wrapper {
+    border-radius: 8px;
+  }
+}

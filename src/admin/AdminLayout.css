@@ -126,7 +126,9 @@
 }
 
 
-/* Hover + Active */
+/* =========================================
+   SIDEBAR LINK HOVER + ACTIVE
+========================================= */
 
 .sidebar-link:hover,
 .sidebar-parent:hover,
@@ -148,7 +150,9 @@
 }
 
 
-/* Submenu Links */
+/* =========================================
+   SUBMENU LINKS
+========================================= */
 
 .sidebar-submenu a {
   display: block;
@@ -173,7 +177,9 @@
 }
 
 
-/* Submenu Hover + Active */
+/* =========================================
+   SUBMENU HOVER + ACTIVE
+========================================= */
 
 .sidebar-submenu a:hover,
 .sidebar-submenu a.active {
