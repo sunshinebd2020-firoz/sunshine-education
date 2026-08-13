@@ -1,51 +1,254 @@
-.gallery {
-  padding: 30px;
+.gallery-page {
+  padding: 50px 30px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
+
+
+/* =========================
+   Header
+========================= */
 
 .gallery-header {
   text-align: center;
-  background: #f1f8f5;
-  padding: 30px;
-  border-radius: 10px;
+  margin-bottom: 30px;
 }
 
 .gallery-header h1 {
-  color: #0b5d3b;
+  margin: 0 0 10px;
+  font-size: 36px;
 }
 
+.gallery-header p {
+  margin: 0;
+  color: #777;
+  font-size: 16px;
+}
+
+
+/* =========================
+   Category Filter
+========================= */
+
+.gallery-filter {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 35px 0;
+}
+
+.gallery-filter button {
+  display: inline-block;
+  width: auto;
+  min-width: auto;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #333;
+  padding: 9px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.gallery-filter button:hover {
+  background: #f1f5f9;
+}
+
+.gallery-filter button.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+
+/* =========================
+   Gallery Grid
+========================= */
 
 .gallery-grid {
-  margin-top: 30px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
 }
 
+
+/* =========================
+   Gallery Card
+========================= */
 
 .gallery-card {
-  overflow: hidden;
+  background: #fff;
   border-radius: 10px;
-  box-shadow: 0 3px 10px #ddd;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.10);
+  transition: transform 0.2s ease;
 }
 
+.gallery-card:hover {
+  transform: translateY(-4px);
+}
 
 .gallery-card img {
   width: 100%;
   height: 220px;
   object-fit: cover;
-  transition: 0.3s;
+  display: block;
 }
 
 
-.gallery-card img:hover {
-  transform: scale(1.05);
+/* =========================
+   Gallery Information
+========================= */
+
+.gallery-info {
+  padding: 14px;
+}
+
+.gallery-info h3 {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.gallery-info span {
+  font-size: 13px;
+  color: #777;
 }
 
 
-@media(max-width:768px){
+/* =========================
+   Loading / Empty
+========================= */
 
+.gallery-loading,
+.gallery-empty {
+  text-align: center;
+  padding: 50px;
+  color: #777;
+}
+
+
+/* =========================
+   Image Modal
+========================= */
+
+.gallery-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  z-index: 9999;
+}
+
+.gallery-modal img {
+  max-width: 90%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+
+/* =========================
+   Close Button
+========================= */
+
+.gallery-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+
+/* =========================
+   Tablet
+========================= */
+
+@media (max-width: 900px) {
   .gallery-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+
+/* =========================
+   Mobile
+========================= */
+
+@media (max-width: 600px) {
+
+  .gallery-page {
+    padding: 30px 15px;
   }
 
+  .gallery-header {
+    margin-bottom: 25px;
+  }
+
+  .gallery-header h1 {
+    font-size: 28px;
+  }
+
+  .gallery-filter {
+    gap: 8px;
+    margin-bottom: 25px;
+  }
+
+  .gallery-filter button {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .gallery-card img {
+    height: 160px;
+  }
+
+  .gallery-info {
+    padding: 10px;
+  }
+
+  .gallery-info h3 {
+    font-size: 15px;
+  }
+
+  .gallery-info span {
+    font-size: 12px;
+  }
+
+  .gallery-modal {
+    padding: 15px;
+  }
+
+  .gallery-modal img {
+    max-width: 95%;
+    max-height: 80vh;
+  }
+
+  .gallery-close {
+    top: 15px;
+    right: 15px;
+    width: 38px;
+    height: 38px;
+    font-size: 26px;
+  }
 }

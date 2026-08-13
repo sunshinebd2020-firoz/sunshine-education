@@ -1,0 +1,85 @@
+.gallery-entry {
+  padding: 30px;
+}
+
+.gallery-entry-header {
+  margin-bottom: 25px;
+}
+
+.gallery-entry-header h1 {
+  margin: 0 0 5px;
+  font-size: 28px;
+  color: #222;
+}
+
+.gallery-entry-header p {
+  margin: 0;
+  color: #777;
+}
+
+.gallery-entry-card {
+  max-width: 700px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.gallery-preview {
+  margin: 20px 0;
+}
+
+.gallery-preview img {
+  width: 220px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.gallery-upload-btn {
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.gallery-upload-btn:hover {
+  background: #1d4ed8;
+}
+
+.gallery-message {
+  margin-top: 15px;
+  font-weight: 600;
+}

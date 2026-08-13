@@ -123,24 +123,24 @@ export default function AdminLayout() {
             )}
           </div>
 
-          {/* Gallery */}
-          <div className="sidebar-group">
-            <button
-              type="button"
-              className="sidebar-parent"
-              onClick={() => toggleMenu("gallery")}
-            >
-              <span>🖼️ Gallery</span>
-              <span>{openMenu === "gallery" ? "▲" : "▼"}</span>
-            </button>
+{/* Gallery */}
+<div className="sidebar-group">
+  <button
+    type="button"
+    className="sidebar-parent"
+    onClick={() => toggleMenu("gallery")}
+  >
+    <span>🖼️ Gallery</span>
+    <span>{openMenu === "gallery" ? "▲" : "▼"}</span>
+  </button>
 
-            {openMenu === "gallery" && (
-              <div className="sidebar-submenu">
-                <NavLink to="/admin/gallery">🖼️ Gallery List</NavLink>
-                <NavLink to="/admin/gallery-entry">➕ Add Photo</NavLink>
-              </div>
-            )}
-          </div>
+  {openMenu === "gallery" && (
+    <div className="sidebar-submenu">
+      <NavLink to="/admin/gallery">➕ Add Photo</NavLink>
+      <NavLink to="/admin/gallery-list">🖼️ Gallery List</NavLink>
+    </div>
+  )}
+</div>
 
           {/* Downloads */}
           <div className="sidebar-group">
