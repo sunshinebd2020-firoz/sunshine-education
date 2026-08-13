@@ -18,6 +18,8 @@ import TeacherEntry from "./admin/pages/teachers/TeacherEntry";
 import TeacherList from "./admin/pages/teachers/TeacherList";
 import GalleryEntry from "./admin/pages/GalleryEntry";
 import GalleryList from "./admin/pages/GalleryList";
+import BannerEntry from "./admin/pages/BannerEntry";
+import BannerList from "./admin/pages/BannerList";
 
 import Home from "./pages/Home";
 import Gallery from "./pages/Gallery";
@@ -146,6 +148,10 @@ export default function App() {
             {/* ================= GALLERY ================= */}
             <Route path="gallery" element={<GalleryEntry />} />
             <Route path="gallery-list" element={<GalleryList />} />
+
+            {/* ================= BANNER ================= */}
+            <Route path="banner-entry" element={<BannerEntry />} />
+            <Route path="banner-list" element={<BannerList />} />
 
           </Route>
 

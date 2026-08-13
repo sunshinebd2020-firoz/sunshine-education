@@ -1,0 +1,508 @@
+.banner-list {
+  padding: 30px;
+}
+
+
+/* ===============================
+   HEADER
+=============================== */
+
+.banner-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.banner-list-header h1 {
+  margin: 0 0 5px;
+}
+
+.banner-list-header p {
+  margin: 0;
+  color: #666;
+}
+
+
+/* ===============================
+   ADD BUTTON
+=============================== */
+
+.add-banner-btn {
+  background: #2563eb;
+  color: #fff;
+
+  text-decoration: none;
+
+  padding: 11px 18px;
+
+  border-radius: 7px;
+
+  font-weight: 600;
+}
+
+.add-banner-btn:hover {
+  background: #1d4ed8;
+}
+
+
+/* ===============================
+   MESSAGE
+=============================== */
+
+.banner-message {
+  padding: 12px 15px;
+  margin-bottom: 20px;
+
+  background: #eef6ff;
+  color: #1558a6;
+
+  border-radius: 6px;
+}
+
+
+/* ===============================
+   TABLE
+=============================== */
+
+.banner-table-wrapper {
+  background: #fff;
+
+  border-radius: 10px;
+
+  overflow-x: auto;
+
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.banner-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  min-width: 750px;
+}
+
+.banner-table th,
+.banner-table td {
+  padding: 14px;
+
+  border-bottom: 1px solid #eee;
+
+  text-align: left;
+}
+
+.banner-table th {
+  background: #f8fafc;
+
+  font-weight: 600;
+}
+
+
+/* ===============================
+   IMAGE
+=============================== */
+
+.banner-thumb {
+  width: 150px;
+  height: 75px;
+
+  object-fit: cover;
+
+  border-radius: 6px;
+
+  border: 1px solid #ddd;
+}
+
+
+/* ===============================
+   TITLE
+=============================== */
+
+.banner-table td strong {
+  display: block;
+
+  margin-bottom: 5px;
+}
+
+.banner-table td small {
+  display: block;
+
+  color: #777;
+
+  max-width: 250px;
+}
+
+
+/* ===============================
+   STATUS
+=============================== */
+
+.status-active,
+.status-inactive {
+  display: inline-block;
+
+  padding: 5px 10px;
+
+  border-radius: 20px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+.status-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+
+/* ===============================
+   ACTIONS
+=============================== */
+
+.banner-actions {
+  display: flex;
+
+  gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+  border: none;
+
+  padding: 7px 12px;
+
+  border-radius: 5px;
+
+  cursor: pointer;
+
+  font-size: 13px;
+}
+
+.edit-btn {
+  background: #e0ecff;
+  color: #1d4ed8;
+}
+
+.edit-btn:hover {
+  background: #d2e2ff;
+}
+
+.delete-btn {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.delete-btn:hover {
+  background: #fecaca;
+}
+
+
+/* ===============================
+   EMPTY
+=============================== */
+
+.empty-banner {
+  background: #fff;
+
+  padding: 40px;
+
+  text-align: center;
+
+  border-radius: 10px;
+
+  color: #777;
+}
+
+.banner-loading {
+  padding: 40px;
+
+  text-align: center;
+}
+
+
+/* ===============================
+   MODAL OVERLAY
+=============================== */
+
+.banner-modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  z-index: 9999;
+}
+
+
+/* ===============================
+   MODAL
+=============================== */
+
+.banner-modal {
+  width: 100%;
+  max-width: 800px;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  background: #fff;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+
+/* ===============================
+   MODAL HEADER
+=============================== */
+
+.banner-modal-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 18px 22px;
+
+  border-bottom: 1px solid #eee;
+}
+
+.banner-modal-header h2 {
+  margin: 0;
+
+  font-size: 21px;
+}
+
+.modal-close {
+  width: 34px;
+  height: 34px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #f1f5f9;
+
+  color: #334155;
+
+  font-size: 17px;
+
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  background: #e2e8f0;
+}
+
+
+/* ===============================
+   EDIT FORM
+=============================== */
+
+.banner-edit-form {
+  padding: 22px;
+}
+
+.edit-form-group {
+  flex: 1;
+
+  margin-bottom: 18px;
+}
+
+.edit-form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  font-weight: 600;
+
+  font-size: 14px;
+}
+
+.edit-form-group input,
+.edit-form-group textarea,
+.edit-form-group select {
+  width: 100%;
+
+  padding: 10px 12px;
+
+  border: 1px solid #d5d5d5;
+
+  border-radius: 6px;
+
+  font-size: 14px;
+
+  box-sizing: border-box;
+}
+
+.edit-form-group textarea {
+  resize: vertical;
+}
+
+.edit-form-group input:focus,
+.edit-form-group textarea:focus,
+.edit-form-group select:focus {
+  outline: none;
+
+  border-color: #2563eb;
+}
+
+
+/* ===============================
+   EDIT IMAGE PREVIEW
+=============================== */
+
+.edit-image-preview {
+  margin-top: 12px;
+
+  max-width: 650px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 7px;
+
+  overflow: hidden;
+}
+
+.edit-image-preview img {
+  display: block;
+
+  width: 100%;
+
+  height: auto;
+}
+
+
+/* ===============================
+   FORM ROW
+=============================== */
+
+.edit-form-row {
+  display: flex;
+
+  gap: 20px;
+}
+
+
+/* ===============================
+   MODAL ACTIONS
+=============================== */
+
+.modal-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding-top: 10px;
+}
+
+.cancel-btn,
+.update-btn {
+  border: none;
+
+  padding: 10px 18px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+.cancel-btn {
+  background: #e5e7eb;
+
+  color: #374151;
+}
+
+.cancel-btn:hover {
+  background: #d1d5db;
+}
+
+.update-btn {
+  background: #2563eb;
+
+  color: #fff;
+}
+
+.update-btn:hover {
+  background: #1d4ed8;
+}
+
+
+/* ===============================
+   MOBILE
+=============================== */
+
+@media (max-width: 700px) {
+
+  .banner-list {
+    padding: 15px;
+  }
+
+  .banner-list-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .add-banner-btn {
+    width: 100%;
+
+    text-align: center;
+
+    box-sizing: border-box;
+  }
+
+  .edit-form-row {
+    flex-direction: column;
+
+    gap: 0;
+  }
+
+  .banner-modal-overlay {
+    padding: 10px;
+  }
+
+  .banner-modal {
+    max-height: 95vh;
+  }
+
+  .banner-edit-form {
+    padding: 16px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .cancel-btn,
+  .update-btn {
+    width: 100%;
+  }
+}

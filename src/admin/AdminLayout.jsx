@@ -11,21 +11,29 @@ export default function AdminLayout() {
 
   return (
     <div className="admin-layout-container">
-      {/* Sidebar */}
+
+      {/* ================= SIDEBAR ================= */}
       <aside className="admin-sidebar">
+
         {/* Sidebar Header */}
         <div className="sidebar-header">
           <h2>Sunshine</h2>
           <p>Admin Panel</p>
         </div>
 
+        {/* Sidebar Menu */}
         <nav className="sidebar-menu">
+
           {/* Dashboard */}
-          <NavLink to="/admin/dashboard" className="sidebar-link">
+          <NavLink
+            to="/admin/dashboard"
+            className="sidebar-link"
+          >
             🏠 Dashboard
           </NavLink>
 
-          {/* Students */}
+
+          {/* ================= STUDENTS ================= */}
           <div className="sidebar-group">
             <button
               type="button"
@@ -33,18 +41,26 @@ export default function AdminLayout() {
               onClick={() => toggleMenu("students")}
             >
               <span>👨‍🎓 Students</span>
-              <span>{openMenu === "students" ? "▲" : "▼"}</span>
+              <span>
+                {openMenu === "students" ? "▲" : "▼"}
+              </span>
             </button>
 
             {openMenu === "students" && (
               <div className="sidebar-submenu">
-                <NavLink to="/admin/students">➕ Student Entry</NavLink>
-                <NavLink to="/admin/student-list">📋 Student List</NavLink>
+                <NavLink to="/admin/students">
+                  ➕ Student Entry
+                </NavLink>
+
+                <NavLink to="/admin/student-list">
+                  📋 Student List
+                </NavLink>
               </div>
             )}
           </div>
 
-          {/* Courses */}
+
+          {/* ================= COURSES ================= */}
           <div className="sidebar-group">
             <button
               type="button"
@@ -52,18 +68,26 @@ export default function AdminLayout() {
               onClick={() => toggleMenu("courses")}
             >
               <span>📚 Courses</span>
-              <span>{openMenu === "courses" ? "▲" : "▼"}</span>
+              <span>
+                {openMenu === "courses" ? "▲" : "▼"}
+              </span>
             </button>
 
             {openMenu === "courses" && (
               <div className="sidebar-submenu">
-                <NavLink to="/admin/courses">📖 Course List</NavLink>
-                <NavLink to="/admin/course-entry">➕ Course Entry</NavLink>
+                <NavLink to="/admin/courses">
+                  📖 Course List
+                </NavLink>
+
+                <NavLink to="/admin/course-entry">
+                  ➕ Course Entry
+                </NavLink>
               </div>
             )}
           </div>
 
-          {/* Income & Expense */}
+
+          {/* ================= INCOME & EXPENSE ================= */}
           <div className="sidebar-group">
             <button
               type="button"
@@ -71,21 +95,32 @@ export default function AdminLayout() {
               onClick={() => toggleMenu("accounts")}
             >
               <span>💰 Income & Expense</span>
-              <span>{openMenu === "accounts" ? "▲" : "▼"}</span>
+              <span>
+                {openMenu === "accounts" ? "▲" : "▼"}
+              </span>
             </button>
 
             {openMenu === "accounts" && (
               <div className="sidebar-submenu">
-                <NavLink to="/admin/income">💵 Income</NavLink>
-                <NavLink to="/admin/expense">💸 Expense</NavLink>
+
+                <NavLink to="/admin/income">
+                  💵 Income
+                </NavLink>
+
+                <NavLink to="/admin/expense">
+                  💸 Expense
+                </NavLink>
+
                 <NavLink to="/admin/accounts">
                   📊 Income & Expense Report
                 </NavLink>
+
               </div>
             )}
           </div>
 
-          {/* Teachers */}
+
+          {/* ================= TEACHERS ================= */}
           <div className="sidebar-group">
             <button
               type="button"
@@ -93,18 +128,28 @@ export default function AdminLayout() {
               onClick={() => toggleMenu("teachers")}
             >
               <span>👨‍🏫 Teachers</span>
-              <span>{openMenu === "teachers" ? "▲" : "▼"}</span>
+              <span>
+                {openMenu === "teachers" ? "▲" : "▼"}
+              </span>
             </button>
 
             {openMenu === "teachers" && (
               <div className="sidebar-submenu">
-                <NavLink to="/admin/teacher-list">📋 Teacher List</NavLink>
-                <NavLink to="/admin/teachers">➕ Teacher Entry</NavLink>
+
+                <NavLink to="/admin/teacher-list">
+                  📋 Teacher List
+                </NavLink>
+
+                <NavLink to="/admin/teachers">
+                  ➕ Teacher Entry
+                </NavLink>
+
               </div>
             )}
           </div>
 
-          {/* Notices */}
+
+          {/* ================= NOTICES ================= */}
           <div className="sidebar-group">
             <button
               type="button"
@@ -112,37 +157,86 @@ export default function AdminLayout() {
               onClick={() => toggleMenu("notices")}
             >
               <span>📢 Notices</span>
-              <span>{openMenu === "notices" ? "▲" : "▼"}</span>
+              <span>
+                {openMenu === "notices" ? "▲" : "▼"}
+              </span>
             </button>
 
             {openMenu === "notices" && (
               <div className="sidebar-submenu">
-                <NavLink to="/admin/notices">📢 Notice List</NavLink>
-                <NavLink to="/admin/notice-entry">➕ Add Notice</NavLink>
+
+                <NavLink to="/admin/notices">
+                  📢 Notice List
+                </NavLink>
+
+                <NavLink to="/admin/notice-entry">
+                  ➕ Add Notice
+                </NavLink>
+
               </div>
             )}
           </div>
 
-{/* Gallery */}
-<div className="sidebar-group">
-  <button
-    type="button"
-    className="sidebar-parent"
-    onClick={() => toggleMenu("gallery")}
-  >
-    <span>🖼️ Gallery</span>
-    <span>{openMenu === "gallery" ? "▲" : "▼"}</span>
-  </button>
 
-  {openMenu === "gallery" && (
-    <div className="sidebar-submenu">
-      <NavLink to="/admin/gallery">➕ Add Photo</NavLink>
-      <NavLink to="/admin/gallery-list">🖼️ Gallery List</NavLink>
-    </div>
-  )}
-</div>
+          {/* ================= GALLERY ================= */}
+          <div className="sidebar-group">
+            <button
+              type="button"
+              className="sidebar-parent"
+              onClick={() => toggleMenu("gallery")}
+            >
+              <span>🖼️ Gallery</span>
+              <span>
+                {openMenu === "gallery" ? "▲" : "▼"}
+              </span>
+            </button>
 
-          {/* Downloads */}
+            {openMenu === "gallery" && (
+              <div className="sidebar-submenu">
+
+                <NavLink to="/admin/gallery">
+                  ➕ Add Photo
+                </NavLink>
+
+                <NavLink to="/admin/gallery-list">
+                  🖼️ Gallery List
+                </NavLink>
+
+              </div>
+            )}
+          </div>
+
+
+          {/* ================= BANNERS ================= */}
+          <div className="sidebar-group">
+            <button
+              type="button"
+              className="sidebar-parent"
+              onClick={() => toggleMenu("banners")}
+            >
+              <span>🎞️ Banners</span>
+              <span>
+                {openMenu === "banners" ? "▲" : "▼"}
+              </span>
+            </button>
+
+            {openMenu === "banners" && (
+              <div className="sidebar-submenu">
+
+                <NavLink to="/admin/banner-list">
+                  📋 Banner List
+                </NavLink>
+
+                <NavLink to="/admin/banner-entry">
+                  ➕ Add Banner
+                </NavLink>
+
+              </div>
+            )}
+          </div>
+
+
+          {/* ================= DOWNLOADS ================= */}
           <div className="sidebar-group">
             <button
               type="button"
@@ -150,18 +244,28 @@ export default function AdminLayout() {
               onClick={() => toggleMenu("downloads")}
             >
               <span>📥 Downloads</span>
-              <span>{openMenu === "downloads" ? "▲" : "▼"}</span>
+              <span>
+                {openMenu === "downloads" ? "▲" : "▼"}
+              </span>
             </button>
 
             {openMenu === "downloads" && (
               <div className="sidebar-submenu">
-                <NavLink to="/admin/downloads">📥 Download List</NavLink>
-                <NavLink to="/admin/download-entry">➕ Add Download</NavLink>
+
+                <NavLink to="/admin/downloads">
+                  📥 Download List
+                </NavLink>
+
+                <NavLink to="/admin/download-entry">
+                  ➕ Add Download
+                </NavLink>
+
               </div>
             )}
           </div>
 
-          {/* Settings */}
+
+          {/* ================= SETTINGS ================= */}
           <div className="sidebar-group">
             <button
               type="button"
@@ -169,28 +273,45 @@ export default function AdminLayout() {
               onClick={() => toggleMenu("settings")}
             >
               <span>⚙️ Settings</span>
-              <span>{openMenu === "settings" ? "▲" : "▼"}</span>
+              <span>
+                {openMenu === "settings" ? "▲" : "▼"}
+              </span>
             </button>
 
             {openMenu === "settings" && (
               <div className="sidebar-submenu">
-                <NavLink to="/admin/settings">⚙️ General Settings</NavLink>
-                <NavLink to="/admin/admin-users">👤 Admin Users</NavLink>
+
+                <NavLink to="/admin/settings">
+                  ⚙️ General Settings
+                </NavLink>
+
+                <NavLink to="/admin/admin-users">
+                  👤 Admin Users
+                </NavLink>
+
               </div>
             )}
           </div>
+
         </nav>
 
-        {/* Logout */}
-        <button type="button" className="logout-button">
+
+        {/* ================= LOGOUT ================= */}
+        <button
+          type="button"
+          className="logout-button"
+        >
           🚪 Logout
         </button>
+
       </aside>
 
-      {/* Admin Main Content */}
+
+      {/* ================= MAIN CONTENT ================= */}
       <main className="admin-main">
         <Outlet />
       </main>
+
     </div>
   );
 }

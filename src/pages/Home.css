@@ -1,3 +1,7 @@
+/* =========================================
+   HOME PAGE
+========================================= */
+
 .home-page {
   width: 100%;
   background: #f8fafc;
@@ -5,67 +9,192 @@
 }
 
 
-/* ================= BANNER ================= */
+/* =========================================
+   BANNER
+========================================= */
 
 .home-banner {
-  min-height: 420px;
+  position: relative;
+
+  width: 100%;
+  height: 420px;
+
+  overflow: hidden;
+
+  background: #0f172a;
+}
+
+
+/* =========================================
+   BANNER SLIDER
+========================================= */
+
+.banner-slider {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+}
+
+
+/* =========================================
+   BANNER SLIDE
+========================================= */
+
+.banner-slide {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  transform: translateX(100%);
+
+  opacity: 0;
+
+  transition:
+    transform 0.8s ease-in-out,
+    opacity 0.8s ease-in-out;
+}
+
+
+/* Active slide */
+
+.banner-slide.active {
+  transform: translateX(0);
+
+  opacity: 1;
+
+  z-index: 2;
+}
+
+
+/* =========================================
+   ARROWS
+========================================= */
+
+.banner-arrow {
+  position: absolute;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  z-index: 5;
+
+  width: 45px;
+  height: 45px;
+
+  padding: 0;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: rgba(0, 0, 0, 0.40);
+
+  color: #ffffff;
+
+  font-size: 22px;
+
+  cursor: pointer;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
-  background:
-    linear-gradient(
-      rgba(15, 23, 42, 0.65),
-      rgba(15, 23, 42, 0.65)
-    ),
-    url("/images/banner.jpg") center/cover no-repeat;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
 
-  text-align: center;
-  color: white;
+.banner-arrow:hover {
+  background: rgba(0, 0, 0, 0.70);
+
+  transform:
+    translateY(-50%)
+    scale(1.05);
 }
 
 
-.banner-content {
-  max-width: 800px;
-  padding: 30px;
+.banner-prev {
+  left: 20px;
 }
 
 
-.banner-content h1 {
-  font-size: 42px;
-  margin: 0 0 15px;
+.banner-next {
+  right: 20px;
 }
 
 
-.banner-content p {
-  font-size: 20px;
-  margin: 0 0 25px;
+/* =========================================
+   DOTS
+========================================= */
+
+.banner-dots {
+  position: absolute;
+
+  bottom: 18px;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  z-index: 5;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
 }
 
 
-.banner-content button {
-  padding: 12px 28px;
+.banner-dot {
+  width: 10px;
+  height: 10px;
+
+  padding: 0;
+
   border: none;
-  border-radius: 6px;
 
-  background: #2563eb;
-  color: white;
+  border-radius: 50%;
 
-  font-size: 16px;
+  background: rgba(255, 255, 255, 0.60);
+
   cursor: pointer;
+
+  transition:
+    width 0.2s ease,
+    background 0.2s ease;
 }
 
 
-.banner-content button:hover {
-  background: #1d4ed8;
+.banner-dot.active {
+  width: 25px;
+
+  border-radius: 10px;
+
+  background: #ffffff;
 }
 
 
-/* ================= MAIN LAYOUT ================= */
+/* =========================================
+   MAIN LAYOUT
+========================================= */
 
 .home-layout {
   max-width: 1200px;
+
   margin: 0 auto;
 
   padding: 35px 20px;
@@ -82,17 +211,21 @@
 }
 
 
-/* ================= LEFT MAIN ================= */
+/* =========================================
+   LEFT MAIN
+========================================= */
 
 .home-main {
   min-width: 0;
 }
 
 
-/* ================= WELCOME ================= */
+/* =========================================
+   WELCOME
+========================================= */
 
 .welcome {
-  background: white;
+  background: #ffffff;
 
   padding: 35px 30px;
 
@@ -127,10 +260,13 @@
 }
 
 
-/* ================= COMMON SECTION ================= */
+/* =========================================
+   COMMON SECTION
+========================================= */
 
 .home-section {
   padding: 0;
+
   margin-bottom: 30px;
 }
 
@@ -146,7 +282,9 @@
 }
 
 
-/* ================= COURSE ================= */
+/* =========================================
+   COURSES
+========================================= */
 
 .course-cards {
   display: grid;
@@ -159,7 +297,7 @@
 
 
 .home-card {
-  background: white;
+  background: #ffffff;
 
   padding: 25px 20px;
 
@@ -203,7 +341,9 @@
 }
 
 
-/* ================= NOTICE ================= */
+/* =========================================
+   NOTICE
+========================================= */
 
 .notice-section {
   margin-top: 10px;
@@ -211,7 +351,7 @@
 
 
 .notice-box {
-  background: white;
+  background: #ffffff;
 
   border-radius: 10px;
 
@@ -260,7 +400,9 @@
 }
 
 
-/* ================= RIGHT SIDEBAR ================= */
+/* =========================================
+   RIGHT SIDEBAR
+========================================= */
 
 .home-sidebar {
   min-width: 0;
@@ -273,10 +415,8 @@
 }
 
 
-/* ================= SIDEBAR SECTION ================= */
-
 .sidebar-section {
-  background: white;
+  background: #ffffff;
 
   padding: 20px;
 
@@ -287,59 +427,25 @@
 }
 
 
-.sidebar-title {
-  margin: 0 0 18px;
+/* =========================================
+   FACEBOOK
+========================================= */
 
-  padding-bottom: 12px;
+.facebook-activity {
+  width: 100%;
 
-  border-bottom: 2px solid #e5e7eb;
-
-  font-size: 21px;
-
-  color: #1e293b;
-}
-
-/* ================= FACEBOOK ================= */
-
-.facebook-box {
-  text-align: center;
+  overflow: hidden;
 }
 
 
-.facebook-box h3 {
-  margin-top: 0;
+.facebook-activity iframe {
+  max-width: 100%;
 }
 
 
-.facebook-box p {
-  color: #64748b;
-
-  line-height: 1.7;
-}
-
-
-.facebook-button {
-  display: inline-block;
-
-  margin-top: 10px;
-
-  padding: 10px 20px;
-
-  border-radius: 6px;
-
-  background: #1877f2;
-
-  color: white;
-
-  text-decoration: none;
-}
-
-
-.facebook-button:hover {
-  background: #0d65d9;
-}
-
-/* ================= YOUTUBE ================= */
+/* =========================================
+   YOUTUBE
+========================================= */
 
 .youtube-container {
   width: 100%;
@@ -350,7 +456,7 @@
 
   border-radius: 8px;
 
-  background: #000;
+  background: #000000;
 }
 
 
@@ -362,94 +468,9 @@
 }
 
 
-/* ================= APP ================= */
-
-.app-sidebar-card {
-  text-align: center;
-}
-
-
-.app-image img {
-  width: 120px;
-  height: 120px;
-
-  object-fit: contain;
-
-  margin-bottom: 10px;
-}
-
-
-.app-sidebar-card h3 {
-  margin: 5px 0 10px;
-
-  color: #1e293b;
-}
-
-
-.app-sidebar-card p {
-  color: #64748b;
-
-  line-height: 1.6;
-
-  margin-bottom: 15px;
-}
-
-
-.app-sidebar-card a {
-  display: inline-block;
-
-  padding: 10px 20px;
-
-  border-radius: 6px;
-
-  background: #16a34a;
-
-  color: white;
-
-  text-decoration: none;
-}
-
-
-.app-sidebar-card a:hover {
-  background: #15803d;
-}
-
-
-/* ================= BRANCH ================= */
-
-.sidebar-branch {
-  padding: 15px 0;
-
-  border-bottom: 1px solid #e5e7eb;
-}
-
-
-.sidebar-branch:last-child {
-  border-bottom: none;
-}
-
-
-.sidebar-branch h3 {
-  margin: 0 0 7px;
-
-  font-size: 17px;
-
-  color: #1e293b;
-}
-
-
-.sidebar-branch p {
-  margin: 4px 0;
-
-  color: #64748b;
-
-  font-size: 14px;
-}
-
-
-
-
-/* ================= FEATURES ================= */
+/* =========================================
+   FEATURES
+========================================= */
 
 .features-section {
   max-width: 1200px;
@@ -470,7 +491,9 @@
 }
 
 
-/* ================= ABOUT ================= */
+/* =========================================
+   ABOUT
+========================================= */
 
 .about-home {
   max-width: 1000px;
@@ -481,7 +504,7 @@
 
   text-align: center;
 
-  background: white;
+  background: #ffffff;
 
   border-radius: 10px;
 
@@ -506,7 +529,9 @@
 }
 
 
-/* ================= TABLET ================= */
+/* =========================================
+   TABLET
+========================================= */
 
 @media (max-width: 900px) {
 
@@ -533,22 +558,14 @@
 }
 
 
-/* ================= MOBILE ================= */
+/* =========================================
+   MOBILE
+========================================= */
 
 @media (max-width: 768px) {
 
   .home-banner {
-    min-height: 350px;
-  }
-
-
-  .banner-content h1 {
-    font-size: 30px;
-  }
-
-
-  .banner-content p {
-    font-size: 16px;
+    height: 350px;
   }
 
 
@@ -595,47 +612,53 @@
     font-size: 24px;
   }
 
+
+  .banner-arrow {
+    width: 38px;
+    height: 38px;
+
+    font-size: 18px;
+  }
+
+
+  .banner-prev {
+    left: 10px;
+  }
+
+
+  .banner-next {
+    right: 10px;
+  }
+
 }
 
 
-/* ================= SMALL MOBILE ================= */
+/* =========================================
+   SMALL MOBILE
+========================================= */
 
 @media (max-width: 500px) {
 
   .home-banner {
-    min-height: 320px;
+    height: 320px;
   }
 
 
-  .banner-content {
-    padding: 20px;
+  .banner-arrow {
+    width: 34px;
+    height: 34px;
+
+    font-size: 16px;
   }
 
 
-  .banner-content h1 {
-    font-size: 26px;
-  }
-
-
-  .banner-content p {
-    font-size: 15px;
-  }
-
-
-  .banner-content button {
-    padding: 10px 22px;
-
-    font-size: 14px;
+  .banner-dots {
+    bottom: 12px;
   }
 
 
   .sidebar-section {
     padding: 18px;
-  }
-
-
-  .sidebar-title {
-    font-size: 19px;
   }
 
 }
