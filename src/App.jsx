@@ -27,6 +27,13 @@ import IncomeEntry from "./admin/pages/IncomeEntry";
 import IncomeList from "./admin/pages/IncomeList";
 import IncomeEdit from "./admin/pages/IncomeEdit";
 
+/* ================= NOTICE ================= */
+
+import NoticeEntry from "./admin/pages/NoticeEntry";
+import NoticeList from "./admin/pages/NoticeList";
+import NoticeEdit from "./admin/pages/NoticeEdit";
+
+
 import Home from "./pages/Home";
 import Gallery from "./pages/Gallery";
 import Notice from "./pages/Notice";
@@ -36,6 +43,7 @@ import About from "./pages/About";
 import Courses from "./pages/Courses";
 import Admission from "./pages/Admission";
 import Contact from "./pages/Contact";
+
 
 export default function App() {
   return (
@@ -50,7 +58,10 @@ export default function App() {
 
           {/* ================= WEBSITE ================= */}
 
-          <Route path="/" element={<Home />} />
+          <Route
+            path="/"
+            element={<Home />}
+          />
 
           <Route
             path="/gallery"
@@ -180,10 +191,38 @@ export default function App() {
 
             {/* ================= INCOME & EXPENSE ================= */}
 
-            {/* Income Entry */}
-            <Route path="income" element={<IncomeEntry />} />
-            <Route path="income-list" element={<IncomeList />} />
-            <Route path="income-edit/:id" element={<IncomeEdit />}/>
+            <Route
+              path="income"
+              element={<IncomeEntry />}
+            />
+
+            <Route
+              path="income-list"
+              element={<IncomeList />}
+            />
+
+            <Route
+              path="income-edit/:id"
+              element={<IncomeEdit />}
+            />
+
+
+            {/* ================= NOTICE ================= */}
+
+            <Route
+              path="notices"
+              element={<NoticeList />}
+            />
+
+            <Route
+              path="notice-entry"
+              element={<NoticeEntry />}
+            />
+
+            <Route
+              path="notice-edit/:id"
+              element={<NoticeEdit />}
+            />
 
           </Route>
 

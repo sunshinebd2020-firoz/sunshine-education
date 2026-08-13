@@ -92,11 +92,10 @@
 
 
 /* =========================================
-   SIDEBAR MAIN LINK
+   DASHBOARD LINK
 ========================================= */
 
-.sidebar-link,
-.sidebar-parent {
+.sidebar-link {
   width: 100%;
   min-height: 46px;
 
@@ -104,7 +103,6 @@
 
   display: flex;
   align-items: center;
-  justify-content: space-between;
 
   border: none;
 
@@ -127,14 +125,93 @@
 
 
 /* =========================================
-   SIDEBAR LINK HOVER + ACTIVE
+   MAIN MENU BUTTON
+========================================= */
+
+.sidebar-parent {
+  width: 100%;
+  min-height: 46px;
+
+  padding: 11px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border: none;
+
+  background: transparent;
+
+  color: #cbd5e1;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+
+/* =========================================
+   MENU HOVER
 ========================================= */
 
 .sidebar-link:hover,
-.sidebar-parent:hover,
-.sidebar-link.active {
+.sidebar-parent:hover {
   background-color: #334155;
   color: #ffffff;
+}
+
+
+/* =========================================
+   ACTIVE DASHBOARD
+========================================= */
+
+.sidebar-link.active {
+  background-color: #334155;
+
+  color: #38bdf8;
+
+  font-weight: 600;
+
+  border-left: 3px solid #38bdf8;
+}
+
+
+/* =========================================
+   ACTIVE PARENT MENU
+========================================= */
+
+.sidebar-parent.parent-active {
+  background-color: #334155;
+
+  color: #ffffff;
+
+  font-weight: 600;
+
+  border-left: 3px solid #38bdf8;
+}
+
+
+/* =========================================
+   MENU ARROW
+========================================= */
+
+.menu-arrow {
+  font-size: 10px;
+
+  color: #94a3b8;
+
+  transition: transform 0.2s ease;
+}
+
+.sidebar-parent.parent-active .menu-arrow {
+  color: #38bdf8;
 }
 
 
@@ -147,6 +224,8 @@
 
   display: flex;
   flex-direction: column;
+
+  padding: 4px 0;
 }
 
 
@@ -171,21 +250,38 @@
 
   text-overflow: ellipsis;
 
+  border-left: 3px solid transparent;
+
   transition:
     background-color 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 
 /* =========================================
-   SUBMENU HOVER + ACTIVE
+   SUBMENU HOVER
 ========================================= */
 
-.sidebar-submenu a:hover,
+.sidebar-submenu a:hover {
+  background-color: #1e293b;
+
+  color: #ffffff;
+}
+
+
+/* =========================================
+   SUBMENU ACTIVE
+========================================= */
+
 .sidebar-submenu a.active {
   background-color: #1e293b;
 
   color: #38bdf8;
+
+  font-weight: 600;
+
+  border-left-color: #38bdf8;
 }
 
 
@@ -214,13 +310,19 @@
 
   cursor: pointer;
 
-  transition: background-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
 
   flex-shrink: 0;
 }
 
 .logout-button:hover {
   background-color: #dc2626;
+}
+
+.logout-button:active {
+  transform: scale(0.98);
 }
 
 
@@ -236,7 +338,6 @@
   padding: 24px;
 
   overflow-x: hidden;
-
   overflow-y: auto;
 }
 
@@ -341,6 +442,40 @@
     width: calc(100% - 20px);
 
     margin: 10px;
+  }
+
+}
+
+
+/* =========================================
+   VERY SMALL SCREEN
+========================================= */
+
+@media (max-width: 450px) {
+
+  .admin-sidebar {
+    width: 170px;
+    min-width: 170px;
+    max-width: 170px;
+  }
+
+  .sidebar-header h2 {
+    font-size: 17px;
+  }
+
+  .sidebar-link,
+  .sidebar-parent {
+    font-size: 11px;
+  }
+
+  .sidebar-submenu a {
+    font-size: 10px;
+
+    padding-left: 20px;
+  }
+
+  .admin-main {
+    padding: 8px;
   }
 
 }

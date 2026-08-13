@@ -2,6 +2,8 @@
   padding: 30px;
 }
 
+/* ================= HEADER ================= */
+
 .income-entry-header {
   margin-bottom: 25px;
 }
@@ -16,6 +18,8 @@
   margin: 0;
   color: #6b7280;
 }
+
+/* ================= FORM ================= */
 
 .income-form {
   background: #ffffff;
@@ -33,6 +37,7 @@
 .form-group {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .form-group label {
@@ -52,71 +57,27 @@
   border-radius: 7px;
   font-size: 14px;
   outline: none;
-  background: #fff;
+  background: #ffffff;
+  font-family: inherit;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
 }
 
 .form-group textarea {
   resize: vertical;
+  min-height: 100px;
 }
 
 .full-width {
   grid-column: 1 / -1;
 }
 
-.form-actions {
-  margin-top: 25px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.form-actions button {
-  border: none;
-  padding: 12px 28px;
-  border-radius: 7px;
-  background: #2563eb;
-  color: white;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.form-actions button:hover {
-  background: #1d4ed8;
-}
-
-.income-message {
-  margin-top: 20px;
-  padding: 12px 15px;
-  border-radius: 7px;
-  background: #ecfdf5;
-  color: #047857;
-  font-size: 14px;
-}
-
-@media (max-width: 768px) {
-  .income-entry {
-    padding: 15px;
-  }
-
-  .income-form {
-    padding: 20px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .full-width {
-    grid-column: auto;
-  }
-
-  /* ================= STUDENT INFO ================= */
+/* ================= STUDENT INFO ================= */
 
 .form-group small {
   margin-top: 5px;
@@ -124,14 +85,12 @@
   font-size: 11px;
 }
 
-
 /* Student ID */
 
 .form-group input[name="student_id"] {
   color: #1d4ed8;
   font-weight: 600;
 }
-
 
 /* Student Name */
 
@@ -147,105 +106,76 @@
 
 .student-suggestions {
   position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #ffffff;
-  border: 1px solid #dcdcdc;
-  border-radius: 6px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
-  z-index: 1000;
-  overflow: hidden;
-}
 
-.student-suggestion {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 14px;
-  cursor: pointer;
-  border-bottom: 1px solid #eeeeee;
-  background: #ffffff;
-}
-
-.student-suggestion:last-child {
-  border-bottom: none;
-}
-
-.student-suggestion:hover {
-  background: #f3f7ff;
-}
-
-.student-suggestion strong {
-  color: #1d4ed8;
-  font-size: 14px;
-  min-width: 110px;
-}
-
-.student-suggestion span {
-  color: #333333;
-  font-size: 14px;
-}
-
-/* ================= STUDENT AUTOCOMPLETE ================= */
-
-.student-autocomplete {
-  position: relative;
-}
-
-.student-suggestions {
-  position: absolute;
-  top: calc(100% - 1px);
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
 
   background: #ffffff;
 
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
 
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 
   z-index: 9999;
 
-  max-height: 260px;
+  padding: 5px 0;
+
+  max-height: 280px;
   overflow-y: auto;
 }
+
+/* ================= SUGGESTION ITEM ================= */
 
 .student-suggestion {
   display: flex;
   align-items: center;
 
-  gap: 12px;
+  gap: 16px;
 
-  padding: 12px 14px;
+  min-height: 48px;
+
+  padding: 10px 15px;
 
   cursor: pointer;
 
-  border-bottom: 1px solid #eeeeee;
-
   background: #ffffff;
 
-  transition: background 0.15s ease;
+  border-bottom: 1px solid #f0f0f0;
+
+  transition:
+    background 0.15s ease,
+    padding-left 0.15s ease;
 }
 
 .student-suggestion:last-child {
   border-bottom: none;
 }
 
+/* Hover */
+
 .student-suggestion:hover {
-  background: #f3f6fb;
+  background: #f5f8fc;
+  padding-left: 20px;
 }
+
+/* Student ID */
 
 .student-suggestion strong {
-  min-width: 115px;
+  min-width: 125px;
 
   font-size: 14px;
+  font-weight: 600;
 
-  color: #1d4ed8;
+  color: #2563eb;
 }
 
+/* Student Name */
+
 .student-suggestion span {
+  flex: 1;
+
   font-size: 14px;
 
   color: #333333;
@@ -255,13 +185,100 @@
   text-overflow: ellipsis;
 }
 
-.student-autocomplete small {
-  display: block;
+/* ================= AUTOCOMPLETE SCROLLBAR ================= */
 
-  margin-top: 5px;
-
-  font-size: 12px;
-
-  color: #777777;
+.student-suggestions::-webkit-scrollbar {
+  width: 6px;
 }
+
+.student-suggestions::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.student-suggestions::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+/* ================= MESSAGE ================= */
+
+.income-message {
+  margin-top: 20px;
+  padding: 12px 15px;
+  border-radius: 7px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 14px;
+}
+
+/* ================= BUTTON ================= */
+
+.form-actions {
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.form-actions button {
+  border: none;
+  padding: 12px 28px;
+  border-radius: 7px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.form-actions button:hover {
+  background: #1d4ed8;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+  .income-entry {
+    padding: 15px;
+  }
+
+  .income-entry-header h1 {
+    font-size: 24px;
+  }
+
+  .income-form {
+    padding: 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .full-width {
+    grid-column: auto;
+  }
+
+  .form-actions {
+    justify-content: stretch;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
+  .student-suggestion {
+    gap: 10px;
+    padding: 11px 12px;
+  }
+
+  .student-suggestion strong {
+    min-width: 105px;
+    font-size: 13px;
+  }
+
+  .student-suggestion span {
+    font-size: 13px;
+  }
 }

@@ -1,60 +1,141 @@
 import "./Notice.css";
+import { useEffect, useState } from "react";
 
 export default function Notice() {
+  const [notices, setNotices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const notices = [
-    {
-      title: "Japanese Language Course ভর্তি শুরু",
-      date: "05 August 2026",
-      details: "Japanese Language Course-এ নতুন ব্যাচের ভর্তি চলছে।"
-    },
-    {
-      title: "Korean Language Course ক্লাস শুরু",
-      date: "10 August 2026",
-      details: "নতুন শিক্ষার্থীদের ক্লাস আগামী সপ্তাহ থেকে শুরু হবে।"
-    },
-    {
-      title: "German Language Course পরীক্ষা",
-      date: "15 August 2026",
-      details: "German Language Course এর মূল্যায়ন পরীক্ষা অনুষ্ঠিত হবে।"
+  /* ================= LOAD NOTICES ================= */
+
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost/sunshine-api/api/notices.php"
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          // শুধু Active Notice দেখাবে
+          const activeNotices = (data.data || []).filter(
+            (notice) =>
+              String(notice.status || "").toLowerCase() ===
+              "active"
+          );
+
+          setNotices(activeNotices);
+        } else {
+          setError(
+            data.message || "Notice load করা যায়নি"
+          );
+        }
+      } catch (error) {
+        console.error("Notice fetch error:", error);
+
+        setError(
+          "Server-এর সাথে সংযোগ করা যাচ্ছে না"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotices();
+  }, []);
+
+  /* ================= DATE FORMAT ================= */
+
+  const formatDate = (date) => {
+    if (!date) return "";
+
+    const parts = date.split("-");
+
+    if (parts.length === 3) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
     }
-  ];
 
+    return date;
+  };
 
   return (
     <div className="notice">
 
+      {/* ================= HEADER ================= */}
+
       <section className="notice-header">
         <h1>Notice Board</h1>
+
         <p>
           প্রতিষ্ঠানের সর্বশেষ নোটিশ ও গুরুত্বপূর্ণ তথ্য
         </p>
       </section>
 
 
-      <section className="notice-list">
+      {/* ================= LOADING ================= */}
 
-        {notices.map((notice, index) => (
-          <div className="notice-card" key={index}>
+      {loading && (
+        <div className="notice-loading">
+          Notice loading হচ্ছে...
+        </div>
+      )}
 
-            <h2>{notice.title}</h2>
 
-            <p className="date">
-              📅 {notice.date}
-            </p>
+      {/* ================= ERROR ================= */}
 
-            <p>
-              {notice.details}
-            </p>
+      {!loading && error && (
+        <div className="notice-error">
+          {error}
+        </div>
+      )}
 
-            <button>
-              View Details
-            </button>
 
+      {/* ================= NOTICE LIST ================= */}
+
+      {!loading &&
+        !error &&
+        notices.length > 0 && (
+          <section className="notice-list">
+
+            {notices.map((notice) => (
+              <div
+                className="notice-card"
+                key={notice.id}
+              >
+
+                <h2>
+                  {notice.title}
+                </h2>
+
+                <p className="date">
+                  📅 {formatDate(notice.notice_date)}
+                </p>
+
+                <p>
+                  {notice.description || ""}
+                </p>
+
+                <button type="button">
+                  View Details
+                </button>
+
+              </div>
+            ))}
+
+          </section>
+        )}
+
+
+      {/* ================= NO NOTICE ================= */}
+
+      {!loading &&
+        !error &&
+        notices.length === 0 && (
+          <div className="notice-empty">
+            বর্তমানে কোনো Notice নেই।
           </div>
-        ))}
-
-      </section>
+        )}
 
     </div>
   );

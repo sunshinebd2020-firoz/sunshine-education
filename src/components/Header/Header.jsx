@@ -32,7 +32,7 @@ export default function Header() {
         <div className="social-links">
 
           <a
-            href="#"
+            href="https://wa.me/8801540019837?text=Hello%20Sunshine%20Education"
             className="social whatsapp"
             title="WhatsApp"
           >
@@ -40,7 +40,7 @@ export default function Header() {
           </a>
 
           <a
-            href="#"
+            href="https://www.facebook.com/sunshine.eduraj"
             className="social facebook"
             title="Facebook Page"
           >
@@ -48,7 +48,7 @@ export default function Header() {
           </a>
 
           <a
-            href="#"
+            href="https://www.facebook.com/groups/sunshine.eduraj"
             className="social facebook"
             title="Facebook Group"
           >
@@ -56,7 +56,7 @@ export default function Header() {
           </a>
 
           <a
-            href="#"
+            href="https://www.youtube.com/@SunshineEducationlanguage"
             className="social youtube"
             title="YouTube"
           >

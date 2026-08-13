@@ -1,56 +1,271 @@
+/* =========================================
+   NOTICE PAGE
+========================================= */
+
 .notice {
-  padding: 30px;
+  width: 100%;
+  padding: 40px 30px;
+  margin: 0;
+  box-sizing: border-box;
 }
 
+
+/* =========================================
+   NOTICE HEADER
+========================================= */
+
 .notice-header {
+  width: 100%;
   text-align: center;
-  background: #f1f8f5;
-  padding: 30px;
-  border-radius: 10px;
+  margin-bottom: 30px;
 }
 
 .notice-header h1 {
-  color: #0b5d3b;
+  margin: 0 0 8px;
+  font-size: 32px;
+  color: #1e293b;
+}
+
+.notice-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 15px;
 }
 
 
+/* =========================================
+   NOTICE LIST
+========================================= */
+
 .notice-list {
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
+  width: 100%;
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
   gap: 20px;
 }
 
 
+/* =========================================
+   NOTICE CARD
+========================================= */
+
 .notice-card {
-  background: white;
-  padding: 20px;
+  width: 100%;
+  min-width: 0;
+
+  padding: 22px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
   border-radius: 10px;
-  box-shadow: 0 3px 10px #ddd;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  transition: 0.2s ease;
+
+  overflow: hidden;
 }
 
+.notice-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.10);
+}
+
+
+/* =========================================
+   TITLE
+========================================= */
 
 .notice-card h2 {
-  color: #0b5d3b;
+  margin: 0 0 10px;
+
+  font-size: 18px;
+  line-height: 1.5;
+
+  color: #1e293b;
+
+  word-break: break-word;
 }
 
 
-.date {
-  color: #777;
+/* =========================================
+   DATE
+========================================= */
+
+.notice-card .date {
+  margin: 0 0 12px;
+
+  color: #2563eb;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+
+/* =========================================
+   DESCRIPTION
+========================================= */
+
+.notice-card > p:not(.date) {
+  margin: 0 0 18px;
+
+  color: #64748b;
+
   font-size: 14px;
+
+  line-height: 1.7;
+
+  word-break: break-word;
 }
 
+
+/* =========================================
+   VIEW DETAILS
+========================================= */
 
 .notice-card button {
-  background: #0b5d3b;
-  color: white;
   border: none;
-  padding: 8px 18px;
-  border-radius: 5px;
+
+  padding: 9px 16px;
+
+  border-radius: 6px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
   cursor: pointer;
 }
 
-
 .notice-card button:hover {
-  background: #09462d;
+  background: #1d4ed8;
+}
+
+
+/* =========================================
+   LOADING
+========================================= */
+
+.notice-loading {
+  width: 100%;
+
+  padding: 40px;
+
+  text-align: center;
+
+  background: #ffffff;
+
+  border-radius: 10px;
+
+  color: #64748b;
+}
+
+
+/* =========================================
+   ERROR
+========================================= */
+
+.notice-error {
+  width: 100%;
+
+  padding: 15px;
+
+  text-align: center;
+
+  background: #fef2f2;
+
+  border-radius: 8px;
+
+  color: #dc2626;
+}
+
+
+/* =========================================
+   EMPTY
+========================================= */
+
+.notice-empty {
+  width: 100%;
+
+  padding: 45px 20px;
+
+  text-align: center;
+
+  background: #ffffff;
+
+  border-radius: 10px;
+
+  color: #64748b;
+}
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+
+  .notice {
+    padding: 30px 20px;
+  }
+
+  .notice-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .notice {
+    padding: 25px 15px;
+  }
+
+  .notice-list {
+    grid-template-columns: 1fr;
+  }
+
+  .notice-header h1 {
+    font-size: 27px;
+  }
+
+  .notice-card {
+    padding: 20px;
+  }
+
+  /* =========================================
+   FORCE FULL WIDTH NOTICE
+========================================= */
+
+.content {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notice {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 40px 30px;
+}
+
+.notice-list {
+  width: 100%;
+  max-width: none;
+}
 }

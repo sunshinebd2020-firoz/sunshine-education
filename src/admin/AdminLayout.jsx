@@ -1,136 +1,315 @@
-import { NavLink, Outlet } from "react-router-dom";
-import { useState } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import "./AdminLayout.css";
 
 export default function AdminLayout() {
-  const [openMenu, setOpenMenu] = useState("students");
+  const location = useLocation();
+
+  /* ================= ACTIVE MENU ================= */
+
+  const getActiveMenu = (pathname) => {
+    if (
+      pathname === "/admin/students" ||
+      pathname === "/admin/student-list"
+    ) {
+      return "students";
+    }
+
+    if (
+      pathname === "/admin/courses" ||
+      pathname === "/admin/course-entry"
+    ) {
+      return "courses";
+    }
+
+    if (
+      pathname === "/admin/income" ||
+      pathname === "/admin/income-list" ||
+      pathname === "/admin/expense" ||
+      pathname === "/admin/expense-list" ||
+      pathname === "/admin/accounts"
+    ) {
+      return "accounts";
+    }
+
+    if (
+      pathname === "/admin/teachers" ||
+      pathname === "/admin/teacher-list"
+    ) {
+      return "teachers";
+    }
+
+    if (
+      pathname === "/admin/notices" ||
+      pathname === "/admin/notice-entry" ||
+      pathname.startsWith("/admin/notice-edit/")
+    ) {
+      return "notices";
+    }
+
+    if (
+      pathname === "/admin/gallery" ||
+      pathname === "/admin/gallery-list"
+    ) {
+      return "gallery";
+    }
+
+    if (
+      pathname === "/admin/banner-list" ||
+      pathname === "/admin/banner-entry"
+    ) {
+      return "banners";
+    }
+
+    if (
+      pathname === "/admin/downloads" ||
+      pathname === "/admin/download-entry"
+    ) {
+      return "downloads";
+    }
+
+    if (
+      pathname === "/admin/settings" ||
+      pathname === "/admin/admin-users"
+    ) {
+      return "settings";
+    }
+
+    return "";
+  };
+
+  const [openMenu, setOpenMenu] = useState(
+    getActiveMenu(location.pathname)
+  );
+
+  /* ================= AUTO OPEN ================= */
+
+  useEffect(() => {
+    const activeMenu = getActiveMenu(location.pathname);
+
+    if (activeMenu) {
+      setOpenMenu(activeMenu);
+    }
+  }, [location.pathname]);
+
+  /* ================= TOGGLE ================= */
 
   const toggleMenu = (menu) => {
-    setOpenMenu(openMenu === menu ? "" : menu);
+    setOpenMenu((current) =>
+      current === menu ? "" : menu
+    );
+  };
+
+  /* ================= MENU ACTIVE ================= */
+
+  const isMenuActive = (menu) => {
+    return getActiveMenu(location.pathname) === menu;
   };
 
   return (
     <div className="admin-layout-container">
 
       {/* ================= SIDEBAR ================= */}
+
       <aside className="admin-sidebar">
 
-        {/* Sidebar Header */}
+        {/* HEADER */}
+
         <div className="sidebar-header">
           <h2>Sunshine</h2>
           <p>Admin Panel</p>
         </div>
 
-        {/* Sidebar Menu */}
+
+        {/* MENU */}
+
         <nav className="sidebar-menu">
 
           {/* ================= DASHBOARD ================= */}
+
           <NavLink
             to="/admin/dashboard"
-            className="sidebar-link"
+            className={({ isActive }) =>
+              `sidebar-link ${
+                isActive ? "active" : ""
+              }`
+            }
           >
-            🏠 Dashboard
+            <span>🏠 Dashboard</span>
           </NavLink>
 
 
           {/* ================= STUDENTS ================= */}
+
           <div className="sidebar-group">
+
             <button
               type="button"
-              className="sidebar-parent"
-              onClick={() => toggleMenu("students")}
+              className={`sidebar-parent ${
+                isMenuActive("students")
+                  ? "parent-active"
+                  : ""
+              }`}
+              onClick={() =>
+                toggleMenu("students")
+              }
             >
               <span>👨‍🎓 Students</span>
-              <span>
-                {openMenu === "students" ? "▲" : "▼"}
+
+              <span className="menu-arrow">
+                {openMenu === "students"
+                  ? "▲"
+                  : "▼"}
               </span>
             </button>
 
             {openMenu === "students" && (
               <div className="sidebar-submenu">
 
-                <NavLink to="/admin/students">
+                <NavLink
+                  to="/admin/students"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   ➕ Student Entry
                 </NavLink>
 
-                <NavLink to="/admin/student-list">
+                <NavLink
+                  to="/admin/student-list"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   📋 Student List
                 </NavLink>
 
               </div>
             )}
+
           </div>
 
 
           {/* ================= COURSES ================= */}
+
           <div className="sidebar-group">
+
             <button
               type="button"
-              className="sidebar-parent"
-              onClick={() => toggleMenu("courses")}
+              className={`sidebar-parent ${
+                isMenuActive("courses")
+                  ? "parent-active"
+                  : ""
+              }`}
+              onClick={() =>
+                toggleMenu("courses")
+              }
             >
               <span>📚 Courses</span>
-              <span>
-                {openMenu === "courses" ? "▲" : "▼"}
+
+              <span className="menu-arrow">
+                {openMenu === "courses"
+                  ? "▲"
+                  : "▼"}
               </span>
             </button>
 
             {openMenu === "courses" && (
               <div className="sidebar-submenu">
 
-                <NavLink to="/admin/courses">
+                <NavLink
+                  to="/admin/courses"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   📖 Course List
                 </NavLink>
 
-                <NavLink to="/admin/course-entry">
+                <NavLink
+                  to="/admin/course-entry"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   ➕ Course Entry
                 </NavLink>
 
               </div>
             )}
+
           </div>
 
 
           {/* ================= INCOME & EXPENSE ================= */}
+
           <div className="sidebar-group">
 
             <button
               type="button"
-              className="sidebar-parent"
-              onClick={() => toggleMenu("accounts")}
+              className={`sidebar-parent ${
+                isMenuActive("accounts")
+                  ? "parent-active"
+                  : ""
+              }`}
+              onClick={() =>
+                toggleMenu("accounts")
+              }
             >
               <span>💰 Income & Expense</span>
 
-              <span>
-                {openMenu === "accounts" ? "▲" : "▼"}
+              <span className="menu-arrow">
+                {openMenu === "accounts"
+                  ? "▲"
+                  : "▼"}
               </span>
             </button>
 
             {openMenu === "accounts" && (
               <div className="sidebar-submenu">
 
-                {/* Income Entry */}
-                <NavLink to="/admin/income">
+                <NavLink
+                  to="/admin/income"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   ➕ Income Entry
                 </NavLink>
 
-                {/* Income List */}
-                <NavLink to="/admin/income-list">
+                <NavLink
+                  to="/admin/income-list"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   📋 Income List
                 </NavLink>
 
-                {/* Expense Entry */}
-                <NavLink to="/admin/expense">
+                <NavLink
+                  to="/admin/expense"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   ➕ Expense Entry
                 </NavLink>
 
-                {/* Expense List */}
-                <NavLink to="/admin/expense-list">
+                <NavLink
+                  to="/admin/expense-list"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   📋 Expense List
                 </NavLink>
 
-                {/* Report */}
-                <NavLink to="/admin/accounts">
+                <NavLink
+                  to="/admin/accounts"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   📊 Income & Expense Report
                 </NavLink>
 
@@ -141,28 +320,47 @@ export default function AdminLayout() {
 
 
           {/* ================= TEACHERS ================= */}
+
           <div className="sidebar-group">
 
             <button
               type="button"
-              className="sidebar-parent"
-              onClick={() => toggleMenu("teachers")}
+              className={`sidebar-parent ${
+                isMenuActive("teachers")
+                  ? "parent-active"
+                  : ""
+              }`}
+              onClick={() =>
+                toggleMenu("teachers")
+              }
             >
               <span>👨‍🏫 Teachers</span>
 
-              <span>
-                {openMenu === "teachers" ? "▲" : "▼"}
+              <span className="menu-arrow">
+                {openMenu === "teachers"
+                  ? "▲"
+                  : "▼"}
               </span>
             </button>
 
             {openMenu === "teachers" && (
               <div className="sidebar-submenu">
 
-                <NavLink to="/admin/teacher-list">
+                <NavLink
+                  to="/admin/teacher-list"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   📋 Teacher List
                 </NavLink>
 
-                <NavLink to="/admin/teachers">
+                <NavLink
+                  to="/admin/teachers"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   ➕ Teacher Entry
                 </NavLink>
 
@@ -173,29 +371,57 @@ export default function AdminLayout() {
 
 
           {/* ================= NOTICES ================= */}
+
           <div className="sidebar-group">
 
             <button
               type="button"
-              className="sidebar-parent"
-              onClick={() => toggleMenu("notices")}
+              className={`sidebar-parent ${
+                isMenuActive("notices")
+                  ? "parent-active"
+                  : ""
+              }`}
+              onClick={() =>
+                toggleMenu("notices")
+              }
             >
               <span>📢 Notices</span>
 
-              <span>
-                {openMenu === "notices" ? "▲" : "▼"}
+              <span className="menu-arrow">
+                {openMenu === "notices"
+                  ? "▲"
+                  : "▼"}
               </span>
             </button>
 
             {openMenu === "notices" && (
               <div className="sidebar-submenu">
 
-                <NavLink to="/admin/notices">
-                  📢 Notice List
+                <NavLink
+                  to="/admin/notices"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
+                  📋 Notice List
                 </NavLink>
 
-                <NavLink to="/admin/notice-entry">
+                <NavLink
+                  to="/admin/notice-entry"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   ➕ Add Notice
+                </NavLink>
+
+                <NavLink
+                  to="/admin/notice-edit"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
+                  ✏️ Edit Notice
                 </NavLink>
 
               </div>
@@ -205,28 +431,47 @@ export default function AdminLayout() {
 
 
           {/* ================= GALLERY ================= */}
+
           <div className="sidebar-group">
 
             <button
               type="button"
-              className="sidebar-parent"
-              onClick={() => toggleMenu("gallery")}
+              className={`sidebar-parent ${
+                isMenuActive("gallery")
+                  ? "parent-active"
+                  : ""
+              }`}
+              onClick={() =>
+                toggleMenu("gallery")
+              }
             >
               <span>🖼️ Gallery</span>
 
-              <span>
-                {openMenu === "gallery" ? "▲" : "▼"}
+              <span className="menu-arrow">
+                {openMenu === "gallery"
+                  ? "▲"
+                  : "▼"}
               </span>
             </button>
 
             {openMenu === "gallery" && (
               <div className="sidebar-submenu">
 
-                <NavLink to="/admin/gallery">
+                <NavLink
+                  to="/admin/gallery"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   ➕ Add Photo
                 </NavLink>
 
-                <NavLink to="/admin/gallery-list">
+                <NavLink
+                  to="/admin/gallery-list"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   🖼️ Gallery List
                 </NavLink>
 
@@ -237,28 +482,47 @@ export default function AdminLayout() {
 
 
           {/* ================= BANNERS ================= */}
+
           <div className="sidebar-group">
 
             <button
               type="button"
-              className="sidebar-parent"
-              onClick={() => toggleMenu("banners")}
+              className={`sidebar-parent ${
+                isMenuActive("banners")
+                  ? "parent-active"
+                  : ""
+              }`}
+              onClick={() =>
+                toggleMenu("banners")
+              }
             >
               <span>🎞️ Banners</span>
 
-              <span>
-                {openMenu === "banners" ? "▲" : "▼"}
+              <span className="menu-arrow">
+                {openMenu === "banners"
+                  ? "▲"
+                  : "▼"}
               </span>
             </button>
 
             {openMenu === "banners" && (
               <div className="sidebar-submenu">
 
-                <NavLink to="/admin/banner-list">
+                <NavLink
+                  to="/admin/banner-list"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   📋 Banner List
                 </NavLink>
 
-                <NavLink to="/admin/banner-entry">
+                <NavLink
+                  to="/admin/banner-entry"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   ➕ Add Banner
                 </NavLink>
 
@@ -269,28 +533,47 @@ export default function AdminLayout() {
 
 
           {/* ================= DOWNLOADS ================= */}
+
           <div className="sidebar-group">
 
             <button
               type="button"
-              className="sidebar-parent"
-              onClick={() => toggleMenu("downloads")}
+              className={`sidebar-parent ${
+                isMenuActive("downloads")
+                  ? "parent-active"
+                  : ""
+              }`}
+              onClick={() =>
+                toggleMenu("downloads")
+              }
             >
               <span>📥 Downloads</span>
 
-              <span>
-                {openMenu === "downloads" ? "▲" : "▼"}
+              <span className="menu-arrow">
+                {openMenu === "downloads"
+                  ? "▲"
+                  : "▼"}
               </span>
             </button>
 
             {openMenu === "downloads" && (
               <div className="sidebar-submenu">
 
-                <NavLink to="/admin/downloads">
+                <NavLink
+                  to="/admin/downloads"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   📥 Download List
                 </NavLink>
 
-                <NavLink to="/admin/download-entry">
+                <NavLink
+                  to="/admin/download-entry"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   ➕ Add Download
                 </NavLink>
 
@@ -301,28 +584,47 @@ export default function AdminLayout() {
 
 
           {/* ================= SETTINGS ================= */}
+
           <div className="sidebar-group">
 
             <button
               type="button"
-              className="sidebar-parent"
-              onClick={() => toggleMenu("settings")}
+              className={`sidebar-parent ${
+                isMenuActive("settings")
+                  ? "parent-active"
+                  : ""
+              }`}
+              onClick={() =>
+                toggleMenu("settings")
+              }
             >
               <span>⚙️ Settings</span>
 
-              <span>
-                {openMenu === "settings" ? "▲" : "▼"}
+              <span className="menu-arrow">
+                {openMenu === "settings"
+                  ? "▲"
+                  : "▼"}
               </span>
             </button>
 
             {openMenu === "settings" && (
               <div className="sidebar-submenu">
 
-                <NavLink to="/admin/settings">
+                <NavLink
+                  to="/admin/settings"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   ⚙️ General Settings
                 </NavLink>
 
-                <NavLink to="/admin/admin-users">
+                <NavLink
+                  to="/admin/admin-users"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
                   👤 Admin Users
                 </NavLink>
 
@@ -335,6 +637,7 @@ export default function AdminLayout() {
 
 
         {/* ================= LOGOUT ================= */}
+
         <button
           type="button"
           className="logout-button"
@@ -346,6 +649,7 @@ export default function AdminLayout() {
 
 
       {/* ================= MAIN CONTENT ================= */}
+
       <main className="admin-main">
         <Outlet />
       </main>
