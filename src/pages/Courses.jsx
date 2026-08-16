@@ -6,12 +6,13 @@ export default function Courses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeLanguage, setActiveLanguage] = useState("Japanese");
 
   const navigate = useNavigate();
 
-  /* =========================================
+  /* =====================================================
      LOAD COURSES
-  ========================================= */
+  ===================================================== */
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -42,22 +43,22 @@ export default function Courses() {
           courseData = result.data;
         }
 
-        /* =====================================
+        /* =================================================
            ONLY ACTIVE COURSES
-        ===================================== */
+        ================================================= */
 
-        const activeCourses = courseData.filter(
-          (course) => {
-            const status = String(
-              course.status ?? ""
-            ).toLowerCase();
+        const activeCourses = courseData.filter((course) => {
+          const status = String(
+            course.status ?? ""
+          )
+            .trim()
+            .toLowerCase();
 
-            return (
-              status === "active" ||
-              status === "1"
-            );
-          }
-        );
+          return (
+            status === "active" ||
+            status === "1"
+          );
+        });
 
         setCourses(activeCourses);
 
@@ -79,51 +80,16 @@ export default function Courses() {
   }, []);
 
 
-  /* =========================================
-     LANGUAGE ICON
-  ========================================= */
-
-  const getLanguageIcon = (language) => {
-    const value = String(
-      language || ""
-    ).toLowerCase();
-
-    if (
-      value.includes("japanese") ||
-      value.includes("japan") ||
-      value.includes("জাপানি")
-    ) {
-      return "🇯🇵";
-    }
-
-    if (
-      value.includes("german") ||
-      value.includes("germany") ||
-      value.includes("জার্মান")
-    ) {
-      return "🇩🇪";
-    }
-
-    if (
-      value.includes("korean") ||
-      value.includes("korea") ||
-      value.includes("কোরিয়ান")
-    ) {
-      return "🇰🇷";
-    }
-
-    return "🌐";
-  };
-
-
-  /* =========================================
-     LANGUAGE NAME
-  ========================================= */
+  /* =====================================================
+     NORMALIZE LANGUAGE
+  ===================================================== */
 
   const getLanguageName = (language) => {
     const value = String(
       language || ""
-    ).toLowerCase();
+    )
+      .trim()
+      .toLowerCase();
 
     if (
       value.includes("japanese") ||
@@ -144,29 +110,43 @@ export default function Courses() {
     if (
       value.includes("korean") ||
       value.includes("korea") ||
-      value.includes("কোরিয়ান")
+      value.includes("কোরিয়ান") ||
+      value.includes("কোরিয়ান")
     ) {
       return "Korean";
     }
 
-    return language || "Other";
+    return "Other";
   };
 
 
-  /* =========================================
+  /* =====================================================
+     LANGUAGE ICON
+  ===================================================== */
+
+  const getLanguageIcon = (language) => {
+    if (language === "Japanese") {
+      return "🇯🇵";
+    }
+
+    if (language === "German") {
+      return "🇩🇪";
+    }
+
+    if (language === "Korean") {
+      return "🇰🇷";
+    }
+
+    return "🌐";
+  };
+
+
+  /* =====================================================
      LANGUAGE DESCRIPTION
-  ========================================= */
+  ===================================================== */
 
   const getDescription = (language) => {
-    const value = String(
-      language || ""
-    ).toLowerCase();
-
-    if (
-      value.includes("japanese") ||
-      value.includes("japan") ||
-      value.includes("জাপানি")
-    ) {
+    if (language === "Japanese") {
       return (
         "জাপানি ভাষা শেখার জন্য বিভিন্ন Level-এর কোর্স। " +
         "উচ্চশিক্ষা, চাকরি ও বিভিন্ন পরীক্ষার প্রস্তুতির জন্য " +
@@ -174,22 +154,14 @@ export default function Courses() {
       );
     }
 
-    if (
-      value.includes("german") ||
-      value.includes("germany") ||
-      value.includes("জার্মান")
-    ) {
+    if (language === "German") {
       return (
         "জার্মানিতে উচ্চশিক্ষা, চাকরি ও দৈনন্দিন যোগাযোগের জন্য " +
         "প্রয়োজনীয় জার্মান ভাষা শিক্ষা।"
       );
     }
 
-    if (
-      value.includes("korean") ||
-      value.includes("korea") ||
-      value.includes("কোরিয়ান")
-    ) {
+    if (language === "Korean") {
       return (
         "কোরিয়ান ভাষা শেখার মাধ্যমে EPS-TOPIK, TOPIK ও " +
         "অন্যান্য প্রয়োজনীয় পরীক্ষার প্রস্তুতি গ্রহণ করুন।"
@@ -203,103 +175,30 @@ export default function Courses() {
   };
 
 
-  /* =========================================
-     GROUP COURSES BY LANGUAGE
-  ========================================= */
-
-  const groupedCourses = courses.reduce(
-    (groups, course) => {
-      const language = getLanguageName(
-        course.language
-      );
-
-      if (!groups[language]) {
-        groups[language] = [];
-      }
-
-      groups[language].push(course);
-
-      return groups;
-    },
-    {}
-  );
-
-
-  /* =========================================
-     LANGUAGE ORDER
-  ========================================= */
-
-  const languageOrder = [
-    "Japanese",
-    "German",
-    "Korean",
-  ];
-
-  const sortedLanguages = Object.keys(
-    groupedCourses
-  ).sort((a, b) => {
-
-    const indexA =
-      languageOrder.indexOf(a);
-
-    const indexB =
-      languageOrder.indexOf(b);
-
-    /* দুটিই Other হলে */
-    if (
-      indexA === -1 &&
-      indexB === -1
-    ) {
-      return a.localeCompare(b);
-    }
-
-    /* A Other হলে */
-    if (indexA === -1) {
-      return 1;
-    }
-
-    /* B Other হলে */
-    if (indexB === -1) {
-      return -1;
-    }
-
-    return indexA - indexB;
-  });
-
-
-  /* =========================================
+  /* =====================================================
      APPLY NOW
+  ===================================================== */
 
-     Courses
-        ↓
-     Public Student Entry
-        ↓
-     Course + Language + Fee
-        ↓
-     Auto Selected
-  ========================================= */
-
-const handleApply = (course) => {
-  navigate(
-    `/student-entry?course=${encodeURIComponent(
-      course.course_name
-    )}&language=${encodeURIComponent(
-      course.language
-    )}&duration=${encodeURIComponent(
-      course.duration || ""
-    )}&course_fee=${encodeURIComponent(
-      course.course_fee || ""
-    )}`
-  );
-};
+  const handleApply = (course) => {
+    navigate(
+      `/student-entry?course=${encodeURIComponent(
+        course.course_name || ""
+      )}&language=${encodeURIComponent(
+        course.language || ""
+      )}&duration=${encodeURIComponent(
+        course.duration || ""
+      )}&course_fee=${encodeURIComponent(
+        course.course_fee || ""
+      )}`
+    );
+  };
 
 
-  /* =========================================
+  /* =====================================================
      FORMAT FEE
-  ========================================= */
+  ===================================================== */
 
   const formatFee = (fee) => {
-
     if (
       fee === null ||
       fee === undefined ||
@@ -318,16 +217,34 @@ const handleApply = (course) => {
   };
 
 
-  /* =========================================
+  /* =====================================================
+     FILTER COURSES BY SELECTED LANGUAGE
+  ===================================================== */
+
+  const filteredCourses = courses
+    .filter(
+      (course) =>
+        getLanguageName(
+          course.language
+        ) === activeLanguage
+    )
+    .sort(
+      (a, b) =>
+        Number(a.sort_order || 0) -
+        Number(b.sort_order || 0)
+    );
+
+
+  /* =====================================================
      RENDER
-  ========================================= */
+  ===================================================== */
 
   return (
     <div className="courses">
 
-      {/* =====================================
+      {/* =================================================
           PAGE HEADER
-      ===================================== */}
+      ================================================= */}
 
       <section className="course-header">
 
@@ -345,15 +262,86 @@ const handleApply = (course) => {
       </section>
 
 
-      {/* =====================================
-          COURSE LIST
-      ===================================== */}
+      {/* =================================================
+          LANGUAGE TABS
+      ================================================= */}
+
+      <div className="course-tabs">
+
+        <button
+          type="button"
+          className={
+            activeLanguage === "Japanese"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setActiveLanguage("Japanese")
+          }
+        >
+          <span className="tab-flag">
+            🇯🇵
+          </span>
+
+          <span>
+            Japanese
+          </span>
+        </button>
+
+
+        <button
+          type="button"
+          className={
+            activeLanguage === "German"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setActiveLanguage("German")
+          }
+        >
+          <span className="tab-flag">
+            🇩🇪
+          </span>
+
+          <span>
+            German
+          </span>
+        </button>
+
+
+        <button
+          type="button"
+          className={
+            activeLanguage === "Korean"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setActiveLanguage("Korean")
+          }
+        >
+          <span className="tab-flag">
+            🇰🇷
+          </span>
+
+          <span>
+            Korean
+          </span>
+        </button>
+
+      </div>
+
+
+      {/* =================================================
+          COURSE AREA
+      ================================================= */}
 
       <section className="course-list">
 
-        {/* ===============================
+        {/* =================================================
             LOADING
-        =============================== */}
+        ================================================= */}
 
         {loading && (
           <div className="course-message">
@@ -362,9 +350,9 @@ const handleApply = (course) => {
         )}
 
 
-        {/* ===============================
+        {/* =================================================
             ERROR
-        =============================== */}
+        ================================================= */}
 
         {!loading && error && (
           <div className="course-message error">
@@ -373,201 +361,182 @@ const handleApply = (course) => {
         )}
 
 
-        {/* ===============================
-            NO COURSE
-        =============================== */}
+        {/* =================================================
+            COURSE CONTENT
+        ================================================= */}
 
-        {!loading &&
-          !error &&
-          courses.length === 0 && (
-            <div className="course-message">
-              বর্তমানে কোনো Active কোর্স
-              পাওয়া যায়নি।
-            </div>
-          )}
+        {!loading && !error && (
 
+          <div className="course-card">
 
-        {/* =================================
-            LANGUAGE CARDS
-        ================================= */}
+            {/* =============================================
+                LANGUAGE HEADER
+            ============================================= */}
 
-        {!loading &&
-          !error &&
-          sortedLanguages.map(
-            (language) => {
+            <div className="course-card-header">
 
-              const languageCourses =
-                [...groupedCourses[language]]
-                  .sort(
-                    (a, b) =>
-                      Number(
-                        a.sort_order || 0
-                      ) -
-                      Number(
-                        b.sort_order || 0
-                      )
-                  );
+              <div className="course-language-title">
 
-              return (
-                <div
-                  className="course-card"
-                  key={language}
-                >
+                <span className="course-flag">
+                  {getLanguageIcon(
+                    activeLanguage
+                  )}
+                </span>
 
-                  {/* =========================
-                      LANGUAGE TITLE
-                  ========================= */}
-
-                  <h2 className="course-language-title">
-
-                    <span className="course-flag">
-                      {getLanguageIcon(
-                        language
-                      )}
-                    </span>
-
-                    {language} Language Course
-
+                <div>
+                  <h2>
+                    {activeLanguage} Language Course
                   </h2>
 
-
-                  {/* =========================
-                      DESCRIPTION
-                  ========================= */}
-
-                  <p className="course-description">
+                  <p>
                     {getDescription(
-                      language
+                      activeLanguage
                     )}
                   </p>
+                </div>
+
+              </div>
+
+            </div>
 
 
-                  {/* =========================
-                      COURSE ITEMS
-                  ========================= */}
+            {/* =============================================
+                COURSE ITEMS
+            ============================================= */}
 
-                  <div className="course-items">
+            <div className="course-items">
 
-                    {languageCourses.map(
-                      (course) => (
+              {filteredCourses.length > 0 ? (
 
-                        <div
-                          className="course-item"
-                          key={course.id}
-                        >
+                filteredCourses.map(
+                  (course) => (
 
-                          {/* =================
-                              COURSE NAME
-                          ================= */}
+                    <div
+                      className="course-item"
+                      key={course.id}
+                    >
 
-                          <div className="course-item-header">
+                      {/* =================================
+                          COURSE NAME
+                      ================================= */}
 
-                            <h3>
-                              {course.course_name}
-                            </h3>
+                      <div className="course-item-name">
 
-                          </div>
+                        <h3>
+                          {course.course_name ||
+                            "Course"}
+                        </h3>
 
-
-                          {/* =================
-                              DETAILS
-                          ================= */}
-
-                          <div className="course-details">
-
-                            {/* Duration */}
-
-                            <div className="course-detail">
-
-                              <span className="detail-icon">
-                                ⏱
-                              </span>
-
-                              <div>
-
-                                <small>
-                                  Duration
-                                </small>
-
-                                <strong>
-                                  {course.duration ||
-                                    "N/A"}
-                                </strong>
-
-                              </div>
-
-                            </div>
+                      </div>
 
 
-                            {/* Course Fee */}
+                      {/* =================================
+                          COURSE DETAILS
+                      ================================= */}
 
-                            <div className="course-detail">
+                      <div className="course-details">
 
-                              <span className="detail-icon">
-                                ৳
-                              </span>
+                        {/* DURATION */}
 
-                              <div>
+                        <div className="course-detail">
 
-                                <small>
-                                  Course Fee
-                                </small>
+                          <span className="detail-icon">
+                            ⏱
+                          </span>
 
-                                <strong>
-                                  {formatFee(
-                                    course.course_fee
-                                  )}
-                                </strong>
+                          <div>
 
-                              </div>
+                            <small>
+                              Duration
+                            </small>
 
-                            </div>
+                            <strong>
+                              {course.duration ||
+                                "N/A"}
+                            </strong>
 
                           </div>
-
-
-                          {/* =================
-                              APPLY NOW
-                          ================= */}
-
-                          <button
-                            type="button"
-                            className="apply-course-btn"
-                            onClick={() =>
-                              handleApply(
-                                course
-                              )
-                            }
-                          >
-
-                            <span>
-                              Apply Now
-                            </span>
-
-                            <span>
-                              →
-                            </span>
-
-                          </button>
 
                         </div>
 
-                      )
-                    )}
 
-                  </div>
+                        {/* COURSE FEE */}
 
+                        <div className="course-detail">
+
+                          <span className="detail-icon">
+                            ৳
+                          </span>
+
+                          <div>
+
+                            <small>
+                              Course Fee
+                            </small>
+
+                            <strong>
+                              {formatFee(
+                                course.course_fee
+                              )}
+                            </strong>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+
+                      {/* =================================
+                          APPLY BUTTON
+                      ================================= */}
+
+                      <button
+                        type="button"
+                        className="apply-course-btn"
+                        onClick={() =>
+                          handleApply(
+                            course
+                          )
+                        }
+                      >
+
+                        <span>
+                          Apply Now
+                        </span>
+
+                        <span>
+                          →
+                        </span>
+
+                      </button>
+
+                    </div>
+
+                  )
+                )
+
+              ) : (
+
+                <div className="course-message">
+                  এই ভাষার কোনো Active course
+                  বর্তমানে পাওয়া যায়নি।
                 </div>
-              );
-            }
-          )}
+
+              )}
+
+            </div>
+
+          </div>
+
+        )}
 
       </section>
 
 
-      {/* =====================================
+      {/* =================================================
           WHY OUR COURSE
-      ===================================== */}
+      ================================================= */}
 
       <section className="why-course">
 
