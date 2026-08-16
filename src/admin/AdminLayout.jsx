@@ -8,13 +8,19 @@ export default function AdminLayout() {
   /* ================= ACTIVE MENU ================= */
 
   const getActiveMenu = (pathname) => {
+
+    // STUDENTS
     if (
       pathname === "/admin/students" ||
-      pathname === "/admin/student-list"
+      pathname === "/admin/student-list" ||
+      pathname === "/admin/pending-students" ||
+      pathname.startsWith("/admin/student-profile/") ||
+      pathname.startsWith("/admin/student-edit/")
     ) {
       return "students";
     }
 
+    // COURSES
     if (
       pathname === "/admin/courses" ||
       pathname === "/admin/course-entry"
@@ -22,6 +28,7 @@ export default function AdminLayout() {
       return "courses";
     }
 
+    // ACCOUNTS
     if (
       pathname === "/admin/income" ||
       pathname === "/admin/income-list" ||
@@ -32,6 +39,7 @@ export default function AdminLayout() {
       return "accounts";
     }
 
+    // TEACHERS
     if (
       pathname === "/admin/teachers" ||
       pathname === "/admin/teacher-list"
@@ -39,6 +47,7 @@ export default function AdminLayout() {
       return "teachers";
     }
 
+    // NOTICES
     if (
       pathname === "/admin/notices" ||
       pathname === "/admin/notice-entry" ||
@@ -47,6 +56,7 @@ export default function AdminLayout() {
       return "notices";
     }
 
+    // GALLERY
     if (
       pathname === "/admin/gallery" ||
       pathname === "/admin/gallery-list"
@@ -54,6 +64,7 @@ export default function AdminLayout() {
       return "gallery";
     }
 
+    // BANNERS
     if (
       pathname === "/admin/banner-list" ||
       pathname === "/admin/banner-entry"
@@ -61,6 +72,7 @@ export default function AdminLayout() {
       return "banners";
     }
 
+    // DOWNLOADS
     if (
       pathname === "/admin/downloads" ||
       pathname === "/admin/download-entry"
@@ -68,6 +80,7 @@ export default function AdminLayout() {
       return "downloads";
     }
 
+    // SETTINGS
     if (
       pathname === "/admin/settings" ||
       pathname === "/admin/admin-users"
@@ -78,54 +91,80 @@ export default function AdminLayout() {
     return "";
   };
 
+
+  /* ================= OPEN MENU ================= */
+
   const [openMenu, setOpenMenu] = useState(
     getActiveMenu(location.pathname)
   );
 
+
   /* ================= AUTO OPEN ================= */
 
   useEffect(() => {
-    const activeMenu = getActiveMenu(location.pathname);
+
+    const activeMenu = getActiveMenu(
+      location.pathname
+    );
 
     if (activeMenu) {
       setOpenMenu(activeMenu);
     }
+
   }, [location.pathname]);
+
 
   /* ================= TOGGLE ================= */
 
   const toggleMenu = (menu) => {
+
     setOpenMenu((current) =>
       current === menu ? "" : menu
     );
+
   };
+
 
   /* ================= MENU ACTIVE ================= */
 
   const isMenuActive = (menu) => {
-    return getActiveMenu(location.pathname) === menu;
+
+    return (
+      getActiveMenu(location.pathname) === menu
+    );
+
   };
 
+
   return (
+
     <div className="admin-layout-container">
 
-      {/* ================= SIDEBAR ================= */}
+      {/* =====================================================
+          SIDEBAR
+      ===================================================== */}
 
       <aside className="admin-sidebar">
 
-        {/* HEADER */}
+        {/* ================= HEADER ================= */}
 
         <div className="sidebar-header">
+
           <h2>Sunshine</h2>
+
           <p>Admin Panel</p>
+
         </div>
 
 
-        {/* MENU */}
+        {/* ================= MENU ================= */}
 
         <nav className="sidebar-menu">
 
-          {/* ================= DASHBOARD ================= */}
+
+          {/* =================================================
+              DASHBOARD
+          ================================================= */}
 
           <NavLink
             to="/admin/dashboard"
@@ -139,7 +178,9 @@ export default function AdminLayout() {
           </NavLink>
 
 
-          {/* ================= STUDENTS ================= */}
+          {/* =================================================
+              STUDENTS
+          ================================================= */}
 
           <div className="sidebar-group">
 
@@ -154,17 +195,26 @@ export default function AdminLayout() {
                 toggleMenu("students")
               }
             >
+
               <span>👨‍🎓 Students</span>
 
               <span className="menu-arrow">
+
                 {openMenu === "students"
                   ? "▲"
                   : "▼"}
+
               </span>
+
             </button>
 
+
             {openMenu === "students" && (
+
               <div className="sidebar-submenu">
+
+
+                {/* Student Entry */}
 
                 <NavLink
                   to="/admin/students"
@@ -175,6 +225,9 @@ export default function AdminLayout() {
                   ➕ Student Entry
                 </NavLink>
 
+
+                {/* Student List */}
+
                 <NavLink
                   to="/admin/student-list"
                   className={({ isActive }) =>
@@ -184,13 +237,29 @@ export default function AdminLayout() {
                   📋 Student List
                 </NavLink>
 
+
+                {/* Pending Applications */}
+
+                <NavLink
+                  to="/admin/pending-students"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
+                  🕐 Pending Applications
+                </NavLink>
+
+
               </div>
+
             )}
 
           </div>
 
 
-          {/* ================= COURSES ================= */}
+          {/* =================================================
+              COURSES
+          ================================================= */}
 
           <div className="sidebar-group">
 
@@ -205,16 +274,22 @@ export default function AdminLayout() {
                 toggleMenu("courses")
               }
             >
+
               <span>📚 Courses</span>
 
               <span className="menu-arrow">
+
                 {openMenu === "courses"
                   ? "▲"
                   : "▼"}
+
               </span>
+
             </button>
 
+
             {openMenu === "courses" && (
+
               <div className="sidebar-submenu">
 
                 <NavLink
@@ -236,12 +311,15 @@ export default function AdminLayout() {
                 </NavLink>
 
               </div>
+
             )}
 
           </div>
 
 
-          {/* ================= INCOME & EXPENSE ================= */}
+          {/* =================================================
+              INCOME & EXPENSE
+          ================================================= */}
 
           <div className="sidebar-group">
 
@@ -256,16 +334,22 @@ export default function AdminLayout() {
                 toggleMenu("accounts")
               }
             >
+
               <span>💰 Income & Expense</span>
 
               <span className="menu-arrow">
+
                 {openMenu === "accounts"
                   ? "▲"
                   : "▼"}
+
               </span>
+
             </button>
 
+
             {openMenu === "accounts" && (
+
               <div className="sidebar-submenu">
 
                 <NavLink
@@ -314,12 +398,15 @@ export default function AdminLayout() {
                 </NavLink>
 
               </div>
+
             )}
 
           </div>
 
 
-          {/* ================= TEACHERS ================= */}
+          {/* =================================================
+              TEACHERS
+          ================================================= */}
 
           <div className="sidebar-group">
 
@@ -334,16 +421,22 @@ export default function AdminLayout() {
                 toggleMenu("teachers")
               }
             >
+
               <span>👨‍🏫 Teachers</span>
 
               <span className="menu-arrow">
+
                 {openMenu === "teachers"
                   ? "▲"
                   : "▼"}
+
               </span>
+
             </button>
 
+
             {openMenu === "teachers" && (
+
               <div className="sidebar-submenu">
 
                 <NavLink
@@ -365,12 +458,15 @@ export default function AdminLayout() {
                 </NavLink>
 
               </div>
+
             )}
 
           </div>
 
 
-          {/* ================= NOTICES ================= */}
+          {/* =================================================
+              NOTICES
+          ================================================= */}
 
           <div className="sidebar-group">
 
@@ -385,16 +481,22 @@ export default function AdminLayout() {
                 toggleMenu("notices")
               }
             >
+
               <span>📢 Notices</span>
 
               <span className="menu-arrow">
+
                 {openMenu === "notices"
                   ? "▲"
                   : "▼"}
+
               </span>
+
             </button>
 
+
             {openMenu === "notices" && (
+
               <div className="sidebar-submenu">
 
                 <NavLink
@@ -425,12 +527,15 @@ export default function AdminLayout() {
                 </NavLink>
 
               </div>
+
             )}
 
           </div>
 
 
-          {/* ================= GALLERY ================= */}
+          {/* =================================================
+              GALLERY
+          ================================================= */}
 
           <div className="sidebar-group">
 
@@ -445,16 +550,22 @@ export default function AdminLayout() {
                 toggleMenu("gallery")
               }
             >
+
               <span>🖼️ Gallery</span>
 
               <span className="menu-arrow">
+
                 {openMenu === "gallery"
                   ? "▲"
                   : "▼"}
+
               </span>
+
             </button>
 
+
             {openMenu === "gallery" && (
+
               <div className="sidebar-submenu">
 
                 <NavLink
@@ -476,12 +587,15 @@ export default function AdminLayout() {
                 </NavLink>
 
               </div>
+
             )}
 
           </div>
 
 
-          {/* ================= BANNERS ================= */}
+          {/* =================================================
+              BANNERS
+          ================================================= */}
 
           <div className="sidebar-group">
 
@@ -496,16 +610,22 @@ export default function AdminLayout() {
                 toggleMenu("banners")
               }
             >
+
               <span>🎞️ Banners</span>
 
               <span className="menu-arrow">
+
                 {openMenu === "banners"
                   ? "▲"
                   : "▼"}
+
               </span>
+
             </button>
 
+
             {openMenu === "banners" && (
+
               <div className="sidebar-submenu">
 
                 <NavLink
@@ -527,12 +647,15 @@ export default function AdminLayout() {
                 </NavLink>
 
               </div>
+
             )}
 
           </div>
 
 
-          {/* ================= DOWNLOADS ================= */}
+          {/* =================================================
+              DOWNLOADS
+          ================================================= */}
 
           <div className="sidebar-group">
 
@@ -547,16 +670,22 @@ export default function AdminLayout() {
                 toggleMenu("downloads")
               }
             >
+
               <span>📥 Downloads</span>
 
               <span className="menu-arrow">
+
                 {openMenu === "downloads"
                   ? "▲"
                   : "▼"}
+
               </span>
+
             </button>
 
+
             {openMenu === "downloads" && (
+
               <div className="sidebar-submenu">
 
                 <NavLink
@@ -578,12 +707,15 @@ export default function AdminLayout() {
                 </NavLink>
 
               </div>
+
             )}
 
           </div>
 
 
-          {/* ================= SETTINGS ================= */}
+          {/* =================================================
+              SETTINGS
+          ================================================= */}
 
           <div className="sidebar-group">
 
@@ -598,16 +730,22 @@ export default function AdminLayout() {
                 toggleMenu("settings")
               }
             >
+
               <span>⚙️ Settings</span>
 
               <span className="menu-arrow">
+
                 {openMenu === "settings"
                   ? "▲"
                   : "▼"}
+
               </span>
+
             </button>
 
+
             {openMenu === "settings" && (
+
               <div className="sidebar-submenu">
 
                 <NavLink
@@ -629,6 +767,7 @@ export default function AdminLayout() {
                 </NavLink>
 
               </div>
+
             )}
 
           </div>
@@ -648,10 +787,14 @@ export default function AdminLayout() {
       </aside>
 
 
-      {/* ================= MAIN CONTENT ================= */}
+      {/* =====================================================
+          MAIN CONTENT
+      ===================================================== */}
 
       <main className="admin-main">
+
         <Outlet />
+
       </main>
 
     </div>
