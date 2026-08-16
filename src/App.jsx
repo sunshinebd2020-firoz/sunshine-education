@@ -45,6 +45,8 @@ import CourseList from "./admin/pages/CourseList";
 import AddCourse from "./admin/pages/AddCourse";
 import EditCourse from "./admin/pages/EditCourse";
 
+import Branch from "./admin/pages/Branch/Branch";
+
 // ================= PUBLIC PAGES =================
 import Home from "./pages/Home";
 import Gallery from "./pages/Gallery";
@@ -299,6 +301,11 @@ export default function App() {
             <Route
               path="EditCourse"
               element={<EditCourse />}
+            />
+
+            <Route
+              path="/branches"
+              element={<Branch />}
             />
 
           </Route>
