@@ -414,7 +414,7 @@ export default function AdminLayout() {
                 {/* ================= REPORT ================= */}
 
                 <NavLink
-                  to="/admin/IncomeExpenseReport"
+                  to="/admin/income-expense-report"
                   className={({ isActive }) =>
                     isActive ? "active" : ""
                   }

@@ -8,10 +8,21 @@ export default function IncomeExpenseReport() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
   const [branch, setBranch] = useState("");
   const [search, setSearch] = useState("");
+
+  /* =====================================================
+     CURRENT MONTH
+  ===================================================== */
+
+  const today = new Date();
+
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth() + 1;
+
+  const currentMonthName = today.toLocaleString("en-US", {
+    month: "long",
+  });
 
   /* =====================================================
      LOAD REPORT DATA
@@ -70,21 +81,23 @@ export default function IncomeExpenseReport() {
   };
 
   /* =====================================================
-     FILTER DATA
+     CURRENT MONTH FILTER
   ===================================================== */
 
-  const filterByDate = (date) => {
+  const isCurrentMonth = (date) => {
     if (!date) return false;
 
-    if (fromDate && date < fromDate) {
-      return false;
-    }
+    const parts = date.split("-");
 
-    if (toDate && date > toDate) {
-      return false;
-    }
+    if (parts.length !== 3) return false;
 
-    return true;
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
+
+    return (
+      year === currentYear &&
+      month === currentMonth
+    );
   };
 
   /* =====================================================
@@ -92,7 +105,7 @@ export default function IncomeExpenseReport() {
   ===================================================== */
 
   const filteredIncome = income.filter((item) => {
-    const matchesDate = filterByDate(
+    const matchesDate = isCurrentMonth(
       item.income_date
     );
 
@@ -132,7 +145,7 @@ export default function IncomeExpenseReport() {
 
   const filteredExpenses = expenses.filter(
     (item) => {
-      const matchesDate = filterByDate(
+      const matchesDate = isCurrentMonth(
         item.expense_date
       );
 
@@ -191,8 +204,6 @@ export default function IncomeExpenseReport() {
   ===================================================== */
 
   const clearFilters = () => {
-    setFromDate("");
-    setToDate("");
     setBranch("");
     setSearch("");
   };
@@ -225,11 +236,20 @@ export default function IncomeExpenseReport() {
       <div className="report-header">
 
         <div>
-          <h1>Income & Expense Report</h1>
+          <h1>
+            Income & Expense Report
+          </h1>
 
           <p>
             প্রতিষ্ঠানের আয় ও ব্যয়ের বিস্তারিত হিসাব
           </p>
+
+          <div className="current-month">
+            Current Month:{" "}
+            <strong>
+              {currentMonthName} {currentYear}
+            </strong>
+          </div>
         </div>
 
         <button
@@ -247,34 +267,6 @@ export default function IncomeExpenseReport() {
       ================================================= */}
 
       <div className="report-filters">
-
-        <div className="report-filter-group">
-
-          <label>From Date</label>
-
-          <input
-            type="date"
-            value={fromDate}
-            onChange={(e) =>
-              setFromDate(e.target.value)
-            }
-          />
-
-        </div>
-
-        <div className="report-filter-group">
-
-          <label>To Date</label>
-
-          <input
-            type="date"
-            value={toDate}
-            onChange={(e) =>
-              setToDate(e.target.value)
-            }
-          />
-
-        </div>
 
         <div className="report-filter-group">
 
@@ -439,11 +431,15 @@ export default function IncomeExpenseReport() {
         <div className="report-section-header income-section-header">
 
           <div>
-            <h2>Income Details</h2>
+
+            <h2>
+              Income Details
+            </h2>
 
             <p>
-              Filtered income records
+              {currentMonthName} {currentYear} income records
             </p>
+
           </div>
 
           <strong>
@@ -457,7 +453,7 @@ export default function IncomeExpenseReport() {
           {filteredIncome.length === 0 ? (
 
             <div className="report-empty">
-              কোনো Income record পাওয়া যায়নি।
+              এই মাসে কোনো Income record পাওয়া যায়নি।
             </div>
 
           ) : (
@@ -465,6 +461,7 @@ export default function IncomeExpenseReport() {
             <table className="report-table">
 
               <thead>
+
                 <tr>
                   <th>#</th>
                   <th>Date</th>
@@ -474,6 +471,7 @@ export default function IncomeExpenseReport() {
                   <th>Branch</th>
                   <th>Amount</th>
                 </tr>
+
               </thead>
 
               <tbody>
@@ -495,19 +493,16 @@ export default function IncomeExpenseReport() {
 
                       <td>
                         <span className="income-badge">
-                          {item.income_type ||
-                            "-"}
+                          {item.income_type || "-"}
                         </span>
                       </td>
 
                       <td>
-                        {item.description ||
-                          "-"}
+                        {item.description || "-"}
                       </td>
 
                       <td>
-                        {item.payment_method ||
-                          "-"}
+                        {item.payment_method || "-"}
                       </td>
 
                       <td>
@@ -545,11 +540,15 @@ export default function IncomeExpenseReport() {
         <div className="report-section-header expense-section-header">
 
           <div>
-            <h2>Expense Details</h2>
+
+            <h2>
+              Expense Details
+            </h2>
 
             <p>
-              Filtered expense records
+              {currentMonthName} {currentYear} expense records
             </p>
+
           </div>
 
           <strong>
@@ -563,7 +562,7 @@ export default function IncomeExpenseReport() {
           {filteredExpenses.length === 0 ? (
 
             <div className="report-empty">
-              কোনো Expense record পাওয়া যায়নি।
+              এই মাসে কোনো Expense record পাওয়া যায়নি।
             </div>
 
           ) : (
@@ -571,6 +570,7 @@ export default function IncomeExpenseReport() {
             <table className="report-table">
 
               <thead>
+
                 <tr>
                   <th>#</th>
                   <th>Date</th>
@@ -580,6 +580,7 @@ export default function IncomeExpenseReport() {
                   <th>Branch</th>
                   <th>Amount</th>
                 </tr>
+
               </thead>
 
               <tbody>
@@ -601,19 +602,16 @@ export default function IncomeExpenseReport() {
 
                       <td>
                         <span className="expense-badge">
-                          {item.expense_type ||
-                            "-"}
+                          {item.expense_type || "-"}
                         </span>
                       </td>
 
                       <td>
-                        {item.description ||
-                          "-"}
+                        {item.description || "-"}
                       </td>
 
                       <td>
-                        {item.payment_method ||
-                          "-"}
+                        {item.payment_method || "-"}
                       </td>
 
                       <td>
