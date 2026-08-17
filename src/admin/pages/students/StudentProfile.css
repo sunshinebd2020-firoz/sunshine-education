@@ -1,39 +1,59 @@
+/* =====================================================
+   STUDENT PROFILE
+===================================================== */
+
 .student-profile {
-  padding: 30px;
-  background: #f8fafc;
-  min-height: 100%;
+  width: 100%;
+  min-height: 100vh;
+  padding: 22px;
+  box-sizing: border-box;
+  background: #f1f5f9;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1e293b;
 }
 
+
+/* =====================================================
+   HEADER
+===================================================== */
+
 .profile-header {
+  max-width: 980px;
+  margin: 0 auto 16px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+
+  gap: 15px;
 }
 
 .profile-header h1 {
-  margin: 0 0 5px;
-  color: #1e293b;
-  font-size: 28px;
+  margin: 0;
+  font-size: 25px;
+  color: #0f172a;
 }
 
 .profile-header p {
-  margin: 0;
+  margin: 4px 0 0;
   color: #64748b;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .profile-buttons {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
-.back-button,
-.print-button {
+.profile-buttons button {
   border: none;
-  padding: 10px 16px;
-  border-radius: 7px;
+  border-radius: 6px;
+
+  padding: 8px 14px;
+
+  font-size: 12px;
   font-weight: 600;
+
   cursor: pointer;
 }
 
@@ -42,213 +62,766 @@
   color: #334155;
 }
 
-.print-button {
-  background: #2563eb;
-  color: white;
+.back-button:hover {
+  background: #cbd5e1;
 }
 
-.profile-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
-  overflow: hidden;
+.print-button {
+  background: #2563eb;
+  color: #fff;
 }
+
+.print-button:hover {
+  background: #1d4ed8;
+}
+
+
+/* =====================================================
+   A4 CARD
+===================================================== */
+
+.profile-card {
+  width: 210mm;
+  min-height: 297mm;
+
+  margin: 0 auto;
+
+  padding: 10mm;
+
+  box-sizing: border-box;
+
+  background: #fff;
+
+  border-radius: 5px;
+
+  box-shadow:
+    0 6px 22px rgba(15, 23, 42, 0.10);
+}
+
+
+/* =====================================================
+   PROFILE TOP
+===================================================== */
 
 .profile-top {
   display: flex;
   align-items: center;
-  gap: 25px;
-  padding: 30px;
-  background: linear-gradient(135deg, #eff6ff, #ffffff);
-  border-bottom: 1px solid #e2e8f0;
+
+  gap: 18px;
+
+  padding-bottom: 11px;
+
+  border-bottom: 2px solid #2563eb;
 }
+
+
+/* =====================================================
+   PHOTO
+===================================================== */
 
 .profile-photo-box {
-  width: 120px;
-  height: 120px;
+  width: 82px;
+  height: 100px;
+
   flex-shrink: 0;
-}
 
-.profile-photo-box img,
-.profile-no-photo {
-  width: 120px;
-  height: 120px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-
-.profile-photo-box img {
-  border: 3px solid white;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
-}
-
-.profile-no-photo {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #e2e8f0;
-  color: #64748b;
-  font-size: 13px;
+
+  overflow: hidden;
+
+  background: #f8fafc;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+}
+
+.profile-photo-box img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.profile-no-photo {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   BASIC INFO
+===================================================== */
+
+.profile-basic {
+  flex: 1;
 }
 
 .profile-basic h2 {
-  margin: 0 0 5px;
-  color: #1e293b;
-  font-size: 25px;
+  margin: 0 0 2px;
+
+  font-size: 22px;
+  line-height: 1.2;
+
+  color: #0f172a;
 }
 
 .bangla-name {
-  margin: 0 0 12px;
-  color: #64748b;
+  margin: 0 0 5px;
+
+  font-size: 14px;
+  color: #475569;
 }
 
 .profile-id {
+  display: flex;
+  gap: 5px;
+
+  margin-bottom: 6px;
+
+  font-size: 11px;
   color: #64748b;
-  font-size: 14px;
 }
 
 .profile-id strong {
-  margin-left: 7px;
-  color: #2563eb;
+  color: #0f172a;
 }
+
+
+/* =====================================================
+   TAGS
+===================================================== */
 
 .profile-tags {
   display: flex;
-  gap: 8px;
-  margin-top: 15px;
   flex-wrap: wrap;
+  gap: 5px;
 }
 
 .profile-tags span {
-  padding: 5px 10px;
-  border-radius: 15px;
-  background: #dbeafe;
+  padding: 4px 8px;
+
+  border-radius: 12px;
+
+  background: #eff6ff;
+
+  border: 1px solid #bfdbfe;
+
   color: #1d4ed8;
-  font-size: 12px;
+
+  font-size: 10px;
+
   font-weight: 600;
 }
 
-.profile-section {
-  padding: 25px 30px;
-  border-bottom: 1px solid #e2e8f0;
-}
 
-.profile-section:last-child {
-  border-bottom: none;
+/* =====================================================
+   SECTION
+===================================================== */
+
+.profile-section {
+  margin-top: 10px;
+
+  page-break-inside: avoid;
 }
 
 .profile-section h3 {
-  margin: 0 0 20px;
-  color: #1e293b;
-  font-size: 19px;
-}
+  margin: 0 0 5px;
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-}
+  padding: 5px 8px;
 
-.info-grid > div {
-  padding: 14px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-}
+  background: #eff6ff;
 
-.info-grid label {
-  display: block;
-  margin-bottom: 6px;
-  color: #64748b;
+  border-left: 3px solid #2563eb;
+
+  color: #0f172a;
+
   font-size: 12px;
+
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   PERSONAL INFORMATION
+   SINGLE COLUMN
+===================================================== */
+
+.single-info-table {
+  width: 100%;
+
+  border: 1px solid #dbe3ec;
+
+  border-radius: 3px;
+
+  overflow: hidden;
+}
+
+.single-info-row {
+  display: grid;
+
+  grid-template-columns: 145px 1fr;
+
+  min-height: 24px;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.single-info-row:last-child {
+  border-bottom: none;
+}
+
+.single-info-label {
+  display: flex;
+  align-items: center;
+
+  padding: 4px 7px;
+
+  background: #f8fafc;
+
+  color: #64748b;
+
+  font-size: 9px;
   font-weight: 600;
 }
 
-.info-grid p {
-  margin: 0;
-  color: #334155;
-  font-size: 14px;
-  font-weight: 500;
-  word-break: break-word;
+.single-info-value {
+  display: flex;
+  align-items: center;
+
+  padding: 4px 8px;
+
+  color: #1e293b;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
 }
 
-.education-block {
-  margin-bottom: 25px;
+
+/* =====================================================
+   CONTACT TABLE
+===================================================== */
+
+.contact-table {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  border: 1px solid #dbe3ec;
+
+  border-radius: 3px;
+
+  overflow: hidden;
 }
 
-.education-block:last-child {
-  margin-bottom: 0;
+.contact-item {
+  padding: 6px 8px;
+
+  border-right: 1px solid #e2e8f0;
 }
 
-.education-block h4 {
-  margin: 0 0 12px;
-  padding: 9px 12px;
-  background: #eff6ff;
-  color: #1d4ed8;
-  border-radius: 6px;
-  font-size: 15px;
+.contact-item:last-child {
+  border-right: none;
 }
 
-.profile-error,
-.profile-loading {
-  padding: 30px;
-  text-align: center;
+.contact-item label {
+  display: block;
+
+  margin-bottom: 2px;
+
   color: #64748b;
+
+  font-size: 8px;
+
+  text-transform: uppercase;
 }
 
-@media (max-width: 1000px) {
-  .info-grid {
+.contact-item p {
+  margin: 0;
+
+  color: #1e293b;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =====================================================
+   ADDRESS TABLE
+===================================================== */
+
+.address-table {
+  width: 100%;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 3px;
+
+  overflow: hidden;
+}
+
+.address-row {
+  display: grid;
+
+  grid-template-columns:
+    80px
+    1.4fr
+    1fr
+    1fr
+    1fr;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.address-row:last-child {
+  border-bottom: none;
+}
+
+.address-row > div {
+  min-width: 0;
+
+  padding: 6px 7px;
+
+  border-right: 1px solid #e2e8f0;
+
+  font-size: 9px;
+
+  overflow-wrap: anywhere;
+}
+
+.address-row > div:last-child {
+  border-right: none;
+}
+
+.address-header {
+  background: #f1f5f9;
+
+  color: #475569;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.address-header > div {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.address-type {
+  font-weight: 700;
+
+  color: #2563eb;
+
+  background: #f8fafc;
+}
+
+
+/* =====================================================
+   EDUCATIONAL TABLE
+===================================================== */
+
+.education-table {
+  width: 100%;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 3px;
+
+  overflow: hidden;
+}
+
+.education-row {
+  display: grid;
+
+  grid-template-columns:
+    55px
+    1.7fr
+    65px
+    65px
+    85px
+    1fr
+    55px
+    55px;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.education-row:last-child {
+  border-bottom: none;
+}
+
+.education-row > div {
+  min-width: 0;
+
+  padding: 5px 5px;
+
+  border-right: 1px solid #e2e8f0;
+
+  color: #1e293b;
+
+  font-size: 8.5px;
+
+  line-height: 1.25;
+
+  overflow-wrap: anywhere;
+}
+
+.education-row > div:last-child {
+  border-right: none;
+}
+
+.education-header {
+  background: #f1f5f9;
+}
+
+.education-header > div {
+  color: #475569;
+
+  font-size: 7.5px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.education-exam {
+  background: #f8fafc;
+
+  color: #2563eb !important;
+
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   PROFILE FOOTER
+===================================================== */
+
+.profile-footer {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-top: 10px;
+
+  padding-top: 6px;
+
+  border-top: 1px solid #cbd5e1;
+
+  color: #64748b;
+
+  font-size: 8px;
+}
+
+
+/* =====================================================
+   LOADING / ERROR
+===================================================== */
+
+.profile-loading,
+.profile-error {
+  max-width: 500px;
+
+  margin: 70px auto;
+
+  padding: 20px;
+
+  text-align: center;
+
+  background: #fff;
+
+  border-radius: 6px;
+
+  box-shadow:
+    0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.profile-error {
+  color: #dc2626;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 900px) {
+
+  .student-profile {
+    padding: 12px;
+  }
+
+  .profile-card {
+    width: 100%;
+    min-height: auto;
+
+    padding: 18px;
+  }
+
+  .contact-table {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .contact-item:nth-child(2) {
+    border-right: none;
+  }
+
+  .contact-item:nth-child(-n + 2) {
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .address-table,
+  .education-table {
+    overflow-x: auto;
+  }
+
+  .address-row,
+  .education-row {
+    min-width: 750px;
+  }
 }
 
-@media (max-width: 650px) {
-  .student-profile {
-    padding: 15px;
-  }
+
+@media (max-width: 600px) {
 
   .profile-header {
-    align-items: flex-start;
-    gap: 15px;
-    flex-direction: column;
-  }
-
-  .profile-top {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .profile-section {
-    padding: 20px 15px;
   }
 
   .profile-buttons {
     width: 100%;
   }
 
-  .back-button,
-  .print-button {
+  .profile-buttons button {
     flex: 1;
+  }
+
+  .profile-top {
+    align-items: flex-start;
+  }
+
+  .profile-photo-box {
+    width: 70px;
+    height: 88px;
+  }
+
+  .profile-basic h2 {
+    font-size: 18px;
+  }
+
+  .single-info-row {
+    grid-template-columns: 115px 1fr;
+  }
+
+  .contact-table {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-item {
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .contact-item:last-child {
+    border-bottom: none;
   }
 }
 
+
+/* =====================================================
+   PRINT / A4 PDF
+===================================================== */
+
 @media print {
-  .profile-header .profile-buttons {
-    display: none;
+
+  @page {
+    size: A4 portrait;
+    margin: 5mm;
+  }
+
+  html,
+  body {
+    width: 210mm;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #fff !important;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide admin layout */
+  .admin-sidebar,
+  .admin-header,
+  .admin-navbar,
+  .admin-footer,
+  .sidebar,
+  .header,
+  .navbar,
+  .footer {
+    display: none !important;
+  }
+
+  /* Hide buttons/header */
+  .no-print {
+    display: none !important;
+  }
+
+  .admin-layout-container,
+  .admin-layout,
+  .admin-main,
+  .admin-content,
+  .main-content {
+    width: 100% !important;
+
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #fff !important;
+
+    overflow: visible !important;
   }
 
   .student-profile {
-    padding: 0;
-    background: white;
+    width: 100% !important;
+
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #fff !important;
   }
 
   .profile-card {
-    box-shadow: none;
-    border: none;
+    width: 100% !important;
+
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+
+    background: #fff !important;
+  }
+
+  .profile-section {
+    page-break-inside: avoid;
+  }
+
+  .single-info-table,
+  .address-table,
+  .education-table {
+    page-break-inside: avoid;
+  }
+
+  .profile-top {
+    page-break-inside: avoid;
+  }
+
+  .profile-footer {
+    page-break-inside: avoid;
+  }
+
+  .contact-table {
+    page-break-inside: avoid;
+  }
+
+  .education-row,
+  .address-row,
+  .single-info-row {
+    page-break-inside: avoid;
+  }
+
+  .education-table,
+  .address-table,
+  .single-info-table,
+  .contact-table {
+    width: 100% !important;
+  }
+
+  .profile-photo-box {
+    width: 72px;
+    height: 88px;
+  }
+
+  .profile-basic h2 {
+    font-size: 19px;
+  }
+
+  .profile-section {
+    margin-top: 7px;
+  }
+
+  .profile-section h3 {
+    padding: 4px 7px;
+    margin-bottom: 4px;
+    font-size: 10px;
+  }
+
+  .single-info-row {
+    min-height: 21px;
+  }
+
+  .single-info-label,
+  .single-info-value {
+    padding: 3px 6px;
+    font-size: 8px;
+  }
+
+  .contact-item {
+    padding: 4px 6px;
+  }
+
+  .contact-item label {
+    font-size: 7px;
+  }
+
+  .contact-item p {
+    font-size: 8px;
+  }
+
+  .address-row > div {
+    padding: 4px 5px;
+    font-size: 7.5px;
+  }
+
+  .address-header > div {
+    font-size: 7px;
+  }
+
+  .education-row > div {
+    padding: 4px 4px;
+    font-size: 7px;
+  }
+
+  .education-header > div {
+    font-size: 6.5px;
+  }
+
+  .profile-footer {
+    margin-top: 6px;
+    padding-top: 4px;
+    font-size: 7px;
   }
 }

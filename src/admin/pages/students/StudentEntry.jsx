@@ -5,12 +5,14 @@ import { useSearchParams } from "react-router-dom";
 export default function StudentEntry() {
   const [searchParams] = useSearchParams();
 
-  // Courses page থেকে Apply Now চাপলে course name এখানে আসবে
   const appliedCourse = searchParams.get("course") || "";
+
+  const getToday = () =>
+    new Date().toISOString().split("T")[0];
 
   const initialForm = {
     studentId: "",
-    admissionDate: new Date().toISOString().split("T")[0],
+    admissionDate: getToday(),
 
     branch: "",
     course: "",
@@ -37,6 +39,8 @@ export default function StudentEntry() {
     studentMobile: "",
     parentsMobile: "",
     homeMobile: "",
+
+    courseFee: "",
 
     sscInstitute: "",
     sscBoard: "",
@@ -69,22 +73,40 @@ export default function StudentEntry() {
     mastersGroup: "",
     mastersPassingYear: "",
     mastersResult: "",
-
-    courseFee: "",
   };
 
   const [form, setForm] = useState(initialForm);
 
-  const [studentPhoto, setStudentPhoto] = useState(null);
+  const [studentPhoto, setStudentPhoto] =
+    useState(null);
+
+  const [photoPreview, setPhotoPreview] =
+    useState("");
+
+  const [sameAddress, setSameAddress] =
+    useState(false);
 
   const [message, setMessage] = useState("");
 
   const [courses, setCourses] = useState([]);
+  const [courseLoading, setCourseLoading] =
+    useState(true);
 
-  const [courseLoading, setCourseLoading] = useState(true);
+  const [branches, setBranches] = useState([]);
+  const [branchLoading, setBranchLoading] =
+    useState(true);
+
+  const [showHsc, setShowHsc] =
+    useState(false);
+
+  const [showHonours, setShowHonours] =
+    useState(false);
+
+  const [showMasters, setShowMasters] =
+    useState(false);
 
   /* =========================================
-     Input Change
+     INPUT CHANGE
   ========================================= */
 
   const handleChange = (e) => {
@@ -96,14 +118,14 @@ export default function StudentEntry() {
         [name]: value,
       };
 
-      // Admission Date → Student ID Preview
       if (name === "admissionDate") {
         if (value) {
           const cleanDate = value
             .replace(/-/g, "")
             .substring(2);
 
-          updated.studentId = `SE${cleanDate}`;
+          updated.studentId =
+            `SE${cleanDate}`;
         } else {
           updated.studentId = "";
         }
@@ -114,7 +136,85 @@ export default function StudentEntry() {
   };
 
   /* =========================================
-     Course Change
+     PHOTO
+  ========================================= */
+
+  const handlePhotoChange = (e) => {
+    const file =
+      e.target.files?.[0] || null;
+
+    setStudentPhoto(file);
+
+    if (file) {
+      setPhotoPreview(
+        URL.createObjectURL(file)
+      );
+    } else {
+      setPhotoPreview("");
+    }
+  };
+
+  /* =========================================
+     SAME AS PRESENT ADDRESS
+  ========================================= */
+
+  const handleSameAddress = (e) => {
+    const checked = e.target.checked;
+
+    setSameAddress(checked);
+
+    if (checked) {
+      setForm((prev) => ({
+        ...prev,
+
+        permanentVillage:
+          prev.presentVillage,
+
+        permanentPost:
+          prev.presentPost,
+
+        permanentThana:
+          prev.presentThana,
+
+        permanentDistrict:
+          prev.presentDistrict,
+      }));
+    }
+  };
+
+  /* =========================================
+     KEEP PERMANENT ADDRESS UPDATED
+     WHEN CHECKED
+  ========================================= */
+
+  useEffect(() => {
+    if (!sameAddress) return;
+
+    setForm((prev) => ({
+      ...prev,
+
+      permanentVillage:
+        prev.presentVillage,
+
+      permanentPost:
+        prev.presentPost,
+
+      permanentThana:
+        prev.presentThana,
+
+      permanentDistrict:
+        prev.presentDistrict,
+    }));
+  }, [
+    sameAddress,
+    form.presentVillage,
+    form.presentPost,
+    form.presentThana,
+    form.presentDistrict,
+  ]);
+
+  /* =========================================
+     COURSE CHANGE
   ========================================= */
 
   const handleCourseChange = (e) => {
@@ -124,24 +224,35 @@ export default function StudentEntry() {
       ...prev,
       course,
       level: "",
+      courseFee: "",
     }));
   };
 
   /* =========================================
-     Level Change
+     LEVEL CHANGE
   ========================================= */
 
   const handleLevelChange = (e) => {
     const level = e.target.value;
 
+    const selectedCourse = courses.find(
+      (course) =>
+        course.language === form.course &&
+        course.course_name === level
+    );
+
     setForm((prev) => ({
       ...prev,
       level,
+      courseFee:
+        selectedCourse?.course_fee ||
+        prev.courseFee ||
+        "",
     }));
   };
 
   /* =========================================
-     Load Active Courses
+     LOAD COURSES
   ========================================= */
 
   useEffect(() => {
@@ -153,29 +264,48 @@ export default function StudentEntry() {
           "http://localhost/sunshine-api/api/course_list.php"
         );
 
+        if (!response.ok) {
+          throw new Error(
+            "Course server error"
+          );
+        }
+
         const data = await response.json();
 
-        if (data.success) {
-          // শুধু Active course
-          const activeCourses = data.data.filter(
-            (course) =>
-              String(course.status).toLowerCase() ===
-              "active"
-          );
+        let courseData = [];
 
-          setCourses(activeCourses);
+        if (Array.isArray(data)) {
+          courseData = data;
+        } else if (
+          data &&
+          Array.isArray(data.data)
+        ) {
+          courseData = data.data;
+        }
 
-          /*
-            ======================================
-            Apply Now থেকে course এলে
-            Course + Level automatically select
-            ======================================
-          */
+        const activeCourses =
+          courseData.filter((course) => {
+            const status = String(
+              course.status ?? ""
+            ).toLowerCase();
 
-          if (appliedCourse) {
-            const selectedCourse = activeCourses.find(
+            return (
+              status === "active" ||
+              status === "1"
+            );
+          });
+
+        setCourses(activeCourses);
+
+        /* Apply Now থেকে course এলে */
+
+        if (appliedCourse) {
+          const selectedCourse =
+            activeCourses.find(
               (course) =>
-                String(course.course_name)
+                String(
+                  course.course_name
+                )
                   .trim()
                   .toLowerCase() ===
                 String(appliedCourse)
@@ -183,18 +313,21 @@ export default function StudentEntry() {
                   .toLowerCase()
             );
 
-            if (selectedCourse) {
-              setForm((prev) => ({
-                ...prev,
-                course: selectedCourse.language,
-                level: selectedCourse.course_name,
-              }));
-            }
+          if (selectedCourse) {
+            setForm((prev) => ({
+              ...prev,
+
+              course:
+                selectedCourse.language,
+
+              level:
+                selectedCourse.course_name,
+
+              courseFee:
+                selectedCourse.course_fee ||
+                "",
+            }));
           }
-        } else {
-          console.error(
-            data.message || "Course load failed"
-          );
         }
       } catch (error) {
         console.error(
@@ -210,7 +343,46 @@ export default function StudentEntry() {
   }, [appliedCourse]);
 
   /* =========================================
-     Submit
+     LOAD BRANCHES
+  ========================================= */
+
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        setBranchLoading(true);
+
+        const response = await fetch(
+          "http://localhost/sunshine-api/api/branch_list.php"
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Branch server error"
+          );
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          setBranches(
+            data.branches || []
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Branch loading error:",
+          error
+        );
+      } finally {
+        setBranchLoading(false);
+      }
+    };
+
+    fetchBranches();
+  }, []);
+
+  /* =========================================
+     SUBMIT
   ========================================= */
 
   const handleSubmit = async (e) => {
@@ -220,9 +392,14 @@ export default function StudentEntry() {
 
     const formData = new FormData();
 
-    Object.entries(form).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
+    Object.entries(form).forEach(
+      ([key, value]) => {
+        formData.append(
+          key,
+          value ?? ""
+        );
+      }
+    );
 
     if (studentPhoto) {
       formData.append(
@@ -244,18 +421,24 @@ export default function StudentEntry() {
 
       if (data.success) {
         setMessage(
-          `Student Saved Successfully. ID: ${data.student_id}`
+          `Student Saved Successfully. ID: ${
+            data.student_id ||
+            form.studentId
+          }`
         );
 
         setForm({
           ...initialForm,
-          admissionDate:
-            new Date()
-              .toISOString()
-              .split("T")[0],
+          admissionDate: getToday(),
         });
 
         setStudentPhoto(null);
+        setPhotoPreview("");
+        setSameAddress(false);
+
+        setShowHsc(false);
+        setShowHonours(false);
+        setShowMasters(false);
 
         const photoInput =
           document.getElementById(
@@ -272,34 +455,41 @@ export default function StudentEntry() {
         );
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error(
+        "Submit error:",
+        error
+      );
 
       setMessage(
-        "Server connection failed"
+        "Server connection failed."
       );
     }
   };
 
   /* =========================================
-     Unique Languages
+     UNIQUE LANGUAGES
   ========================================= */
 
   const languages = [
     ...new Set(
-      courses.map(
-        (course) => course.language
-      )
+      courses
+        .map(
+          (course) =>
+            course.language
+        )
+        .filter(Boolean)
     ),
   ];
 
   /* =========================================
-     Selected Language Courses
+     SELECTED LEVELS
   ========================================= */
 
   const selectedLevels = courses
     .filter(
       (course) =>
-        course.language === form.course
+        course.language ===
+        form.course
     )
     .sort(
       (a, b) =>
@@ -308,53 +498,67 @@ export default function StudentEntry() {
     );
 
   /* =========================================
-     Render
+     ACTIVE BRANCHES
+  ========================================= */
+
+  const activeBranches =
+    branches.filter((branch) => {
+      const status = String(
+        branch.status ?? ""
+      ).toLowerCase();
+
+      return (
+        status === "active" ||
+        status === "1"
+      );
+    });
+
+  /* =========================================
+     RENDER
   ========================================= */
 
   return (
     <div className="student-entry">
 
-      <h1>Student Entry</h1>
+      <div className="student-entry-header">
+        <h1>Student Entry</h1>
 
-      <p>
-        নতুন শিক্ষার্থীর তথ্য সংরক্ষণ করুন
-      </p>
+        <p>
+          নতুন শিক্ষার্থীর তথ্য সংরক্ষণ করুন
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit}>
 
-        {/* =====================================
+        {/* =================================
             PERSONAL INFORMATION
-        ===================================== */}
+        ================================= */}
 
         <h2>Personal Information</h2>
 
         <div className="form-grid">
 
-          {/* Student ID */}
-
           <div className="form-group">
-
-            <label>Student ID</label>
+            <label>
+              Student ID
+            </label>
 
             <input
               type="text"
-              name="studentId"
-              value={form.studentId}
+              value={
+                form.studentId
+              }
               readOnly
-              placeholder="Admission Date দিন"
+              placeholder="Auto generated"
             />
 
             <small>
-              শেষের serial number server
-              থেকে নির্ধারিত হবে।
+              শেষের serial number
+              server থেকে নির্ধারিত হবে।
             </small>
-
           </div>
 
-          {/* Admission Date */}
-
           <div className="form-group">
-
             <label>
               Admission Date *
             </label>
@@ -362,18 +566,18 @@ export default function StudentEntry() {
             <input
               type="date"
               name="admissionDate"
-              value={form.admissionDate}
+              value={
+                form.admissionDate
+              }
               onChange={handleChange}
               required
             />
-
           </div>
 
-          {/* Branch */}
-
           <div className="form-group">
-
-            <label>Branch</label>
+            <label>
+              Branch *
+            </label>
 
             <select
               name="branch"
@@ -381,87 +585,75 @@ export default function StudentEntry() {
               onChange={handleChange}
               required
             >
-
               <option value="">
-                Select Branch
+                {branchLoading
+                  ? "Loading branches..."
+                  : "Select Branch"}
               </option>
 
-              <option value="Rajshahi Main Branch">
-                Rajshahi Main Branch
-              </option>
-
-              <option value="Ramchandrapur Branch">
-                Ramchandrapur Branch
-              </option>
-
-              <option value="Khulna Branch">
-                Khulna Branch
-              </option>
-
-              <option value="Tangail Branch">
-                Tangail Branch
-              </option>
-
-              <option value="Online">
-                Online
-              </option>
-
+              {!branchLoading &&
+                activeBranches.map(
+                  (branch) => (
+                    <option
+                      key={branch.id}
+                      value={
+                        branch.branch_name
+                      }
+                    >
+                      {
+                        branch.branch_name
+                      }
+                    </option>
+                  )
+                )}
             </select>
-
           </div>
 
-          {/* Course / Language */}
-
           <div className="form-group">
-
             <label>
-              Course
+              Course *
             </label>
 
             <select
               name="course"
               value={form.course}
-              onChange={handleCourseChange}
+              onChange={
+                handleCourseChange
+              }
               required
             >
-
               <option value="">
                 {courseLoading
                   ? "Loading courses..."
                   : "Select Course"}
               </option>
 
-              {!courseLoading &&
-                languages.map(
-                  (language) => (
-                    <option
-                      key={language}
-                      value={language}
-                    >
-                      {language}
-                    </option>
-                  )
-                )}
-
+              {languages.map(
+                (language) => (
+                  <option
+                    key={language}
+                    value={language}
+                  >
+                    {language}
+                  </option>
+                )
+              )}
             </select>
-
           </div>
 
-          {/* Level */}
-
           <div className="form-group">
-
             <label>
-              Level
+              Level *
             </label>
 
             <select
               name="level"
               value={form.level}
-              onChange={handleLevelChange}
+              onChange={
+                handleLevelChange
+              }
               required
             >
-
               <option value="">
                 Select Level
               </option>
@@ -470,78 +662,84 @@ export default function StudentEntry() {
                 (course) => (
                   <option
                     key={course.id}
-                    value={course.course_name}
+                    value={
+                      course.course_name
+                    }
                   >
-                    {course.course_name}
+                    {
+                      course.course_name
+                    }
                   </option>
                 )
               )}
-
             </select>
+          </div>
+
+          {/* PHOTO */}
+
+          <div className="student-photo-section">
+
+            <div className="form-group photo-upload">
+              <label>
+                Student Photo
+              </label>
+
+              <input
+                type="file"
+                id="studentPhoto"
+                accept="image/*"
+                onChange={
+                  handlePhotoChange
+                }
+              />
+            </div>
+
+            {photoPreview && (
+              <div className="student-photo-preview">
+                <img
+                  src={photoPreview}
+                  alt="Student Preview"
+                />
+              </div>
+            )}
 
           </div>
 
-          {/* Student Photo */}
+          {/* NAME */}
 
           <div className="form-group">
-
             <label>
-              Student Photo
-            </label>
-
-            <input
-              type="file"
-              id="studentPhoto"
-              accept="image/*"
-              onChange={(e) =>
-                setStudentPhoto(
-                  e.target.files[0]
-                )
-              }
-            />
-
-          </div>
-
-          {/* Student Name Bangla */}
-
-          <div className="form-group">
-
-            <label>
-              Student's Name (Bangla)
+              Student's Name (Bangla) *
             </label>
 
             <input
               type="text"
               name="studentNameBn"
-              value={form.studentNameBn}
+              value={
+                form.studentNameBn
+              }
               onChange={handleChange}
               required
             />
-
           </div>
 
-          {/* Student Name English */}
-
           <div className="form-group">
-
             <label>
-              Student's Name (English)
+              Student's Name (English) *
             </label>
 
             <input
               type="text"
               name="studentNameEn"
-              value={form.studentNameEn}
+              value={
+                form.studentNameEn
+              }
               onChange={handleChange}
               required
             />
-
           </div>
 
-          {/* Short Name */}
-
           <div className="form-group">
-
             <label>
               Short Name
             </label>
@@ -549,16 +747,29 @@ export default function StudentEntry() {
             <input
               type="text"
               name="shortName"
-              value={form.shortName}
+              value={
+                form.shortName
+              }
               onChange={handleChange}
             />
-
           </div>
 
-          {/* Father */}
+          <div className="form-group">
+            <label>
+              Course Fee
+            </label>
+
+            <input
+              type="number"
+              name="courseFee"
+              value={
+                form.courseFee
+              }
+              onChange={handleChange}
+            />
+          </div>
 
           <div className="form-group">
-
             <label>
               Father's Name
             </label>
@@ -566,16 +777,14 @@ export default function StudentEntry() {
             <input
               type="text"
               name="fatherName"
-              value={form.fatherName}
+              value={
+                form.fatherName
+              }
               onChange={handleChange}
             />
-
           </div>
 
-          {/* Mother */}
-
           <div className="form-group">
-
             <label>
               Mother's Name
             </label>
@@ -583,16 +792,14 @@ export default function StudentEntry() {
             <input
               type="text"
               name="motherName"
-              value={form.motherName}
+              value={
+                form.motherName
+              }
               onChange={handleChange}
             />
-
           </div>
 
-          {/* DOB */}
-
           <div className="form-group">
-
             <label>
               Date of Birth
             </label>
@@ -600,26 +807,25 @@ export default function StudentEntry() {
             <input
               type="date"
               name="dateOfBirth"
-              value={form.dateOfBirth}
+              value={
+                form.dateOfBirth
+              }
               onChange={handleChange}
             />
-
           </div>
 
-          {/* Blood Group */}
-
           <div className="form-group">
-
             <label>
               Blood Group
             </label>
 
             <select
               name="bloodGroup"
-              value={form.bloodGroup}
+              value={
+                form.bloodGroup
+              }
               onChange={handleChange}
             >
-
               <option value="">
                 Select Blood Group
               </option>
@@ -655,200 +861,229 @@ export default function StudentEntry() {
               <option value="O-">
                 O-
               </option>
-
             </select>
-
           </div>
 
         </div>
 
-        {/* =====================================
+        {/* =================================
             PRESENT ADDRESS
-        ===================================== */}
+        ================================= */}
 
-        <h2>Present Address</h2>
+        <h2>
+          Present Address
+        </h2>
 
-        <div className="form-grid">
+        <div className="form-grid address-grid">
 
           <div className="form-group">
-
-            <label>Village</label>
+            <label>
+              Village
+            </label>
 
             <input
               name="presentVillage"
-              value={form.presentVillage}
+              value={
+                form.presentVillage
+              }
               onChange={handleChange}
             />
-
           </div>
 
           <div className="form-group">
-
-            <label>Post</label>
+            <label>
+              Post
+            </label>
 
             <input
               name="presentPost"
-              value={form.presentPost}
+              value={
+                form.presentPost
+              }
               onChange={handleChange}
             />
-
           </div>
 
           <div className="form-group">
-
-            <label>Thana</label>
+            <label>
+              Thana
+            </label>
 
             <input
               name="presentThana"
-              value={form.presentThana}
+              value={
+                form.presentThana
+              }
               onChange={handleChange}
             />
-
           </div>
 
           <div className="form-group">
-
-            <label>District</label>
+            <label>
+              District
+            </label>
 
             <input
               name="presentDistrict"
-              value={form.presentDistrict}
+              value={
+                form.presentDistrict
+              }
               onChange={handleChange}
             />
-
           </div>
 
         </div>
 
-        {/* =====================================
+        {/* =================================
             PERMANENT ADDRESS
-        ===================================== */}
+        ================================= */}
 
-        <h2>Permanent Address</h2>
+        <div className="permanent-header">
 
-        <div className="form-grid">
+          <h2>
+            Permanent Address
+          </h2>
+
+          <label className="same-address">
+
+            <input
+              type="checkbox"
+              checked={sameAddress}
+              onChange={
+                handleSameAddress
+              }
+            />
+
+            <span>
+              Same as Present Address
+            </span>
+
+          </label>
+
+        </div>
+
+        <div className="form-grid address-grid">
 
           <div className="form-group">
-
-            <label>Village</label>
+            <label>
+              Village
+            </label>
 
             <input
               name="permanentVillage"
-              value={form.permanentVillage}
+              value={
+                form.permanentVillage
+              }
               onChange={handleChange}
+              disabled={sameAddress}
             />
-
           </div>
 
           <div className="form-group">
-
-            <label>Post</label>
+            <label>
+              Post
+            </label>
 
             <input
               name="permanentPost"
-              value={form.permanentPost}
+              value={
+                form.permanentPost
+              }
               onChange={handleChange}
+              disabled={sameAddress}
             />
-
           </div>
 
           <div className="form-group">
-
-            <label>Thana</label>
+            <label>
+              Thana
+            </label>
 
             <input
               name="permanentThana"
-              value={form.permanentThana}
+              value={
+                form.permanentThana
+              }
               onChange={handleChange}
+              disabled={sameAddress}
             />
-
           </div>
 
           <div className="form-group">
-
-            <label>District</label>
+            <label>
+              District
+            </label>
 
             <input
               name="permanentDistrict"
-              value={form.permanentDistrict}
+              value={
+                form.permanentDistrict
+              }
               onChange={handleChange}
+              disabled={sameAddress}
             />
-
           </div>
 
         </div>
 
-        {/* =====================================
-            CONTACT INFORMATION
-        ===================================== */}
+        {/* =================================
+            CONTACT
+        ================================= */}
 
-        <h2>Contact Information</h2>
+        <h2>
+          Contact Information
+        </h2>
 
-        <div className="form-grid">
+        <div className="contact-grid">
 
           <div className="form-group">
-
             <label>
-              Student Mobile
+              Student Mobile *
             </label>
 
             <input
               name="studentMobile"
-              value={form.studentMobile}
+              value={
+                form.studentMobile
+              }
               onChange={handleChange}
               required
             />
-
           </div>
 
           <div className="form-group">
-
             <label>
               Parents Mobile
             </label>
 
             <input
               name="parentsMobile"
-              value={form.parentsMobile}
+              value={
+                form.parentsMobile
+              }
               onChange={handleChange}
             />
-
           </div>
 
           <div className="form-group">
-
             <label>
               Home Mobile
             </label>
 
             <input
               name="homeMobile"
-              value={form.homeMobile}
+              value={
+                form.homeMobile
+              }
               onChange={handleChange}
             />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>
-              Course Fee
-            </label>
-
-            <input
-              type="number"
-              name="courseFee"
-              value={form.courseFee}
-              onChange={handleChange}
-            />
-
           </div>
 
         </div>
 
-        {/* =====================================
-            EDUCATIONAL QUALIFICATION
-        ===================================== */}
+        {/* =================================
+            EDUCATION
+        ================================= */}
 
         <h2>
           Educational Qualification
@@ -856,407 +1091,587 @@ export default function StudentEntry() {
 
         {/* SSC */}
 
-        <h3>SSC</h3>
+        <div className="qualification-section">
 
-        <div className="form-grid">
+          <h3>SSC</h3>
 
-          <div className="form-group">
+          <div className="education-grid">
 
-            <label>
-              Institute Name
-            </label>
+            <div className="form-group">
+              <label>
+                Institute Name
+              </label>
 
-            <input
-              name="sscInstitute"
-              value={form.sscInstitute}
-              onChange={handleChange}
-            />
+              <input
+                name="sscInstitute"
+                value={
+                  form.sscInstitute
+                }
+                onChange={handleChange}
+              />
+            </div>
 
-          </div>
+            <div className="form-group">
+              <label>
+                Board
+              </label>
 
-          <div className="form-group">
+              <input
+                name="sscBoard"
+                value={
+                  form.sscBoard
+                }
+                onChange={handleChange}
+              />
+            </div>
 
-            <label>Board</label>
+            <div className="form-group">
+              <label>
+                Roll No
+              </label>
 
-            <input
-              name="sscBoard"
-              value={form.sscBoard}
-              onChange={handleChange}
-            />
+              <input
+                name="sscRoll"
+                value={
+                  form.sscRoll
+                }
+                onChange={handleChange}
+              />
+            </div>
 
-          </div>
+            <div className="form-group">
+              <label>
+                Registration No
+              </label>
 
-          <div className="form-group">
+              <input
+                name="sscRegistration"
+                value={
+                  form.sscRegistration
+                }
+                onChange={handleChange}
+              />
+            </div>
 
-            <label>Roll No</label>
+            <div className="form-group">
+              <label>
+                Group
+              </label>
 
-            <input
-              name="sscRoll"
-              value={form.sscRoll}
-              onChange={handleChange}
-            />
+              <input
+                name="sscGroup"
+                value={
+                  form.sscGroup
+                }
+                onChange={handleChange}
+              />
+            </div>
 
-          </div>
+            <div className="form-group">
+              <label>
+                Passing Year
+              </label>
 
-          <div className="form-group">
+              <input
+                name="sscPassingYear"
+                value={
+                  form.sscPassingYear
+                }
+                onChange={handleChange}
+              />
+            </div>
 
-            <label>
-              Registration No
-            </label>
+            <div className="form-group">
+              <label>
+                GPA
+              </label>
 
-            <input
-              name="sscRegistration"
-              value={form.sscRegistration}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>Group</label>
-
-            <input
-              name="sscGroup"
-              value={form.sscGroup}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>
-              Passing Year
-            </label>
-
-            <input
-              name="sscPassingYear"
-              value={form.sscPassingYear}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>GPA</label>
-
-            <input
-              name="sscGpa"
-              value={form.sscGpa}
-              onChange={handleChange}
-            />
-
-          </div>
-
-        </div>
-
-        {/* HSC */}
-
-        <h3>HSC</h3>
-
-        <div className="form-grid">
-
-          <div className="form-group">
-
-            <label>
-              Institute Name
-            </label>
-
-            <input
-              name="hscInstitute"
-              value={form.hscInstitute}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>Board</label>
-
-            <input
-              name="hscBoard"
-              value={form.hscBoard}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>Roll No</label>
-
-            <input
-              name="hscRoll"
-              value={form.hscRoll}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>
-              Registration No
-            </label>
-
-            <input
-              name="hscRegistration"
-              value={form.hscRegistration}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>Group</label>
-
-            <input
-              name="hscGroup"
-              value={form.hscGroup}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>
-              Passing Year
-            </label>
-
-            <input
-              name="hscPassingYear"
-              value={form.hscPassingYear}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>GPA</label>
-
-            <input
-              name="hscGpa"
-              value={form.hscGpa}
-              onChange={handleChange}
-            />
+              <input
+                name="sscGpa"
+                value={
+                  form.sscGpa
+                }
+                onChange={handleChange}
+              />
+            </div>
 
           </div>
 
         </div>
 
-        {/* HONOURS */}
+        {/* =================================
+            ADD QUALIFICATION
+        ================================= */}
 
-        <h3>Honours</h3>
+        <div className="qualification-buttons">
 
-        <div className="form-grid">
+          {!showHsc && (
+            <button
+              type="button"
+              onClick={() =>
+                setShowHsc(true)
+              }
+            >
+              + Add HSC
+            </button>
+          )}
 
-          <div className="form-group">
+          {!showHonours && (
+            <button
+              type="button"
+              onClick={() =>
+                setShowHonours(true)
+              }
+            >
+              + Add Honours
+            </button>
+          )}
 
-            <label>
-              Institute Name
-            </label>
-
-            <input
-              name="honoursInstitute"
-              value={form.honoursInstitute}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>University</label>
-
-            <input
-              name="honoursUniversity"
-              value={form.honoursUniversity}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>Roll No</label>
-
-            <input
-              name="honoursRoll"
-              value={form.honoursRoll}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>
-              Registration No
-            </label>
-
-            <input
-              name="honoursRegistration"
-              value={form.honoursRegistration}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>
-              Group / Subject
-            </label>
-
-            <input
-              name="honoursGroup"
-              value={form.honoursGroup}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>
-              Passing Year
-            </label>
-
-            <input
-              name="honoursPassingYear"
-              value={form.honoursPassingYear}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>
-              GPA / Division
-            </label>
-
-            <input
-              name="honoursResult"
-              value={form.honoursResult}
-              onChange={handleChange}
-            />
-
-          </div>
+          {!showMasters && (
+            <button
+              type="button"
+              onClick={() =>
+                setShowMasters(true)
+              }
+            >
+              + Add Masters
+            </button>
+          )}
 
         </div>
 
-        {/* MASTERS */}
+        {/* =================================
+            HSC
+        ================================= */}
 
-        <h3>Masters</h3>
+        {showHsc && (
+          <div className="qualification-section">
 
-        <div className="form-grid">
+            <div className="qualification-title">
 
-          <div className="form-group">
+              <h3>
+                HSC
+              </h3>
 
-            <label>
-              Institute Name
-            </label>
+              <button
+                type="button"
+                className="remove-qualification"
+                onClick={() =>
+                  setShowHsc(false)
+                }
+              >
+                Remove
+              </button>
 
-            <input
-              name="mastersInstitute"
-              value={form.mastersInstitute}
-              onChange={handleChange}
-            />
+            </div>
 
+            <div className="education-grid">
+
+              <div className="form-group">
+                <label>
+                  Institute Name
+                </label>
+
+                <input
+                  name="hscInstitute"
+                  value={
+                    form.hscInstitute
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Board
+                </label>
+
+                <input
+                  name="hscBoard"
+                  value={
+                    form.hscBoard
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Roll No
+                </label>
+
+                <input
+                  name="hscRoll"
+                  value={
+                    form.hscRoll
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Registration No
+                </label>
+
+                <input
+                  name="hscRegistration"
+                  value={
+                    form.hscRegistration
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Group
+                </label>
+
+                <input
+                  name="hscGroup"
+                  value={
+                    form.hscGroup
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Passing Year
+                </label>
+
+                <input
+                  name="hscPassingYear"
+                  value={
+                    form.hscPassingYear
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  GPA
+                </label>
+
+                <input
+                  name="hscGpa"
+                  value={
+                    form.hscGpa
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+            </div>
           </div>
+        )}
 
-          <div className="form-group">
+        {/* =================================
+            HONOURS
+        ================================= */}
 
-            <label>University</label>
+        {showHonours && (
+          <div className="qualification-section">
 
-            <input
-              name="mastersUniversity"
-              value={form.mastersUniversity}
-              onChange={handleChange}
-            />
+            <div className="qualification-title">
 
+              <h3>
+                Honours
+              </h3>
+
+              <button
+                type="button"
+                className="remove-qualification"
+                onClick={() =>
+                  setShowHonours(false)
+                }
+              >
+                Remove
+              </button>
+
+            </div>
+
+            <div className="education-grid">
+
+              <div className="form-group">
+                <label>
+                  Institute Name
+                </label>
+
+                <input
+                  name="honoursInstitute"
+                  value={
+                    form.honoursInstitute
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  University
+                </label>
+
+                <input
+                  name="honoursUniversity"
+                  value={
+                    form.honoursUniversity
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Roll No
+                </label>
+
+                <input
+                  name="honoursRoll"
+                  value={
+                    form.honoursRoll
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Registration No
+                </label>
+
+                <input
+                  name="honoursRegistration"
+                  value={
+                    form.honoursRegistration
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Group / Subject
+                </label>
+
+                <input
+                  name="honoursGroup"
+                  value={
+                    form.honoursGroup
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Passing Year
+                </label>
+
+                <input
+                  name="honoursPassingYear"
+                  value={
+                    form.honoursPassingYear
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  GPA / Division
+                </label>
+
+                <input
+                  name="honoursResult"
+                  value={
+                    form.honoursResult
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+            </div>
           </div>
+        )}
 
-          <div className="form-group">
+        {/* =================================
+            MASTERS
+        ================================= */}
 
-            <label>Roll No</label>
+        {showMasters && (
+          <div className="qualification-section">
 
-            <input
-              name="mastersRoll"
-              value={form.mastersRoll}
-              onChange={handleChange}
-            />
+            <div className="qualification-title">
 
+              <h3>
+                Masters
+              </h3>
+
+              <button
+                type="button"
+                className="remove-qualification"
+                onClick={() =>
+                  setShowMasters(false)
+                }
+              >
+                Remove
+              </button>
+
+            </div>
+
+            <div className="education-grid">
+
+              <div className="form-group">
+                <label>
+                  Institute Name
+                </label>
+
+                <input
+                  name="mastersInstitute"
+                  value={
+                    form.mastersInstitute
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  University
+                </label>
+
+                <input
+                  name="mastersUniversity"
+                  value={
+                    form.mastersUniversity
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Roll No
+                </label>
+
+                <input
+                  name="mastersRoll"
+                  value={
+                    form.mastersRoll
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Registration No
+                </label>
+
+                <input
+                  name="mastersRegistration"
+                  value={
+                    form.mastersRegistration
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Group / Subject
+                </label>
+
+                <input
+                  name="mastersGroup"
+                  value={
+                    form.mastersGroup
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Passing Year
+                </label>
+
+                <input
+                  name="mastersPassingYear"
+                  value={
+                    form.mastersPassingYear
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  GPA / Division
+                </label>
+
+                <input
+                  name="mastersResult"
+                  value={
+                    form.mastersResult
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+              </div>
+
+            </div>
           </div>
+        )}
 
-          <div className="form-group">
-
-            <label>
-              Registration No
-            </label>
-
-            <input
-              name="mastersRegistration"
-              value={form.mastersRegistration}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>
-              Group / Subject
-            </label>
-
-            <input
-              name="mastersGroup"
-              value={form.mastersGroup}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>
-              Passing Year
-            </label>
-
-            <input
-              name="mastersPassingYear"
-              value={form.mastersPassingYear}
-              onChange={handleChange}
-            />
-
-          </div>
-
-          <div className="form-group">
-
-            <label>
-              GPA / Division
-            </label>
-
-            <input
-              name="mastersResult"
-              value={form.mastersResult}
-              onChange={handleChange}
-            />
-
-          </div>
-
-        </div>
-
-        {/* =====================================
+        {/* =================================
             SAVE
-        ===================================== */}
+        ================================= */}
 
         <button
           type="submit"
@@ -1265,8 +1680,6 @@ export default function StudentEntry() {
           Save Student
         </button>
 
-        {/* Message */}
-
         {message && (
           <p className="student-message">
             {message}
@@ -1274,7 +1687,6 @@ export default function StudentEntry() {
         )}
 
       </form>
-
     </div>
   );
 }

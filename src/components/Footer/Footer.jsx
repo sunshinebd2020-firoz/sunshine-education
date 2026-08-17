@@ -1,12 +1,60 @@
 import "./Footer.css";
+import { useEffect, useState } from "react";
 
 export default function Footer() {
+
+  const [branches, setBranches] = useState([]);
+
+  /* =====================================================
+     LOAD BRANCHES
+  ===================================================== */
+
+  useEffect(() => {
+
+    const fetchBranches = async () => {
+
+      try {
+
+        const response = await fetch(
+          "http://localhost/sunshine-api/api/branch_list.php"
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+
+          const activeBranches = (data.branches || []).filter(
+            (branch) =>
+              String(branch.status).toLowerCase() === "active"
+          );
+
+          setBranches(activeBranches);
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Branch load error:",
+          error
+        );
+
+      }
+
+    };
+
+    fetchBranches();
+
+  }, []);
+
+
   return (
     <footer className="footer">
 
       <div className="footer-container">
 
         <div className="footer-main">
+
 
           {/* =========================
               BRANCHES
@@ -20,81 +68,157 @@ export default function Footer() {
 
             <div className="footer-title-line"></div>
 
+
             <div className="branches-items">
 
-              <div className="branch">
-                <h3>📍 রাজশাহী প্রধান শাখা</h3>
-                <p>নগর ভবনের পূর্ব পাশে</p>
-                <p>☎️ 01540-019837</p>
-                <p>☎️ 01723-913228</p>
-                <p>📱 01890-411154 (WhatsApp)</p>
-              </div>
+              {branches.length > 0 ? (
 
-              <div className="branch">
-                <h3>📍 হাট রামচন্দ্রপুর শাখা</h3>
-                <p>আজিজ ম্যানশন, পবা, রাজশাহী</p>
-                <p>☎️ 01339-441034</p>
-              </div>
+                branches.map((branch) => (
+
+                  <div
+                    className="branch"
+                    key={branch.id}
+                  >
+
+                    <h3>
+                      📍{" "}
+                      {branch.branch_name_bn ||
+                        branch.branch_name}
+                    </h3>
+
+
+                    {branch.address && (
+                      <p>
+                        {branch.address}
+                      </p>
+                    )}
+
+
+                    {branch.mobile && (
+
+                      <p>
+                        ☎️ {branch.mobile}
+                      </p>
+
+                    )}
+
+
+                    {branch.email && (
+
+                      <p>
+                        ✉️ {branch.email}
+                      </p>
+
+                    )}
+
+
+                    {branch.map_link && (
+
+                      <p>
+
+                        <a
+                          href={branch.map_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          🗺️ View on Google Maps
+                        </a>
+
+                      </p>
+
+                    )}
+
+                  </div>
+
+                ))
+
+              ) : (
+
+                <p className="no-branches">
+                  No branch information available.
+                </p>
+
+              )}
 
             </div>
 
           </section>
 
 
-{/* =========================
-    MOBILE APP
-========================= */}
+          {/* =========================
+              MOBILE APP
+          ========================= */}
 
-<section className="mobile-app-section">
+          <section className="mobile-app-section">
 
-  <h2 className="footer-section-title">
-    Mobile App
-  </h2>
+            <h2 className="footer-section-title">
+              Mobile App
+            </h2>
 
-  <div className="footer-title-line"></div>
-
-  <div className="app-buttons">
-
-    {/* Google Play */}
-
-    <a
-      href="https://play.google.com/"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="store-button google-store"
-    >
-      <div className="store-icon google-icon">
-        <span className="play-triangle"></span>
-      </div>
-
-      <div className="store-button-text">
-        <small>GET IT ON</small>
-        <strong>Google Play</strong>
-      </div>
-    </a>
+            <div className="footer-title-line"></div>
 
 
-    {/* Apple App Store */}
+            <div className="app-buttons">
 
-    <a
-      href="https://apps.apple.com/"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="store-button apple-store"
-    >
-      <div className="store-icon apple-icon">
-        
-      </div>
 
-      <div className="store-button-text">
-        <small>Download on the</small>
-        <strong>App Store</strong>
-      </div>
-    </a>
+              {/* Google Play */}
 
-  </div>
+              <a
+                href="https://play.google.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="store-button google-store"
+              >
 
-</section>
+                <div className="store-icon google-icon">
+                  <span className="play-triangle"></span>
+                </div>
+
+                <div className="store-button-text">
+
+                  <small>
+                    GET IT ON
+                  </small>
+
+                  <strong>
+                    Google Play
+                  </strong>
+
+                </div>
+
+              </a>
+
+
+              {/* Apple App Store */}
+
+              <a
+                href="https://apps.apple.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="store-button apple-store"
+              >
+
+                <div className="store-icon apple-icon">
+                  
+                </div>
+
+                <div className="store-button-text">
+
+                  <small>
+                    Download on the
+                  </small>
+
+                  <strong>
+                    App Store
+                  </strong>
+
+                </div>
+
+              </a>
+
+            </div>
+
+          </section>
 
         </div>
 
@@ -108,18 +232,26 @@ export default function Footer() {
       <div className="footer-bottom">
 
         <p>
-          Copyright © {new Date().getFullYear()} Sunshine Education.{" "}
+
+          Copyright ©{" "}
+          {new Date().getFullYear()}{" "}
+          Sunshine Education.{" "}
           All rights reserved
+
           <a
             href="/admin/login"
             className="admin-login-link"
           >
             .
           </a>
+
         </p>
 
+
         <p className="developer">
+
           Website Developed by{" "}
+
           <a
             href="https://www.facebook.com/fmfiroz18"
             target="_blank"
@@ -127,6 +259,7 @@ export default function Footer() {
           >
             Firoz Mahmud
           </a>
+
         </p>
 
       </div>

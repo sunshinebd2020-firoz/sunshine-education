@@ -1,291 +1,456 @@
-/* =====================================================
-   PUBLIC STUDENT ENTRY
-===================================================== */
-
 .student-entry {
-  width: 100%;
-  max-width: 1100px;
-  margin: 30px auto 50px;
-  padding: 0 18px;
-  box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 25px 30px 40px;
+  background: #fff;
 }
 
-/* =====================================================
-   HEADER
-===================================================== */
+.student-entry-header {
+  margin-bottom: 18px;
+}
 
-.student-entry > h1 {
+.student-entry h1 {
   margin: 0;
-  text-align: center;
-  font-size: 30px;
-  font-weight: 700;
-  color: #173b70;
+  font-size: 27px;
+  color: #1f2937;
 }
 
-.student-entry > p {
-  margin: 7px 0 28px;
-  text-align: center;
-  color: #666;
-  font-size: 15px;
+.student-entry-header p {
+  margin: 5px 0 0;
+  color: #6b7280;
+  font-size: 14px;
 }
 
-/* =====================================================
-   FORM
-===================================================== */
 
-.student-entry form {
-  background: #ffffff;
-  border: 1px solid #e3e8ef;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
-}
-
-/* =====================================================
+/* =========================================
    SECTION TITLE
-===================================================== */
+========================================= */
 
 .student-entry h2 {
-  margin: 22px 0 14px;
-  padding: 9px 13px;
-  background: #f2f6fb;
-  border-left: 4px solid #1769aa;
-  border-radius: 5px;
-  color: #173b70;
+  margin: 20px 0 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #1f2937;
   font-size: 18px;
-  font-weight: 600;
-}
-
-.student-entry form > h2:first-child {
-  margin-top: 0;
 }
 
 .student-entry h3 {
-  margin: 18px 0 10px;
-  color: #315d8c;
-  font-size: 16px;
-  font-weight: 600;
+  margin: 0 0 9px;
+  color: #374151;
+  font-size: 15px;
 }
 
-/* =====================================================
+
+/* =========================================
    FORM GRID
-===================================================== */
+========================================= */
 
-.student-entry .form-grid {
+.form-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 18px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px 14px;
 }
 
-/* =====================================================
-   FORM GROUP
-===================================================== */
 
-.student-entry .form-group {
+/* =========================================
+   FORM GROUP
+========================================= */
+
+.form-group {
   min-width: 0;
 }
 
-.student-entry .form-group label {
+.form-group label {
   display: block;
-  margin-bottom: 5px;
-  color: #333;
+  margin-bottom: 4px;
+  color: #374151;
   font-size: 13px;
   font-weight: 600;
 }
 
-/* =====================================================
-   INPUT / SELECT
-===================================================== */
-
-.student-entry .form-group input,
-.student-entry .form-group select {
+.form-group input,
+.form-group select {
   width: 100%;
-  height: 40px;
-  padding: 0 11px;
+  height: 36px;
+  padding: 0 9px;
   box-sizing: border-box;
 
-  border: 1px solid #cfd7e2;
-  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
 
   background: #fff;
-  color: #222;
+  color: #1f2937;
 
-  font-size: 14px;
+  font-size: 13px;
 
   outline: none;
-  transition: 0.2s ease;
+  transition: 0.2s;
 }
 
-.student-entry .form-group input:focus,
-.student-entry .form-group select:focus {
-  border-color: #1769aa;
-  box-shadow: 0 0 0 2px rgba(23, 105, 170, 0.08);
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px
+    rgba(37, 99, 235, 0.08);
 }
 
-/* =====================================================
-   READ ONLY STUDENT ID
-===================================================== */
-
-.student-entry input[readonly] {
-  background: #f3f5f7;
-  color: #1769aa;
-  font-weight: 600;
+.form-group input[readonly] {
+  background: #f3f4f6;
 }
 
-/* =====================================================
-   FILE INPUT
-===================================================== */
-
-.student-entry .form-group input[type="file"] {
-  height: auto;
-  min-height: 40px;
-  padding: 8px;
-  cursor: pointer;
-  background: #fafafa;
+.form-group input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
 }
 
-/* =====================================================
-   SMALL HELP TEXT
-===================================================== */
-
-.student-entry .form-group small {
+.form-group small {
   display: block;
-  margin-top: 4px;
-  color: #777;
+  margin-top: 3px;
+  color: #6b7280;
   font-size: 11px;
 }
 
-/* =====================================================
-   DATE
-===================================================== */
 
-.student-entry input[type="date"] {
+/* =========================================
+   PHOTO
+========================================= */
+
+.student-photo-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.photo-upload {
+  flex: 1;
+  min-width: 0;
+}
+
+.photo-upload input[type="file"] {
+  padding: 6px;
+  font-size: 12px;
+}
+
+.student-photo-preview {
+  width: 82px;
+  height: 96px;
+  flex-shrink: 0;
+
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.student-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+/* =========================================
+   ADDRESS
+========================================= */
+
+.address-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.permanent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.permanent-header h2 {
+  flex: 1;
+  margin: 0 0 12px;
+}
+
+.same-address {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-bottom: 12px;
+
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+
   cursor: pointer;
 }
 
-/* =====================================================
-   NUMBER
-===================================================== */
-
-.student-entry input[type="number"] {
-  appearance: textfield;
+.same-address input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  cursor: pointer;
 }
 
-/* =====================================================
-   SAVE BUTTON
-===================================================== */
 
-.student-entry .save-student-button {
-  display: block;
+/* =========================================
+   CONTACT - THREE IN ONE LINE
+========================================= */
 
-  width: 190px;
-  height: 43px;
+.contact-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
 
-  margin: 30px auto 0;
+  gap: 10px 14px;
+}
 
-  border: none;
-  border-radius: 7px;
 
-  background: #1769aa;
-  color: #fff;
+/* =========================================
+   EDUCATION
+========================================= */
 
-  font-size: 15px;
+.qualification-section {
+  margin-top: 5px;
+  margin-bottom: 12px;
+}
+
+.education-grid {
+  display: grid;
+
+  grid-template-columns:
+    1.5fr
+    1fr
+    0.9fr
+    1.2fr
+    1fr
+    1fr
+    0.8fr;
+
+  gap: 8px 10px;
+}
+
+.education-grid .form-group {
+  min-width: 0;
+}
+
+.education-grid .form-group label {
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+
+.education-grid .form-group input {
+  height: 34px;
+  padding: 0 7px;
+  font-size: 12px;
+}
+
+
+/* =========================================
+   QUALIFICATION TITLE
+========================================= */
+
+.qualification-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 7px;
+}
+
+.qualification-title h3 {
+  margin: 0;
+}
+
+
+/* =========================================
+   ADD BUTTONS
+========================================= */
+
+.qualification-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin: 13px 0 15px;
+}
+
+.qualification-buttons button {
+  border: 1px solid #2563eb;
+  border-radius: 5px;
+
+  background: #fff;
+  color: #2563eb;
+
+  padding: 7px 13px;
+
+  font-size: 12px;
   font-weight: 600;
 
   cursor: pointer;
-
-  transition: 0.2s ease;
+  transition: 0.2s;
 }
 
-.student-entry .save-student-button:hover {
-  background: #0f548a;
-  transform: translateY(-1px);
+.qualification-buttons button:hover {
+  background: #2563eb;
+  color: #fff;
 }
 
-.student-entry .save-student-button:active {
-  transform: translateY(0);
+
+/* =========================================
+   REMOVE BUTTON
+========================================= */
+
+.remove-qualification {
+  border: 0;
+  border-radius: 4px;
+
+  background: #dc2626;
+  color: #fff;
+
+  padding: 5px 9px;
+
+  font-size: 11px;
+  cursor: pointer;
 }
 
-/* =====================================================
-   MESSAGE
-===================================================== */
+.remove-qualification:hover {
+  background: #b91c1c;
+}
 
-.student-entry .student-message {
-  margin: 18px 0 0;
-  padding: 11px 14px;
 
-  text-align: center;
+/* =========================================
+   SAVE BUTTON
+========================================= */
 
-  background: #eef7ee;
-  border: 1px solid #c8e2c8;
-  border-radius: 6px;
+.save-student-button {
+  display: block;
 
-  color: #287329;
+  width: 180px;
+  height: 40px;
+
+  margin: 22px 0 0;
+
+  border: 0;
+  border-radius: 5px;
+
+  background: #2563eb;
+  color: #fff;
+
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-/* =====================================================
-   MOBILE
-===================================================== */
+.save-student-button:hover {
+  background: #1d4ed8;
+}
 
-@media (max-width: 700px) {
+.save-student-button:active {
+  transform: translateY(1px);
+}
 
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+.student-message {
+  margin: 12px 0 0;
+
+  padding: 9px 12px;
+
+  border-radius: 5px;
+
+  background: #ecfdf5;
+  color: #047857;
+
+  font-size: 13px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1100px) {
+  .form-grid {
+    grid-template-columns:
+      repeat(3, 1fr);
+  }
+
+  .address-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .education-grid {
+    grid-template-columns:
+      repeat(4, 1fr);
+  }
+}
+
+
+@media (max-width: 800px) {
   .student-entry {
-    margin: 20px auto 35px;
-    padding: 0 12px;
+    padding: 20px;
   }
 
-  .student-entry > h1 {
-    font-size: 25px;
+  .form-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
   }
 
-  .student-entry > p {
-    font-size: 13px;
-    margin-bottom: 20px;
+  .contact-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
   }
 
-  .student-entry form {
-    padding: 16px;
-    border-radius: 9px;
+  .education-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+}
+
+
+@media (max-width: 550px) {
+  .student-entry {
+    padding: 15px;
   }
 
-  .student-entry .form-grid {
+  .form-grid,
+  .address-grid,
+  .contact-grid,
+  .education-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
   }
 
-  .student-entry h2 {
-    font-size: 16px;
-    margin-top: 20px;
+  .student-photo-section {
+    flex-direction: column;
   }
 
-  .student-entry h3 {
-    font-size: 15px;
+  .student-photo-preview {
+    width: 90px;
+    height: 105px;
   }
 
-  .student-entry .save-student-button {
+  .permanent-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .same-address {
+    margin-top: -5px;
+  }
+
+  .qualification-buttons {
+    flex-wrap: wrap;
+  }
+
+  .save-student-button {
     width: 100%;
-  }
-}
-
-/* =====================================================
-   VERY SMALL SCREEN
-===================================================== */
-
-@media (max-width: 400px) {
-
-  .student-entry {
-    padding: 0 8px;
-  }
-
-  .student-entry form {
-    padding: 12px;
-  }
-
-  .student-entry .form-group input,
-  .student-entry .form-group select {
-    height: 38px;
-    font-size: 13px;
   }
 }

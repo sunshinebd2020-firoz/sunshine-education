@@ -80,6 +80,14 @@ export default function AdminLayout() {
       return "downloads";
     }
 
+    // BRANCHES
+    if (
+      pathname === "/admin/branch-list" ||
+      pathname === "/admin/branch-entry"
+    ) {
+      return "branches";
+    }
+
     // SETTINGS
     if (
       pathname === "/admin/settings" ||
@@ -213,9 +221,6 @@ export default function AdminLayout() {
 
               <div className="sidebar-submenu">
 
-
-                {/* Student Entry */}
-
                 <NavLink
                   to="/admin/students"
                   className={({ isActive }) =>
@@ -225,8 +230,6 @@ export default function AdminLayout() {
                   ➕ Student Entry
                 </NavLink>
 
-
-                {/* Student List */}
 
                 <NavLink
                   to="/admin/student-list"
@@ -238,8 +241,6 @@ export default function AdminLayout() {
                 </NavLink>
 
 
-                {/* Pending Applications */}
-
                 <NavLink
                   to="/admin/pending-students"
                   className={({ isActive }) =>
@@ -248,7 +249,6 @@ export default function AdminLayout() {
                 >
                   🕐 Pending Applications
                 </NavLink>
-
 
               </div>
 
@@ -704,6 +704,66 @@ export default function AdminLayout() {
                   }
                 >
                   ➕ Add Download
+                </NavLink>
+
+              </div>
+
+            )}
+
+          </div>
+
+
+          {/* =================================================
+              BRANCHES
+          ================================================= */}
+
+          <div className="sidebar-group">
+
+            <button
+              type="button"
+              className={`sidebar-parent ${
+                isMenuActive("branches")
+                  ? "parent-active"
+                  : ""
+              }`}
+              onClick={() =>
+                toggleMenu("branches")
+              }
+            >
+
+              <span>🏢 Branches</span>
+
+              <span className="menu-arrow">
+
+                {openMenu === "branches"
+                  ? "▲"
+                  : "▼"}
+
+              </span>
+
+            </button>
+
+
+            {openMenu === "branches" && (
+
+              <div className="sidebar-submenu">
+
+                <NavLink
+                  to="/admin/branch-list"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
+                  📋 Branch List
+                </NavLink>
+
+                <NavLink
+                  to="/admin/branch-entry"
+                  className={({ isActive }) =>
+                    isActive ? "active" : ""
+                  }
+                >
+                  ➕ Branch Entry
                 </NavLink>
 
               </div>

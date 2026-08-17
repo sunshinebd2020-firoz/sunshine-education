@@ -36,6 +36,10 @@ export default function StudentProfile() {
     loadStudent();
   }, [id]);
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   if (message) {
     return (
       <div className="student-profile">
@@ -61,7 +65,8 @@ export default function StudentProfile() {
   return (
     <div className="student-profile">
 
-      <div className="profile-header">
+      {/* ================= HEADER ================= */}
+      <div className="profile-header no-print">
 
         <div>
           <h1>Student Profile</h1>
@@ -69,6 +74,7 @@ export default function StudentProfile() {
         </div>
 
         <div className="profile-buttons">
+
           <button
             className="back-button"
             onClick={() => navigate("/admin/student-list")}
@@ -78,30 +84,38 @@ export default function StudentProfile() {
 
           <button
             className="print-button"
-            onClick={() => window.print()}
+            onClick={handlePrint}
           >
-            🖨️ Print
+            🖨 Print / PDF
           </button>
 
         </div>
 
       </div>
 
+
+      {/* ================= A4 DOCUMENT ================= */}
       <div className="profile-card">
 
+        {/* ================= PROFILE TOP ================= */}
         <div className="profile-top">
 
           <div className="profile-photo-box">
+
             {photoUrl ? (
               <img
                 src={photoUrl}
-                alt={student.student_name_en || "Student"}
+                alt={
+                  student.student_name_en ||
+                  "Student"
+                }
               />
             ) : (
               <div className="profile-no-photo">
                 No Photo
               </div>
             )}
+
           </div>
 
           <div className="profile-basic">
@@ -121,81 +135,106 @@ export default function StudentProfile() {
             <div className="profile-id">
               Student ID:
               <strong>
-                {student.student_id || `#${student.id}`}
+                {student.student_id ||
+                  `#${student.id}`}
               </strong>
             </div>
 
             <div className="profile-tags">
-              <span>{student.course || "N/A"}</span>
+
               <span>
-                {student.language_level || "N/A"}
+                {student.branch || "Branch"}
               </span>
+
               <span>
-                {student.status || "Active"}
+                {student.course || "Course"}
               </span>
+
+              <span>
+                {student.language_level || "Level"}
+              </span>
+
             </div>
 
           </div>
 
         </div>
 
+
+        {/* ================= PERSONAL INFORMATION ================= */}
         <section className="profile-section">
 
           <h3>Personal Information</h3>
 
-          <div className="info-grid">
+          <div className="single-info-table">
 
-            <div>
-              <label>Short Name</label>
-              <p>{student.short_name || "—"}</p>
+            <div className="single-info-row">
+              <div className="single-info-label">
+                Short Name
+              </div>
+              <div className="single-info-value">
+                {student.short_name || "—"}
+              </div>
             </div>
 
-            <div>
-              <label>Father's Name</label>
-              <p>{student.father_name || "—"}</p>
+            <div className="single-info-row">
+              <div className="single-info-label">
+                Father's Name
+              </div>
+              <div className="single-info-value">
+                {student.father_name || "—"}
+              </div>
             </div>
 
-            <div>
-              <label>Mother's Name</label>
-              <p>{student.mother_name || "—"}</p>
+            <div className="single-info-row">
+              <div className="single-info-label">
+                Mother's Name
+              </div>
+              <div className="single-info-value">
+                {student.mother_name || "—"}
+              </div>
             </div>
 
-            <div>
-              <label>Date of Birth</label>
-              <p>{student.date_of_birth || "—"}</p>
+            <div className="single-info-row">
+              <div className="single-info-label">
+                Date of Birth
+              </div>
+              <div className="single-info-value">
+                {student.date_of_birth || "—"}
+              </div>
             </div>
 
-            <div>
-              <label>Blood Group</label>
-              <p>{student.blood_group || "—"}</p>
+            <div className="single-info-row">
+              <div className="single-info-label">
+                Blood Group
+              </div>
+              <div className="single-info-value">
+                {student.blood_group || "—"}
+              </div>
             </div>
 
-            <div>
-              <label>Branch</label>
-              <p>{student.branch || "—"}</p>
-            </div>
-
-            <div>
-              <label>Course</label>
-              <p>{student.course || "—"}</p>
-            </div>
-
-            <div>
-              <label>Level</label>
-              <p>{student.language_level || "—"}</p>
+            <div className="single-info-row">
+              <div className="single-info-label">
+                Admission Date
+              </div>
+              <div className="single-info-value">
+                {student.admission_date || "—"}
+              </div>
             </div>
 
           </div>
 
         </section>
 
+
+        {/* ================= CONTACT INFORMATION ================= */}
         <section className="profile-section">
 
           <h3>Contact Information</h3>
 
-          <div className="info-grid">
+          <div className="contact-table">
 
-            <div>
+            <div className="contact-item">
               <label>Student Mobile</label>
               <p>
                 {student.student_mobile ||
@@ -204,17 +243,21 @@ export default function StudentProfile() {
               </p>
             </div>
 
-            <div>
+            <div className="contact-item">
               <label>Parents Mobile</label>
-              <p>{student.parents_mobile || "—"}</p>
+              <p>
+                {student.parents_mobile || "—"}
+              </p>
             </div>
 
-            <div>
+            <div className="contact-item">
               <label>Home Mobile</label>
-              <p>{student.home_mobile || "—"}</p>
+              <p>
+                {student.home_mobile || "—"}
+              </p>
             </div>
 
-            <div>
+            <div className="contact-item">
               <label>Course Fee</label>
               <p>
                 ৳ {student.course_fee || "0"}
@@ -225,244 +268,248 @@ export default function StudentProfile() {
 
         </section>
 
+
+        {/* ================= ADDRESS ================= */}
         <section className="profile-section">
 
-          <h3>Present Address</h3>
+          <h3>Address Information</h3>
 
-          <div className="info-grid">
+          <div className="address-table">
 
-            <div>
-              <label>Village</label>
-              <p>{student.present_village || "—"}</p>
+            <div className="address-row address-header">
+              <div>Address Type</div>
+              <div>Village</div>
+              <div>Post</div>
+              <div>Thana</div>
+              <div>District</div>
             </div>
 
-            <div>
-              <label>Post</label>
-              <p>{student.present_post || "—"}</p>
+            <div className="address-row">
+
+              <div className="address-type">
+                Present
+              </div>
+
+              <div>
+                {student.present_village || "—"}
+              </div>
+
+              <div>
+                {student.present_post || "—"}
+              </div>
+
+              <div>
+                {student.present_thana || "—"}
+              </div>
+
+              <div>
+                {student.present_district || "—"}
+              </div>
+
             </div>
 
-            <div>
-              <label>Thana</label>
-              <p>{student.present_thana || "—"}</p>
-            </div>
+            <div className="address-row">
 
-            <div>
-              <label>District</label>
-              <p>{student.present_district || "—"}</p>
+              <div className="address-type">
+                Permanent
+              </div>
+
+              <div>
+                {student.permanent_village || "—"}
+              </div>
+
+              <div>
+                {student.permanent_post || "—"}
+              </div>
+
+              <div>
+                {student.permanent_thana || "—"}
+              </div>
+
+              <div>
+                {student.permanent_district || "—"}
+              </div>
+
             </div>
 
           </div>
 
         </section>
 
-        <section className="profile-section">
 
-          <h3>Permanent Address</h3>
-
-          <div className="info-grid">
-
-            <div>
-              <label>Village</label>
-              <p>{student.permanent_village || "—"}</p>
-            </div>
-
-            <div>
-              <label>Post</label>
-              <p>{student.permanent_post || "—"}</p>
-            </div>
-
-            <div>
-              <label>Thana</label>
-              <p>{student.permanent_thana || "—"}</p>
-            </div>
-
-            <div>
-              <label>District</label>
-              <p>{student.permanent_district || "—"}</p>
-            </div>
-
-          </div>
-
-        </section>
-
+        {/* ================= EDUCATIONAL QUALIFICATION ================= */}
         <section className="profile-section">
 
           <h3>Educational Qualification</h3>
 
-          <div className="education-block">
+          <div className="education-table">
 
-            <h4>SSC</h4>
+            {/* HEADER */}
+            <div className="education-row education-header">
 
-            <div className="info-grid">
+              <div>Exam</div>
+              <div>Institute / University</div>
+              <div>Board</div>
+              <div>Roll</div>
+              <div>Registration</div>
+              <div>Group / Subject</div>
+              <div>Year</div>
+              <div>Result</div>
 
-              <div>
-                <label>Institute</label>
-                <p>{student.ssc_institute || "—"}</p>
+            </div>
+
+
+            {/* SSC */}
+            <div className="education-row">
+
+              <div className="education-exam">
+                SSC
               </div>
 
               <div>
-                <label>Board</label>
-                <p>{student.ssc_board || "—"}</p>
+                {student.ssc_institute || "—"}
               </div>
 
               <div>
-                <label>Roll No</label>
-                <p>{student.ssc_roll || "—"}</p>
+                {student.ssc_board || "—"}
               </div>
 
               <div>
-                <label>Registration No</label>
-                <p>{student.ssc_registration || "—"}</p>
+                {student.ssc_roll || "—"}
               </div>
 
               <div>
-                <label>Group</label>
-                <p>{student.ssc_group || "—"}</p>
+                {student.ssc_registration || "—"}
               </div>
 
               <div>
-                <label>Passing Year</label>
-                <p>{student.ssc_passing_year || "—"}</p>
+                {student.ssc_group || "—"}
               </div>
 
               <div>
-                <label>GPA</label>
-                <p>{student.ssc_gpa || "—"}</p>
+                {student.ssc_passing_year || "—"}
+              </div>
+
+              <div>
+                {student.ssc_gpa || "—"}
               </div>
 
             </div>
 
-          </div>
 
-          <div className="education-block">
+            {/* HSC */}
+            <div className="education-row">
 
-            <h4>HSC</h4>
-
-            <div className="info-grid">
-
-              <div>
-                <label>Institute</label>
-                <p>{student.hsc_institute || "—"}</p>
+              <div className="education-exam">
+                HSC
               </div>
 
               <div>
-                <label>Board</label>
-                <p>{student.hsc_board || "—"}</p>
+                {student.hsc_institute || "—"}
               </div>
 
               <div>
-                <label>Roll No</label>
-                <p>{student.hsc_roll || "—"}</p>
+                {student.hsc_board || "—"}
               </div>
 
               <div>
-                <label>Registration No</label>
-                <p>{student.hsc_registration || "—"}</p>
+                {student.hsc_roll || "—"}
               </div>
 
               <div>
-                <label>Group</label>
-                <p>{student.hsc_group || "—"}</p>
+                {student.hsc_registration || "—"}
               </div>
 
               <div>
-                <label>Passing Year</label>
-                <p>{student.hsc_passing_year || "—"}</p>
+                {student.hsc_group || "—"}
               </div>
 
               <div>
-                <label>GPA</label>
-                <p>{student.hsc_gpa || "—"}</p>
+                {student.hsc_passing_year || "—"}
+              </div>
+
+              <div>
+                {student.hsc_gpa || "—"}
               </div>
 
             </div>
 
-          </div>
 
-          <div className="education-block">
+            {/* HONOURS */}
+            <div className="education-row">
 
-            <h4>Honours</h4>
-
-            <div className="info-grid">
-
-              <div>
-                <label>Institute</label>
-                <p>{student.honours_institute || "—"}</p>
+              <div className="education-exam">
+                Honours
               </div>
 
               <div>
-                <label>University</label>
-                <p>{student.honours_university || "—"}</p>
+                {student.honours_institute ||
+                  student.honours_university ||
+                  "—"}
               </div>
 
               <div>
-                <label>Roll No</label>
-                <p>{student.honours_roll || "—"}</p>
+                —
               </div>
 
               <div>
-                <label>Registration No</label>
-                <p>{student.honours_registration || "—"}</p>
+                {student.honours_roll || "—"}
               </div>
 
               <div>
-                <label>Group / Subject</label>
-                <p>{student.honours_group || "—"}</p>
+                {student.honours_registration || "—"}
               </div>
 
               <div>
-                <label>Passing Year</label>
-                <p>{student.honours_passing_year || "—"}</p>
+                {student.honours_group || "—"}
               </div>
 
               <div>
-                <label>GPA / Division</label>
-                <p>{student.honours_result || "—"}</p>
+                {student.honours_passing_year || "—"}
+              </div>
+
+              <div>
+                {student.honours_result || "—"}
               </div>
 
             </div>
 
-          </div>
 
-          <div className="education-block">
+            {/* MASTERS */}
+            <div className="education-row">
 
-            <h4>Masters</h4>
-
-            <div className="info-grid">
-
-              <div>
-                <label>Institute</label>
-                <p>{student.masters_institute || "—"}</p>
+              <div className="education-exam">
+                Masters
               </div>
 
               <div>
-                <label>University</label>
-                <p>{student.masters_university || "—"}</p>
+                {student.masters_institute ||
+                  student.masters_university ||
+                  "—"}
               </div>
 
               <div>
-                <label>Roll No</label>
-                <p>{student.masters_roll || "—"}</p>
+                —
               </div>
 
               <div>
-                <label>Registration No</label>
-                <p>{student.masters_registration || "—"}</p>
+                {student.masters_roll || "—"}
               </div>
 
               <div>
-                <label>Group / Subject</label>
-                <p>{student.masters_group || "—"}</p>
+                {student.masters_registration || "—"}
               </div>
 
               <div>
-                <label>Passing Year</label>
-                <p>{student.masters_passing_year || "—"}</p>
+                {student.masters_group || "—"}
               </div>
 
               <div>
-                <label>GPA / Division</label>
-                <p>{student.masters_result || "—"}</p>
+                {student.masters_passing_year || "—"}
+              </div>
+
+              <div>
+                {student.masters_result || "—"}
               </div>
 
             </div>
@@ -470,6 +517,20 @@ export default function StudentProfile() {
           </div>
 
         </section>
+
+
+        {/* ================= FOOTER ================= */}
+        <div className="profile-footer">
+
+          <span>
+            Sunshine Education
+          </span>
+
+          <span>
+            Student Profile
+          </span>
+
+        </div>
 
       </div>
 

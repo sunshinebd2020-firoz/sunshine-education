@@ -1,0 +1,320 @@
+/* =====================================================
+   BRANCH EDIT
+===================================================== */
+
+.branch-edit {
+  width: 100%;
+
+  padding: 30px;
+
+  box-sizing: border-box;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.branch-edit-header {
+  margin-bottom: 20px;
+}
+
+.branch-edit-header h1 {
+  margin: 0 0 5px;
+
+  color: #1e293b;
+
+  font-size: 28px;
+}
+
+.branch-edit-header p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+.branch-edit-message {
+  margin-bottom: 20px;
+
+  padding: 11px 15px;
+
+  border-radius: 7px;
+
+  background: #eff6ff;
+
+  color: #1d4ed8;
+
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.branch-edit-loading {
+  padding: 25px;
+
+  margin: 0;
+
+  text-align: center;
+
+  color: #64748b;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 8px;
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.branch-edit-form {
+  width: 100%;
+
+  max-width: 850px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 15px;
+}
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+.branch-edit-section {
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 8px;
+}
+
+.branch-edit-section h2 {
+  margin: 0 0 18px;
+
+  padding-bottom: 10px;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  color: #1e293b;
+
+  font-size: 16px;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   GROUP
+===================================================== */
+
+.branch-edit-group {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+
+  margin-bottom: 15px;
+}
+
+.branch-edit-group:last-child {
+  margin-bottom: 0;
+}
+
+
+/* =====================================================
+   LABEL
+===================================================== */
+
+.branch-edit-group label {
+  color: #334155;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+.branch-edit-group label span {
+  margin-left: 3px;
+
+  color: #dc2626;
+}
+
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+.branch-edit-group input,
+.branch-edit-group textarea,
+.branch-edit-group select {
+  width: 100%;
+
+  padding: 10px 12px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 7px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #1e293b;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  transition: 0.2s;
+}
+
+.branch-edit-group textarea {
+  resize: vertical;
+
+  min-height: 80px;
+}
+
+.branch-edit-group input:focus,
+.branch-edit-group textarea:focus,
+.branch-edit-group select:focus {
+  border-color: #3b82f6;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(59, 130, 246, 0.12);
+}
+
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+
+.branch-edit-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+
+/* =====================================================
+   CANCEL
+===================================================== */
+
+.branch-cancel-button {
+  height: 38px;
+
+  padding: 0 18px;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #475569;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.branch-cancel-button:hover {
+  background: #f8fafc;
+}
+
+
+/* =====================================================
+   UPDATE
+===================================================== */
+
+.branch-update-button {
+  min-width: 130px;
+
+  height: 38px;
+
+  padding: 0 18px;
+
+  border: none;
+
+  border-radius: 7px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.branch-update-button:hover {
+  background: #1d4ed8;
+}
+
+.branch-update-button:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .branch-edit {
+    padding: 20px 15px;
+  }
+
+  .branch-edit-header h1 {
+    font-size: 24px;
+  }
+
+  .branch-edit-section {
+    padding: 15px;
+  }
+
+  .branch-edit-actions {
+    width: 100%;
+  }
+
+  .branch-cancel-button,
+  .branch-update-button {
+    flex: 1;
+  }
+
+}
