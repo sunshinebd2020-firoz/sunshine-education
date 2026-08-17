@@ -7,20 +7,21 @@ const IMAGE_BASE_URL =
   "http://localhost/sunshine-api/uploads/teachers";
 
 export default function TeacherList({ onEditTeacher }) {
+  // =====================================================
+  // TEACHER STATE
+  // =====================================================
+
   const [teachers, setTeachers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   // =====================================================
-  // USER MODAL
+  // USER MODAL STATE
   // =====================================================
 
-  const [showUserModal, setShowUserModal] =
-    useState(false);
-
-  const [selectedTeacher, setSelectedTeacher] =
-    useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -28,64 +29,69 @@ export default function TeacherList({ onEditTeacher }) {
   const [userLoading, setUserLoading] = useState(false);
 
   // =====================================================
-  // PERMISSION MODAL
+  // PERMISSION MODAL STATE
   // =====================================================
 
   const [permissionTeacher, setPermissionTeacher] =
     useState(null);
 
   // =====================================================
-  // TEACHER LIST
+  // FETCH TEACHERS
   // =====================================================
 
-  const fetchTeachers = (signal) => {
-    setLoading(true);
+  const fetchTeachers = async (signal) => {
+    try {
+      setLoading(true);
+      setError("");
 
-    fetch(`${API_BASE_URL}/teacher_list.php`, {
-      signal,
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Server error");
+      const response = await fetch(
+        `${API_BASE_URL}/teacher_list.php`,
+        {
+          method: "GET",
+          signal,
         }
+      );
 
-        return res.json();
-      })
-      .then((data) => {
-        if (data.success) {
-          setTeachers(data.teachers || []);
-          setError("");
-        } else {
-          setError(
-            data.message ||
-              "Teacher information not found."
-          );
-        }
-      })
-      .catch((err) => {
-        if (err.name !== "AbortError") {
-          console.error(
-            "Teacher API Error:",
-            err
-          );
+      if (!response.ok) {
+        throw new Error("Server error");
+      }
 
-          setError(
-            "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
-          );
-        }
-      })
-      .finally(() => {
+      const data = await response.json();
+
+      if (data.success) {
+        setTeachers(data.teachers || []);
+      } else {
+        setError(
+          data.message || "Teacher information not found."
+        );
+      }
+    } catch (err) {
+      if (err.name !== "AbortError") {
+        console.error("Teacher API Error:", err);
+
+        setError(
+          "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
+        );
+      }
+    } finally {
+      if (!signal?.aborted) {
         setLoading(false);
-      });
+      }
+    }
   };
 
+  // =====================================================
+  // LOAD TEACHERS
+  // =====================================================
+
   useEffect(() => {
-    const controller =
-      new AbortController();
+    const controller = new AbortController();
 
     fetchTeachers(controller.signal);
 
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   // =====================================================
@@ -93,54 +99,51 @@ export default function TeacherList({ onEditTeacher }) {
   // =====================================================
 
   const handleDelete = async (teacherId) => {
-    if (
-      !window.confirm(
-        `আপনি কি নিশ্চিতভাবে ID: ${teacherId} ডিলিট করতে চান?`
-      )
-    ) {
+    if (!teacherId) {
+      alert("Teacher ID পাওয়া যায়নি।");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `আপনি কি নিশ্চিতভাবে ID: ${teacherId} ডিলিট করতে চান?`
+    );
+
+    if (!confirmed) {
       return;
     }
 
     try {
-      const res = await fetch(
+      const response = await fetch(
         `${API_BASE_URL}/teacher_delete.php`,
         {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json",
           },
-
           body: JSON.stringify({
             teacher_id: teacherId,
           }),
         }
       );
 
-      const result = await res.json();
+      const result = await response.json();
 
       if (result.success) {
-        alert(
-          "Teacher deleted successfully!"
-        );
+        alert("Teacher deleted successfully!");
 
         setTeachers((prev) =>
           prev.filter(
-            (t) =>
-              t.teacher_id !== teacherId
+            (teacher) =>
+              teacher.teacher_id !== teacherId
           )
         );
       } else {
         alert(
-          result.message ||
-            "Delete failed!"
+          result.message || "Delete failed!"
         );
       }
     } catch (err) {
-      console.error(
-        "Delete Error:",
-        err
-      );
+      console.error("Delete Error:", err);
 
       alert(
         "Server error occurred while deleting."
@@ -158,15 +161,14 @@ export default function TeacherList({ onEditTeacher }) {
     } else {
       alert(
         `Edit Clicked for: ${
-          teacher.name_en ||
-          teacher.name_bn
+          teacher.name_en || teacher.name_bn
         }`
       );
     }
   };
 
   // =====================================================
-  // ADD USER MODAL
+  // OPEN ADD USER MODAL
   // =====================================================
 
   const openAddUserModal = (teacher) => {
@@ -183,6 +185,10 @@ export default function TeacherList({ onEditTeacher }) {
 
     setShowUserModal(true);
   };
+
+  // =====================================================
+  // CLOSE ADD USER MODAL
+  // =====================================================
 
   const closeUserModal = () => {
     if (userLoading) {
@@ -205,9 +211,7 @@ export default function TeacherList({ onEditTeacher }) {
     e.preventDefault();
 
     if (!selectedTeacher) {
-      alert(
-        "Teacher নির্বাচন করা হয়নি।"
-      );
+      alert("Teacher নির্বাচন করা হয়নি।");
       return;
     }
 
@@ -231,16 +235,13 @@ export default function TeacherList({ onEditTeacher }) {
     try {
       setUserLoading(true);
 
-      const res = await fetch(
+      const response = await fetch(
         `${API_BASE_URL}/user_create.php`,
         {
           method: "POST",
-
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
-
           body: JSON.stringify({
             teacher_id:
               selectedTeacher.teacher_id,
@@ -257,24 +258,21 @@ export default function TeacherList({ onEditTeacher }) {
         }
       );
 
-      const result = await res.json();
+      const result = await response.json();
 
       if (result.success) {
         alert(
           "User account successfully created!"
         );
 
-        /*
-         * Backend থেকে user_id পাওয়া গেলে
-         * সেটি সংরক্ষণ করা হবে।
-         */
-
+        // Backend থেকে User ID নেওয়া
         const createdUserId =
           result.user_id ||
           result.admin_id ||
           result.id ||
           null;
 
+        // Local teacher data update
         setTeachers((prev) =>
           prev.map((teacher) =>
             teacher.teacher_id ===
@@ -289,8 +287,7 @@ export default function TeacherList({ onEditTeacher }) {
                     teacher.user_id ||
                     null,
 
-                  user_status:
-                    "active",
+                  user_status: "active",
 
                   username:
                     username.trim(),
@@ -323,7 +320,7 @@ export default function TeacherList({ onEditTeacher }) {
   };
 
   // =====================================================
-  // PERMISSION
+  // OPEN PERMISSION MODAL
   // =====================================================
 
   const handlePermission = (teacher) => {
@@ -331,7 +328,6 @@ export default function TeacherList({ onEditTeacher }) {
       alert(
         "প্রথমে এই Teacher-এর User Account তৈরি করুন।"
       );
-
       return;
     }
 
@@ -339,12 +335,15 @@ export default function TeacherList({ onEditTeacher }) {
       alert(
         "এই User-এর ID পাওয়া যাচ্ছে না। Teacher list refresh করুন।"
       );
-
       return;
     }
 
     setPermissionTeacher(teacher);
   };
+
+  // =====================================================
+  // CLOSE PERMISSION MODAL
+  // =====================================================
 
   const closePermissionModal = () => {
     setPermissionTeacher(null);
@@ -354,10 +353,14 @@ export default function TeacherList({ onEditTeacher }) {
   // SEARCH
   // =====================================================
 
-  const filteredTeachers =
-    teachers.filter((teacher) => {
+  const filteredTeachers = teachers.filter(
+    (teacher) => {
       const query =
-        searchTerm.toLowerCase();
+        searchTerm.trim().toLowerCase();
+
+      if (!query) {
+        return true;
+      }
 
       return (
         (teacher.teacher_id &&
@@ -385,12 +388,18 @@ export default function TeacherList({ onEditTeacher }) {
             .toLowerCase()
             .includes(query)) ||
 
+        (teacher.designation &&
+          teacher.designation
+            .toLowerCase()
+            .includes(query)) ||
+
         (teacher.branch &&
           teacher.branch
             .toLowerCase()
             .includes(query))
       );
-    });
+    }
+  );
 
   // =====================================================
   // RETURN
@@ -406,18 +415,15 @@ export default function TeacherList({ onEditTeacher }) {
       <div className="teacher-header">
 
         <div className="header-text">
-
           <h1>Teacher List</h1>
 
           <p>
             নিবন্ধিত শিক্ষকদের তালিকা
           </p>
-
         </div>
 
         <div className="total-badge">
-          Total:{" "}
-          {filteredTeachers.length}
+          Total: {filteredTeachers.length}
         </div>
 
       </div>
@@ -433,9 +439,7 @@ export default function TeacherList({ onEditTeacher }) {
           placeholder="Search by ID, name, mobile, course, designation or branch..."
           value={searchTerm}
           onChange={(e) =>
-            setSearchTerm(
-              e.target.value
-            )
+            setSearchTerm(e.target.value)
           }
           className="search-input"
         />
@@ -469,8 +473,7 @@ export default function TeacherList({ onEditTeacher }) {
       {!loading && !error && (
         <div className="table-card">
 
-          {filteredTeachers.length ===
-          0 ? (
+          {filteredTeachers.length === 0 ? (
 
             <div className="teacher-message">
               No teachers found.
@@ -483,9 +486,7 @@ export default function TeacherList({ onEditTeacher }) {
               <table className="teacher-table">
 
                 <thead>
-
                   <tr>
-
                     <th>Photo</th>
                     <th>ID No</th>
                     <th>Name</th>
@@ -496,9 +497,7 @@ export default function TeacherList({ onEditTeacher }) {
                     <th>Status</th>
                     <th>User</th>
                     <th>Action</th>
-
                   </tr>
-
                 </thead>
 
                 <tbody>
@@ -545,9 +544,7 @@ export default function TeacherList({ onEditTeacher }) {
                         {/* ID */}
 
                         <td className="teacher-id">
-
                           {teacher.teacher_id}
-
                         </td>
 
                         {/* NAME */}
@@ -557,23 +554,15 @@ export default function TeacherList({ onEditTeacher }) {
                           <div className="name-wrapper">
 
                             <span className="name-en">
-
                               {teacher.name_en ||
                                 teacher.name_bn}
-
                             </span>
 
                             {teacher.name_bn &&
                               teacher.name_en && (
-
                                 <span className="name-bn">
-
-                                  {
-                                    teacher.name_bn
-                                  }
-
+                                  {teacher.name_bn}
                                 </span>
-
                               )}
 
                           </div>
@@ -583,8 +572,7 @@ export default function TeacherList({ onEditTeacher }) {
                         {/* COURSE */}
 
                         <td>
-                          {teacher.course ||
-                            "N/A"}
+                          {teacher.course || "N/A"}
                         </td>
 
                         {/* DESIGNATION */}
@@ -597,15 +585,13 @@ export default function TeacherList({ onEditTeacher }) {
                         {/* BRANCH */}
 
                         <td>
-                          {teacher.branch ||
-                            "N/A"}
+                          {teacher.branch || "N/A"}
                         </td>
 
                         {/* MOBILE */}
 
                         <td>
-                          {teacher.mobile ||
-                            "N/A"}
+                          {teacher.mobile || "N/A"}
                         </td>
 
                         {/* TEACHER STATUS */}
@@ -622,10 +608,8 @@ export default function TeacherList({ onEditTeacher }) {
                                 : "inactive"
                             }`}
                           >
-
                             {teacher.status ||
                               "Present"}
-
                           </span>
 
                         </td>
@@ -639,17 +623,12 @@ export default function TeacherList({ onEditTeacher }) {
                             <div className="user-status-wrapper">
 
                               <span className="user-active-badge">
-
                                 ✓ Active
-
                               </span>
 
                               <small>
-
-                                {
-                                  teacher.username
-                                }
-
+                                {teacher.username ||
+                                  "User"}
                               </small>
 
                             </div>
@@ -657,6 +636,7 @@ export default function TeacherList({ onEditTeacher }) {
                           ) : (
 
                             <button
+                              type="button"
                               className="btn-add-user"
                               title="Create User Account"
                               onClick={() =>
@@ -665,9 +645,7 @@ export default function TeacherList({ onEditTeacher }) {
                                 )
                               }
                             >
-
                               👤 Add User
-
                             </button>
 
                           )}
@@ -683,10 +661,10 @@ export default function TeacherList({ onEditTeacher }) {
                             {/* DETAILS */}
 
                             <button
+                              type="button"
                               className="btn-action btn-details"
                               title="Details"
                             >
-
                               <svg
                                 width="15"
                                 height="15"
@@ -695,7 +673,6 @@ export default function TeacherList({ onEditTeacher }) {
                                 stroke="currentColor"
                                 strokeWidth="2"
                               >
-
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
 
                                 <circle
@@ -703,14 +680,13 @@ export default function TeacherList({ onEditTeacher }) {
                                   cy="12"
                                   r="3"
                                 />
-
                               </svg>
-
                             </button>
 
                             {/* EDIT */}
 
                             <button
+                              type="button"
                               className="btn-action btn-edit"
                               title="Edit"
                               onClick={() =>
@@ -719,7 +695,6 @@ export default function TeacherList({ onEditTeacher }) {
                                 )
                               }
                             >
-
                               <svg
                                 width="15"
                                 height="15"
@@ -728,20 +703,17 @@ export default function TeacherList({ onEditTeacher }) {
                                 stroke="currentColor"
                                 strokeWidth="2"
                               >
-
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
 
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-
                               </svg>
-
                             </button>
 
                             {/* PERMISSION */}
 
                             {teacher.user_created && (
-
                               <button
+                                type="button"
                                 className="btn-action btn-permission"
                                 title="Permissions"
                                 onClick={() =>
@@ -750,16 +722,14 @@ export default function TeacherList({ onEditTeacher }) {
                                   )
                                 }
                               >
-
                                 🔐
-
                               </button>
-
                             )}
 
                             {/* DELETE */}
 
                             <button
+                              type="button"
                               className="btn-action btn-delete"
                               title="Delete"
                               onClick={() =>
@@ -768,7 +738,6 @@ export default function TeacherList({ onEditTeacher }) {
                                 )
                               }
                             >
-
                               <svg
                                 width="15"
                                 height="15"
@@ -777,13 +746,10 @@ export default function TeacherList({ onEditTeacher }) {
                                 stroke="currentColor"
                                 strokeWidth="2"
                               >
-
                                 <polyline points="3 6 5 6 21 6" />
 
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-
                               </svg>
-
                             </button>
 
                           </div>
@@ -1007,11 +973,9 @@ export default function TeacherList({ onEditTeacher }) {
                   className="user-create-btn"
                   disabled={userLoading}
                 >
-
                   {userLoading
                     ? "Creating..."
                     : "Create User"}
-
                 </button>
 
               </div>
@@ -1032,9 +996,7 @@ export default function TeacherList({ onEditTeacher }) {
 
         <PermissionModal
           teacher={permissionTeacher}
-          onClose={
-            closePermissionModal
-          }
+          onClose={closePermissionModal}
           onSaved={() => {
             console.log(
               "Permissions updated successfully."

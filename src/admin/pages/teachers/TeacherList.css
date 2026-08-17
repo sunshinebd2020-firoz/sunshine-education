@@ -3,9 +3,12 @@
 ===================================================== */
 
 .teacher-container {
+  width: 100%;
   max-width: 1280px;
-  margin: 2rem auto;
-  padding: 0 1.5rem;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -16,6 +19,7 @@
     Cantarell,
     "Helvetica Neue",
     sans-serif;
+
   color: #1e293b;
 }
 
@@ -28,30 +32,38 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1.5rem;
+
+  margin-bottom: 20px;
 }
 
 .header-text h1 {
   margin: 0;
-  font-size: 1.8rem;
+
+  font-size: 28px;
   font-weight: 700;
+
   color: #0f172a;
-  font-family: Georgia, serif;
 }
 
 .header-text p {
-  margin: 4px 0 0;
-  font-size: 0.95rem;
+  margin: 5px 0 0;
+
+  font-size: 14px;
   color: #64748b;
 }
 
 .total-badge {
+  padding: 7px 16px;
+
+  border-radius: 8px;
+
   background: #eff6ff;
   color: #2563eb;
-  padding: 6px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  white-space: nowrap;
 }
 
 
@@ -60,27 +72,32 @@
 ===================================================== */
 
 .search-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 18px;
 }
 
 .search-input {
   width: 100%;
-  max-width: 500px;
+  max-width: 520px;
+
   height: 42px;
-  box-sizing: border-box;
 
   padding: 0 14px;
+
+  box-sizing: border-box;
 
   border: 1px solid #cbd5e1;
   border-radius: 8px;
 
-  font-size: 0.95rem;
-  outline: none;
-
   background: #ffffff;
   color: #334155;
 
-  transition: 0.2s ease;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .search-input::placeholder {
@@ -89,7 +106,9 @@
 
 .search-input:focus {
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
 
@@ -98,20 +117,26 @@
 ===================================================== */
 
 .teacher-message {
+  padding: 30px 20px;
+
   text-align: center;
-  padding: 2rem;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
 
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
 
   color: #64748b;
+
+  font-size: 14px;
 }
 
 .teacher-message.error {
-  background: #fef2f2;
-  color: #dc2626;
   border-color: #fecaca;
+
+  background: #fef2f2;
+
+  color: #dc2626;
 }
 
 
@@ -120,52 +145,65 @@
 ===================================================== */
 
 .table-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  width: 100%;
 
   overflow: hidden;
 
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  box-shadow:
+    0 2px 6px rgba(15, 23, 42, 0.05);
 }
 
 .table-responsive {
   width: 100%;
+
   overflow-x: auto;
 }
 
+
+/* =====================================================
+   TABLE
+===================================================== */
+
 .teacher-table {
   width: 100%;
-  min-width: 1100px;
+
+  min-width: 1050px;
 
   border-collapse: collapse;
+
   text-align: left;
 }
 
 .teacher-table th {
+  padding: 13px 15px;
+
   background: #f8fafc;
+
+  border-bottom: 1px solid #e2e8f0;
 
   color: #334155;
 
-  font-size: 0.85rem;
-  font-weight: 600;
-
-  padding: 14px 16px;
-
-  border-bottom: 1px solid #e2e8f0;
+  font-size: 12px;
+  font-weight: 700;
 
   white-space: nowrap;
 }
 
 .teacher-table td {
-  padding: 12px 16px;
+  padding: 11px 15px;
 
   border-bottom: 1px solid #f1f5f9;
 
-  vertical-align: middle;
-
-  font-size: 0.9rem;
   color: #475569;
+
+  font-size: 13px;
+
+  vertical-align: middle;
 }
 
 .teacher-table tbody tr {
@@ -186,18 +224,19 @@
 ===================================================== */
 
 .teacher-photo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 44px;
+  height: 44px;
 }
 
 .teacher-photo img {
   width: 44px;
   height: 44px;
 
-  border-radius: 50%;
+  display: block;
 
   object-fit: cover;
+
+  border-radius: 50%;
 
   border: 1px solid #e2e8f0;
 }
@@ -206,16 +245,21 @@
   width: 44px;
   height: 44px;
 
-  border-radius: 50%;
-
-  background: #f1f5f9;
-
   display: flex;
   align-items: center;
   justify-content: center;
 
-  font-size: 9px;
+  box-sizing: border-box;
+
+  border-radius: 50%;
+
+  background: #f1f5f9;
+
+  border: 1px solid #e2e8f0;
+
   color: #94a3b8;
+
+  font-size: 8px;
   font-weight: 600;
 }
 
@@ -226,7 +270,9 @@
 
 .teacher-id {
   color: #2563eb !important;
-  font-weight: 600;
+
+  font-weight: 700;
+
   white-space: nowrap;
 }
 
@@ -238,35 +284,43 @@
 .name-wrapper {
   display: flex;
   flex-direction: column;
-  min-width: 150px;
+
+  min-width: 130px;
 }
 
 .name-en {
-  font-weight: 700;
   color: #1e293b;
+
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .name-bn {
-  font-size: 0.8rem;
+  margin-top: 2px;
+
   color: #64748b;
-  margin-top: 1px;
+
+  font-size: 11px;
 }
 
 
 /* =====================================================
-   TEACHER STATUS
+   STATUS
 ===================================================== */
 
 .status-pill {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
 
-  padding: 4px 12px;
+  min-width: 55px;
+
+  padding: 4px 10px;
 
   border-radius: 20px;
 
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
 
   white-space: nowrap;
 }
@@ -283,48 +337,129 @@
 
 
 /* =====================================================
+   USER STATUS
+===================================================== */
+
+.user-status-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: 3px;
+}
+
+.user-active-badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 4px 8px;
+
+  border-radius: 5px;
+
+  background: #dcfce7;
+  color: #15803d;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+.user-status-wrapper small {
+  max-width: 120px;
+
+  overflow: hidden;
+
+  color: #64748b;
+
+  font-size: 10px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* =====================================================
+   ADD USER BUTTON
+===================================================== */
+
+.btn-add-user {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 30px;
+
+  padding: 6px 10px;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+
+  background: #eff6ff;
+  color: #2563eb;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.btn-add-user:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.btn-add-user:active {
+  transform: scale(0.97);
+}
+
+
+/* =====================================================
    ACTION BUTTONS
 ===================================================== */
 
 .action-buttons {
   display: flex;
   align-items: center;
-  gap: 6px;
+
+  gap: 5px;
 
   white-space: nowrap;
 }
 
 .btn-action {
-  width: 32px;
-  height: 32px;
-
-  padding: 0;
+  width: 31px;
+  height: 31px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 0 !important;
+  padding: 0;
 
   border: 1px solid transparent;
-
-  cursor: pointer;
+  border-radius: 4px !important;
 
   box-sizing: border-box;
+
+  cursor: pointer;
 
   transition:
     background 0.2s ease,
     color 0.2s ease,
     border-color 0.2s ease,
-    transform 0.15s ease;
-}
-
-.btn-action:hover {
-  transform: translateY(-1px);
+    transform 0.1s ease;
 }
 
 .btn-action:active {
-  transform: translateY(0);
+  transform: scale(0.94);
 }
 
 
@@ -335,12 +470,13 @@
 .btn-details {
   background: #e0f2fe;
   color: #0369a1;
+
   border-color: #bae6fd;
 }
 
 .btn-details:hover {
   background: #bae6fd;
-  color: #0284c7;
+  color: #075985;
 }
 
 
@@ -351,6 +487,7 @@
 .btn-edit {
   background: #fef9c3;
   color: #a16207;
+
   border-color: #fde68a;
 }
 
@@ -367,12 +504,16 @@
 .btn-permission {
   background: #f5f3ff;
   color: #7c3aed;
+
   border-color: #ddd6fe;
+
+  font-size: 14px;
 }
 
 .btn-permission:hover {
   background: #ede9fe;
   color: #6d28d9;
+
   border-color: #c4b5fd;
 }
 
@@ -384,6 +525,7 @@
 .btn-delete {
   background: #fee2e2;
   color: #b91c1c;
+
   border-color: #fecaca;
 }
 
@@ -394,84 +536,12 @@
 
 
 /* =====================================================
-   USER STATUS
-===================================================== */
-
-.user-status-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
-}
-
-.user-active-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-
-  padding: 4px 8px;
-
-  border-radius: 5px;
-
-  background: #dcfce7;
-  color: #15803d;
-
-  font-size: 12px;
-  font-weight: 700;
-
-  white-space: nowrap;
-}
-
-.user-status-wrapper small {
-  color: #6b7280;
-  font-size: 11px;
-}
-
-
-/* =====================================================
-   ADD USER BUTTON
-===================================================== */
-
-.btn-add-user {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid #bfdbfe;
-
-  background: #eff6ff;
-  color: #2563eb;
-
-  padding: 7px 10px;
-
-  border-radius: 6px;
-
-  cursor: pointer;
-
-  font-size: 12px;
-  font-weight: 600;
-
-  white-space: nowrap;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.15s ease;
-}
-
-.btn-add-user:hover {
-  background: #dbeafe;
-  border-color: #93c5fd;
-  transform: translateY(-1px);
-}
-
-
-/* =====================================================
-   ADD USER MODAL OVERLAY
+   USER MODAL OVERLAY
 ===================================================== */
 
 .user-modal-overlay {
   position: fixed;
+
   inset: 0;
 
   z-index: 9999;
@@ -482,14 +552,16 @@
 
   padding: 20px;
 
-  background: rgba(15, 23, 42, 0.55);
+  box-sizing: border-box;
+
+  background: rgba(15, 23, 42, 0.58);
 
   backdrop-filter: blur(3px);
 }
 
 
 /* =====================================================
-   ADD USER MODAL
+   USER MODAL
 ===================================================== */
 
 .user-modal {
@@ -504,20 +576,28 @@
 
   border-radius: 14px;
 
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.2);
 
-  animation: userModalOpen 0.2s ease-out;
+  animation:
+    userModalOpen 0.2s ease-out;
 }
 
 @keyframes userModalOpen {
   from {
     opacity: 0;
-    transform: translateY(-10px) scale(0.98);
+
+    transform:
+      translateY(-12px)
+      scale(0.98);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+
+    transform:
+      translateY(0)
+      scale(1);
   }
 }
 
@@ -531,6 +611,8 @@
   align-items: flex-start;
   justify-content: space-between;
 
+  gap: 15px;
+
   padding: 20px 22px;
 
   border-bottom: 1px solid #e5e7eb;
@@ -541,22 +623,34 @@
 .user-modal-header h2 {
   margin: 0 0 5px;
 
-  font-size: 20px;
-
   color: #111827;
+
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .user-modal-header p {
   margin: 0;
 
-  font-size: 13px;
-
   color: #6b7280;
+
+  font-size: 12px;
 }
+
+
+/* =====================================================
+   CLOSE BUTTON
+===================================================== */
 
 .user-modal-close {
   width: 32px;
   height: 32px;
+
+  flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
   padding: 0;
 
@@ -572,13 +666,14 @@
 
   cursor: pointer;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .user-modal-close:hover {
   background: #e5e7eb;
+
   color: #111827;
 }
 
@@ -591,11 +686,11 @@
   padding: 22px;
 }
 
-.user-form .form-group {
+.form-group {
   margin-bottom: 17px;
 }
 
-.user-form .form-group label {
+.form-group label {
   display: block;
 
   margin-bottom: 7px;
@@ -606,32 +701,37 @@
   font-weight: 600;
 }
 
-.user-form .form-group input,
-.user-form .form-group select {
+.form-group input,
+.form-group select {
   width: 100%;
   height: 42px;
 
-  box-sizing: border-box;
-
   padding: 0 12px;
 
+  box-sizing: border-box;
+
   border: 1px solid #d1d5db;
-
   border-radius: 7px;
-
-  background: #ffffff;
 
   outline: none;
 
-  font-size: 14px;
+  background: #ffffff;
 
   color: #111827;
 
-  transition: 0.2s;
+  font-size: 14px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.user-form .form-group input:focus,
-.user-form .form-group select:focus {
+.form-group input::placeholder {
+  color: #9ca3af;
+}
+
+.form-group input:focus,
+.form-group select:focus {
   border-color: #2563eb;
 
   box-shadow:
@@ -653,11 +753,10 @@
 
   padding: 12px;
 
+  border: 1px solid #e5e7eb;
   border-radius: 9px;
 
   background: #f8fafc;
-
-  border: 1px solid #e5e7eb;
 }
 
 .user-teacher-photo {
@@ -668,17 +767,17 @@
 
   overflow: hidden;
 
-  border-radius: 50%;
-
-  background: #e5e7eb;
-
   display: flex;
   align-items: center;
   justify-content: center;
 
+  border-radius: 50%;
+
+  background: #e5e7eb;
+
   color: #6b7280;
 
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .user-teacher-photo img {
@@ -693,23 +792,29 @@
   flex-direction: column;
 
   gap: 3px;
+
+  min-width: 0;
 }
 
 .user-teacher-info strong {
   color: #111827;
 
   font-size: 15px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-teacher-info span {
   color: #6b7280;
 
-  font-size: 12px;
+  font-size: 11px;
 }
 
 
 /* =====================================================
-   FORM BUTTONS
+   FORM ACTIONS
 ===================================================== */
 
 .user-form-actions {
@@ -728,21 +833,25 @@
 .user-cancel-btn,
 .user-create-btn {
   min-width: 105px;
+
   height: 40px;
 
   padding: 0 17px;
 
   border-radius: 7px;
 
-  cursor: pointer;
-
   font-size: 13px;
   font-weight: 600;
+
+  cursor: pointer;
 
   transition:
     background 0.2s ease,
     border-color 0.2s ease;
 }
+
+
+/* CANCEL */
 
 .user-cancel-btn {
   border: 1px solid #d1d5db;
@@ -756,6 +865,9 @@
   background: #f3f4f6;
 }
 
+
+/* CREATE */
+
 .user-create-btn {
   border: 1px solid #2563eb;
 
@@ -765,9 +877,13 @@
 }
 
 .user-create-btn:hover {
-  background: #1d4ed8;
   border-color: #1d4ed8;
+
+  background: #1d4ed8;
 }
+
+
+/* DISABLED */
 
 .user-cancel-btn:disabled,
 .user-create-btn:disabled {
@@ -778,32 +894,57 @@
 
 
 /* =====================================================
-   RESPONSIVE
+   SCROLLBAR
 ===================================================== */
 
-@media (max-width: 900px) {
-  .teacher-container {
-    padding: 0 1rem;
-  }
+.table-responsive::-webkit-scrollbar,
+.user-modal::-webkit-scrollbar {
+  height: 7px;
+  width: 7px;
+}
 
-  .teacher-header {
-    align-items: center;
-  }
+.table-responsive::-webkit-scrollbar-track,
+.user-modal::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+.user-modal::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover,
+.user-modal::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
 @media (max-width: 768px) {
+
   .teacher-container {
-    margin: 1rem auto;
+    padding: 16px;
   }
 
   .teacher-header {
-    flex-direction: column;
+    align-items: flex-start;
+
     gap: 12px;
   }
 
+  .header-text h1 {
+    font-size: 23px;
+  }
+
   .total-badge {
-    align-self: flex-start;
+    padding: 6px 11px;
+
+    font-size: 12px;
   }
 
   .search-input {
@@ -816,6 +957,7 @@
 
   .user-modal {
     max-width: 100%;
+
     max-height: calc(100vh - 24px);
   }
 
@@ -830,21 +972,34 @@
 }
 
 
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+
 @media (max-width: 480px) {
+
   .teacher-container {
-    padding: 0 0.75rem;
+    padding: 12px;
   }
 
-  .header-text h1 {
-    font-size: 1.5rem;
+  .teacher-header {
+    flex-direction: column;
+  }
+
+  .total-badge {
+    align-self: flex-start;
   }
 
   .user-modal-header {
-    padding: 16px;
+    padding: 17px;
   }
 
   .user-form {
-    padding: 16px;
+    padding: 17px;
+  }
+
+  .user-modal-header h2 {
+    font-size: 17px;
   }
 
   .user-teacher-info {
