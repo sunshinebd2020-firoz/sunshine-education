@@ -20,24 +20,31 @@ export default function AdminLayout() {
       return "students";
     }
 
+
     // COURSES
     if (
       pathname === "/admin/courses" ||
-      pathname === "/admin/course-entry"
+      pathname === "/admin/course-entry" ||
+      pathname === "/admin/AddCourse" ||
+      pathname === "/admin/EditCourse"
     ) {
       return "courses";
     }
+
 
     // ACCOUNTS
     if (
       pathname === "/admin/income" ||
       pathname === "/admin/income-list" ||
+      pathname.startsWith("/admin/income-edit/") ||
       pathname === "/admin/expense" ||
       pathname === "/admin/expense-list" ||
+      pathname.startsWith("/admin/expense-edit/") ||
       pathname === "/admin/accounts"
     ) {
       return "accounts";
     }
+
 
     // TEACHERS
     if (
@@ -46,6 +53,7 @@ export default function AdminLayout() {
     ) {
       return "teachers";
     }
+
 
     // NOTICES
     if (
@@ -56,6 +64,7 @@ export default function AdminLayout() {
       return "notices";
     }
 
+
     // GALLERY
     if (
       pathname === "/admin/gallery" ||
@@ -63,6 +72,7 @@ export default function AdminLayout() {
     ) {
       return "gallery";
     }
+
 
     // BANNERS
     if (
@@ -72,6 +82,7 @@ export default function AdminLayout() {
       return "banners";
     }
 
+
     // DOWNLOADS
     if (
       pathname === "/admin/downloads" ||
@@ -80,13 +91,16 @@ export default function AdminLayout() {
       return "downloads";
     }
 
+
     // BRANCHES
     if (
       pathname === "/admin/branch-list" ||
-      pathname === "/admin/branch-entry"
+      pathname === "/admin/branch-entry" ||
+      pathname.startsWith("/admin/branch-edit/")
     ) {
       return "branches";
     }
+
 
     // SETTINGS
     if (
@@ -95,6 +109,7 @@ export default function AdminLayout() {
     ) {
       return "settings";
     }
+
 
     return "";
   };
@@ -145,7 +160,6 @@ export default function AdminLayout() {
 
 
   return (
-
     <div className="admin-layout-container">
 
       {/* =====================================================
@@ -301,8 +315,9 @@ export default function AdminLayout() {
                   📖 Course List
                 </NavLink>
 
+
                 <NavLink
-                  to="/admin/course-entry"
+                  to="/admin/AddCourse"
                   className={({ isActive }) =>
                     isActive ? "active" : ""
                   }
@@ -352,6 +367,8 @@ export default function AdminLayout() {
 
               <div className="sidebar-submenu">
 
+                {/* ================= INCOME ================= */}
+
                 <NavLink
                   to="/admin/income"
                   className={({ isActive }) =>
@@ -360,6 +377,7 @@ export default function AdminLayout() {
                 >
                   ➕ Income Entry
                 </NavLink>
+
 
                 <NavLink
                   to="/admin/income-list"
@@ -370,6 +388,9 @@ export default function AdminLayout() {
                   📋 Income List
                 </NavLink>
 
+
+                {/* ================= EXPENSE ================= */}
+
                 <NavLink
                   to="/admin/expense"
                   className={({ isActive }) =>
@@ -378,6 +399,7 @@ export default function AdminLayout() {
                 >
                   ➕ Expense Entry
                 </NavLink>
+
 
                 <NavLink
                   to="/admin/expense-list"
@@ -388,8 +410,11 @@ export default function AdminLayout() {
                   📋 Expense List
                 </NavLink>
 
+
+                {/* ================= REPORT ================= */}
+
                 <NavLink
-                  to="/admin/accounts"
+                  to="/admin/IncomeExpenseReport"
                   className={({ isActive }) =>
                     isActive ? "active" : ""
                   }
@@ -447,6 +472,7 @@ export default function AdminLayout() {
                 >
                   📋 Teacher List
                 </NavLink>
+
 
                 <NavLink
                   to="/admin/teachers"
@@ -508,6 +534,7 @@ export default function AdminLayout() {
                   📋 Notice List
                 </NavLink>
 
+
                 <NavLink
                   to="/admin/notice-entry"
                   className={({ isActive }) =>
@@ -516,6 +543,7 @@ export default function AdminLayout() {
                 >
                   ➕ Add Notice
                 </NavLink>
+
 
                 <NavLink
                   to="/admin/notice-edit"
@@ -577,6 +605,7 @@ export default function AdminLayout() {
                   ➕ Add Photo
                 </NavLink>
 
+
                 <NavLink
                   to="/admin/gallery-list"
                   className={({ isActive }) =>
@@ -636,6 +665,7 @@ export default function AdminLayout() {
                 >
                   📋 Banner List
                 </NavLink>
+
 
                 <NavLink
                   to="/admin/banner-entry"
@@ -697,6 +727,7 @@ export default function AdminLayout() {
                   📥 Download List
                 </NavLink>
 
+
                 <NavLink
                   to="/admin/download-entry"
                   className={({ isActive }) =>
@@ -757,6 +788,7 @@ export default function AdminLayout() {
                   📋 Branch List
                 </NavLink>
 
+
                 <NavLink
                   to="/admin/branch-entry"
                   className={({ isActive }) =>
@@ -816,6 +848,7 @@ export default function AdminLayout() {
                 >
                   ⚙️ General Settings
                 </NavLink>
+
 
                 <NavLink
                   to="/admin/admin-users"

@@ -35,6 +35,15 @@ import IncomeEntry from "./admin/pages/IncomeEntry";
 import IncomeList from "./admin/pages/IncomeList";
 import IncomeEdit from "./admin/pages/IncomeEdit";
 
+// ================= EXPENSE =================
+import ExpenseEntry from "./admin/pages/ExpenseEntry";
+import ExpenseList from "./admin/pages/ExpenseList";
+import ExpenseEdit from "./admin/pages/ExpenseEdit";
+
+// ================= INCOME-EXPENSE REPORT =================
+import IncomeExpenseReport from "./admin/pages/IncomeExpenseReport";
+
+
 // ================= NOTICE =================
 import NoticeEntry from "./admin/pages/NoticeEntry";
 import NoticeList from "./admin/pages/NoticeList";
@@ -184,8 +193,6 @@ export default function App() {
               element={<StudentList />}
             />
 
-            {/* Pending Student Applications */}
-
             <Route
               path="pending-students"
               element={<PendingStudentList />}
@@ -268,6 +275,26 @@ export default function App() {
 
 
             {/* =================================================
+                EXPENSE
+            ================================================= */}
+
+            <Route
+              path="expense"
+              element={<ExpenseEntry />}
+            />
+
+            <Route
+              path="expense-list"
+              element={<ExpenseList />}
+            />
+
+            <Route
+              path="expense-edit/:id"
+              element={<ExpenseEdit />}
+            />
+
+
+            {/* =================================================
                 NOTICE
             ================================================= */}
 
@@ -307,6 +334,10 @@ export default function App() {
             />
 
 
+            {/* =================================================
+                BRANCH
+            ================================================= */}
+
             <Route
               path="branch-entry"
               element={<BranchEntry />}
@@ -320,6 +351,11 @@ export default function App() {
             <Route
               path="branch-edit/:id"
               element={<BranchEdit />}
+            />
+
+            <Route
+              path="income-expense-report"
+              element={<IncomeExpenseReport />}
             />
 
           </Route>

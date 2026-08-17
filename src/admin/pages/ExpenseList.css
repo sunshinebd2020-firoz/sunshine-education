@@ -12,6 +12,7 @@
   display: flex;
 
   justify-content: space-between;
+
   align-items: center;
 
   gap: 20px;
@@ -49,6 +50,8 @@
   font-size: 14px;
 
   font-weight: 600;
+
+  border: 1px solid #fecaca;
 }
 
 .expense-total span {
@@ -87,7 +90,7 @@
 
   font-size: 13px;
 
-  background: #fff;
+  background: #ffffff;
 
   box-sizing: border-box;
 
@@ -108,10 +111,11 @@
 
 .expense-filters input:focus,
 .expense-filters select:focus {
-  border-color: #dc2626;
+  border-color: #ef4444;
 
   box-shadow:
-    0 0 0 3px rgba(220, 38, 38, 0.12);
+    0 0 0 3px
+    rgba(239, 68, 68, 0.10);
 }
 
 /* ================= CLEAR ================= */
@@ -127,7 +131,7 @@
 
   background: #64748b;
 
-  color: #fff;
+  color: #ffffff;
 
   font-size: 13px;
 
@@ -155,7 +159,7 @@
 
   border-radius: 8px;
 
-  background: #fff;
+  background: #ffffff;
 }
 
 /* ================= TABLE ================= */
@@ -179,7 +183,7 @@
 
   background: #fef2f2;
 
-  color: #7f1d1d;
+  color: #334155;
 
   font-size: 13px;
 
@@ -187,7 +191,7 @@
 
   padding: 7px 8px;
 
-  border-bottom: 1px solid #fecaca;
+  border-bottom: 1px solid #e2e8f0;
 
   text-align: left;
 
@@ -211,7 +215,7 @@
 }
 
 .expense-table tbody tr:hover {
-  background: #fff7f7;
+  background: #fffafa;
 }
 
 .expense-table tbody tr:last-child td {
@@ -229,7 +233,7 @@
 
   background: #fef2f2;
 
-  color: #b91c1c;
+  color: #dc2626;
 
   font-size: 12px;
 
@@ -325,7 +329,7 @@
 
   color: #64748b;
 
-  background: #fff;
+  background: #ffffff;
 }
 
 /* ================= MOBILE ================= */

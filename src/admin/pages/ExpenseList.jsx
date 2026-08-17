@@ -12,7 +12,7 @@ export default function ExpenseList() {
 
   const navigate = useNavigate();
 
-  /* ================= LOAD EXPENSE ================= */
+  /* ================= LOAD EXPENSES ================= */
 
   const fetchExpenses = async () => {
     try {
@@ -128,20 +128,6 @@ export default function ExpenseList() {
     navigate(`/admin/expense-edit/${id}`);
   };
 
-  /* ================= DATE FORMAT ================= */
-
-  const formatDate = (date) => {
-    if (!date) return "-";
-
-    const parts = date.split("-");
-
-    if (parts.length === 3) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
-
-    return date;
-  };
-
   return (
     <div className="expense-list">
 
@@ -190,6 +176,7 @@ export default function ExpenseList() {
             setBranch(e.target.value)
           }
         >
+
           <option value="">
             All Branches
           </option>
@@ -209,6 +196,7 @@ export default function ExpenseList() {
           <option value="Tangail Branch">
             Tangail Branch
           </option>
+
         </select>
 
         <input
@@ -254,16 +242,27 @@ export default function ExpenseList() {
           <table className="expense-table">
 
             <thead>
+
               <tr>
+
                 <th>#</th>
+
                 <th>Date</th>
+
                 <th>Expense Type</th>
+
                 <th>Description</th>
+
                 <th>Amount</th>
+
                 <th>Payment</th>
+
                 <th>Branch</th>
+
                 <th>Action</th>
+
               </tr>
+
             </thead>
 
             <tbody>
@@ -278,9 +277,7 @@ export default function ExpenseList() {
                     </td>
 
                     <td>
-                      {formatDate(
-                        item.expense_date
-                      )}
+                      {item.expense_date}
                     </td>
 
                     <td>
@@ -303,7 +300,8 @@ export default function ExpenseList() {
                     </td>
 
                     <td>
-                      {item.payment_method || "-"}
+                      {item.payment_method ||
+                        "-"}
                     </td>
 
                     <td>
