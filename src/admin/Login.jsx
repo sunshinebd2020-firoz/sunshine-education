@@ -6,6 +6,8 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -13,11 +15,18 @@ export default function Login() {
 
     setMessage("");
 
+    if (!username.trim() || !password) {
+      setMessage("Username and password are required.");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("username", username);
+    formData.append("username", username.trim());
     formData.append("password", password);
 
     try {
+      setLoading(true);
+
       const response = await fetch(
         "http://localhost/sunshine-api/api/login.php",
         {
@@ -29,13 +38,48 @@ export default function Login() {
       const data = await response.json();
 
       if (data.success) {
-      navigate("/admin/dashboard");
-       }
-      else {
-        setMessage(data.message);
+
+        // ==========================================
+        // USER INFORMATION SAVE
+        // ==========================================
+
+        localStorage.setItem(
+          "sunshine_user",
+          JSON.stringify(data.user)
+        );
+
+        // Login status
+        localStorage.setItem(
+          "sunshine_logged_in",
+          "true"
+        );
+
+        // ==========================================
+        // Dashboard
+        // ==========================================
+
+        navigate("/admin/dashboard");
+
+      } else {
+
+        setMessage(
+          data.message || "Login failed."
+        );
+
       }
+
     } catch (error) {
-      setMessage("Server connection failed");
+
+      console.error("Login Error:", error);
+
+      setMessage(
+        "Server connection failed"
+      );
+
+    } finally {
+
+      setLoading(false);
+
     }
   };
 
@@ -46,34 +90,53 @@ export default function Login() {
 
         <h1>Admin Login</h1>
 
-        <p>Sunshine Education Admin Panel</p>
+        <p>
+          Sunshine Education Admin Panel
+        </p>
 
         <form onSubmit={handleLogin}>
 
           <div className="form-group">
-            <label>Username</label>
+
+            <label>
+              Username
+            </label>
 
             <input
               type="text"
               placeholder="Enter Username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) =>
+                setUsername(e.target.value)
+              }
+              autoComplete="username"
             />
+
           </div>
 
           <div className="form-group">
-            <label>Password</label>
+
+            <label>
+              Password
+            </label>
 
             <input
               type="password"
               placeholder="Enter Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
+              autoComplete="current-password"
             />
+
           </div>
 
-          <button type="submit">
-            Login
+          <button
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
           </button>
 
         </form>
