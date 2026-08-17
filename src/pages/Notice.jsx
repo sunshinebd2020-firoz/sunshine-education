@@ -11,11 +11,20 @@ export default function Notice() {
   useEffect(() => {
     const fetchNotices = async () => {
       try {
+        setLoading(true);
+        setError("");
+
         const response = await fetch(
           "http://localhost/sunshine-api/api/notices.php"
         );
 
         const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Notice load করা যায়নি"
+          );
+        }
 
         if (data.success) {
           // শুধু Active Notice দেখাবে
@@ -31,11 +40,12 @@ export default function Notice() {
             data.message || "Notice load করা যায়নি"
           );
         }
-      } catch (error) {
-        console.error("Notice fetch error:", error);
+      } catch (err) {
+        console.error("Notice fetch error:", err);
 
         setError(
-          "Server-এর সাথে সংযোগ করা যাচ্ছে না"
+          err.message ||
+            "Server-এর সাথে সংযোগ করা যাচ্ছে না"
         );
       } finally {
         setLoading(false);
@@ -50,7 +60,7 @@ export default function Notice() {
   const formatDate = (date) => {
     if (!date) return "";
 
-    const parts = date.split("-");
+    const parts = String(date).split("-");
 
     if (parts.length === 3) {
       return `${parts[2]}-${parts[1]}-${parts[0]}`;
@@ -59,19 +69,10 @@ export default function Notice() {
     return date;
   };
 
+  /* ================= RENDER ================= */
+
   return (
     <div className="notice">
-
-      {/* ================= HEADER ================= */}
-
-      <section className="notice-header">
-        <h1>Notice Board</h1>
-
-        <p>
-          প্রতিষ্ঠানের সর্বশেষ নোটিশ ও গুরুত্বপূর্ণ তথ্য
-        </p>
-      </section>
-
 
       {/* ================= LOADING ================= */}
 
@@ -81,7 +82,6 @@ export default function Notice() {
         </div>
       )}
 
-
       {/* ================= ERROR ================= */}
 
       {!loading && error && (
@@ -89,7 +89,6 @@ export default function Notice() {
           {error}
         </div>
       )}
-
 
       {/* ================= NOTICE LIST ================= */}
 
@@ -99,33 +98,34 @@ export default function Notice() {
           <section className="notice-list">
 
             {notices.map((notice) => (
-              <div
+              <article
                 className="notice-card"
                 key={notice.id}
               >
 
+                {/* NOTICE TITLE */}
+
                 <h2>
-                  {notice.title}
+                  {notice.title || "Important Notice"}
                 </h2>
+
+                {/* NOTICE DATE */}
 
                 <p className="date">
                   📅 {formatDate(notice.notice_date)}
                 </p>
 
-                <p>
+                {/* NOTICE DESCRIPTION */}
+
+                <p className="description">
                   {notice.description || ""}
                 </p>
 
-                <button type="button">
-                  View Details
-                </button>
-
-              </div>
+              </article>
             ))}
 
           </section>
         )}
-
 
       {/* ================= NO NOTICE ================= */}
 

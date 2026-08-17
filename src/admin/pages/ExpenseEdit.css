@@ -1,0 +1,295 @@
+/* =========================================
+   EXPENSE EDIT
+========================================= */
+
+.expense-edit {
+  width: 100%;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.expense-edit-header {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 20px;
+
+  margin-bottom: 20px;
+}
+
+.expense-edit-header h1 {
+  margin: 0 0 5px;
+
+  font-size: 26px;
+
+  color: #1e293b;
+}
+
+.expense-edit-header p {
+  margin: 0;
+
+  font-size: 14px;
+
+  color: #64748b;
+}
+
+/* =========================================
+   BACK BUTTON
+========================================= */
+
+.back-expense-btn {
+  padding: 10px 16px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background: #64748b;
+
+  color: #ffffff;
+
+  font-size: 14px;
+
+  cursor: pointer;
+}
+
+.back-expense-btn:hover {
+  background: #475569;
+}
+
+/* =========================================
+   FORM
+========================================= */
+
+.expense-edit-form {
+  background: #ffffff;
+
+  padding: 28px;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 8px;
+}
+
+/* =========================================
+   GRID
+========================================= */
+
+.expense-edit-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 20px;
+}
+
+/* =========================================
+   GROUP
+========================================= */
+
+.expense-edit-group {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.expense-edit-group label {
+  margin-bottom: 7px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: #334155;
+}
+
+.expense-edit-group input,
+.expense-edit-group select,
+.expense-edit-group textarea {
+  width: 100%;
+
+  padding: 11px 12px;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  color: #334155;
+
+  font-size: 14px;
+
+  outline: none;
+
+  box-sizing: border-box;
+
+  font-family: inherit;
+}
+
+.expense-edit-group input:focus,
+.expense-edit-group select:focus,
+.expense-edit-group textarea:focus {
+  border-color: #dc2626;
+
+  box-shadow:
+    0 0 0 2px rgba(220, 38, 38, 0.08);
+}
+
+.expense-edit-group textarea {
+  resize: vertical;
+}
+
+.expense-full-width {
+  grid-column: 1 / -1;
+}
+
+/* =========================================
+   AMOUNT
+========================================= */
+
+.expense-edit-group input[name="amount"] {
+  color: #dc2626;
+
+  font-weight: 600;
+}
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+.expense-edit-message {
+  margin-top: 20px;
+
+  padding: 12px 15px;
+
+  border-radius: 6px;
+
+  background: #fef2f2;
+
+  color: #dc2626;
+
+  font-size: 14px;
+}
+
+/* =========================================
+   ACTIONS
+========================================= */
+
+.expense-edit-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 25px;
+
+  padding-top: 20px;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+.expense-cancel-btn,
+.expense-update-btn {
+  padding: 11px 22px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+/* =========================================
+   CANCEL
+========================================= */
+
+.expense-cancel-btn {
+  background: #e2e8f0;
+
+  color: #334155;
+}
+
+.expense-cancel-btn:hover {
+  background: #cbd5e1;
+}
+
+/* =========================================
+   UPDATE
+========================================= */
+
+.expense-update-btn {
+  background: #dc2626;
+
+  color: #ffffff;
+}
+
+.expense-update-btn:hover {
+  background: #b91c1c;
+}
+
+.expense-update-btn:disabled {
+  background: #94a3b8;
+
+  cursor: not-allowed;
+}
+
+/* =========================================
+   LOADING
+========================================= */
+
+.expense-edit-loading {
+  padding: 60px;
+
+  text-align: center;
+
+  color: #64748b;
+
+  font-size: 15px;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 768px) {
+
+  .expense-edit-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .expense-edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .expense-full-width {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .expense-edit-form {
+    padding: 18px;
+  }
+
+  .expense-edit-actions {
+    flex-direction: column;
+  }
+
+  .expense-cancel-btn,
+  .expense-update-btn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,371 @@
+/* =====================================================
+   EXPENSE LIST
+===================================================== */
+
+.expense-list {
+  padding: 30px;
+}
+
+/* ================= HEADER ================= */
+
+.expense-list-header {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 20px;
+
+  margin-bottom: 20px;
+}
+
+.expense-list-header h1 {
+  margin: 0 0 5px;
+
+  color: #1e293b;
+
+  font-size: 28px;
+}
+
+.expense-list-header p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 14px;
+}
+
+/* ================= TOTAL ================= */
+
+.expense-total {
+  background: #fef2f2;
+
+  color: #b91c1c;
+
+  padding: 9px 15px;
+
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+.expense-total span {
+  margin-right: 10px;
+}
+
+.expense-total strong {
+  color: #dc2626;
+
+  font-size: 16px;
+}
+
+/* ================= FILTER ================= */
+
+.expense-filters {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 20px;
+
+  flex-wrap: wrap;
+}
+
+.expense-filters input,
+.expense-filters select {
+  height: 40px;
+
+  padding: 0 12px;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+
+  background: #fff;
+
+  box-sizing: border-box;
+
+  outline: none;
+}
+
+.expense-filters input[type="text"] {
+  width: 300px;
+}
+
+.expense-filters select {
+  width: 200px;
+}
+
+.expense-filters input[type="date"] {
+  width: 160px;
+}
+
+.expense-filters input:focus,
+.expense-filters select:focus {
+  border-color: #dc2626;
+
+  box-shadow:
+    0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+/* ================= CLEAR ================= */
+
+.expense-clear-filter {
+  height: 40px;
+
+  padding: 0 15px;
+
+  border: none;
+
+  border-radius: 7px;
+
+  background: #64748b;
+
+  color: #fff;
+
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.expense-clear-filter:hover {
+  background: #475569;
+}
+
+/* =====================================================
+   TABLE WRAPPER
+===================================================== */
+
+.expense-table-wrapper {
+  height: calc(100vh - 300px);
+
+  min-height: 350px;
+
+  overflow-y: auto;
+
+  overflow-x: auto;
+
+  border: 1px solid #ddd;
+
+  border-radius: 8px;
+
+  background: #fff;
+}
+
+/* ================= TABLE ================= */
+
+.expense-table {
+  width: 100%;
+
+  min-width: 1000px;
+
+  border-collapse: collapse;
+}
+
+/* ================= HEADER ================= */
+
+.expense-table thead th {
+  position: sticky;
+
+  top: 0;
+
+  z-index: 10;
+
+  background: #fef2f2;
+
+  color: #7f1d1d;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  padding: 7px 8px;
+
+  border-bottom: 1px solid #fecaca;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+/* ================= CELLS ================= */
+
+.expense-table td {
+  padding: 6px 8px;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  text-align: left;
+
+  white-space: nowrap;
+
+  color: #475569;
+
+  font-size: 13px;
+}
+
+.expense-table tbody tr:hover {
+  background: #fff7f7;
+}
+
+.expense-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ================= EXPENSE TYPE ================= */
+
+.expense-type {
+  display: inline-block;
+
+  padding: 4px 8px;
+
+  border-radius: 5px;
+
+  background: #fef2f2;
+
+  color: #b91c1c;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+/* ================= AMOUNT ================= */
+
+.expense-amount {
+  color: #dc2626 !important;
+
+  font-weight: 600;
+}
+
+/* ================= ACTIONS ================= */
+
+.expense-actions {
+  display: flex;
+
+  gap: 5px;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-wrap: nowrap;
+}
+
+.expense-actions button {
+  width: 32px;
+
+  height: 32px;
+
+  padding: 0;
+
+  border: none;
+
+  border-radius: 6px;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  transition: 0.2s;
+}
+
+/* ================= EDIT ================= */
+
+.expense-edit-btn {
+  background: #dbeafe;
+
+  color: #1d4ed8;
+}
+
+.expense-edit-btn:hover {
+  background: #bfdbfe;
+}
+
+/* ================= DELETE ================= */
+
+.expense-delete-btn {
+  background: #fee2e2;
+
+  color: #b91c1c;
+}
+
+.expense-delete-btn:hover {
+  background: #fecaca;
+}
+
+/* ================= LOADING ================= */
+
+.expense-loading {
+  padding: 30px;
+
+  text-align: center;
+
+  color: #64748b;
+}
+
+/* ================= EMPTY ================= */
+
+.expense-empty {
+  padding: 30px;
+
+  text-align: center;
+
+  color: #64748b;
+
+  background: #fff;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+
+  .expense-list {
+    padding: 20px 15px;
+  }
+
+  .expense-list-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .expense-list-header h1 {
+    font-size: 24px;
+  }
+
+  .expense-total {
+    width: 100%;
+
+    box-sizing: border-box;
+  }
+
+  .expense-filters {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .expense-filters input[type="text"],
+  .expense-filters select,
+  .expense-filters input[type="date"],
+  .expense-clear-filter {
+    width: 100%;
+  }
+
+  .expense-table-wrapper {
+    border-radius: 8px;
+  }
+}
