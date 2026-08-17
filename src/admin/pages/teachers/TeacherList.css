@@ -241,3 +241,376 @@
   background-color: #fecaca;
   color: #991b1b;
 }
+
+/* =====================================================
+   USER STATUS
+===================================================== */
+
+.user-status-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.user-active-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.user-status-wrapper small {
+  color: #6b7280;
+  font-size: 11px;
+}
+
+/* =====================================================
+   ADD USER BUTTON
+===================================================== */
+
+.btn-add-user {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: 0.2s;
+}
+
+.btn-add-user:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+/* =====================================================
+   PERMISSION BUTTON
+===================================================== */
+
+.btn-permission {
+  color: #7c3aed;
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+}
+
+.btn-permission:hover {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+}
+
+/* =====================================================
+   USER MODAL OVERLAY
+===================================================== */
+
+.user-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(15, 23, 42, 0.55);
+
+  backdrop-filter: blur(3px);
+}
+
+/* =====================================================
+   USER MODAL
+===================================================== */
+
+.user-modal {
+  width: 100%;
+  max-width: 500px;
+
+  background: #ffffff;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.20);
+
+  overflow: hidden;
+
+  animation: userModalOpen 0.2s ease-out;
+}
+
+@keyframes userModalOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =====================================================
+   MODAL HEADER
+===================================================== */
+
+.user-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  padding: 20px 22px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  background: #f8fafc;
+}
+
+.user-modal-header h2 {
+  margin: 0 0 5px;
+
+  font-size: 20px;
+  color: #111827;
+}
+
+.user-modal-header p {
+  margin: 0;
+
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.user-modal-close {
+  width: 32px;
+  height: 32px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: transparent;
+
+  color: #6b7280;
+
+  font-size: 25px;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.user-modal-close:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.user-form {
+  padding: 22px;
+}
+
+.form-group {
+  margin-bottom: 17px;
+}
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #374151;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  height: 42px;
+
+  box-sizing: border-box;
+
+  padding: 0 12px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  outline: none;
+
+  font-size: 14px;
+
+  transition: 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+/* =====================================================
+   TEACHER INFO
+===================================================== */
+
+.user-teacher-info {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  margin-bottom: 20px;
+
+  padding: 12px;
+
+  border-radius: 9px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e5e7eb;
+}
+
+.user-teacher-photo {
+  width: 52px;
+  height: 52px;
+
+  flex-shrink: 0;
+
+  overflow: hidden;
+
+  border-radius: 50%;
+
+  background: #e5e7eb;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #6b7280;
+
+  font-size: 10px;
+}
+
+.user-teacher-photo img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.user-teacher-info > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.user-teacher-info strong {
+  color: #111827;
+  font-size: 15px;
+}
+
+.user-teacher-info span {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+/* =====================================================
+   FORM BUTTONS
+===================================================== */
+
+.user-form-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 22px;
+
+  padding-top: 17px;
+
+  border-top: 1px solid #e5e7eb;
+}
+
+.user-cancel-btn,
+.user-create-btn {
+  min-width: 105px;
+
+  height: 40px;
+
+  padding: 0 17px;
+
+  border-radius: 7px;
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.user-cancel-btn {
+  border: 1px solid #d1d5db;
+
+  background: #ffffff;
+
+  color: #374151;
+}
+
+.user-cancel-btn:hover {
+  background: #f3f4f6;
+}
+
+.user-create-btn {
+  border: 1px solid #2563eb;
+
+  background: #2563eb;
+
+  color: #ffffff;
+}
+
+.user-create-btn:hover {
+  background: #1d4ed8;
+}
+
+.user-cancel-btn:disabled,
+.user-create-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .user-modal-overlay {
+    padding: 12px;
+  }
+
+  .user-modal {
+    max-width: 100%;
+  }
+
+  .user-form-actions {
+    flex-direction: column;
+  }
+
+  .user-cancel-btn,
+  .user-create-btn {
+    width: 100%;
+  }
+}
