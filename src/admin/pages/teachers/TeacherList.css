@@ -1,14 +1,29 @@
-/* Container */
+/* =====================================================
+   TEACHER CONTAINER
+===================================================== */
+
 .teacher-container {
   max-width: 1280px;
   margin: 2rem auto;
   padding: 0 1.5rem;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Helvetica Neue",
+    sans-serif;
   color: #1e293b;
 }
 
-/* Header Section */
+
+/* =====================================================
+   HEADER
+===================================================== */
+
 .teacher-header {
   display: flex;
   justify-content: space-between;
@@ -25,13 +40,13 @@
 }
 
 .header-text p {
-  margin: 4px 0 0 0;
+  margin: 4px 0 0;
   font-size: 0.95rem;
   color: #64748b;
 }
 
 .total-badge {
-  background-color: #eff6ff;
+  background: #eff6ff;
   color: #2563eb;
   padding: 6px 16px;
   border-radius: 8px;
@@ -39,7 +54,11 @@
   font-size: 0.9rem;
 }
 
-/* Search Section */
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
 .search-section {
   margin-bottom: 1.5rem;
 }
@@ -47,14 +66,21 @@
 .search-input {
   width: 100%;
   max-width: 500px;
-  padding: 10px 14px;
+  height: 42px;
+  box-sizing: border-box;
+
+  padding: 0 14px;
+
   border: 1px solid #cbd5e1;
   border-radius: 8px;
+
   font-size: 0.95rem;
   outline: none;
-  background-color: #ffffff;
+
+  background: #ffffff;
   color: #334155;
-  transition: all 0.2s ease;
+
+  transition: 0.2s ease;
 }
 
 .search-input::placeholder {
@@ -66,29 +92,41 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
-/* Message Box */
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
 .teacher-message {
   text-align: center;
   padding: 2rem;
-  background-color: #f8fafc;
+
+  background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
+
   color: #64748b;
 }
 
 .teacher-message.error {
-  background-color: #fef2f2;
+  background: #fef2f2;
   color: #dc2626;
   border-color: #fecaca;
 }
 
-/* Table Card Wrapper */
+
+/* =====================================================
+   TABLE CARD
+===================================================== */
+
 .table-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
+
   overflow: hidden;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .table-responsive {
@@ -98,64 +136,109 @@
 
 .teacher-table {
   width: 100%;
+  min-width: 1100px;
+
   border-collapse: collapse;
   text-align: left;
 }
 
 .teacher-table th {
-  background-color: #f8fafc;
+  background: #f8fafc;
+
   color: #334155;
+
   font-size: 0.85rem;
   font-weight: 600;
+
   padding: 14px 16px;
+
   border-bottom: 1px solid #e2e8f0;
+
   white-space: nowrap;
 }
 
 .teacher-table td {
   padding: 12px 16px;
+
   border-bottom: 1px solid #f1f5f9;
+
   vertical-align: middle;
+
   font-size: 0.9rem;
   color: #475569;
 }
 
-.teacher-table tbody tr:hover {
-  background-color: #f8fafc;
+.teacher-table tbody tr {
+  transition: background 0.15s ease;
 }
 
-/* Photo Styling */
+.teacher-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.teacher-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* =====================================================
+   PHOTO
+===================================================== */
+
+.teacher-photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .teacher-photo img {
   width: 44px;
   height: 44px;
+
   border-radius: 50%;
+
   object-fit: cover;
+
   border: 1px solid #e2e8f0;
 }
 
 .no-photo {
   width: 44px;
   height: 44px;
+
   border-radius: 50%;
+
   background: #f1f5f9;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 9px;
   color: #94a3b8;
   font-weight: 600;
 }
 
-/* ID Styling (Blue text) */
+
+/* =====================================================
+   TEACHER ID
+===================================================== */
+
 .teacher-id {
   color: #2563eb !important;
   font-weight: 600;
+  white-space: nowrap;
 }
 
-/* Name Styling */
+
+/* =====================================================
+   NAME
+===================================================== */
+
 .name-wrapper {
   display: flex;
   flex-direction: column;
+  min-width: 150px;
 }
 
 .name-en {
@@ -169,78 +252,146 @@
   margin-top: 1px;
 }
 
-/* Status Pill */
+
+/* =====================================================
+   TEACHER STATUS
+===================================================== */
+
 .status-pill {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+
   padding: 4px 12px;
+
   border-radius: 20px;
+
   font-size: 0.78rem;
   font-weight: 600;
+
+  white-space: nowrap;
 }
 
 .status-pill.active {
-  background-color: #dcfce7;
+  background: #dcfce7;
   color: #15803d;
 }
 
 .status-pill.inactive {
-  background-color: #fee2e2;
+  background: #fee2e2;
   color: #b91c1c;
 }
 
-/* Action Buttons Group & Square Styling */
+
+/* =====================================================
+   ACTION BUTTONS
+===================================================== */
+
 .action-buttons {
   display: flex;
   align-items: center;
   gap: 6px;
+
+  white-space: nowrap;
 }
 
 .btn-action {
   width: 32px;
   height: 32px;
+
   padding: 0;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0px !important; /* নিখুঁত স্কয়ার কার্ভ ছাড়া */
-  border: none;
+
+  border-radius: 0 !important;
+
+  border: 1px solid transparent;
+
   cursor: pointer;
-  transition: all 0.2s ease;
+
   box-sizing: border-box;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
 }
 
-/* Details Square Button */
+.btn-action:hover {
+  transform: translateY(-1px);
+}
+
+.btn-action:active {
+  transform: translateY(0);
+}
+
+
+/* =====================================================
+   DETAILS
+===================================================== */
+
 .btn-details {
-  background-color: #e0f2fe;
+  background: #e0f2fe;
   color: #0369a1;
+  border-color: #bae6fd;
 }
 
 .btn-details:hover {
-  background-color: #bae6fd;
+  background: #bae6fd;
   color: #0284c7;
 }
 
-/* Edit Square Button */
+
+/* =====================================================
+   EDIT
+===================================================== */
+
 .btn-edit {
-  background-color: #fef9c3;
+  background: #fef9c3;
   color: #a16207;
+  border-color: #fde68a;
 }
 
 .btn-edit:hover {
-  background-color: #fef08a;
+  background: #fef08a;
   color: #854d0e;
 }
 
-/* Delete Square Button */
+
+/* =====================================================
+   PERMISSION
+===================================================== */
+
+.btn-permission {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
+.btn-permission:hover {
+  background: #ede9fe;
+  color: #6d28d9;
+  border-color: #c4b5fd;
+}
+
+
+/* =====================================================
+   DELETE
+===================================================== */
+
 .btn-delete {
-  background-color: #fee2e2;
+  background: #fee2e2;
   color: #b91c1c;
+  border-color: #fecaca;
 }
 
 .btn-delete:hover {
-  background-color: #fecaca;
+  background: #fecaca;
   color: #991b1b;
 }
+
 
 /* =====================================================
    USER STATUS
@@ -257,12 +408,18 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+
   padding: 4px 8px;
+
   border-radius: 5px;
+
   background: #dcfce7;
   color: #15803d;
+
   font-size: 12px;
   font-weight: 700;
+
+  white-space: nowrap;
 }
 
 .user-status-wrapper small {
@@ -270,50 +427,53 @@
   font-size: 11px;
 }
 
+
 /* =====================================================
    ADD USER BUTTON
 ===================================================== */
 
 .btn-add-user {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   border: 1px solid #bfdbfe;
+
   background: #eff6ff;
   color: #2563eb;
+
   padding: 7px 10px;
+
   border-radius: 6px;
+
   cursor: pointer;
+
   font-size: 12px;
   font-weight: 600;
+
   white-space: nowrap;
-  transition: 0.2s;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
 }
 
 .btn-add-user:hover {
   background: #dbeafe;
   border-color: #93c5fd;
+  transform: translateY(-1px);
 }
+
 
 /* =====================================================
-   PERMISSION BUTTON
-===================================================== */
-
-.btn-permission {
-  color: #7c3aed;
-  background: #f5f3ff;
-  border-color: #ddd6fe;
-}
-
-.btn-permission:hover {
-  background: #ede9fe;
-  border-color: #c4b5fd;
-}
-
-/* =====================================================
-   USER MODAL OVERLAY
+   ADD USER MODAL OVERLAY
 ===================================================== */
 
 .user-modal-overlay {
   position: fixed;
   inset: 0;
+
   z-index: 9999;
 
   display: flex;
@@ -327,22 +487,24 @@
   backdrop-filter: blur(3px);
 }
 
+
 /* =====================================================
-   USER MODAL
+   ADD USER MODAL
 ===================================================== */
 
 .user-modal {
   width: 100%;
   max-width: 500px;
 
+  max-height: calc(100vh - 40px);
+
+  overflow-y: auto;
+
   background: #ffffff;
 
   border-radius: 14px;
 
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.20);
-
-  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
 
   animation: userModalOpen 0.2s ease-out;
 }
@@ -358,6 +520,7 @@
     transform: translateY(0) scale(1);
   }
 }
+
 
 /* =====================================================
    MODAL HEADER
@@ -379,6 +542,7 @@
   margin: 0 0 5px;
 
   font-size: 20px;
+
   color: #111827;
 }
 
@@ -386,12 +550,15 @@
   margin: 0;
 
   font-size: 13px;
+
   color: #6b7280;
 }
 
 .user-modal-close {
   width: 32px;
   height: 32px;
+
+  padding: 0;
 
   border: none;
   border-radius: 6px;
@@ -404,6 +571,10 @@
   line-height: 1;
 
   cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .user-modal-close:hover {
@@ -411,19 +582,20 @@
   color: #111827;
 }
 
+
 /* =====================================================
-   FORM
+   USER FORM
 ===================================================== */
 
 .user-form {
   padding: 22px;
 }
 
-.form-group {
+.user-form .form-group {
   margin-bottom: 17px;
 }
 
-.form-group label {
+.user-form .form-group label {
   display: block;
 
   margin-bottom: 7px;
@@ -434,8 +606,8 @@
   font-weight: 600;
 }
 
-.form-group input,
-.form-group select {
+.user-form .form-group input,
+.user-form .form-group select {
   width: 100%;
   height: 42px;
 
@@ -444,6 +616,7 @@
   padding: 0 12px;
 
   border: 1px solid #d1d5db;
+
   border-radius: 7px;
 
   background: #ffffff;
@@ -452,19 +625,22 @@
 
   font-size: 14px;
 
+  color: #111827;
+
   transition: 0.2s;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.user-form .form-group input:focus,
+.user-form .form-group select:focus {
   border-color: #2563eb;
 
   box-shadow:
-    0 0 0 3px rgba(37, 99, 235, 0.10);
+    0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+
 /* =====================================================
-   TEACHER INFO
+   TEACHER INFO IN MODAL
 ===================================================== */
 
 .user-teacher-info {
@@ -515,18 +691,22 @@
 .user-teacher-info > div:last-child {
   display: flex;
   flex-direction: column;
+
   gap: 3px;
 }
 
 .user-teacher-info strong {
   color: #111827;
+
   font-size: 15px;
 }
 
 .user-teacher-info span {
   color: #6b7280;
+
   font-size: 12px;
 }
+
 
 /* =====================================================
    FORM BUTTONS
@@ -548,7 +728,6 @@
 .user-cancel-btn,
 .user-create-btn {
   min-width: 105px;
-
   height: 40px;
 
   padding: 0 17px;
@@ -559,6 +738,10 @@
 
   font-size: 13px;
   font-weight: 600;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .user-cancel-btn {
@@ -583,19 +766,49 @@
 
 .user-create-btn:hover {
   background: #1d4ed8;
+  border-color: #1d4ed8;
 }
 
 .user-cancel-btn:disabled,
 .user-create-btn:disabled {
   opacity: 0.6;
+
   cursor: not-allowed;
 }
+
 
 /* =====================================================
    RESPONSIVE
 ===================================================== */
 
+@media (max-width: 900px) {
+  .teacher-container {
+    padding: 0 1rem;
+  }
+
+  .teacher-header {
+    align-items: center;
+  }
+}
+
+
 @media (max-width: 768px) {
+  .teacher-container {
+    margin: 1rem auto;
+  }
+
+  .teacher-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .total-badge {
+    align-self: flex-start;
+  }
+
+  .search-input {
+    max-width: 100%;
+  }
 
   .user-modal-overlay {
     padding: 12px;
@@ -603,6 +816,7 @@
 
   .user-modal {
     max-width: 100%;
+    max-height: calc(100vh - 24px);
   }
 
   .user-form-actions {
@@ -612,5 +826,28 @@
   .user-cancel-btn,
   .user-create-btn {
     width: 100%;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .teacher-container {
+    padding: 0 0.75rem;
+  }
+
+  .header-text h1 {
+    font-size: 1.5rem;
+  }
+
+  .user-modal-header {
+    padding: 16px;
+  }
+
+  .user-form {
+    padding: 16px;
+  }
+
+  .user-teacher-info {
+    padding: 10px;
   }
 }

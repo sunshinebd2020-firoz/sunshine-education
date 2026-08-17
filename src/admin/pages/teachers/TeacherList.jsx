@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import "./TeacherList.css";
+import PermissionModal from "./PermissionModal";
 
 const API_BASE_URL = "http://localhost/sunshine-api/api";
-const IMAGE_BASE_URL = "http://localhost/sunshine-api/uploads/teachers";
+const IMAGE_BASE_URL =
+  "http://localhost/sunshine-api/uploads/teachers";
 
 export default function TeacherList({ onEditTeacher }) {
   const [teachers, setTeachers] = useState([]);
@@ -10,9 +12,15 @@ export default function TeacherList({ onEditTeacher }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // User Modal
-  const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedTeacher, setSelectedTeacher] = useState(null);
+  // =====================================================
+  // USER MODAL
+  // =====================================================
+
+  const [showUserModal, setShowUserModal] =
+    useState(false);
+
+  const [selectedTeacher, setSelectedTeacher] =
+    useState(null);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -20,15 +28,27 @@ export default function TeacherList({ onEditTeacher }) {
   const [userLoading, setUserLoading] = useState(false);
 
   // =====================================================
-  // Teacher List
+  // PERMISSION MODAL
+  // =====================================================
+
+  const [permissionTeacher, setPermissionTeacher] =
+    useState(null);
+
+  // =====================================================
+  // TEACHER LIST
   // =====================================================
 
   const fetchTeachers = (signal) => {
     setLoading(true);
 
-    fetch(`${API_BASE_URL}/teacher_list.php`, { signal })
+    fetch(`${API_BASE_URL}/teacher_list.php`, {
+      signal,
+    })
       .then((res) => {
-        if (!res.ok) throw new Error("Server error");
+        if (!res.ok) {
+          throw new Error("Server error");
+        }
+
         return res.json();
       })
       .then((data) => {
@@ -37,23 +57,31 @@ export default function TeacherList({ onEditTeacher }) {
           setError("");
         } else {
           setError(
-            data.message || "Teacher information not found."
+            data.message ||
+              "Teacher information not found."
           );
         }
       })
       .catch((err) => {
         if (err.name !== "AbortError") {
-          console.error("Teacher API Error:", err);
+          console.error(
+            "Teacher API Error:",
+            err
+          );
+
           setError(
             "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
           );
         }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
-    const controller = new AbortController();
+    const controller =
+      new AbortController();
 
     fetchTeachers(controller.signal);
 
@@ -61,7 +89,7 @@ export default function TeacherList({ onEditTeacher }) {
   }, []);
 
   // =====================================================
-  // Delete
+  // DELETE TEACHER
   // =====================================================
 
   const handleDelete = async (teacherId) => {
@@ -78,9 +106,11 @@ export default function TeacherList({ onEditTeacher }) {
         `${API_BASE_URL}/teacher_delete.php`,
         {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json",
           },
+
           body: JSON.stringify({
             teacher_id: teacherId,
           }),
@@ -90,20 +120,27 @@ export default function TeacherList({ onEditTeacher }) {
       const result = await res.json();
 
       if (result.success) {
-        alert("Teacher deleted successfully!");
+        alert(
+          "Teacher deleted successfully!"
+        );
 
         setTeachers((prev) =>
           prev.filter(
-            (t) => t.teacher_id !== teacherId
+            (t) =>
+              t.teacher_id !== teacherId
           )
         );
       } else {
         alert(
-          result.message || "Delete failed!"
+          result.message ||
+            "Delete failed!"
         );
       }
     } catch (err) {
-      console.error("Delete Error:", err);
+      console.error(
+        "Delete Error:",
+        err
+      );
 
       alert(
         "Server error occurred while deleting."
@@ -112,7 +149,7 @@ export default function TeacherList({ onEditTeacher }) {
   };
 
   // =====================================================
-  // Edit
+  // EDIT TEACHER
   // =====================================================
 
   const handleEdit = (teacher) => {
@@ -121,7 +158,8 @@ export default function TeacherList({ onEditTeacher }) {
     } else {
       alert(
         `Edit Clicked for: ${
-          teacher.name_en || teacher.name_bn
+          teacher.name_en ||
+          teacher.name_bn
         }`
       );
     }
@@ -134,7 +172,6 @@ export default function TeacherList({ onEditTeacher }) {
   const openAddUserModal = (teacher) => {
     setSelectedTeacher(teacher);
 
-    // Default username
     setUsername(
       teacher.teacher_id
         ? teacher.teacher_id.toLowerCase()
@@ -148,10 +185,13 @@ export default function TeacherList({ onEditTeacher }) {
   };
 
   const closeUserModal = () => {
-    if (userLoading) return;
+    if (userLoading) {
+      return;
+    }
 
     setShowUserModal(false);
     setSelectedTeacher(null);
+
     setUsername("");
     setPassword("");
     setRole("Teacher");
@@ -165,7 +205,9 @@ export default function TeacherList({ onEditTeacher }) {
     e.preventDefault();
 
     if (!selectedTeacher) {
-      alert("Teacher নির্বাচন করা হয়নি।");
+      alert(
+        "Teacher নির্বাচন করা হয়নি।"
+      );
       return;
     }
 
@@ -193,14 +235,18 @@ export default function TeacherList({ onEditTeacher }) {
         `${API_BASE_URL}/user_create.php`,
         {
           method: "POST",
+
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
+
           body: JSON.stringify({
             teacher_id:
               selectedTeacher.teacher_id,
 
-            username: username.trim(),
+            username:
+              username.trim(),
 
             password: password,
 
@@ -219,11 +265,15 @@ export default function TeacherList({ onEditTeacher }) {
         );
 
         /*
-         * Teacher list-এর local data update
-         *
-         * Backend থেকে user_created পাঠালে
-         * সেটি true হবে।
+         * Backend থেকে user_id পাওয়া গেলে
+         * সেটি সংরক্ষণ করা হবে।
          */
+
+        const createdUserId =
+          result.user_id ||
+          result.admin_id ||
+          result.id ||
+          null;
 
         setTeachers((prev) =>
           prev.map((teacher) =>
@@ -231,9 +281,20 @@ export default function TeacherList({ onEditTeacher }) {
             selectedTeacher.teacher_id
               ? {
                   ...teacher,
+
                   user_created: true,
-                  user_status: "active",
-                  username: username.trim(),
+
+                  user_id:
+                    createdUserId ||
+                    teacher.user_id ||
+                    null,
+
+                  user_status:
+                    "active",
+
+                  username:
+                    username.trim(),
+
                   role: role,
                 }
               : teacher
@@ -266,27 +327,35 @@ export default function TeacherList({ onEditTeacher }) {
   // =====================================================
 
   const handlePermission = (teacher) => {
-    /*
-     * এখন শুধু placeholder।
-     *
-     * পরবর্তী ধাপে এখানে Permission Modal
-     * তৈরি করব।
-     */
+    if (!teacher.user_created) {
+      alert(
+        "প্রথমে এই Teacher-এর User Account তৈরি করুন।"
+      );
 
-    alert(
-      `Permission সেট করার জন্য:\n\n${
-        teacher.name_en ||
-        teacher.name_bn
-      }\n\nএই অংশে পরবর্তী ধাপে View / Add / Edit / Delete permission যোগ করা হবে।`
-    );
+      return;
+    }
+
+    if (!teacher.user_id) {
+      alert(
+        "এই User-এর ID পাওয়া যাচ্ছে না। Teacher list refresh করুন।"
+      );
+
+      return;
+    }
+
+    setPermissionTeacher(teacher);
+  };
+
+  const closePermissionModal = () => {
+    setPermissionTeacher(null);
   };
 
   // =====================================================
-  // Search
+  // SEARCH
   // =====================================================
 
-  const filteredTeachers = teachers.filter(
-    (teacher) => {
+  const filteredTeachers =
+    teachers.filter((teacher) => {
       const query =
         searchTerm.toLowerCase();
 
@@ -321,8 +390,7 @@ export default function TeacherList({ onEditTeacher }) {
             .toLowerCase()
             .includes(query))
       );
-    }
-  );
+    });
 
   // =====================================================
   // RETURN
@@ -331,7 +399,10 @@ export default function TeacherList({ onEditTeacher }) {
   return (
     <div className="teacher-container">
 
-      {/* Header */}
+      {/* =================================================
+          HEADER
+      ================================================= */}
+
       <div className="teacher-header">
 
         <div className="header-text">
@@ -345,12 +416,16 @@ export default function TeacherList({ onEditTeacher }) {
         </div>
 
         <div className="total-badge">
-          Total: {filteredTeachers.length}
+          Total:{" "}
+          {filteredTeachers.length}
         </div>
 
       </div>
 
-      {/* Search */}
+      {/* =================================================
+          SEARCH
+      ================================================= */}
+
       <div className="search-section">
 
         <input
@@ -358,32 +433,44 @@ export default function TeacherList({ onEditTeacher }) {
           placeholder="Search by ID, name, mobile, course, designation or branch..."
           value={searchTerm}
           onChange={(e) =>
-            setSearchTerm(e.target.value)
+            setSearchTerm(
+              e.target.value
+            )
           }
           className="search-input"
         />
 
       </div>
 
-      {/* Loading */}
+      {/* =================================================
+          LOADING
+      ================================================= */}
+
       {loading && (
         <div className="teacher-message">
           Loading teachers...
         </div>
       )}
 
-      {/* Error */}
+      {/* =================================================
+          ERROR
+      ================================================= */}
+
       {error && (
         <div className="teacher-message error">
           {error}
         </div>
       )}
 
-      {/* Table */}
+      {/* =================================================
+          TABLE
+      ================================================= */}
+
       {!loading && !error && (
         <div className="table-card">
 
-          {filteredTeachers.length === 0 ? (
+          {filteredTeachers.length ===
+          0 ? (
 
             <div className="teacher-message">
               No teachers found.
@@ -400,23 +487,14 @@ export default function TeacherList({ onEditTeacher }) {
                   <tr>
 
                     <th>Photo</th>
-
                     <th>ID No</th>
-
                     <th>Name</th>
-
                     <th>Course</th>
-
                     <th>Designation</th>
-
                     <th>Branch</th>
-
                     <th>Mobile</th>
-
                     <th>Status</th>
-
                     <th>User</th>
-
                     <th>Action</th>
 
                   </tr>
@@ -435,7 +513,8 @@ export default function TeacherList({ onEditTeacher }) {
                         }
                       >
 
-                        {/* Photo */}
+                        {/* PHOTO */}
+
                         <td>
 
                           <div className="teacher-photo">
@@ -464,25 +543,35 @@ export default function TeacherList({ onEditTeacher }) {
                         </td>
 
                         {/* ID */}
+
                         <td className="teacher-id">
+
                           {teacher.teacher_id}
+
                         </td>
 
-                        {/* Name */}
+                        {/* NAME */}
+
                         <td>
 
                           <div className="name-wrapper">
 
                             <span className="name-en">
+
                               {teacher.name_en ||
                                 teacher.name_bn}
+
                             </span>
 
                             {teacher.name_bn &&
                               teacher.name_en && (
 
                                 <span className="name-bn">
-                                  {teacher.name_bn}
+
+                                  {
+                                    teacher.name_bn
+                                  }
+
                                 </span>
 
                               )}
@@ -491,28 +580,36 @@ export default function TeacherList({ onEditTeacher }) {
 
                         </td>
 
-                        {/* Details */}
+                        {/* COURSE */}
+
                         <td>
                           {teacher.course ||
                             "N/A"}
                         </td>
+
+                        {/* DESIGNATION */}
 
                         <td>
                           {teacher.designation ||
                             "N/A"}
                         </td>
 
+                        {/* BRANCH */}
+
                         <td>
                           {teacher.branch ||
                             "N/A"}
                         </td>
+
+                        {/* MOBILE */}
 
                         <td>
                           {teacher.mobile ||
                             "N/A"}
                         </td>
 
-                        {/* Teacher Status */}
+                        {/* TEACHER STATUS */}
+
                         <td>
 
                           <span
@@ -525,13 +622,16 @@ export default function TeacherList({ onEditTeacher }) {
                                 : "inactive"
                             }`}
                           >
+
                             {teacher.status ||
                               "Present"}
+
                           </span>
 
                         </td>
 
                         {/* USER STATUS */}
+
                         <td>
 
                           {teacher.user_created ? (
@@ -539,11 +639,17 @@ export default function TeacherList({ onEditTeacher }) {
                             <div className="user-status-wrapper">
 
                               <span className="user-active-badge">
+
                                 ✓ Active
+
                               </span>
 
                               <small>
-                                {teacher.username}
+
+                                {
+                                  teacher.username
+                                }
+
                               </small>
 
                             </div>
@@ -559,23 +665,28 @@ export default function TeacherList({ onEditTeacher }) {
                                 )
                               }
                             >
+
                               👤 Add User
+
                             </button>
 
                           )}
 
                         </td>
 
-                        {/* Actions */}
+                        {/* ACTIONS */}
+
                         <td>
 
                           <div className="action-buttons">
 
-                            {/* Details */}
+                            {/* DETAILS */}
+
                             <button
                               className="btn-action btn-details"
                               title="Details"
                             >
+
                               <svg
                                 width="15"
                                 height="15"
@@ -597,7 +708,8 @@ export default function TeacherList({ onEditTeacher }) {
 
                             </button>
 
-                            {/* Edit */}
+                            {/* EDIT */}
+
                             <button
                               className="btn-action btn-edit"
                               title="Edit"
@@ -625,7 +737,8 @@ export default function TeacherList({ onEditTeacher }) {
 
                             </button>
 
-                            {/* Permission */}
+                            {/* PERMISSION */}
+
                             {teacher.user_created && (
 
                               <button
@@ -637,12 +750,15 @@ export default function TeacherList({ onEditTeacher }) {
                                   )
                                 }
                               >
+
                                 🔐
+
                               </button>
 
                             )}
 
-                            {/* Delete */}
+                            {/* DELETE */}
+
                             <button
                               className="btn-action btn-delete"
                               title="Delete"
@@ -695,6 +811,7 @@ export default function TeacherList({ onEditTeacher }) {
       ================================================= */}
 
       {showUserModal && (
+
         <div
           className="user-modal-overlay"
           onClick={closeUserModal}
@@ -706,6 +823,8 @@ export default function TeacherList({ onEditTeacher }) {
               e.stopPropagation()
             }
           >
+
+            {/* HEADER */}
 
             <div className="user-modal-header">
 
@@ -731,12 +850,15 @@ export default function TeacherList({ onEditTeacher }) {
 
             </div>
 
+            {/* FORM */}
+
             <form
               onSubmit={handleCreateUser}
               className="user-form"
             >
 
-              {/* Teacher */}
+              {/* TEACHER INFO */}
+
               <div className="user-teacher-info">
 
                 <div className="user-teacher-photo">
@@ -761,26 +883,33 @@ export default function TeacherList({ onEditTeacher }) {
                 <div>
 
                   <strong>
-                    {selectedTeacher?.name_en ||
-                      selectedTeacher?.name_bn}
+                    {
+                      selectedTeacher?.name_en ||
+                      selectedTeacher?.name_bn
+                    }
                   </strong>
 
                   <span>
                     ID:{" "}
-                    {selectedTeacher?.teacher_id}
+                    {
+                      selectedTeacher?.teacher_id
+                    }
                   </span>
 
                   <span>
                     Branch:{" "}
-                    {selectedTeacher?.branch ||
-                      "N/A"}
+                    {
+                      selectedTeacher?.branch ||
+                      "N/A"
+                    }
                   </span>
 
                 </div>
 
               </div>
 
-              {/* Username */}
+              {/* USERNAME */}
+
               <div className="form-group">
 
                 <label>
@@ -801,7 +930,8 @@ export default function TeacherList({ onEditTeacher }) {
 
               </div>
 
-              {/* Password */}
+              {/* PASSWORD */}
+
               <div className="form-group">
 
                 <label>
@@ -822,7 +952,8 @@ export default function TeacherList({ onEditTeacher }) {
 
               </div>
 
-              {/* Role */}
+              {/* ROLE */}
+
               <div className="form-group">
 
                 <label>
@@ -832,7 +963,9 @@ export default function TeacherList({ onEditTeacher }) {
                 <select
                   value={role}
                   onChange={(e) =>
-                    setRole(e.target.value)
+                    setRole(
+                      e.target.value
+                    )
                   }
                 >
 
@@ -856,7 +989,8 @@ export default function TeacherList({ onEditTeacher }) {
 
               </div>
 
-              {/* Buttons */}
+              {/* BUTTONS */}
+
               <div className="user-form-actions">
 
                 <button
@@ -873,9 +1007,11 @@ export default function TeacherList({ onEditTeacher }) {
                   className="user-create-btn"
                   disabled={userLoading}
                 >
+
                   {userLoading
                     ? "Creating..."
                     : "Create User"}
+
                 </button>
 
               </div>
@@ -885,6 +1021,27 @@ export default function TeacherList({ onEditTeacher }) {
           </div>
 
         </div>
+
+      )}
+
+      {/* =================================================
+          PERMISSION MODAL
+      ================================================= */}
+
+      {permissionTeacher && (
+
+        <PermissionModal
+          teacher={permissionTeacher}
+          onClose={
+            closePermissionModal
+          }
+          onSaved={() => {
+            console.log(
+              "Permissions updated successfully."
+            );
+          }}
+        />
+
       )}
 
     </div>
