@@ -1,0 +1,506 @@
+/* =====================================================
+   OVERLAY
+===================================================== */
+
+.permission-modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 10000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(15, 23, 42, 0.6);
+
+  backdrop-filter: blur(4px);
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.permission-modal {
+  width: 100%;
+  max-width: 760px;
+
+  max-height: calc(100vh - 40px);
+
+  display: flex;
+  flex-direction: column;
+
+  background: #ffffff;
+
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.25);
+
+  animation: permissionModalOpen 0.2s ease-out;
+}
+
+@keyframes permissionModalOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.permission-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  padding: 20px 22px;
+
+  background: #f8fafc;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.permission-modal-header h2 {
+  margin: 0 0 5px;
+
+  font-size: 20px;
+
+  color: #111827;
+}
+
+.permission-modal-header p {
+  margin: 0 0 3px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: #374151;
+}
+
+.permission-modal-header span {
+  font-size: 12px;
+
+  color: #6b7280;
+}
+
+
+/* CLOSE */
+
+.permission-close {
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background: transparent;
+
+  color: #6b7280;
+
+  font-size: 26px;
+
+  cursor: pointer;
+}
+
+.permission-close:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.permission-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   BODY
+===================================================== */
+
+.permission-modal-body {
+  padding: 20px 22px;
+
+  overflow-y: auto;
+
+  flex: 1;
+}
+
+
+/* =====================================================
+   TOOLBAR
+===================================================== */
+
+.permission-toolbar {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-bottom: 12px;
+}
+
+.permission-select-all {
+  width: auto;
+
+  padding: 8px 13px;
+
+  border: 1px solid #c7d2fe;
+
+  border-radius: 6px;
+
+  background: #eef2ff;
+
+  color: #4338ca;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.permission-select-all:hover {
+  background: #e0e7ff;
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.permission-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 9px;
+}
+
+.permission-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  min-width: 600px;
+}
+
+.permission-table th {
+  padding: 13px 12px;
+
+  background: #f8fafc;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  color: #475569;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  text-align: center;
+}
+
+.permission-table th:first-child {
+  text-align: left;
+}
+
+.permission-table td {
+  padding: 13px 12px;
+
+  border-bottom: 1px solid #f1f5f9;
+
+  text-align: center;
+
+  color: #475569;
+
+  font-size: 13px;
+}
+
+.permission-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.permission-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+
+/* MODULE */
+
+.permission-module {
+  text-align: left !important;
+
+  font-weight: 600;
+
+  color: #1e293b !important;
+}
+
+
+/* =====================================================
+   CHECKBOX
+===================================================== */
+
+.permission-checkbox {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.permission-checkbox input {
+  position: absolute;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+.permission-checkbox span {
+  width: 18px;
+  height: 18px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 4px;
+
+  background: #ffffff;
+
+  transition: 0.15s ease;
+}
+
+.permission-checkbox span::after {
+  content: "✓";
+
+  color: #ffffff;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  opacity: 0;
+
+  transform: scale(0.5);
+
+  transition: 0.15s ease;
+}
+
+.permission-checkbox input:checked + span {
+  background: #2563eb;
+
+  border-color: #2563eb;
+}
+
+.permission-checkbox input:checked + span::after {
+  opacity: 1;
+
+  transform: scale(1);
+}
+
+.permission-checkbox:hover span {
+  border-color: #2563eb;
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.permission-loading {
+  min-height: 200px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #64748b;
+
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+.permission-message {
+  margin-top: 15px;
+
+  padding: 10px 13px;
+
+  border-radius: 7px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+.permission-message.success {
+  background: #dcfce7;
+
+  color: #15803d;
+
+  border: 1px solid #bbf7d0;
+}
+
+.permission-message.error {
+  background: #fef2f2;
+
+  color: #dc2626;
+
+  border: 1px solid #fecaca;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.permission-modal-footer {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding: 15px 22px;
+
+  border-top: 1px solid #e5e7eb;
+
+  background: #ffffff;
+}
+
+
+/* CANCEL */
+
+.permission-cancel-btn {
+  width: auto;
+
+  min-width: 95px;
+
+  height: 40px;
+
+  padding: 0 16px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #374151;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.permission-cancel-btn:hover {
+  background: #f3f4f6;
+}
+
+
+/* SAVE */
+
+.permission-save-btn {
+  width: auto;
+
+  min-width: 140px;
+
+  height: 40px;
+
+  padding: 0 18px;
+
+  border: 1px solid #2563eb;
+
+  border-radius: 7px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.permission-save-btn:hover {
+  background: #1d4ed8;
+
+  border-color: #1d4ed8;
+}
+
+.permission-save-btn:disabled,
+.permission-cancel-btn:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px) {
+  .permission-modal-overlay {
+    padding: 12px;
+  }
+
+  .permission-modal {
+    max-height: calc(100vh - 24px);
+  }
+
+  .permission-modal-header {
+    padding: 16px;
+  }
+
+  .permission-modal-body {
+    padding: 16px;
+  }
+
+  .permission-modal-footer {
+    padding: 13px 16px;
+  }
+
+  .permission-modal-footer {
+    flex-direction: column;
+  }
+
+  .permission-cancel-btn,
+  .permission-save-btn {
+    width: 100%;
+  }
+}
