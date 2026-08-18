@@ -12,6 +12,17 @@ export default function IncomeExpenseReport() {
   const [search, setSearch] = useState("");
 
   /* =====================================================
+     BRANCHES
+  ===================================================== */
+
+  const branches = [
+    "Rajshahi Main Branch",
+    "Ramchandrapur Branch",
+    "Khulna Branch",
+    "Tangail Branch",
+  ];
+
+  /* =====================================================
      CURRENT MONTH
   ===================================================== */
 
@@ -49,16 +60,12 @@ export default function IncomeExpenseReport() {
         setIncome(data.income || []);
         setExpenses(data.expenses || []);
       } else {
-        setError(
-          data.message || "Report data পাওয়া যায়নি।"
-        );
+        setError(data.message || "Report data পাওয়া যায়নি।");
       }
     } catch (error) {
       console.error("Report fetch error:", error);
 
-      setError(
-        "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
-      );
+      setError("Server-এর সাথে সংযোগ করা যাচ্ছে না।");
     } finally {
       setLoading(false);
     }
@@ -94,28 +101,25 @@ export default function IncomeExpenseReport() {
     const year = Number(parts[0]);
     const month = Number(parts[1]);
 
-    return (
-      year === currentYear &&
-      month === currentMonth
-    );
+    return year === currentYear && month === currentMonth;
   };
+
+  /* =====================================================
+     SEARCH TEXT
+  ===================================================== */
+
+  const searchText = search.trim().toLowerCase();
 
   /* =====================================================
      FILTER INCOME
   ===================================================== */
 
   const filteredIncome = income.filter((item) => {
-    const matchesDate = isCurrentMonth(
-      item.income_date
-    );
+    const matchesDate = isCurrentMonth(item.income_date);
 
     const matchesBranch =
       branch === "" ||
       String(item.branch || "") === branch;
-
-    const searchText = search
-      .trim()
-      .toLowerCase();
 
     const matchesSearch =
       searchText === "" ||
@@ -143,42 +147,34 @@ export default function IncomeExpenseReport() {
      FILTER EXPENSE
   ===================================================== */
 
-  const filteredExpenses = expenses.filter(
-    (item) => {
-      const matchesDate = isCurrentMonth(
-        item.expense_date
-      );
+  const filteredExpenses = expenses.filter((item) => {
+    const matchesDate = isCurrentMonth(item.expense_date);
 
-      const matchesBranch =
-        branch === "" ||
-        String(item.branch || "") === branch;
+    const matchesBranch =
+      branch === "" ||
+      String(item.branch || "") === branch;
 
-      const searchText = search
-        .trim()
-        .toLowerCase();
+    const matchesSearch =
+      searchText === "" ||
+      String(item.expense_type || "")
+        .toLowerCase()
+        .includes(searchText) ||
+      String(item.description || "")
+        .toLowerCase()
+        .includes(searchText) ||
+      String(item.payment_method || "")
+        .toLowerCase()
+        .includes(searchText) ||
+      String(item.branch || "")
+        .toLowerCase()
+        .includes(searchText);
 
-      const matchesSearch =
-        searchText === "" ||
-        String(item.expense_type || "")
-          .toLowerCase()
-          .includes(searchText) ||
-        String(item.description || "")
-          .toLowerCase()
-          .includes(searchText) ||
-        String(item.payment_method || "")
-          .toLowerCase()
-          .includes(searchText) ||
-        String(item.branch || "")
-          .toLowerCase()
-          .includes(searchText);
-
-      return (
-        matchesDate &&
-        matchesBranch &&
-        matchesSearch
-      );
-    }
-  );
+    return (
+      matchesDate &&
+      matchesBranch &&
+      matchesSearch
+    );
+  });
 
   /* =====================================================
      TOTAL
@@ -196,8 +192,46 @@ export default function IncomeExpenseReport() {
     0
   );
 
-  const netBalance =
-    totalIncome - totalExpense;
+  const netBalance = totalIncome - totalExpense;
+
+  /* =====================================================
+     BRANCH WISE SUMMARY
+  ===================================================== */
+
+  const branchSummary = branches
+    .filter((branchName) => {
+      return branch === "" || branch === branchName;
+    })
+    .map((branchName) => {
+      const branchIncome = filteredIncome
+        .filter(
+          (item) =>
+            String(item.branch || "") === branchName
+        )
+        .reduce(
+          (total, item) =>
+            total + Number(item.amount || 0),
+          0
+        );
+
+      const branchExpense = filteredExpenses
+        .filter(
+          (item) =>
+            String(item.branch || "") === branchName
+        )
+        .reduce(
+          (total, item) =>
+            total + Number(item.amount || 0),
+          0
+        );
+
+      return {
+        branch: branchName,
+        income: branchIncome,
+        expense: branchExpense,
+        balance: branchIncome - branchExpense,
+      };
+    });
 
   /* =====================================================
      CLEAR FILTER
@@ -236,9 +270,7 @@ export default function IncomeExpenseReport() {
       <div className="report-header">
 
         <div>
-          <h1>
-            Income & Expense Report
-          </h1>
+          <h1>Income & Expense Report</h1>
 
           <p>
             প্রতিষ্ঠানের আয় ও ব্যয়ের বিস্তারিত হিসাব
@@ -278,27 +310,18 @@ export default function IncomeExpenseReport() {
               setBranch(e.target.value)
             }
           >
-
             <option value="">
               All Branches
             </option>
 
-            <option value="Rajshahi Main Branch">
-              Rajshahi Main Branch
-            </option>
-
-            <option value="Ramchandrapur Branch">
-              Ramchandrapur Branch
-            </option>
-
-            <option value="Khulna Branch">
-              Khulna Branch
-            </option>
-
-            <option value="Tangail Branch">
-              Tangail Branch
-            </option>
-
+            {branches.map((item) => (
+              <option
+                key={item}
+                value={item}
+              >
+                {item}
+              </option>
+            ))}
           </select>
 
         </div>
@@ -339,63 +362,117 @@ export default function IncomeExpenseReport() {
       )}
 
       {/* =================================================
-          SUMMARY
+          BRANCH WISE SUMMARY
       ================================================= */}
 
-      <div className="report-summary">
+      <div className="branch-summary-container">
 
-        <div className="summary-card income-card">
+        {branchSummary.map((item) => (
 
-          <div className="summary-icon">
-            ↑
+          <div
+            className="branch-summary"
+            key={item.branch}
+          >
+
+            <div className="branch-summary-title">
+              {item.branch}
+            </div>
+
+            <div className="branch-summary-cards">
+
+              {/* INCOME */}
+
+              <div className="summary-card income-card">
+
+                <div className="summary-icon">
+                  ↑
+                </div>
+
+                <div>
+                  <span>Total Income</span>
+
+                  <strong>
+                    ৳ {item.income.toLocaleString()}
+                  </strong>
+                </div>
+
+              </div>
+
+              {/* EXPENSE */}
+
+              <div className="summary-card expense-card">
+
+                <div className="summary-icon">
+                  ↓
+                </div>
+
+                <div>
+                  <span>Total Expense</span>
+
+                  <strong>
+                    ৳ {item.expense.toLocaleString()}
+                  </strong>
+                </div>
+
+              </div>
+
+              {/* BALANCE */}
+
+              <div
+                className={`summary-card ${
+                  item.balance >= 0
+                    ? "balance-positive"
+                    : "balance-negative"
+                }`}
+              >
+
+                <div className="summary-icon">
+                  ৳
+                </div>
+
+                <div>
+                  <span>Net Balance</span>
+
+                  <strong>
+                    ৳ {item.balance.toLocaleString()}
+                  </strong>
+                </div>
+
+              </div>
+
+            </div>
+
           </div>
 
-          <div>
-            <span>Total Income</span>
+        ))}
 
-            <strong>
-              ৳ {totalIncome.toLocaleString()}
-            </strong>
-          </div>
+      </div>
 
+      {/* =================================================
+          OVERALL SUMMARY
+      ================================================= */}
+
+      <div className="report-overall">
+
+        <div>
+          Overall Income:
+          <strong>
+            ৳ {totalIncome.toLocaleString()}
+          </strong>
         </div>
 
-        <div className="summary-card expense-card">
-
-          <div className="summary-icon">
-            ↓
-          </div>
-
-          <div>
-            <span>Total Expense</span>
-
-            <strong>
-              ৳ {totalExpense.toLocaleString()}
-            </strong>
-          </div>
-
+        <div>
+          Overall Expense:
+          <strong>
+            ৳ {totalExpense.toLocaleString()}
+          </strong>
         </div>
 
-        <div
-          className={`summary-card ${
-            netBalance >= 0
-              ? "balance-positive"
-              : "balance-negative"
-          }`}
-        >
-
-          <div className="summary-icon">
-            ৳
-          </div>
-
-          <div>
-            <span>Net Balance</span>
-
-            <strong>
-              ৳ {netBalance.toLocaleString()}
-            </strong>
-          </div>
-
+        <div>
+          Overall Balance:
+          <strong>
+            ৳ {netBalance.toLocaleString()}
+          </strong>
         </div>
 
       </div>
@@ -431,15 +508,11 @@ export default function IncomeExpenseReport() {
         <div className="report-section-header income-section-header">
 
           <div>
-
-            <h2>
-              Income Details
-            </h2>
+            <h2>Income Details</h2>
 
             <p>
               {currentMonthName} {currentYear} income records
             </p>
-
           </div>
 
           <strong>
@@ -461,7 +534,6 @@ export default function IncomeExpenseReport() {
             <table className="report-table">
 
               <thead>
-
                 <tr>
                   <th>#</th>
                   <th>Date</th>
@@ -471,7 +543,6 @@ export default function IncomeExpenseReport() {
                   <th>Branch</th>
                   <th>Amount</th>
                 </tr>
-
               </thead>
 
               <tbody>
@@ -540,15 +611,11 @@ export default function IncomeExpenseReport() {
         <div className="report-section-header expense-section-header">
 
           <div>
-
-            <h2>
-              Expense Details
-            </h2>
+            <h2>Expense Details</h2>
 
             <p>
               {currentMonthName} {currentYear} expense records
             </p>
-
           </div>
 
           <strong>
@@ -570,7 +637,6 @@ export default function IncomeExpenseReport() {
             <table className="report-table">
 
               <thead>
-
                 <tr>
                   <th>#</th>
                   <th>Date</th>
@@ -580,7 +646,6 @@ export default function IncomeExpenseReport() {
                   <th>Branch</th>
                   <th>Amount</th>
                 </tr>
-
               </thead>
 
               <tbody>

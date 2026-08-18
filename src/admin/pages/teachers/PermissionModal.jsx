@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import "./PermissionModal.css";
 
-const API_BASE_URL = "http://localhost/sunshine-api/api";
+const API_BASE_URL =
+  "http://localhost/sunshine-api/api";
 
 const PERMISSIONS = [
   {
@@ -34,12 +35,12 @@ const PERMISSIONS = [
   },
 ];
 
-const DEFAULT_PERMISSION = {
+const createDefaultPermission = () => ({
   can_view: false,
   can_add: false,
   can_edit: false,
   can_delete: false,
-};
+});
 
 export default function PermissionModal({
   teacher,
@@ -49,63 +50,177 @@ export default function PermissionModal({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("error");
 
-  // =====================================================
-  // LOAD PERMISSIONS
-  // =====================================================
+  /*
+  |--------------------------------------------------------------------------
+  | Teacher ID
+  |--------------------------------------------------------------------------
+  */
+
+  const getTeacherId = () => {
+    return String(
+      teacher?.teacher_id ??
+        teacher?.teacherId ??
+        ""
+    ).trim();
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Empty Permissions
+  |--------------------------------------------------------------------------
+  */
+
+  const createEmptyPermissions = () => {
+    const result = {};
+
+    PERMISSIONS.forEach((item) => {
+      result[item.key] =
+        createDefaultPermission();
+    });
+
+    return result;
+  };
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Load
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
-    if (!teacher?.teacher_id) return;
-
     loadPermissions();
   }, [teacher]);
 
+
   const loadPermissions = async () => {
+    const teacherId = getTeacherId();
+
+    if (!teacherId) {
+      setLoading(false);
+      setPermissions(
+        createEmptyPermissions()
+      );
+      setMessage(
+        "Teacher ID পাওয়া যায়নি।"
+      );
+      setMessageType("error");
+      return;
+    }
+
     try {
       setLoading(true);
       setMessage("");
 
-      const response = await fetch(
-        `${API_BASE_URL}/user_permissions.php?teacher_id=${encodeURIComponent(
-          teacher.teacher_id
-        )}`
-      );
+      const url =
+        `${API_BASE_URL}/permission_get.php` +
+        `?teacher_id=${encodeURIComponent(
+          teacherId
+        )}`;
 
-      const data = await response.json();
-
-      const permissionData = {};
-
-      PERMISSIONS.forEach((item) => {
-        permissionData[item.key] = {
-          ...DEFAULT_PERMISSION,
-        };
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
       });
 
-      if (data.success && Array.isArray(data.permissions)) {
+      const text = await response.text();
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error(
+          "Invalid JSON:",
+          text
+        );
+
+        throw new Error(
+          "Server থেকে সঠিক JSON response পাওয়া যায়নি।"
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            `Server error: ${response.status}`
+        );
+      }
+
+      if (!data.success) {
+        throw new Error(
+          data.message ||
+            "Permission load করা যাচ্ছে না।"
+        );
+      }
+
+      const permissionData =
+        createEmptyPermissions();
+
+      if (
+        Array.isArray(data.permissions)
+      ) {
         data.permissions.forEach((item) => {
-          if (permissionData[item.permission]) {
-            permissionData[item.permission] = {
-              can_view: Number(item.can_view) === 1,
-              can_add: Number(item.can_add) === 1,
-              can_edit: Number(item.can_edit) === 1,
-              can_delete: Number(item.can_delete) === 1,
+          const key = String(
+            item.permission || ""
+          )
+            .trim()
+            .toLowerCase();
+
+          if (permissionData[key]) {
+            permissionData[key] = {
+              can_view:
+                Number(item.can_view) === 1,
+
+              can_add:
+                Number(item.can_add) === 1,
+
+              can_edit:
+                Number(item.can_edit) === 1,
+
+              can_delete:
+                Number(item.can_delete) === 1,
             };
           }
         });
       }
 
       setPermissions(permissionData);
+
     } catch (error) {
-      console.error("Permission Load Error:", error);
-      setMessage("Permission load করা যাচ্ছে না।");
+
+      console.error(
+        "Permission Load Error:",
+        error
+      );
+
+      setPermissions(
+        createEmptyPermissions()
+      );
+
+      setMessage(
+        error.message ||
+          "Permission load করা যাচ্ছে না।"
+      );
+
+      setMessageType("error");
+
     } finally {
       setLoading(false);
     }
   };
 
-  // =====================================================
-  // CHANGE PERMISSION
-  // =====================================================
+
+  /*
+  |--------------------------------------------------------------------------
+  | Change Permission
+  |--------------------------------------------------------------------------
+  */
 
   const handlePermissionChange = (
     permission,
@@ -113,28 +228,52 @@ export default function PermissionModal({
   ) => {
     setPermissions((prev) => ({
       ...prev,
+
       [permission]: {
-        ...prev[permission],
-        [action]: !prev[permission]?.[action],
+        ...(prev[permission] ||
+          createDefaultPermission()),
+
+        [action]:
+          !prev[permission]?.[action],
       },
     }));
   };
 
-  // =====================================================
-  // SELECT ALL FOR ONE ROW
-  // =====================================================
 
-  const handleSelectAll = (permission) => {
-    const current = permissions[permission];
+  /*
+  |--------------------------------------------------------------------------
+  | Row All
+  |--------------------------------------------------------------------------
+  */
 
+  const isRowAllSelected = (
+    permission
+  ) => {
+    const current =
+      permissions[permission];
+
+    if (!current) {
+      return false;
+    }
+
+    return (
+      current.can_view &&
+      current.can_add &&
+      current.can_edit &&
+      current.can_delete
+    );
+  };
+
+
+  const handleSelectAll = (
+    permission
+  ) => {
     const allSelected =
-      current?.can_view &&
-      current?.can_add &&
-      current?.can_edit &&
-      current?.can_delete;
+      isRowAllSelected(permission);
 
     setPermissions((prev) => ({
       ...prev,
+
       [permission]: {
         can_view: !allSelected,
         can_add: !allSelected,
@@ -144,23 +283,23 @@ export default function PermissionModal({
     }));
   };
 
-  // =====================================================
-  // SELECT ALL
-  // =====================================================
+
+  /*
+  |--------------------------------------------------------------------------
+  | Global All
+  |--------------------------------------------------------------------------
+  */
+
+  const isAllSelected = () => {
+    return PERMISSIONS.every((item) =>
+      isRowAllSelected(item.key)
+    );
+  };
+
 
   const handleSelectAllPermissions = () => {
-    const allSelected = PERMISSIONS.every((item) => {
-      const permission = permissions[item.key];
-
-      return (
-        permission?.can_view &&
-        permission?.can_add &&
-        permission?.can_edit &&
-        permission?.can_delete
-      );
-    });
-
-    const newValue = !allSelected;
+    const newValue =
+      !isAllSelected();
 
     const newPermissions = {};
 
@@ -173,16 +312,26 @@ export default function PermissionModal({
       };
     });
 
-    setPermissions(newPermissions);
+    setPermissions(
+      newPermissions
+    );
   };
 
-  // =====================================================
-  // SAVE
-  // =====================================================
+
+  /*
+  |--------------------------------------------------------------------------
+  | Save
+  |--------------------------------------------------------------------------
+  */
 
   const handleSave = async () => {
-    if (!teacher?.teacher_id) {
-      setMessage("Teacher পাওয়া যায়নি।");
+    const teacherId = getTeacherId();
+
+    if (!teacherId) {
+      setMessage(
+        "Teacher ID পাওয়া যায়নি।"
+      );
+      setMessageType("error");
       return;
     }
 
@@ -190,96 +339,149 @@ export default function PermissionModal({
       setSaving(true);
       setMessage("");
 
-      const permissionList = PERMISSIONS.map(
-        (item) => ({
-          permission: item.key,
-          can_view: permissions[item.key]?.can_view
-            ? 1
-            : 0,
-          can_add: permissions[item.key]?.can_add
-            ? 1
-            : 0,
-          can_edit: permissions[item.key]?.can_edit
-            ? 1
-            : 0,
-          can_delete: permissions[item.key]?.can_delete
-            ? 1
-            : 0,
-        })
-      );
+      const permissionList =
+        PERMISSIONS.map((item) => {
+          const current =
+            permissions[item.key] ||
+            createDefaultPermission();
+
+          return {
+            permission: item.key,
+
+            can_view:
+              current.can_view ? 1 : 0,
+
+            can_add:
+              current.can_add ? 1 : 0,
+
+            can_edit:
+              current.can_edit ? 1 : 0,
+
+            can_delete:
+              current.can_delete ? 1 : 0,
+          };
+        });
 
       const response = await fetch(
-        `${API_BASE_URL}/user_permissions_save.php`,
+        `${API_BASE_URL}/permission_save.php`,
         {
           method: "POST",
+
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json",
           },
+
           body: JSON.stringify({
-            teacher_id: teacher.teacher_id,
-            permissions: permissionList,
+            teacher_id: teacherId,
+            permissions:
+              permissionList,
           }),
         }
       );
 
-      const data = await response.json();
+      const text =
+        await response.text();
 
-      if (data.success) {
-        setMessage(
-          "Permissions successfully saved."
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error(
+          "Invalid JSON:",
+          text
         );
 
-        setTimeout(() => {
-          onClose();
-        }, 700);
-      } else {
-        setMessage(
+        throw new Error(
+          "Server থেকে সঠিক JSON response পাওয়া যায়নি।"
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            `Server error: ${response.status}`
+        );
+      }
+
+      if (!data.success) {
+        throw new Error(
           data.message ||
             "Permission save করা যায়নি।"
         );
       }
+
+      setMessage(
+        "Permissions successfully saved."
+      );
+
+      setMessageType("success");
+
+      setTimeout(() => {
+        onClose();
+      }, 700);
+
     } catch (error) {
+
       console.error(
         "Permission Save Error:",
         error
       );
 
       setMessage(
-        "Server-এর সাথে যোগাযোগ করা যাচ্ছে না।"
+        error.message ||
+          "Server-এর সাথে যোগাযোগ করা যাচ্ছে না।"
       );
+
+      setMessageType("error");
+
     } finally {
       setSaving(false);
     }
   };
 
-  // =====================================================
-  // MODAL
-  // =====================================================
+
+  /*
+  |--------------------------------------------------------------------------
+  | Modal
+  |--------------------------------------------------------------------------
+  */
 
   return (
     <div
       className="permission-modal-overlay"
       onClick={() => {
-        if (!saving) onClose();
+        if (!saving) {
+          onClose();
+        }
       }}
     >
       <div
         className="permission-modal"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) =>
+          e.stopPropagation()
+        }
       >
-        {/* HEADER */}
 
         <div className="permission-modal-header">
+
           <div>
-            <h2>Manage Permissions</h2>
+            <h2>
+              Manage Permissions
+            </h2>
 
             <p>
               {teacher?.name_en ||
-                teacher?.name_bn}
+                teacher?.name_bn ||
+                "Teacher"}
             </p>
 
             <span>
-              ID: {teacher?.teacher_id}
+              ID: {getTeacherId()}
             </span>
           </div>
 
@@ -291,35 +493,40 @@ export default function PermissionModal({
           >
             ×
           </button>
+
         </div>
 
-        {/* BODY */}
 
         <div className="permission-modal-body">
+
           {loading ? (
             <div className="permission-loading">
               Loading permissions...
             </div>
           ) : (
             <>
-              {/* SELECT ALL */}
-
               <div className="permission-toolbar">
+
                 <button
                   type="button"
+                  className="permission-select-all"
                   onClick={
                     handleSelectAllPermissions
                   }
-                  className="permission-select-all"
+                  disabled={saving}
                 >
-                  Select / Unselect All
+                  {isAllSelected()
+                    ? "Unselect All"
+                    : "Select All"}
                 </button>
+
               </div>
 
-              {/* TABLE */}
 
               <div className="permission-table-wrapper">
+
                 <table className="permission-table">
+
                   <thead>
                     <tr>
                       <th>Module</th>
@@ -332,112 +539,75 @@ export default function PermissionModal({
                   </thead>
 
                   <tbody>
+
                     {PERMISSIONS.map(
                       (item) => {
+
                         const current =
                           permissions[
                             item.key
                           ] ||
-                          DEFAULT_PERMISSION;
+                          createDefaultPermission();
 
                         const allSelected =
-                          current.can_view &&
-                          current.can_add &&
-                          current.can_edit &&
-                          current.can_delete;
+                          isRowAllSelected(
+                            item.key
+                          );
 
                         return (
                           <tr
-                            key={item.key}
+                            key={
+                              item.key
+                            }
                           >
+
                             <td className="permission-module">
                               {item.label}
                             </td>
 
-                            {/* VIEW */}
+
+                            {[
+                              "can_view",
+                              "can_add",
+                              "can_edit",
+                              "can_delete",
+                            ].map(
+                              (action) => (
+                                <td
+                                  key={
+                                    action
+                                  }
+                                >
+                                  <label className="permission-checkbox">
+
+                                    <input
+                                      type="checkbox"
+                                      checked={
+                                        current[
+                                          action
+                                        ]
+                                      }
+                                      onChange={() =>
+                                        handlePermissionChange(
+                                          item.key,
+                                          action
+                                        )
+                                      }
+                                      disabled={
+                                        saving
+                                      }
+                                    />
+
+                                    <span />
+                                  </label>
+                                </td>
+                              )
+                            )}
+
 
                             <td>
                               <label className="permission-checkbox">
-                                <input
-                                  type="checkbox"
-                                  checked={
-                                    current.can_view
-                                  }
-                                  onChange={() =>
-                                    handlePermissionChange(
-                                      item.key,
-                                      "can_view"
-                                    )
-                                  }
-                                />
-                                <span />
-                              </label>
-                            </td>
 
-                            {/* ADD */}
-
-                            <td>
-                              <label className="permission-checkbox">
-                                <input
-                                  type="checkbox"
-                                  checked={
-                                    current.can_add
-                                  }
-                                  onChange={() =>
-                                    handlePermissionChange(
-                                      item.key,
-                                      "can_add"
-                                    )
-                                  }
-                                />
-                                <span />
-                              </label>
-                            </td>
-
-                            {/* EDIT */}
-
-                            <td>
-                              <label className="permission-checkbox">
-                                <input
-                                  type="checkbox"
-                                  checked={
-                                    current.can_edit
-                                  }
-                                  onChange={() =>
-                                    handlePermissionChange(
-                                      item.key,
-                                      "can_edit"
-                                    )
-                                  }
-                                />
-                                <span />
-                              </label>
-                            </td>
-
-                            {/* DELETE */}
-
-                            <td>
-                              <label className="permission-checkbox">
-                                <input
-                                  type="checkbox"
-                                  checked={
-                                    current.can_delete
-                                  }
-                                  onChange={() =>
-                                    handlePermissionChange(
-                                      item.key,
-                                      "can_delete"
-                                    )
-                                  }
-                                />
-                                <span />
-                              </label>
-                            </td>
-
-                            {/* ALL */}
-
-                            <td>
-                              <label className="permission-checkbox">
                                 <input
                                   type="checkbox"
                                   checked={
@@ -448,40 +618,42 @@ export default function PermissionModal({
                                       item.key
                                     )
                                   }
+                                  disabled={
+                                    saving
+                                  }
                                 />
+
                                 <span />
                               </label>
                             </td>
+
                           </tr>
                         );
                       }
                     )}
+
                   </tbody>
+
                 </table>
+
               </div>
             </>
           )}
 
-          {/* MESSAGE */}
 
           {message && (
             <div
-              className={`permission-message ${
-                message.includes(
-                  "successfully"
-                )
-                  ? "success"
-                  : "error"
-              }`}
+              className={`permission-message ${messageType}`}
             >
               {message}
             </div>
           )}
+
         </div>
 
-        {/* FOOTER */}
 
         <div className="permission-modal-footer">
+
           <button
             type="button"
             className="permission-cancel-btn"
@@ -495,13 +667,19 @@ export default function PermissionModal({
             type="button"
             className="permission-save-btn"
             onClick={handleSave}
-            disabled={loading || saving}
+            disabled={
+              loading ||
+              saving ||
+              !getTeacherId()
+            }
           >
             {saving
               ? "Saving..."
               : "Save Permissions"}
           </button>
+
         </div>
+
       </div>
     </div>
   );

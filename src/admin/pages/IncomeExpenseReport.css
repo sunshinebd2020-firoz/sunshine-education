@@ -11,16 +11,18 @@
   color: #1f2937;
 }
 
+
 /* =====================================================
    HEADER
 ===================================================== */
 
 .report-header {
   display: flex;
-  flex-direction: column;  
+  flex-direction: row;
   justify-content: space-between;
-  align-items: right;
+  align-items: center;
   gap: 20px;
+
   background: #ffffff;
   padding: 22px 24px;
   border-radius: 12px;
@@ -54,6 +56,7 @@
   font-weight: 700;
 }
 
+
 /* =====================================================
    REFRESH BUTTON
 ===================================================== */
@@ -62,11 +65,14 @@
   border: none;
   background: #2563eb;
   color: #ffffff;
+
   padding: 10px 18px;
   border-radius: 7px;
+
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
+
   transition: 0.2s;
 }
 
@@ -74,15 +80,17 @@
   background: #1d4ed8;
 }
 
+
 /* =====================================================
    FILTERS
 ===================================================== */
 
 .report-filters {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   gap: 14px;
   flex-wrap: wrap;
+
   background: #ffffff;
   padding: 18px;
   border-radius: 12px;
@@ -106,11 +114,15 @@
 .report-filter-group select,
 .report-filter-group input {
   height: 40px;
+
   padding: 0 11px;
+
   border: 1px solid #d1d5db;
   border-radius: 7px;
+
   outline: none;
   background: #ffffff;
+
   font-size: 14px;
   box-sizing: border-box;
 }
@@ -127,19 +139,25 @@
 
 .report-clear-btn {
   height: 40px;
+
   padding: 0 18px;
+
   border: 1px solid #d1d5db;
   background: #ffffff;
   color: #374151;
+
   border-radius: 7px;
+
   cursor: pointer;
   font-weight: 600;
+
   transition: 0.2s;
 }
 
 .report-clear-btn:hover {
   background: #f3f4f6;
 }
+
 
 /* =====================================================
    ERROR
@@ -148,77 +166,203 @@
 .report-error {
   padding: 13px 16px;
   margin-bottom: 20px;
+
   border-radius: 8px;
+
   background: #fef2f2;
   border: 1px solid #fecaca;
   color: #b91c1c;
 }
 
+
 /* =====================================================
-   SUMMARY
+   BRANCH SUMMARY
 ===================================================== */
 
-.report-summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin-bottom: 18px;
+.branch-summary-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
-.summary-card {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+.branch-summary {
   background: #ffffff;
-  padding: 20px;
-  border-radius: 12px;
+
   border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  padding: 14px;
   box-sizing: border-box;
 }
 
-.summary-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
+.branch-summary-title {
+  font-size: 15px;
+  font-weight: 700;
+
+  color: #1f2937;
+
+  margin-bottom: 11px;
+}
+
+
+/* =====================================================
+   BRANCH CARDS - SIDE BY SIDE
+===================================================== */
+
+.branch-summary-cards {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+
+/* =====================================================
+   SUMMARY CARD
+===================================================== */
+
+.branch-summary .summary-card {
+  min-height: 72px;
+
+  padding: 12px 14px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  border-radius: 9px;
+
+  border: 1px solid #e5e7eb;
+
+  background: #ffffff;
+
+  box-sizing: border-box;
+}
+
+.branch-summary .summary-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 21px;
+
+  border-radius: 50%;
+
+  font-size: 20px;
   font-weight: 700;
-  background: #f3f4f6;
 }
 
-.summary-card span {
+.branch-summary .summary-card span {
   display: block;
+
+  font-size: 11px;
+
   color: #6b7280;
-  font-size: 13px;
-  margin-bottom: 5px;
+
+  margin-bottom: 3px;
 }
 
-.summary-card strong {
+.branch-summary .summary-card strong {
   display: block;
-  font-size: 21px;
+
+  font-size: 17px;
+
+  color: #111827;
 }
 
-.income-card .summary-icon {
+
+/* =====================================================
+   INCOME CARD
+===================================================== */
+
+.branch-summary .income-card {
+  border-left: 4px solid #16a34a;
+}
+
+.branch-summary .income-card .summary-icon {
   background: #dcfce7;
-  color: #15803d;
+  color: #16a34a;
 }
 
-.expense-card .summary-icon {
+
+/* =====================================================
+   EXPENSE CARD
+===================================================== */
+
+.branch-summary .expense-card {
+  border-left: 4px solid #dc2626;
+}
+
+.branch-summary .expense-card .summary-icon {
   background: #fee2e2;
   color: #dc2626;
 }
 
-.balance-positive .summary-icon {
+
+/* =====================================================
+   BALANCE CARD
+===================================================== */
+
+.branch-summary .balance-positive {
+  border-left: 4px solid #2563eb;
+}
+
+.branch-summary .balance-positive .summary-icon {
   background: #dbeafe;
   color: #2563eb;
 }
 
-.balance-negative .summary-icon {
+.branch-summary .balance-negative {
+  border-left: 4px solid #dc2626;
+}
+
+.branch-summary .balance-negative .summary-icon {
   background: #fee2e2;
   color: #dc2626;
 }
+
+
+/* =====================================================
+   OVERALL SUMMARY
+===================================================== */
+
+.report-overall {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  padding: 11px 15px;
+
+  margin-bottom: 18px;
+
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.report-overall div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.report-overall strong {
+  color: #111827;
+  font-size: 14px;
+}
+
 
 /* =====================================================
    REPORT INFO
@@ -227,12 +371,19 @@
 .report-info {
   display: flex;
   justify-content: space-between;
+
   gap: 15px;
+
   background: #ffffff;
+
   padding: 13px 18px;
+
   border-radius: 9px;
+
   margin-bottom: 20px;
+
   border: 1px solid #e5e7eb;
+
   color: #6b7280;
   font-size: 14px;
 }
@@ -241,34 +392,45 @@
   color: #111827;
 }
 
+
 /* =====================================================
    REPORT SECTION
 ===================================================== */
 
 .report-section {
   background: #ffffff;
+
   border-radius: 12px;
+
   margin-bottom: 22px;
+
   overflow: hidden;
+
   border: 1px solid #e5e7eb;
 }
 
 .report-section-header {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   padding: 18px 20px;
+
   border-bottom: 1px solid #e5e7eb;
 }
 
 .report-section-header h2 {
   margin: 0 0 4px;
+
   font-size: 19px;
 }
 
 .report-section-header p {
   margin: 0;
+
   color: #6b7280;
+
   font-size: 13px;
 }
 
@@ -292,6 +454,7 @@
   color: #dc2626;
 }
 
+
 /* =====================================================
    TABLE
 ===================================================== */
@@ -303,25 +466,36 @@
 
 .report-table {
   width: 100%;
+
   border-collapse: collapse;
+
   min-width: 850px;
 }
 
 .report-table th {
   background: #f8fafc;
+
   color: #374151;
+
   font-size: 13px;
   font-weight: 700;
+
   text-align: left;
+
   padding: 13px 14px;
+
   border-bottom: 1px solid #e5e7eb;
+
   white-space: nowrap;
 }
 
 .report-table td {
   padding: 13px 14px;
+
   border-bottom: 1px solid #f0f0f0;
+
   font-size: 14px;
+
   vertical-align: middle;
 }
 
@@ -341,29 +515,39 @@
   white-space: nowrap;
 }
 
+
 /* =====================================================
    BADGES
 ===================================================== */
 
 .income-badge {
   display: inline-block;
+
   padding: 5px 9px;
+
   border-radius: 5px;
+
   background: #dcfce7;
   color: #166534;
+
   font-size: 12px;
   font-weight: 600;
 }
 
 .expense-badge {
   display: inline-block;
+
   padding: 5px 9px;
+
   border-radius: 5px;
+
   background: #fee2e2;
   color: #991b1b;
+
   font-size: 12px;
   font-weight: 600;
 }
+
 
 /* =====================================================
    AMOUNT
@@ -379,16 +563,21 @@
   font-weight: 700;
 }
 
+
 /* =====================================================
    EMPTY
 ===================================================== */
 
 .report-empty {
   padding: 35px 20px;
+
   text-align: center;
+
   color: #6b7280;
+
   font-size: 14px;
 }
+
 
 /* =====================================================
    LOADING
@@ -396,30 +585,50 @@
 
 .report-loading {
   min-height: 300px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   color: #6b7280;
+
   font-size: 16px;
 }
 
+
 /* =====================================================
-   RESPONSIVE
+   RESPONSIVE - 900px
 ===================================================== */
 
 @media (max-width: 900px) {
 
-  .report-summary {
-    grid-template-columns: 1fr;
+  .branch-summary-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .branch-summary .summary-card {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .branch-summary .summary-icon {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    font-size: 16px;
+  }
+
+  .branch-summary .summary-card strong {
+    font-size: 15px;
+  }
+
+  .branch-summary .summary-card span {
+    font-size: 10px;
   }
 
   .report-header {
     align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .report-refresh-btn {
-    width: 100%;
   }
 
   .report-filter-group,
@@ -427,12 +636,41 @@
     width: 100%;
     min-width: 100%;
   }
+}
+
+
+/* =====================================================
+   RESPONSIVE - 700px
+===================================================== */
+
+@media (max-width: 700px) {
+
+  .branch-summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .report-overall {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .report-header {
+    flex-direction: column;
+  }
+
+  .report-refresh-btn {
+    width: 100%;
+  }
 
   .report-clear-btn {
     width: 100%;
   }
-
 }
+
+
+/* =====================================================
+   RESPONSIVE - 600px
+===================================================== */
 
 @media (max-width: 600px) {
 
@@ -448,12 +686,21 @@
     font-size: 21px;
   }
 
-  .report-summary {
-    gap: 12px;
+  .branch-summary {
+    padding: 12px;
   }
 
-  .summary-card {
-    padding: 16px;
+  .branch-summary-title {
+    font-size: 14px;
+  }
+
+  .branch-summary .summary-card {
+    min-height: 68px;
+    padding: 10px 12px;
+  }
+
+  .branch-summary .summary-card strong {
+    font-size: 16px;
   }
 
   .report-info {
@@ -465,5 +712,4 @@
     flex-direction: column;
     gap: 10px;
   }
-
 }

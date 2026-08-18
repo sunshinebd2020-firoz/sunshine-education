@@ -1,12 +1,11 @@
-/* =====================================================
-   OVERLAY
-===================================================== */
+/* =========================================================
+   PERMISSION MODAL
+   ========================================================= */
 
 .permission-modal-overlay {
   position: fixed;
   inset: 0;
-
-  z-index: 10000;
+  z-index: 9999;
 
   display: flex;
   align-items: center;
@@ -14,41 +13,39 @@
 
   padding: 20px;
 
-  background: rgba(15, 23, 42, 0.6);
-
+  background: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(4px);
 }
 
 
-/* =====================================================
+/* =========================================================
    MODAL
-===================================================== */
+   ========================================================= */
 
 .permission-modal {
   width: 100%;
   max-width: 760px;
-
-  max-height: calc(100vh - 40px);
+  max-height: 90vh;
 
   display: flex;
   flex-direction: column;
 
   background: #ffffff;
+  border-radius: 16px;
 
-  border-radius: 14px;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.18);
 
   overflow: hidden;
 
-  box-shadow:
-    0 25px 60px rgba(0, 0, 0, 0.25);
-
-  animation: permissionModalOpen 0.2s ease-out;
+  animation: permissionModalIn 0.2s ease;
 }
 
-@keyframes permissionModalOpen {
+
+@keyframes permissionModalIn {
   from {
     opacity: 0;
-    transform: translateY(-15px) scale(0.98);
+    transform: translateY(15px) scale(0.98);
   }
 
   to {
@@ -58,76 +55,84 @@
 }
 
 
-/* =====================================================
+/* =========================================================
    HEADER
-===================================================== */
+   ========================================================= */
 
 .permission-modal-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
 
-  padding: 20px 22px;
+  padding: 20px 24px;
 
   background: #f8fafc;
-
   border-bottom: 1px solid #e5e7eb;
 }
+
 
 .permission-modal-header h2 {
   margin: 0 0 5px;
 
   font-size: 20px;
+  font-weight: 700;
 
-  color: #111827;
+  color: #1e293b;
 }
+
 
 .permission-modal-header p {
   margin: 0 0 3px;
 
   font-size: 14px;
-
   font-weight: 600;
 
-  color: #374151;
+  color: #334155;
 }
+
 
 .permission-modal-header span {
   font-size: 12px;
-
-  color: #6b7280;
+  color: #64748b;
 }
 
 
-/* CLOSE */
+/* =========================================================
+   CLOSE BUTTON
+   ========================================================= */
 
 .permission-close {
-  width: 34px;
-  height: 34px;
-
-  padding: 0;
+  width: 38px;
+  height: 38px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   border: none;
+  border-radius: 50%;
 
-  border-radius: 6px;
+  background: #e2e8f0;
+  color: #475569;
 
-  background: transparent;
-
-  color: #6b7280;
-
-  font-size: 26px;
+  font-size: 24px;
+  line-height: 1;
 
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
+
 .permission-close:hover {
-  background: #e5e7eb;
-  color: #111827;
+  background: #fee2e2;
+  color: #dc2626;
+  transform: rotate(90deg);
 }
+
 
 .permission-close:disabled {
   opacity: 0.5;
@@ -135,58 +140,66 @@
 }
 
 
-/* =====================================================
+/* =========================================================
    BODY
-===================================================== */
+   ========================================================= */
 
 .permission-modal-body {
-  padding: 20px 22px;
+  padding: 20px 24px;
 
   overflow-y: auto;
-
   flex: 1;
 }
 
 
-/* =====================================================
+/* =========================================================
    TOOLBAR
-===================================================== */
+   ========================================================= */
 
 .permission-toolbar {
   display: flex;
   justify-content: flex-end;
 
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
+
 .permission-select-all {
-  width: auto;
+  border: none;
 
-  padding: 8px 13px;
+  padding: 8px 16px;
 
-  border: 1px solid #c7d2fe;
-
-  border-radius: 6px;
+  border-radius: 20px;
 
   background: #eef2ff;
+  color: #4f46e5;
 
-  color: #4338ca;
-
-  font-size: 12px;
-
+  font-size: 13px;
   font-weight: 600;
 
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
+
 
 .permission-select-all:hover {
   background: #e0e7ff;
+  transform: translateY(-1px);
 }
 
 
-/* =====================================================
-   TABLE
-===================================================== */
+.permission-select-all:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   TABLE WRAPPER
+   ========================================================= */
 
 .permission-table-wrapper {
   width: 100%;
@@ -194,9 +207,13 @@
   overflow-x: auto;
 
   border: 1px solid #e5e7eb;
-
-  border-radius: 9px;
+  border-radius: 12px;
 }
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
 
 .permission-table {
   width: 100%;
@@ -206,136 +223,165 @@
   min-width: 600px;
 }
 
-.permission-table th {
-  padding: 13px 12px;
 
+.permission-table thead {
   background: #f8fafc;
+}
+
+
+.permission-table th {
+  padding: 12px 10px;
 
   border-bottom: 1px solid #e5e7eb;
 
-  color: #475569;
-
   font-size: 12px;
-
   font-weight: 700;
 
+  color: #64748b;
+
   text-align: center;
+  white-space: nowrap;
 }
+
 
 .permission-table th:first-child {
   text-align: left;
+  padding-left: 18px;
 }
 
+
 .permission-table td {
-  padding: 13px 12px;
+  height: 52px;
+
+  padding: 8px 10px;
 
   border-bottom: 1px solid #f1f5f9;
 
   text-align: center;
-
-  color: #475569;
-
-  font-size: 13px;
 }
+
 
 .permission-table tbody tr:last-child td {
   border-bottom: none;
 }
+
 
 .permission-table tbody tr:hover {
   background: #f8fafc;
 }
 
 
-/* MODULE */
+/* =========================================================
+   MODULE NAME
+   ========================================================= */
 
 .permission-module {
+  padding-left: 18px !important;
+
   text-align: left !important;
 
+  font-size: 14px;
   font-weight: 600;
 
-  color: #1e293b !important;
+  color: #334155;
 }
 
 
-/* =====================================================
+/* =========================================================
    CHECKBOX
-===================================================== */
+   ========================================================= */
 
 .permission-checkbox {
-  display: inline-flex;
+  position: relative;
 
+  width: 32px;
+  height: 32px;
+
+  margin: auto;
+
+  display: flex;
   align-items: center;
   justify-content: center;
 
   cursor: pointer;
 }
 
+
 .permission-checkbox input {
   position: absolute;
 
-  opacity: 0;
+  width: 0;
+  height: 0;
 
-  pointer-events: none;
+  opacity: 0;
 }
 
+
 .permission-checkbox span {
-  width: 18px;
-  height: 18px;
+  width: 26px;
+  height: 26px;
 
-  display: inline-flex;
-
+  display: flex;
   align-items: center;
   justify-content: center;
 
-  border: 1px solid #cbd5e1;
-
-  border-radius: 4px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
 
   background: #ffffff;
 
-  transition: 0.15s ease;
+  transition:
+    all 0.2s ease;
 }
 
-.permission-checkbox span::after {
-  content: "✓";
 
-  color: #ffffff;
-
-  font-size: 12px;
-
-  font-weight: 700;
-
-  opacity: 0;
-
-  transform: scale(0.5);
-
-  transition: 0.15s ease;
-}
+/* Checked */
 
 .permission-checkbox input:checked + span {
-  background: #2563eb;
-
-  border-color: #2563eb;
+  border-color: #4f46e5;
+  background: #4f46e5;
 }
+
+
+/* Tick */
 
 .permission-checkbox input:checked + span::after {
-  opacity: 1;
+  content: "";
 
-  transform: scale(1);
+  width: 6px;
+  height: 11px;
+
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+
+  transform: rotate(45deg);
+
+  margin-top: -3px;
 }
+
+
+/* Hover */
 
 .permission-checkbox:hover span {
-  border-color: #2563eb;
+  border-color: #6366f1;
+  transform: scale(1.08);
 }
 
 
-/* =====================================================
+/* Disabled */
+
+.permission-checkbox input:disabled + span {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
    LOADING
-===================================================== */
+   ========================================================= */
 
 .permission-loading {
-  min-height: 200px;
+  min-height: 180px;
 
   display: flex;
   align-items: center;
@@ -347,160 +393,196 @@
 }
 
 
-/* =====================================================
+/* =========================================================
    MESSAGE
-===================================================== */
+   ========================================================= */
 
 .permission-message {
   margin-top: 15px;
 
-  padding: 10px 13px;
+  padding: 11px 14px;
 
-  border-radius: 7px;
+  border-radius: 8px;
 
   font-size: 13px;
-
-  font-weight: 600;
+  font-weight: 500;
 }
 
-.permission-message.success {
-  background: #dcfce7;
-
-  color: #15803d;
-
-  border: 1px solid #bbf7d0;
-}
 
 .permission-message.error {
   background: #fef2f2;
-
   color: #dc2626;
-
   border: 1px solid #fecaca;
 }
 
 
-/* =====================================================
+.permission-message.success {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+
+/* =========================================================
    FOOTER
-===================================================== */
+   ========================================================= */
 
 .permission-modal-footer {
   display: flex;
-
+  align-items: center;
   justify-content: flex-end;
 
   gap: 10px;
 
-  padding: 15px 22px;
+  padding: 16px 24px;
+
+  background: #f8fafc;
 
   border-top: 1px solid #e5e7eb;
-
-  background: #ffffff;
 }
 
 
-/* CANCEL */
+/* =========================================================
+   CANCEL
+   ========================================================= */
 
 .permission-cancel-btn {
-  width: auto;
+  padding: 9px 18px;
 
-  min-width: 95px;
-
-  height: 40px;
-
-  padding: 0 16px;
-
-  border: 1px solid #d1d5db;
-
-  border-radius: 7px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
 
   background: #ffffff;
-
-  color: #374151;
+  color: #475569;
 
   font-size: 13px;
-
   font-weight: 600;
 
   cursor: pointer;
+
+  transition: all 0.2s ease;
 }
+
 
 .permission-cancel-btn:hover {
-  background: #f3f4f6;
+  background: #f1f5f9;
 }
 
 
-/* SAVE */
-
-.permission-save-btn {
-  width: auto;
-
-  min-width: 140px;
-
-  height: 40px;
-
-  padding: 0 18px;
-
-  border: 1px solid #2563eb;
-
-  border-radius: 7px;
-
-  background: #2563eb;
-
-  color: #ffffff;
-
-  font-size: 13px;
-
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.permission-save-btn:hover {
-  background: #1d4ed8;
-
-  border-color: #1d4ed8;
-}
-
-.permission-save-btn:disabled,
 .permission-cancel-btn:disabled {
-  opacity: 0.6;
-
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 
-/* =====================================================
-   MOBILE
-===================================================== */
+/* =========================================================
+   SAVE
+   ========================================================= */
 
-@media (max-width: 768px) {
+.permission-save-btn {
+  padding: 9px 20px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #4f46e5;
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.permission-save-btn:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+
+.permission-save-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
   .permission-modal-overlay {
-    padding: 12px;
+    padding: 10px;
   }
+
 
   .permission-modal {
-    max-height: calc(100vh - 24px);
+    max-height: 94vh;
+    border-radius: 14px;
   }
+
 
   .permission-modal-header {
     padding: 16px;
   }
 
+
+  .permission-modal-header h2 {
+    font-size: 18px;
+  }
+
+
   .permission-modal-body {
     padding: 16px;
   }
 
-  .permission-modal-footer {
-    padding: 13px 16px;
-  }
 
   .permission-modal-footer {
-    flex-direction: column;
+    padding: 14px 16px;
   }
+
+
+  .permission-table {
+    min-width: 560px;
+  }
+}
+
+
+@media (max-width: 480px) {
+
+  .permission-modal-header {
+    padding: 14px;
+  }
+
+
+  .permission-modal-body {
+    padding: 12px;
+  }
+
+
+  .permission-modal-footer {
+    padding: 12px;
+
+    gap: 8px;
+  }
+
 
   .permission-cancel-btn,
   .permission-save-btn {
-    width: 100%;
+    padding: 8px 13px;
+    font-size: 12px;
+  }
+
+
+  .permission-close {
+    width: 34px;
+    height: 34px;
   }
 }
