@@ -8,8 +8,11 @@ export default function PendingStudentList() {
   const [message, setMessage] = useState("");
 
   const API = "http://localhost/sunshine-api/api/";
+  const UPLOADS = "http://localhost/sunshine-api/uploads/students/";
 
-  // ================= LOAD PENDING STUDENTS =================
+  // =====================================================
+  // LOAD PENDING STUDENTS
+  // =====================================================
 
   const loadStudents = async () => {
     try {
@@ -17,43 +20,86 @@ export default function PendingStudentList() {
       setMessage("");
 
       const response = await fetch(
-        `${API}pending_students.php`
+        `${API}pending_students.php`,
+        {
+          method: "GET",
+        }
       );
+
+      if (!response.ok) {
+        throw new Error(
+          `HTTP Error: ${response.status}`
+        );
+      }
 
       const data = await response.json();
 
       if (data.success) {
-        setStudents(data.data || []);
+        setStudents(
+          Array.isArray(data.data)
+            ? data.data
+            : []
+        );
       } else {
+        setStudents([]);
         setMessage(
-          data.message || "Pending student data পাওয়া যায়নি।"
+          data.message ||
+            "Pending student data পাওয়া যায়নি।"
         );
       }
     } catch (error) {
-      console.error(error);
-      setMessage("Server connection failed.");
+      console.error(
+        "Load pending students error:",
+        error
+      );
+
+      setStudents([]);
+      setMessage(
+        "Server connection failed."
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  // =====================================================
+  // INITIAL LOAD
+  // =====================================================
+
   useEffect(() => {
     loadStudents();
   }, []);
 
-  // ================= APPROVE =================
+  // =====================================================
+  // APPROVE STUDENT
+  // =====================================================
 
   const approveStudent = async (studentId) => {
-    const confirmApprove = window.confirm(
-      "এই student application approve করতে চান?"
-    );
+    if (!studentId) {
+      setMessage(
+        "Student ID পাওয়া যায়নি।"
+      );
+      return;
+    }
 
-    if (!confirmApprove) return;
+    const confirmApprove =
+      window.confirm(
+        "এই student application approve করতে চান?"
+      );
+
+    if (!confirmApprove) {
+      return;
+    }
 
     try {
+      setMessage("");
+
       const formData = new FormData();
 
-      formData.append("student_id", studentId);
+      formData.append(
+        "student_id",
+        studentId
+      );
 
       const response = await fetch(
         `${API}approve_student.php`,
@@ -63,15 +109,24 @@ export default function PendingStudentList() {
         }
       );
 
+      if (!response.ok) {
+        throw new Error(
+          `HTTP Error: ${response.status}`
+        );
+      }
+
       const data = await response.json();
 
       if (data.success) {
-        setMessage("Student successfully approved.");
+        setMessage(
+          "Student successfully approved."
+        );
 
         setStudents((prev) =>
           prev.filter(
             (student) =>
-              student.student_id !== studentId
+              String(student.student_id) !==
+              String(studentId)
           )
         );
       } else {
@@ -81,24 +136,47 @@ export default function PendingStudentList() {
         );
       }
     } catch (error) {
-      console.error(error);
-      setMessage("Server connection failed.");
+      console.error(
+        "Approve student error:",
+        error
+      );
+
+      setMessage(
+        "Server connection failed."
+      );
     }
   };
 
-  // ================= REJECT =================
+  // =====================================================
+  // REJECT STUDENT
+  // =====================================================
 
   const rejectStudent = async (studentId) => {
-    const confirmReject = window.confirm(
-      "এই student application reject করতে চান?"
-    );
+    if (!studentId) {
+      setMessage(
+        "Student ID পাওয়া যায়নি।"
+      );
+      return;
+    }
 
-    if (!confirmReject) return;
+    const confirmReject =
+      window.confirm(
+        "এই student application reject করতে চান?"
+      );
+
+    if (!confirmReject) {
+      return;
+    }
 
     try {
+      setMessage("");
+
       const formData = new FormData();
 
-      formData.append("student_id", studentId);
+      formData.append(
+        "student_id",
+        studentId
+      );
 
       const response = await fetch(
         `${API}reject_student.php`,
@@ -107,6 +185,12 @@ export default function PendingStudentList() {
           body: formData,
         }
       );
+
+      if (!response.ok) {
+        throw new Error(
+          `HTTP Error: ${response.status}`
+        );
+      }
 
       const data = await response.json();
 
@@ -118,7 +202,8 @@ export default function PendingStudentList() {
         setStudents((prev) =>
           prev.filter(
             (student) =>
-              student.student_id !== studentId
+              String(student.student_id) !==
+              String(studentId)
           )
         );
       } else {
@@ -128,73 +213,121 @@ export default function PendingStudentList() {
         );
       }
     } catch (error) {
-      console.error(error);
-      setMessage("Server connection failed.");
+      console.error(
+        "Reject student error:",
+        error
+      );
+
+      setMessage(
+        "Server connection failed."
+      );
     }
   };
 
-  // ================= DATE =================
+  // =====================================================
+  // FORMAT DATE
+  // =====================================================
 
   const formatDate = (date) => {
-    if (!date) return "-";
+    if (!date) {
+      return "-";
+    }
 
-    const parts = date.split("-");
+    const dateString = String(date);
+
+    const parts =
+      dateString.split("-");
 
     if (parts.length !== 3) {
-      return date;
+      return dateString;
     }
 
     return `${parts[2]}-${parts[1]}-${parts[0]}`;
   };
 
-  // ================= SEARCH =================
+  // =====================================================
+  // SEARCH
+  // =====================================================
 
-  const filteredStudents = students.filter(
-    (student) => {
-      const searchText =
-        search.toLowerCase();
+  const searchText =
+    search.trim().toLowerCase();
 
+  const filteredStudents =
+    students.filter((student) => {
       return (
-        (student.student_id || "")
+        String(
+          student.student_id || ""
+        )
           .toLowerCase()
           .includes(searchText) ||
 
-        (student.student_name_en || "")
+        String(
+          student.student_name_en || ""
+        )
           .toLowerCase()
           .includes(searchText) ||
 
-        (student.student_name_bn || "")
+        String(
+          student.student_name_bn || ""
+        )
           .toLowerCase()
           .includes(searchText) ||
 
-        (student.course || "")
+        String(
+          student.student_name || ""
+        )
           .toLowerCase()
           .includes(searchText) ||
 
-        (student.language_level || "")
+        String(
+          student.course || ""
+        )
           .toLowerCase()
           .includes(searchText) ||
 
-        (student.branch || "")
+        String(
+          student.language_level || ""
+        )
           .toLowerCase()
           .includes(searchText) ||
 
-        (student.student_mobile || "")
+        String(
+          student.branch || ""
+        )
+          .toLowerCase()
+          .includes(searchText) ||
+
+        String(
+          student.student_mobile || ""
+        )
+          .toLowerCase()
+          .includes(searchText) ||
+
+        String(
+          student.mobile || ""
+        )
           .toLowerCase()
           .includes(searchText)
       );
-    }
-  );
+    });
+
+  // =====================================================
+  // RENDER
+  // =====================================================
 
   return (
     <div className="pending-student-list">
 
-      {/* ================= HEADER ================= */}
+      {/* =================================================
+          HEADER
+      ================================================= */}
 
       <div className="pending-list-header">
 
         <div>
-          <h1>Pending Student List</h1>
+          <h1>
+            Pending Student List
+          </h1>
 
           <p>
             Admin approval-এর অপেক্ষায় থাকা
@@ -208,8 +341,9 @@ export default function PendingStudentList() {
 
       </div>
 
-
-      {/* ================= SEARCH ================= */}
+      {/* =================================================
+          SEARCH AREA
+      ================================================= */}
 
       <div className="pending-search">
 
@@ -223,30 +357,37 @@ export default function PendingStudentList() {
         />
 
         <button
+          type="button"
           className="pending-refresh"
           onClick={loadStudents}
+          disabled={loading}
         >
-          🔄 Refresh
+          🔄 {loading ? "Loading..." : "Refresh"}
         </button>
 
       </div>
 
-
-      {/* ================= MESSAGE ================= */}
+      {/* =================================================
+          MESSAGE
+      ================================================= */}
 
       {message && (
-        <p className="pending-message">
+        <div className="pending-message">
           {message}
-        </p>
+        </div>
       )}
 
-
-      {/* ================= LOADING ================= */}
+      {/* =================================================
+          LOADING
+      ================================================= */}
 
       {loading ? (
 
         <div className="pending-loading">
-          Loading...
+          <div className="pending-spinner"></div>
+          <p>
+            Pending students loading...
+          </p>
         </div>
 
       ) : (
@@ -256,182 +397,281 @@ export default function PendingStudentList() {
           <table>
 
             <thead>
-
               <tr>
-                <th>Photo</th>
-                <th>ID No</th>
-                <th>Name</th>
-                <th>Language</th>
-                <th>Level</th>
-                <th>Branch</th>
-                <th>Mobile</th>
-                <th>Application Date</th>
-                <th>Action</th>
-              </tr>
 
+                <th>
+                  Photo
+                </th>
+
+                <th>
+                  ID No
+                </th>
+
+                <th>
+                  Name
+                </th>
+
+                <th>
+                  Language
+                </th>
+
+                <th>
+                  Level
+                </th>
+
+                <th>
+                  Branch
+                </th>
+
+                <th>
+                  Mobile
+                </th>
+
+                <th>
+                  Application Date
+                </th>
+
+                <th>
+                  Action
+                </th>
+
+              </tr>
             </thead>
 
             <tbody>
 
-              {filteredStudents.map(
-                (student) => (
+              {filteredStudents.length > 0 ? (
 
-                  <tr key={student.id}>
+                filteredStudents.map(
+                  (student) => {
 
-                    {/* PHOTO */}
+                    const studentId =
+                      student.student_id;
 
-                    <td>
+                    const photo =
+                      student.student_photo;
 
-                      {student.student_photo ? (
+                    const studentName =
+                      student.student_name_en ||
+                      student.student_name ||
+                      "-";
 
-                        <img
-                          src={`http://localhost/sunshine-api/uploads/students/${student.student_photo}`}
-                          alt={
-                            student.student_name_en ||
-                            "Student"
-                          }
-                          className="pending-student-photo"
-                        />
+                    const mobile =
+                      student.student_mobile ||
+                      student.mobile ||
+                      "-";
 
-                      ) : (
+                    return (
+                      <tr
+                        key={
+                          student.id ||
+                          studentId
+                        }
+                      >
 
-                        <span className="pending-no-photo">
-                          No Photo
-                        </span>
+                        {/* =========================
+                            PHOTO
+                        ========================= */}
 
-                      )}
+                        <td>
 
-                    </td>
+                          {photo ? (
 
+                            <img
+                              src={`${UPLOADS}${photo}`}
+                              alt={
+                                studentName
+                              }
+                              className="pending-student-photo"
+                              onError={(e) => {
+                                e.currentTarget.style.display =
+                                  "none";
 
-                    {/* ID */}
+                                const parent =
+                                  e.currentTarget
+                                    .parentElement;
 
-                    <td>
+                                if (
+                                  parent &&
+                                  !parent.querySelector(
+                                    ".pending-no-photo"
+                                  )
+                                ) {
+                                  const span =
+                                    document.createElement(
+                                      "span"
+                                    );
 
-                      <strong className="pending-student-id">
-                        {student.student_id ||
-                          `#${student.id}`}
-                      </strong>
+                                  span.className =
+                                    "pending-no-photo";
 
-                    </td>
+                                  span.innerText =
+                                    "No Photo";
 
+                                  parent.appendChild(
+                                    span
+                                  );
+                                }
+                              }}
+                            />
 
-                    {/* NAME */}
+                          ) : (
 
-                    <td>
+                            <span className="pending-no-photo">
+                              No Photo
+                            </span>
 
-                      <div className="pending-student-name">
+                          )}
 
-                        <strong>
-                          {student.student_name_en ||
-                            student.student_name ||
+                        </td>
+
+                        {/* =========================
+                            ID
+                        ========================= */}
+
+                        <td>
+
+                          <strong className="pending-student-id">
+                            {studentId ||
+                              `#${student.id}`}
+                          </strong>
+
+                        </td>
+
+                        {/* =========================
+                            NAME
+                        ========================= */}
+
+                        <td>
+
+                          <div className="pending-student-name">
+
+                            <strong>
+                              {studentName}
+                            </strong>
+
+                            {student.student_name_bn && (
+                              <span>
+                                {
+                                  student.student_name_bn
+                                }
+                              </span>
+                            )}
+
+                          </div>
+
+                        </td>
+
+                        {/* =========================
+                            LANGUAGE
+                        ========================= */}
+
+                        <td>
+                          {student.course ||
                             "-"}
-                        </strong>
+                        </td>
 
-                        {student.student_name_bn && (
-                          <span>
-                            {student.student_name_bn}
-                          </span>
-                        )}
+                        {/* =========================
+                            LEVEL
+                        ========================= */}
 
-                      </div>
+                        <td>
+                          {student.language_level ||
+                            "-"}
+                        </td>
 
-                    </td>
+                        {/* =========================
+                            BRANCH
+                        ========================= */}
 
+                        <td>
+                          {student.branch ||
+                            "-"}
+                        </td>
 
-                    {/* LANGUAGE */}
+                        {/* =========================
+                            MOBILE
+                        ========================= */}
 
-                    <td>
-                      {student.course || "-"}
-                    </td>
+                        <td>
+                          {mobile}
+                        </td>
 
+                        {/* =========================
+                            DATE
+                        ========================= */}
 
-                    {/* LEVEL */}
+                        <td>
+                          {formatDate(
+                            student.admission_date
+                          )}
+                        </td>
 
-                    <td>
-                      {student.language_level ||
-                        "-"}
-                    </td>
+                        {/* =========================
+                            ACTION
+                        ========================= */}
 
+                        <td>
 
-                    {/* BRANCH */}
+                          <div className="pending-actions">
 
-                    <td>
-                      {student.branch || "-"}
-                    </td>
+                            <button
+                              type="button"
+                              className="approve-button"
+                              onClick={() =>
+                                approveStudent(
+                                  studentId
+                                )
+                              }
+                              title="Approve Student"
+                              disabled={!studentId}
+                            >
+                              ✓
+                            </button>
 
+                            <button
+                              type="button"
+                              className="reject-button"
+                              onClick={() =>
+                                rejectStudent(
+                                  studentId
+                                )
+                              }
+                              title="Reject Student"
+                              disabled={!studentId}
+                            >
+                              ✕
+                            </button>
 
-                    {/* MOBILE */}
+                          </div>
 
-                    <td>
-                      {student.student_mobile ||
-                        student.mobile ||
-                        "-"}
-                    </td>
+                        </td>
 
-
-                    {/* DATE */}
-
-                    <td>
-                      {formatDate(
-                        student.admission_date
-                      )}
-                    </td>
-
-
-                    {/* ACTION */}
-
-                    <td>
-
-                      <div className="pending-actions">
-
-                        <button
-                          className="approve-button"
-                          onClick={() =>
-                            approveStudent(
-                              student.student_id
-                            )
-                          }
-                          title="Approve"
-                        >
-                          ✓
-                        </button>
-
-                        <button
-                          className="reject-button"
-                          onClick={() =>
-                            rejectStudent(
-                              student.student_id
-                            )
-                          }
-                          title="Reject"
-                        >
-                          ✕
-                        </button>
-
-                      </div>
-
-                    </td>
-
-                  </tr>
-
+                      </tr>
+                    );
+                  }
                 )
+
+              ) : (
+
+                <tr>
+
+                  <td
+                    colSpan="9"
+                    className="pending-empty-cell"
+                  >
+                    {search.trim()
+                      ? "আপনার search অনুযায়ী কোনো student পাওয়া যায়নি।"
+                      : "বর্তমানে কোনো pending application নেই।"}
+                  </td>
+
+                </tr>
+
               )}
 
             </tbody>
 
           </table>
-
-
-          {/* ================= EMPTY ================= */}
-
-          {filteredStudents.length === 0 && (
-
-            <p className="no-pending-student">
-              বর্তমানে কোনো pending application নেই।
-            </p>
-
-          )}
 
         </div>
 

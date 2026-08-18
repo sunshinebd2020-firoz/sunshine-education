@@ -5,7 +5,8 @@ import { useSearchParams } from "react-router-dom";
 export default function StudentEntry() {
   const [searchParams] = useSearchParams();
 
-  const appliedCourse = searchParams.get("course") || "";
+  const appliedCourse =
+    searchParams.get("course") || "";
 
   const getToday = () =>
     new Date().toISOString().split("T")[0];
@@ -75,7 +76,8 @@ export default function StudentEntry() {
     mastersResult: "",
   };
 
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] =
+    useState(initialForm);
 
   const [studentPhoto, setStudentPhoto] =
     useState(null);
@@ -86,13 +88,18 @@ export default function StudentEntry() {
   const [sameAddress, setSameAddress] =
     useState(false);
 
-  const [message, setMessage] = useState("");
+  const [message, setMessage] =
+    useState("");
 
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] =
+    useState([]);
+
   const [courseLoading, setCourseLoading] =
     useState(true);
 
-  const [branches, setBranches] = useState([]);
+  const [branches, setBranches] =
+    useState([]);
+
   const [branchLoading, setBranchLoading] =
     useState(true);
 
@@ -184,7 +191,6 @@ export default function StudentEntry() {
 
   /* =========================================
      KEEP PERMANENT ADDRESS UPDATED
-     WHEN CHECKED
   ========================================= */
 
   useEffect(() => {
@@ -235,11 +241,13 @@ export default function StudentEntry() {
   const handleLevelChange = (e) => {
     const level = e.target.value;
 
-    const selectedCourse = courses.find(
-      (course) =>
-        course.language === form.course &&
-        course.course_name === level
-    );
+    const selectedCourse =
+      courses.find(
+        (course) =>
+          course.language ===
+            form.course &&
+          course.course_name === level
+      );
 
     setForm((prev) => ({
       ...prev,
@@ -270,7 +278,8 @@ export default function StudentEntry() {
           );
         }
 
-        const data = await response.json();
+        const data =
+          await response.json();
 
         let courseData = [];
 
@@ -296,8 +305,6 @@ export default function StudentEntry() {
           });
 
         setCourses(activeCourses);
-
-        /* Apply Now থেকে course এলে */
 
         if (appliedCourse) {
           const selectedCourse =
@@ -361,7 +368,8 @@ export default function StudentEntry() {
           );
         }
 
-        const data = await response.json();
+        const data =
+          await response.json();
 
         if (data.success) {
           setBranches(
@@ -401,6 +409,22 @@ export default function StudentEntry() {
       }
     );
 
+    /*
+      =========================================
+      IMPORTANT
+      =========================================
+
+      এই StudentEntry থেকে submit হওয়া
+      প্রত্যেক student প্রথমে Pending হবে।
+
+      তাই application_status = pending
+    */
+
+    formData.append(
+      "application_status",
+      "pending"
+    );
+
     if (studentPhoto) {
       formData.append(
         "student_photo",
@@ -417,14 +441,21 @@ export default function StudentEntry() {
         }
       );
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          `HTTP Error: ${response.status}`
+        );
+      }
+
+      const data =
+        await response.json();
 
       if (data.success) {
         setMessage(
-          `Student Saved Successfully. ID: ${
+          `Student application successfully submitted. ID: ${
             data.student_id ||
             form.studentId
-          }`
+          }. এখন Admin approval-এর অপেক্ষায় আছে।`
         );
 
         setForm({
@@ -451,7 +482,7 @@ export default function StudentEntry() {
       } else {
         setMessage(
           data.message ||
-            "Failed to save student."
+            "Failed to submit student application."
         );
       }
     } catch (error) {
@@ -493,8 +524,12 @@ export default function StudentEntry() {
     )
     .sort(
       (a, b) =>
-        Number(a.sort_order || 0) -
-        Number(b.sort_order || 0)
+        Number(
+          a.sort_order || 0
+        ) -
+        Number(
+          b.sort_order || 0
+        )
     );
 
   /* =========================================
@@ -521,7 +556,9 @@ export default function StudentEntry() {
     <div className="student-entry">
 
       <div className="student-entry-header">
-        <h1>Student Entry</h1>
+        <h1>
+          Student Entry
+        </h1>
 
         <p>
           নতুন শিক্ষার্থীর তথ্য সংরক্ষণ করুন
@@ -530,11 +567,11 @@ export default function StudentEntry() {
 
       <form onSubmit={handleSubmit}>
 
-        {/* =================================
-            PERSONAL INFORMATION
-        ================================= */}
+        {/* PERSONAL INFORMATION */}
 
-        <h2>Personal Information</h2>
+        <h2>
+          Personal Information
+        </h2>
 
         <div className="form-grid">
 
@@ -680,6 +717,7 @@ export default function StudentEntry() {
           <div className="student-photo-section">
 
             <div className="form-group photo-upload">
+
               <label>
                 Student Photo
               </label>
@@ -692,6 +730,7 @@ export default function StudentEntry() {
                   handlePhotoChange
                 }
               />
+
             </div>
 
             {photoPreview && (
@@ -866,9 +905,7 @@ export default function StudentEntry() {
 
         </div>
 
-        {/* =================================
-            PRESENT ADDRESS
-        ================================= */}
+        {/* PRESENT ADDRESS */}
 
         <h2>
           Present Address
@@ -934,9 +971,7 @@ export default function StudentEntry() {
 
         </div>
 
-        {/* =================================
-            PERMANENT ADDRESS
-        ================================= */}
+        {/* PERMANENT ADDRESS */}
 
         <div className="permanent-header">
 
@@ -1026,9 +1061,7 @@ export default function StudentEntry() {
 
         </div>
 
-        {/* =================================
-            CONTACT
-        ================================= */}
+        {/* CONTACT */}
 
         <h2>
           Contact Information
@@ -1081,9 +1114,7 @@ export default function StudentEntry() {
 
         </div>
 
-        {/* =================================
-            EDUCATION
-        ================================= */}
+        {/* EDUCATION */}
 
         <h2>
           Educational Qualification
@@ -1093,7 +1124,9 @@ export default function StudentEntry() {
 
         <div className="qualification-section">
 
-          <h3>SSC</h3>
+          <h3>
+            SSC
+          </h3>
 
           <div className="education-grid">
 
@@ -1196,12 +1229,9 @@ export default function StudentEntry() {
             </div>
 
           </div>
-
         </div>
 
-        {/* =================================
-            ADD QUALIFICATION
-        ================================= */}
+        {/* ADD QUALIFICATION */}
 
         <div className="qualification-buttons">
 
@@ -1240,9 +1270,7 @@ export default function StudentEntry() {
 
         </div>
 
-        {/* =================================
-            HSC
-        ================================= */}
+        {/* HSC */}
 
         {showHsc && (
           <div className="qualification-section">
@@ -1383,9 +1411,7 @@ export default function StudentEntry() {
           </div>
         )}
 
-        {/* =================================
-            HONOURS
-        ================================= */}
+        {/* HONOURS */}
 
         {showHonours && (
           <div className="qualification-section">
@@ -1526,9 +1552,7 @@ export default function StudentEntry() {
           </div>
         )}
 
-        {/* =================================
-            MASTERS
-        ================================= */}
+        {/* MASTERS */}
 
         {showMasters && (
           <div className="qualification-section">
@@ -1669,15 +1693,13 @@ export default function StudentEntry() {
           </div>
         )}
 
-        {/* =================================
-            SAVE
-        ================================= */}
+        {/* SAVE */}
 
         <button
           type="submit"
           className="save-student-button"
         >
-          Save Student
+          Submit Application
         </button>
 
         {message && (

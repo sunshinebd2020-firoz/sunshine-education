@@ -1,9 +1,21 @@
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate
+} from "react-router-dom";
+
 import { useEffect, useState } from "react";
+
 import "./AdminLayout.css";
 
+
 export default function AdminLayout() {
+
   const location = useLocation();
+
+  const navigate = useNavigate();
+
 
   /* ================= ACTIVE MENU ================= */
 
@@ -159,14 +171,35 @@ export default function AdminLayout() {
   };
 
 
+  /* =====================================================
+     LOGOUT
+  ===================================================== */
+
+  const handleLogout = () => {
+
+    // Login/session information remove
+    localStorage.clear();
+
+    sessionStorage.clear();
+
+    // Directly go to Admin Login page
+    navigate("/admin/login", {
+      replace: true
+    });
+  };
+
+
   return (
+
     <div className="admin-layout-container">
+
 
       {/* =====================================================
           SIDEBAR
       ===================================================== */}
 
       <aside className="admin-sidebar">
+
 
         {/* ================= HEADER ================= */}
 
@@ -196,7 +229,11 @@ export default function AdminLayout() {
               }`
             }
           >
-            <span>🏠 Dashboard</span>
+
+            <span>
+              🏠 Dashboard
+            </span>
+
           </NavLink>
 
 
@@ -205,6 +242,7 @@ export default function AdminLayout() {
           ================================================= */}
 
           <div className="sidebar-group">
+
 
             <button
               type="button"
@@ -218,7 +256,9 @@ export default function AdminLayout() {
               }
             >
 
-              <span>👨‍🎓 Students</span>
+              <span>
+                👨‍🎓 Students
+              </span>
 
               <span className="menu-arrow">
 
@@ -234,6 +274,7 @@ export default function AdminLayout() {
             {openMenu === "students" && (
 
               <div className="sidebar-submenu">
+
 
                 <NavLink
                   to="/admin/students"
@@ -264,9 +305,11 @@ export default function AdminLayout() {
                   🕐 Pending Applications
                 </NavLink>
 
+
               </div>
 
             )}
+
 
           </div>
 
@@ -276,6 +319,7 @@ export default function AdminLayout() {
           ================================================= */}
 
           <div className="sidebar-group">
+
 
             <button
               type="button"
@@ -289,7 +333,10 @@ export default function AdminLayout() {
               }
             >
 
-              <span>📚 Courses</span>
+              <span>
+                📚 Courses
+              </span>
+
 
               <span className="menu-arrow">
 
@@ -305,6 +352,7 @@ export default function AdminLayout() {
             {openMenu === "courses" && (
 
               <div className="sidebar-submenu">
+
 
                 <NavLink
                   to="/admin/courses"
@@ -325,9 +373,11 @@ export default function AdminLayout() {
                   ➕ Course Entry
                 </NavLink>
 
+
               </div>
 
             )}
+
 
           </div>
 
@@ -337,6 +387,7 @@ export default function AdminLayout() {
           ================================================= */}
 
           <div className="sidebar-group">
+
 
             <button
               type="button"
@@ -350,7 +401,10 @@ export default function AdminLayout() {
               }
             >
 
-              <span>💰 Income & Expense</span>
+              <span>
+                💰 Income & Expense
+              </span>
+
 
               <span className="menu-arrow">
 
@@ -367,7 +421,9 @@ export default function AdminLayout() {
 
               <div className="sidebar-submenu">
 
+
                 {/* ================= INCOME ================= */}
+
 
                 <NavLink
                   to="/admin/income"
@@ -391,6 +447,7 @@ export default function AdminLayout() {
 
                 {/* ================= EXPENSE ================= */}
 
+
                 <NavLink
                   to="/admin/expense"
                   className={({ isActive }) =>
@@ -413,6 +470,7 @@ export default function AdminLayout() {
 
                 {/* ================= REPORT ================= */}
 
+
                 <NavLink
                   to="/admin/income-expense-report"
                   className={({ isActive }) =>
@@ -422,9 +480,11 @@ export default function AdminLayout() {
                   📊 Income & Expense Report
                 </NavLink>
 
+
               </div>
 
             )}
+
 
           </div>
 
@@ -434,6 +494,7 @@ export default function AdminLayout() {
           ================================================= */}
 
           <div className="sidebar-group">
+
 
             <button
               type="button"
@@ -447,7 +508,10 @@ export default function AdminLayout() {
               }
             >
 
-              <span>👨‍🏫 Teachers</span>
+              <span>
+                👨‍🏫 Teachers
+              </span>
+
 
               <span className="menu-arrow">
 
@@ -463,6 +527,7 @@ export default function AdminLayout() {
             {openMenu === "teachers" && (
 
               <div className="sidebar-submenu">
+
 
                 <NavLink
                   to="/admin/teacher-list"
@@ -483,9 +548,11 @@ export default function AdminLayout() {
                   ➕ Teacher Entry
                 </NavLink>
 
+
               </div>
 
             )}
+
 
           </div>
 
@@ -495,6 +562,7 @@ export default function AdminLayout() {
           ================================================= */}
 
           <div className="sidebar-group">
+
 
             <button
               type="button"
@@ -508,7 +576,10 @@ export default function AdminLayout() {
               }
             >
 
-              <span>📢 Notices</span>
+              <span>
+                📢 Notices
+              </span>
+
 
               <span className="menu-arrow">
 
@@ -524,6 +595,7 @@ export default function AdminLayout() {
             {openMenu === "notices" && (
 
               <div className="sidebar-submenu">
+
 
                 <NavLink
                   to="/admin/notices"
@@ -554,9 +626,11 @@ export default function AdminLayout() {
                   ✏️ Edit Notice
                 </NavLink>
 
+
               </div>
 
             )}
+
 
           </div>
 
@@ -566,6 +640,7 @@ export default function AdminLayout() {
           ================================================= */}
 
           <div className="sidebar-group">
+
 
             <button
               type="button"
@@ -579,7 +654,10 @@ export default function AdminLayout() {
               }
             >
 
-              <span>🖼️ Gallery</span>
+              <span>
+                🖼️ Gallery
+              </span>
+
 
               <span className="menu-arrow">
 
@@ -595,6 +673,7 @@ export default function AdminLayout() {
             {openMenu === "gallery" && (
 
               <div className="sidebar-submenu">
+
 
                 <NavLink
                   to="/admin/gallery"
@@ -615,9 +694,11 @@ export default function AdminLayout() {
                   🖼️ Gallery List
                 </NavLink>
 
+
               </div>
 
             )}
+
 
           </div>
 
@@ -627,6 +708,7 @@ export default function AdminLayout() {
           ================================================= */}
 
           <div className="sidebar-group">
+
 
             <button
               type="button"
@@ -640,7 +722,10 @@ export default function AdminLayout() {
               }
             >
 
-              <span>🎞️ Banners</span>
+              <span>
+                🎞️ Banners
+              </span>
+
 
               <span className="menu-arrow">
 
@@ -656,6 +741,7 @@ export default function AdminLayout() {
             {openMenu === "banners" && (
 
               <div className="sidebar-submenu">
+
 
                 <NavLink
                   to="/admin/banner-list"
@@ -676,9 +762,11 @@ export default function AdminLayout() {
                   ➕ Add Banner
                 </NavLink>
 
+
               </div>
 
             )}
+
 
           </div>
 
@@ -688,6 +776,7 @@ export default function AdminLayout() {
           ================================================= */}
 
           <div className="sidebar-group">
+
 
             <button
               type="button"
@@ -701,7 +790,10 @@ export default function AdminLayout() {
               }
             >
 
-              <span>📥 Downloads</span>
+              <span>
+                📥 Downloads
+              </span>
+
 
               <span className="menu-arrow">
 
@@ -717,6 +809,7 @@ export default function AdminLayout() {
             {openMenu === "downloads" && (
 
               <div className="sidebar-submenu">
+
 
                 <NavLink
                   to="/admin/downloads"
@@ -737,9 +830,11 @@ export default function AdminLayout() {
                   ➕ Add Download
                 </NavLink>
 
+
               </div>
 
             )}
+
 
           </div>
 
@@ -749,6 +844,7 @@ export default function AdminLayout() {
           ================================================= */}
 
           <div className="sidebar-group">
+
 
             <button
               type="button"
@@ -762,7 +858,10 @@ export default function AdminLayout() {
               }
             >
 
-              <span>🏢 Branches</span>
+              <span>
+                🏢 Branches
+              </span>
+
 
               <span className="menu-arrow">
 
@@ -778,6 +877,7 @@ export default function AdminLayout() {
             {openMenu === "branches" && (
 
               <div className="sidebar-submenu">
+
 
                 <NavLink
                   to="/admin/branch-list"
@@ -798,9 +898,11 @@ export default function AdminLayout() {
                   ➕ Branch Entry
                 </NavLink>
 
+
               </div>
 
             )}
+
 
           </div>
 
@@ -810,6 +912,7 @@ export default function AdminLayout() {
           ================================================= */}
 
           <div className="sidebar-group">
+
 
             <button
               type="button"
@@ -823,7 +926,10 @@ export default function AdminLayout() {
               }
             >
 
-              <span>⚙️ Settings</span>
+              <span>
+                ⚙️ Settings
+              </span>
+
 
               <span className="menu-arrow">
 
@@ -839,6 +945,7 @@ export default function AdminLayout() {
             {openMenu === "settings" && (
 
               <div className="sidebar-submenu">
+
 
                 <NavLink
                   to="/admin/settings"
@@ -859,11 +966,14 @@ export default function AdminLayout() {
                   👤 Admin Users
                 </NavLink>
 
+
               </div>
 
             )}
 
+
           </div>
+
 
         </nav>
 
@@ -873,9 +983,11 @@ export default function AdminLayout() {
         <button
           type="button"
           className="logout-button"
+          onClick={handleLogout}
         >
           🚪 Logout
         </button>
+
 
       </aside>
 
@@ -889,6 +1001,7 @@ export default function AdminLayout() {
         <Outlet />
 
       </main>
+
 
     </div>
   );
