@@ -13,159 +13,495 @@ import "./AdminLayout.css";
 export default function AdminLayout() {
 
   const location = useLocation();
-
   const navigate = useNavigate();
 
 
-  /* ================= ACTIVE MENU ================= */
+  /* =====================================================
+     LOGGED-IN USER
+  ===================================================== */
+
+  const [user, setUser] = useState(null);
+
+
+  /* =====================================================
+     LOAD USER
+  ===================================================== */
+
+  useEffect(() => {
+
+    const savedUser =
+      localStorage.getItem("sunshine_user");
+
+    if (!savedUser) {
+
+      navigate("/admin/login", {
+        replace: true
+      });
+
+      return;
+    }
+
+    try {
+
+      const loggedInUser =
+        JSON.parse(savedUser);
+
+      setUser(loggedInUser);
+
+    } catch (error) {
+
+      console.error(
+        "User data parse error:",
+        error
+      );
+
+      localStorage.removeItem(
+        "sunshine_user"
+      );
+
+      localStorage.removeItem(
+        "sunshine_logged_in"
+      );
+
+      navigate("/admin/login", {
+        replace: true
+      });
+
+    }
+
+  }, [navigate]);
+
+
+  /* =====================================================
+     USER ROLE
+  ===================================================== */
+
+  const isAdmin =
+    user?.role &&
+    String(user.role)
+      .trim()
+      .toLowerCase() === "admin";
+
+
+  /* =====================================================
+     PERMISSIONS
+  ===================================================== */
+
+  const permissions =
+    Array.isArray(user?.permissions)
+      ? user.permissions
+      : [];
+
+
+  /* =====================================================
+     NORMALIZE PERMISSION NAME
+  ===================================================== */
+
+  const normalizePermission = (value) => {
+
+    if (!value) {
+      return "";
+    }
+
+    return String(value)
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, "")
+      .replace(/s$/, "");
+
+  };
+
+
+  /* =====================================================
+     CHECK PERMISSION
+     
+     Examples:
+     
+     hasPermission("student", "can_view")
+     hasPermission("teacher", "can_add")
+     hasPermission("course", "can_edit")
+     hasPermission("student", "can_delete")
+  ===================================================== */
+
+  const hasPermission = (
+    moduleName,
+    action = "can_view"
+  ) => {
+
+    /* ---------------------------------------------
+       ADMIN = FULL ACCESS
+    --------------------------------------------- */
+
+    if (isAdmin) {
+      return true;
+    }
+
+
+    /* ---------------------------------------------
+       ALL PERMISSION
+    --------------------------------------------- */
+
+    const allPermission =
+      permissions.find(
+        (item) =>
+          normalizePermission(
+            item?.permission
+          ) === "all"
+      );
+
+
+    if (
+      allPermission &&
+      allPermission[action] === true
+    ) {
+      return true;
+    }
+
+
+    /* ---------------------------------------------
+       FIND MODULE PERMISSION
+    --------------------------------------------- */
+
+    const normalizedModule =
+      normalizePermission(moduleName);
+
+
+    const permission =
+      permissions.find(
+        (item) =>
+          normalizePermission(
+            item?.permission
+          ) === normalizedModule
+      );
+
+
+    if (!permission) {
+      return false;
+    }
+
+
+    return permission[action] === true;
+
+  };
+
+
+  /* =====================================================
+     PERMISSION MAP
+  ===================================================== */
+
+  const permissionMap = {
+
+    students: "student",
+
+    courses: "course",
+
+    accounts: "account",
+
+    teachers: "teacher",
+
+    notices: "notice",
+
+    gallery: "gallery",
+
+    banners: "banner",
+
+    downloads: "download",
+
+    branches: "branch",
+
+    settings: "setting"
+
+  };
+
+
+  /* =====================================================
+     CHECK MENU VIEW
+  ===================================================== */
+
+  const canViewMenu = (menu) => {
+
+    return hasPermission(
+      permissionMap[menu],
+      "can_view"
+    );
+
+  };
+
+
+  /* =====================================================
+     ACTIVE MENU
+  ===================================================== */
 
   const getActiveMenu = (pathname) => {
 
-    // STUDENTS
+    /* STUDENTS */
+
     if (
       pathname === "/admin/students" ||
       pathname === "/admin/student-list" ||
       pathname === "/admin/pending-students" ||
-      pathname.startsWith("/admin/student-profile/") ||
-      pathname.startsWith("/admin/student-edit/")
+      pathname.startsWith(
+        "/admin/student-profile/"
+      ) ||
+      pathname.startsWith(
+        "/admin/student-edit/"
+      )
     ) {
+
       return "students";
+
     }
 
 
-    // COURSES
+    /* COURSES */
+
     if (
       pathname === "/admin/courses" ||
       pathname === "/admin/course-entry" ||
       pathname === "/admin/AddCourse" ||
       pathname === "/admin/EditCourse"
     ) {
+
       return "courses";
+
     }
 
 
-    // ACCOUNTS
+    /* ACCOUNTS */
+
     if (
       pathname === "/admin/income" ||
       pathname === "/admin/income-list" ||
-      pathname.startsWith("/admin/income-edit/") ||
+      pathname.startsWith(
+        "/admin/income-edit/"
+      ) ||
       pathname === "/admin/expense" ||
       pathname === "/admin/expense-list" ||
-      pathname.startsWith("/admin/expense-edit/") ||
+      pathname.startsWith(
+        "/admin/expense-edit/"
+      ) ||
+      pathname ===
+        "/admin/income-expense-report" ||
       pathname === "/admin/accounts"
     ) {
+
       return "accounts";
+
     }
 
 
-    // TEACHERS
+    /* TEACHERS */
+
     if (
       pathname === "/admin/teachers" ||
       pathname === "/admin/teacher-list"
     ) {
+
       return "teachers";
+
     }
 
 
-    // NOTICES
+    /* NOTICES */
+
     if (
       pathname === "/admin/notices" ||
       pathname === "/admin/notice-entry" ||
-      pathname.startsWith("/admin/notice-edit/")
+      pathname.startsWith(
+        "/admin/notice-edit/"
+      )
     ) {
+
       return "notices";
+
     }
 
 
-    // GALLERY
+    /* GALLERY */
+
     if (
       pathname === "/admin/gallery" ||
       pathname === "/admin/gallery-list"
     ) {
+
       return "gallery";
+
     }
 
 
-    // BANNERS
+    /* BANNERS */
+
     if (
       pathname === "/admin/banner-list" ||
       pathname === "/admin/banner-entry"
     ) {
+
       return "banners";
+
     }
 
 
-    // DOWNLOADS
+    /* DOWNLOADS */
+
     if (
       pathname === "/admin/downloads" ||
       pathname === "/admin/download-entry"
     ) {
+
       return "downloads";
+
     }
 
 
-    // BRANCHES
+    /* BRANCHES */
+
     if (
       pathname === "/admin/branch-list" ||
       pathname === "/admin/branch-entry" ||
-      pathname.startsWith("/admin/branch-edit/")
+      pathname.startsWith(
+        "/admin/branch-edit/"
+      )
     ) {
+
       return "branches";
+
     }
 
 
-    // SETTINGS
+    /* SETTINGS */
+
     if (
       pathname === "/admin/settings" ||
       pathname === "/admin/admin-users"
     ) {
+
       return "settings";
+
     }
 
 
     return "";
+
   };
 
 
-  /* ================= OPEN MENU ================= */
+  /* =====================================================
+     OPEN MENU
+  ===================================================== */
 
   const [openMenu, setOpenMenu] = useState(
     getActiveMenu(location.pathname)
   );
 
 
-  /* ================= AUTO OPEN ================= */
+  /* =====================================================
+     AUTO OPEN MENU
+  ===================================================== */
 
   useEffect(() => {
 
-    const activeMenu = getActiveMenu(
-      location.pathname
-    );
+    const activeMenu =
+      getActiveMenu(location.pathname);
 
     if (activeMenu) {
+
       setOpenMenu(activeMenu);
+
     }
 
   }, [location.pathname]);
 
 
-  /* ================= TOGGLE ================= */
+  /* =====================================================
+     DIRECT URL PROTECTION
+     
+     User cannot access a module without can_view
+  ===================================================== */
+
+  useEffect(() => {
+
+    if (!user) {
+      return;
+    }
+
+
+    const activeMenu =
+      getActiveMenu(location.pathname);
+
+
+    /* ---------------------------------------------
+       Dashboard is accessible to logged-in users
+    --------------------------------------------- */
+
+    if (
+      location.pathname ===
+      "/admin/dashboard"
+    ) {
+      return;
+    }
+
+
+    /* ---------------------------------------------
+       If route is a protected module
+    --------------------------------------------- */
+
+    if (activeMenu) {
+
+      const allowed =
+        canViewMenu(activeMenu);
+
+
+      if (!allowed) {
+
+        console.warn(
+          "Permission denied:",
+          activeMenu
+        );
+
+
+        navigate(
+          "/admin/dashboard",
+          {
+            replace: true
+          }
+        );
+
+      }
+
+    }
+
+  }, [
+    user,
+    location.pathname
+  ]);
+
+
+  /* =====================================================
+     TOGGLE MENU
+  ===================================================== */
 
   const toggleMenu = (menu) => {
 
-    setOpenMenu((current) =>
-      current === menu ? "" : menu
+    setOpenMenu(
+      (current) =>
+        current === menu
+          ? ""
+          : menu
     );
 
   };
 
 
-  /* ================= MENU ACTIVE ================= */
+  /* =====================================================
+     MENU ACTIVE
+  ===================================================== */
 
   const isMenuActive = (menu) => {
 
     return (
-      getActiveMenu(location.pathname) === menu
+      getActiveMenu(
+        location.pathname
+      ) === menu
     );
 
   };
@@ -177,42 +513,85 @@ export default function AdminLayout() {
 
   const handleLogout = () => {
 
-    // Login/session information remove
-    localStorage.clear();
+    localStorage.removeItem(
+      "sunshine_user"
+    );
+
+    localStorage.removeItem(
+      "sunshine_logged_in"
+    );
 
     sessionStorage.clear();
 
-    // Directly go to Admin Login page
-    navigate("/admin/login", {
-      replace: true
-    });
+    navigate(
+      "/admin/login",
+      {
+        replace: true
+      }
+    );
+
   };
 
+
+  /* =====================================================
+     WAIT FOR USER
+  ===================================================== */
+
+  if (!user) {
+
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "18px"
+        }}
+      >
+        Loading...
+      </div>
+    );
+
+  }
+
+
+  /* =====================================================
+     RENDER
+  ===================================================== */
 
   return (
 
     <div className="admin-layout-container">
 
 
-      {/* =====================================================
+      {/* =================================================
           SIDEBAR
-      ===================================================== */}
+      ================================================= */}
 
       <aside className="admin-sidebar">
 
 
-        {/* ================= HEADER ================= */}
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
         <div className="sidebar-header">
 
-          <h2>Sunshine</h2>
+          <h2>
+            Sunshine
+          </h2>
 
-          <p>Admin Panel</p>
+          <p>
+            Admin Panel
+          </p>
 
         </div>
 
 
-        {/* ================= MENU ================= */}
+        {/* =================================================
+            MENU
+        ================================================= */}
 
         <nav className="sidebar-menu">
 
@@ -225,7 +604,9 @@ export default function AdminLayout() {
             to="/admin/dashboard"
             className={({ isActive }) =>
               `sidebar-link ${
-                isActive ? "active" : ""
+                isActive
+                  ? "active"
+                  : ""
               }`
             }
           >
@@ -241,744 +622,800 @@ export default function AdminLayout() {
               STUDENTS
           ================================================= */}
 
-          <div className="sidebar-group">
+          {canViewMenu("students") && (
+
+            <div className="sidebar-group">
+
+              <button
+                type="button"
+                className={`sidebar-parent ${
+                  isMenuActive("students")
+                    ? "parent-active"
+                    : ""
+                }`}
+                onClick={() =>
+                  toggleMenu("students")
+                }
+              >
+
+                <span>
+                  👨‍🎓 Students
+                </span>
+
+                <span className="menu-arrow">
+
+                  {openMenu === "students"
+                    ? "▲"
+                    : "▼"}
+
+                </span>
+
+              </button>
 
 
-            <button
-              type="button"
-              className={`sidebar-parent ${
-                isMenuActive("students")
-                  ? "parent-active"
-                  : ""
-              }`}
-              onClick={() =>
-                toggleMenu("students")
-              }
-            >
+              {openMenu === "students" && (
 
-              <span>
-                👨‍🎓 Students
-              </span>
+                <div className="sidebar-submenu">
 
-              <span className="menu-arrow">
-
-                {openMenu === "students"
-                  ? "▲"
-                  : "▼"}
-
-              </span>
-
-            </button>
+                  <NavLink
+                    to="/admin/students"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    ➕ Student Entry
+                  </NavLink>
 
 
-            {openMenu === "students" && (
-
-              <div className="sidebar-submenu">
-
-
-                <NavLink
-                  to="/admin/students"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  ➕ Student Entry
-                </NavLink>
+                  <NavLink
+                    to="/admin/student-list"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    📋 Student List
+                  </NavLink>
 
 
-                <NavLink
-                  to="/admin/student-list"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  📋 Student List
-                </NavLink>
+                  <NavLink
+                    to="/admin/pending-students"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    🕐 Pending Applications
+                  </NavLink>
 
+                </div>
 
-                <NavLink
-                  to="/admin/pending-students"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  🕐 Pending Applications
-                </NavLink>
+              )}
 
+            </div>
 
-              </div>
-
-            )}
-
-
-          </div>
+          )}
 
 
           {/* =================================================
               COURSES
           ================================================= */}
 
-          <div className="sidebar-group">
+          {canViewMenu("courses") && (
+
+            <div className="sidebar-group">
+
+              <button
+                type="button"
+                className={`sidebar-parent ${
+                  isMenuActive("courses")
+                    ? "parent-active"
+                    : ""
+                }`}
+                onClick={() =>
+                  toggleMenu("courses")
+                }
+              >
+
+                <span>
+                  📚 Courses
+                </span>
+
+                <span className="menu-arrow">
+
+                  {openMenu === "courses"
+                    ? "▲"
+                    : "▼"}
+
+                </span>
+
+              </button>
 
 
-            <button
-              type="button"
-              className={`sidebar-parent ${
-                isMenuActive("courses")
-                  ? "parent-active"
-                  : ""
-              }`}
-              onClick={() =>
-                toggleMenu("courses")
-              }
-            >
+              {openMenu === "courses" && (
 
-              <span>
-                📚 Courses
-              </span>
+                <div className="sidebar-submenu">
 
-
-              <span className="menu-arrow">
-
-                {openMenu === "courses"
-                  ? "▲"
-                  : "▼"}
-
-              </span>
-
-            </button>
+                  <NavLink
+                    to="/admin/courses"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    📖 Course List
+                  </NavLink>
 
 
-            {openMenu === "courses" && (
+                  <NavLink
+                    to="/admin/AddCourse"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    ➕ Course Entry
+                  </NavLink>
 
-              <div className="sidebar-submenu">
+                </div>
 
+              )}
 
-                <NavLink
-                  to="/admin/courses"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  📖 Course List
-                </NavLink>
+            </div>
 
-
-                <NavLink
-                  to="/admin/AddCourse"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  ➕ Course Entry
-                </NavLink>
-
-
-              </div>
-
-            )}
-
-
-          </div>
+          )}
 
 
           {/* =================================================
               INCOME & EXPENSE
           ================================================= */}
 
-          <div className="sidebar-group">
+          {canViewMenu("accounts") && (
+
+            <div className="sidebar-group">
+
+              <button
+                type="button"
+                className={`sidebar-parent ${
+                  isMenuActive("accounts")
+                    ? "parent-active"
+                    : ""
+                }`}
+                onClick={() =>
+                  toggleMenu("accounts")
+                }
+              >
+
+                <span>
+                  💰 Income & Expense
+                </span>
+
+                <span className="menu-arrow">
+
+                  {openMenu === "accounts"
+                    ? "▲"
+                    : "▼"}
+
+                </span>
+
+              </button>
 
 
-            <button
-              type="button"
-              className={`sidebar-parent ${
-                isMenuActive("accounts")
-                  ? "parent-active"
-                  : ""
-              }`}
-              onClick={() =>
-                toggleMenu("accounts")
-              }
-            >
+              {openMenu === "accounts" && (
 
-              <span>
-                💰 Income & Expense
-              </span>
+                <div className="sidebar-submenu">
 
-
-              <span className="menu-arrow">
-
-                {openMenu === "accounts"
-                  ? "▲"
-                  : "▼"}
-
-              </span>
-
-            </button>
+                  <NavLink
+                    to="/admin/income"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    ➕ Income Entry
+                  </NavLink>
 
 
-            {openMenu === "accounts" && (
-
-              <div className="sidebar-submenu">
-
-
-                {/* ================= INCOME ================= */}
-
-
-                <NavLink
-                  to="/admin/income"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  ➕ Income Entry
-                </NavLink>
+                  <NavLink
+                    to="/admin/income-list"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    📋 Income List
+                  </NavLink>
 
 
-                <NavLink
-                  to="/admin/income-list"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  📋 Income List
-                </NavLink>
+                  <NavLink
+                    to="/admin/expense"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    ➕ Expense Entry
+                  </NavLink>
 
 
-                {/* ================= EXPENSE ================= */}
+                  <NavLink
+                    to="/admin/expense-list"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    📋 Expense List
+                  </NavLink>
 
 
-                <NavLink
-                  to="/admin/expense"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  ➕ Expense Entry
-                </NavLink>
+                  <NavLink
+                    to="/admin/income-expense-report"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    📊 Income & Expense Report
+                  </NavLink>
 
+                </div>
 
-                <NavLink
-                  to="/admin/expense-list"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  📋 Expense List
-                </NavLink>
+              )}
 
+            </div>
 
-                {/* ================= REPORT ================= */}
-
-
-                <NavLink
-                  to="/admin/income-expense-report"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  📊 Income & Expense Report
-                </NavLink>
-
-
-              </div>
-
-            )}
-
-
-          </div>
+          )}
 
 
           {/* =================================================
               TEACHERS
           ================================================= */}
 
-          <div className="sidebar-group">
+          {canViewMenu("teachers") && (
+
+            <div className="sidebar-group">
+
+              <button
+                type="button"
+                className={`sidebar-parent ${
+                  isMenuActive("teachers")
+                    ? "parent-active"
+                    : ""
+                }`}
+                onClick={() =>
+                  toggleMenu("teachers")
+                }
+              >
+
+                <span>
+                  👨‍🏫 Teachers
+                </span>
+
+                <span className="menu-arrow">
+
+                  {openMenu === "teachers"
+                    ? "▲"
+                    : "▼"}
+
+                </span>
+
+              </button>
 
 
-            <button
-              type="button"
-              className={`sidebar-parent ${
-                isMenuActive("teachers")
-                  ? "parent-active"
-                  : ""
-              }`}
-              onClick={() =>
-                toggleMenu("teachers")
-              }
-            >
+              {openMenu === "teachers" && (
 
-              <span>
-                👨‍🏫 Teachers
-              </span>
+                <div className="sidebar-submenu">
 
-
-              <span className="menu-arrow">
-
-                {openMenu === "teachers"
-                  ? "▲"
-                  : "▼"}
-
-              </span>
-
-            </button>
+                  <NavLink
+                    to="/admin/teacher-list"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    📋 Teacher List
+                  </NavLink>
 
 
-            {openMenu === "teachers" && (
+                  <NavLink
+                    to="/admin/teachers"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    ➕ Teacher Entry
+                  </NavLink>
 
-              <div className="sidebar-submenu">
+                </div>
 
+              )}
 
-                <NavLink
-                  to="/admin/teacher-list"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  📋 Teacher List
-                </NavLink>
+            </div>
 
-
-                <NavLink
-                  to="/admin/teachers"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  ➕ Teacher Entry
-                </NavLink>
-
-
-              </div>
-
-            )}
-
-
-          </div>
+          )}
 
 
           {/* =================================================
               NOTICES
           ================================================= */}
 
-          <div className="sidebar-group">
+          {canViewMenu("notices") && (
+
+            <div className="sidebar-group">
+
+              <button
+                type="button"
+                className={`sidebar-parent ${
+                  isMenuActive("notices")
+                    ? "parent-active"
+                    : ""
+                }`}
+                onClick={() =>
+                  toggleMenu("notices")
+                }
+              >
+
+                <span>
+                  📢 Notices
+                </span>
+
+                <span className="menu-arrow">
+
+                  {openMenu === "notices"
+                    ? "▲"
+                    : "▼"}
+
+                </span>
+
+              </button>
 
 
-            <button
-              type="button"
-              className={`sidebar-parent ${
-                isMenuActive("notices")
-                  ? "parent-active"
-                  : ""
-              }`}
-              onClick={() =>
-                toggleMenu("notices")
-              }
-            >
+              {openMenu === "notices" && (
 
-              <span>
-                📢 Notices
-              </span>
+                <div className="sidebar-submenu">
 
-
-              <span className="menu-arrow">
-
-                {openMenu === "notices"
-                  ? "▲"
-                  : "▼"}
-
-              </span>
-
-            </button>
+                  <NavLink
+                    to="/admin/notices"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    📋 Notice List
+                  </NavLink>
 
 
-            {openMenu === "notices" && (
-
-              <div className="sidebar-submenu">
-
-
-                <NavLink
-                  to="/admin/notices"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  📋 Notice List
-                </NavLink>
+                  <NavLink
+                    to="/admin/notice-entry"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    ➕ Add Notice
+                  </NavLink>
 
 
-                <NavLink
-                  to="/admin/notice-entry"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  ➕ Add Notice
-                </NavLink>
+                  <NavLink
+                    to="/admin/notice-edit"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    ✏️ Edit Notice
+                  </NavLink>
 
+                </div>
 
-                <NavLink
-                  to="/admin/notice-edit"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  ✏️ Edit Notice
-                </NavLink>
+              )}
 
+            </div>
 
-              </div>
-
-            )}
-
-
-          </div>
+          )}
 
 
           {/* =================================================
               GALLERY
           ================================================= */}
 
-          <div className="sidebar-group">
+          {canViewMenu("gallery") && (
+
+            <div className="sidebar-group">
+
+              <button
+                type="button"
+                className={`sidebar-parent ${
+                  isMenuActive("gallery")
+                    ? "parent-active"
+                    : ""
+                }`}
+                onClick={() =>
+                  toggleMenu("gallery")
+                }
+              >
+
+                <span>
+                  🖼️ Gallery
+                </span>
+
+                <span className="menu-arrow">
+
+                  {openMenu === "gallery"
+                    ? "▲"
+                    : "▼"}
+
+                </span>
+
+              </button>
 
 
-            <button
-              type="button"
-              className={`sidebar-parent ${
-                isMenuActive("gallery")
-                  ? "parent-active"
-                  : ""
-              }`}
-              onClick={() =>
-                toggleMenu("gallery")
-              }
-            >
+              {openMenu === "gallery" && (
 
-              <span>
-                🖼️ Gallery
-              </span>
+                <div className="sidebar-submenu">
 
-
-              <span className="menu-arrow">
-
-                {openMenu === "gallery"
-                  ? "▲"
-                  : "▼"}
-
-              </span>
-
-            </button>
+                  <NavLink
+                    to="/admin/gallery"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    ➕ Add Photo
+                  </NavLink>
 
 
-            {openMenu === "gallery" && (
+                  <NavLink
+                    to="/admin/gallery-list"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    🖼️ Gallery List
+                  </NavLink>
 
-              <div className="sidebar-submenu">
+                </div>
 
+              )}
 
-                <NavLink
-                  to="/admin/gallery"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  ➕ Add Photo
-                </NavLink>
+            </div>
 
-
-                <NavLink
-                  to="/admin/gallery-list"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  🖼️ Gallery List
-                </NavLink>
-
-
-              </div>
-
-            )}
-
-
-          </div>
+          )}
 
 
           {/* =================================================
               BANNERS
           ================================================= */}
 
-          <div className="sidebar-group">
+          {canViewMenu("banners") && (
+
+            <div className="sidebar-group">
+
+              <button
+                type="button"
+                className={`sidebar-parent ${
+                  isMenuActive("banners")
+                    ? "parent-active"
+                    : ""
+                }`}
+                onClick={() =>
+                  toggleMenu("banners")
+                }
+              >
+
+                <span>
+                  🎞️ Banners
+                </span>
+
+                <span className="menu-arrow">
+
+                  {openMenu === "banners"
+                    ? "▲"
+                    : "▼"}
+
+                </span>
+
+              </button>
 
 
-            <button
-              type="button"
-              className={`sidebar-parent ${
-                isMenuActive("banners")
-                  ? "parent-active"
-                  : ""
-              }`}
-              onClick={() =>
-                toggleMenu("banners")
-              }
-            >
+              {openMenu === "banners" && (
 
-              <span>
-                🎞️ Banners
-              </span>
+                <div className="sidebar-submenu">
 
-
-              <span className="menu-arrow">
-
-                {openMenu === "banners"
-                  ? "▲"
-                  : "▼"}
-
-              </span>
-
-            </button>
+                  <NavLink
+                    to="/admin/banner-list"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    📋 Banner List
+                  </NavLink>
 
 
-            {openMenu === "banners" && (
+                  <NavLink
+                    to="/admin/banner-entry"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    ➕ Add Banner
+                  </NavLink>
 
-              <div className="sidebar-submenu">
+                </div>
 
+              )}
 
-                <NavLink
-                  to="/admin/banner-list"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  📋 Banner List
-                </NavLink>
+            </div>
 
-
-                <NavLink
-                  to="/admin/banner-entry"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  ➕ Add Banner
-                </NavLink>
-
-
-              </div>
-
-            )}
-
-
-          </div>
+          )}
 
 
           {/* =================================================
               DOWNLOADS
           ================================================= */}
 
-          <div className="sidebar-group">
+          {canViewMenu("downloads") && (
+
+            <div className="sidebar-group">
+
+              <button
+                type="button"
+                className={`sidebar-parent ${
+                  isMenuActive("downloads")
+                    ? "parent-active"
+                    : ""
+                }`}
+                onClick={() =>
+                  toggleMenu("downloads")
+                }
+              >
+
+                <span>
+                  📥 Downloads
+                </span>
+
+                <span className="menu-arrow">
+
+                  {openMenu === "downloads"
+                    ? "▲"
+                    : "▼"}
+
+                </span>
+
+              </button>
 
 
-            <button
-              type="button"
-              className={`sidebar-parent ${
-                isMenuActive("downloads")
-                  ? "parent-active"
-                  : ""
-              }`}
-              onClick={() =>
-                toggleMenu("downloads")
-              }
-            >
+              {openMenu === "downloads" && (
 
-              <span>
-                📥 Downloads
-              </span>
+                <div className="sidebar-submenu">
 
-
-              <span className="menu-arrow">
-
-                {openMenu === "downloads"
-                  ? "▲"
-                  : "▼"}
-
-              </span>
-
-            </button>
+                  <NavLink
+                    to="/admin/downloads"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    📥 Download List
+                  </NavLink>
 
 
-            {openMenu === "downloads" && (
+                  <NavLink
+                    to="/admin/download-entry"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    ➕ Add Download
+                  </NavLink>
 
-              <div className="sidebar-submenu">
+                </div>
 
+              )}
 
-                <NavLink
-                  to="/admin/downloads"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  📥 Download List
-                </NavLink>
+            </div>
 
-
-                <NavLink
-                  to="/admin/download-entry"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  ➕ Add Download
-                </NavLink>
-
-
-              </div>
-
-            )}
-
-
-          </div>
+          )}
 
 
           {/* =================================================
               BRANCHES
           ================================================= */}
 
-          <div className="sidebar-group">
+          {canViewMenu("branches") && (
+
+            <div className="sidebar-group">
+
+              <button
+                type="button"
+                className={`sidebar-parent ${
+                  isMenuActive("branches")
+                    ? "parent-active"
+                    : ""
+                }`}
+                onClick={() =>
+                  toggleMenu("branches")
+                }
+              >
+
+                <span>
+                  🏢 Branches
+                </span>
+
+                <span className="menu-arrow">
+
+                  {openMenu === "branches"
+                    ? "▲"
+                    : "▼"}
+
+                </span>
+
+              </button>
 
 
-            <button
-              type="button"
-              className={`sidebar-parent ${
-                isMenuActive("branches")
-                  ? "parent-active"
-                  : ""
-              }`}
-              onClick={() =>
-                toggleMenu("branches")
-              }
-            >
+              {openMenu === "branches" && (
 
-              <span>
-                🏢 Branches
-              </span>
+                <div className="sidebar-submenu">
 
-
-              <span className="menu-arrow">
-
-                {openMenu === "branches"
-                  ? "▲"
-                  : "▼"}
-
-              </span>
-
-            </button>
+                  <NavLink
+                    to="/admin/branch-list"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    📋 Branch List
+                  </NavLink>
 
 
-            {openMenu === "branches" && (
+                  <NavLink
+                    to="/admin/branch-entry"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    ➕ Branch Entry
+                  </NavLink>
 
-              <div className="sidebar-submenu">
+                </div>
 
+              )}
 
-                <NavLink
-                  to="/admin/branch-list"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  📋 Branch List
-                </NavLink>
+            </div>
 
-
-                <NavLink
-                  to="/admin/branch-entry"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  ➕ Branch Entry
-                </NavLink>
-
-
-              </div>
-
-            )}
-
-
-          </div>
+          )}
 
 
           {/* =================================================
               SETTINGS
           ================================================= */}
 
-          <div className="sidebar-group">
+          {canViewMenu("settings") && (
+
+            <div className="sidebar-group">
+
+              <button
+                type="button"
+                className={`sidebar-parent ${
+                  isMenuActive("settings")
+                    ? "parent-active"
+                    : ""
+                }`}
+                onClick={() =>
+                  toggleMenu("settings")
+                }
+              >
+
+                <span>
+                  ⚙️ Settings
+                </span>
+
+                <span className="menu-arrow">
+
+                  {openMenu === "settings"
+                    ? "▲"
+                    : "▼"}
+
+                </span>
+
+              </button>
 
 
-            <button
-              type="button"
-              className={`sidebar-parent ${
-                isMenuActive("settings")
-                  ? "parent-active"
-                  : ""
-              }`}
-              onClick={() =>
-                toggleMenu("settings")
-              }
-            >
+              {openMenu === "settings" && (
 
-              <span>
-                ⚙️ Settings
-              </span>
+                <div className="sidebar-submenu">
 
-
-              <span className="menu-arrow">
-
-                {openMenu === "settings"
-                  ? "▲"
-                  : "▼"}
-
-              </span>
-
-            </button>
+                  <NavLink
+                    to="/admin/settings"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    ⚙️ General Settings
+                  </NavLink>
 
 
-            {openMenu === "settings" && (
+                  <NavLink
+                    to="/admin/admin-users"
+                    className={({ isActive }) =>
+                      isActive
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    👤 Admin Users
+                  </NavLink>
 
-              <div className="sidebar-submenu">
+                </div>
 
+              )}
 
-                <NavLink
-                  to="/admin/settings"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  ⚙️ General Settings
-                </NavLink>
+            </div>
 
-
-                <NavLink
-                  to="/admin/admin-users"
-                  className={({ isActive }) =>
-                    isActive ? "active" : ""
-                  }
-                >
-                  👤 Admin Users
-                </NavLink>
-
-
-              </div>
-
-            )}
-
-
-          </div>
-
+          )}
 
         </nav>
 
 
-        {/* ================= LOGOUT ================= */}
+        {/* =================================================
+            LOGGED-IN USER
+        ================================================= */}
+
+        <div className="sidebar-user">
+
+          <div className="sidebar-user-name">
+
+            {user?.full_name ||
+              user?.username ||
+              "User"}
+
+          </div>
+
+          <div className="sidebar-user-role">
+
+            {user?.role || "User"}
+
+          </div>
+
+        </div>
+
+
+        {/* =================================================
+            LOGOUT
+        ================================================= */}
 
         <button
           type="button"
@@ -1002,7 +1439,8 @@ export default function AdminLayout() {
 
       </main>
 
-
     </div>
+
   );
+
 }
