@@ -2,40 +2,18 @@ import { useEffect, useState } from "react";
 import "./TeacherList.css";
 import PermissionModal from "./PermissionModal";
 
-// =====================================================
-// API URL
-// =====================================================
-
 const API_BASE_URL =
   "http://localhost/sunshine-api/api";
 
 const IMAGE_BASE_URL =
   "http://localhost/sunshine-api/uploads/teachers";
 
-// =====================================================
-// COMPONENT
-// =====================================================
-
 export default function TeacherList({ onEditTeacher }) {
 
-  // =====================================================
-  // TEACHER STATE
-  // =====================================================
-
   const [teachers, setTeachers] = useState([]);
-
-  const [searchTerm, setSearchTerm] =
-    useState("");
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState("");
-
-  // =====================================================
-  // USER MODAL STATE
-  // =====================================================
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [showUserModal, setShowUserModal] =
     useState(false);
@@ -55,16 +33,13 @@ export default function TeacherList({ onEditTeacher }) {
   const [userLoading, setUserLoading] =
     useState(false);
 
-  // =====================================================
-  // PERMISSION MODAL
-  // =====================================================
-
   const [permissionTeacher, setPermissionTeacher] =
     useState(null);
 
-  // =====================================================
-  // FETCH TEACHERS
-  // =====================================================
+
+  /* =====================================================
+     FETCH TEACHERS
+  ===================================================== */
 
   const fetchTeachers = async (signal) => {
 
@@ -88,17 +63,16 @@ export default function TeacherList({ onEditTeacher }) {
         await response.text();
 
       console.log(
-        "Teacher API Status:",
+        "Teacher List Status:",
         response.status
       );
 
       console.log(
-        "Teacher API Response:",
+        "Teacher List Response:",
         responseText
       );
 
       if (!response.ok) {
-
         throw new Error(
           `HTTP ${response.status}`
         );
@@ -108,13 +82,14 @@ export default function TeacherList({ onEditTeacher }) {
 
       try {
 
-        data =
-          JSON.parse(responseText);
+        data = JSON.parse(
+          responseText
+        );
 
       } catch {
 
         throw new Error(
-          "Invalid JSON response from server."
+          "Invalid JSON response."
         );
       }
 
@@ -137,12 +112,11 @@ export default function TeacherList({ onEditTeacher }) {
     } catch (err) {
 
       if (
-        err.name !==
-        "AbortError"
+        err.name !== "AbortError"
       ) {
 
         console.error(
-          "Teacher API Error:",
+          "Teacher List Error:",
           err
         );
 
@@ -154,15 +128,15 @@ export default function TeacherList({ onEditTeacher }) {
     } finally {
 
       if (!signal?.aborted) {
-
         setLoading(false);
       }
     }
   };
 
-  // =====================================================
-  // LOAD TEACHERS
-  // =====================================================
+
+  /* =====================================================
+     LOAD
+  ===================================================== */
 
   useEffect(() => {
 
@@ -174,16 +148,15 @@ export default function TeacherList({ onEditTeacher }) {
     );
 
     return () => {
-
       controller.abort();
-
     };
 
   }, []);
 
-  // =====================================================
-  // DELETE TEACHER
-  // =====================================================
+
+  /* =====================================================
+     DELETE TEACHER
+  ===================================================== */
 
   const handleDelete = async (
     teacherId
@@ -203,10 +176,7 @@ export default function TeacherList({ onEditTeacher }) {
         `আপনি কি নিশ্চিতভাবে ID: ${teacherId} ডিলিট করতে চান?`
       );
 
-    if (!confirmed) {
-
-      return;
-    }
+    if (!confirmed) return;
 
     try {
 
@@ -231,32 +201,20 @@ export default function TeacherList({ onEditTeacher }) {
           }
         );
 
-      const responseText =
+      const text =
         await response.text();
-
-      console.log(
-        "Delete Response:",
-        responseText
-      );
 
       let result;
 
       try {
 
         result =
-          JSON.parse(
-            responseText
-          );
+          JSON.parse(text);
 
       } catch {
 
         alert(
-          `Server থেকে invalid response এসেছে।
-
-${responseText.substring(
-            0,
-            500
-          )}`
+          "Server থেকে invalid response এসেছে।"
         );
 
         return;
@@ -269,9 +227,9 @@ ${responseText.substring(
         );
 
         setTeachers(
-          (prev) =>
+          prev =>
             prev.filter(
-              (teacher) =>
+              teacher =>
                 String(
                   teacher.teacher_id
                 ) !==
@@ -291,22 +249,18 @@ ${responseText.substring(
 
     } catch (err) {
 
-      console.error(
-        "Delete Error:",
-        err
-      );
+      console.error(err);
 
       alert(
-        `Server error occurred while deleting.
-
-${err.message}`
+        "Server error occurred while deleting."
       );
     }
   };
 
-  // =====================================================
-  // EDIT TEACHER
-  // =====================================================
+
+  /* =====================================================
+     EDIT
+  ===================================================== */
 
   const handleEdit = (
     teacher
@@ -321,7 +275,7 @@ ${err.message}`
     } else {
 
       alert(
-        `Edit Clicked for: ${
+        `Edit: ${
           teacher.name_en ||
           teacher.name_bn ||
           teacher.teacher_id
@@ -330,9 +284,10 @@ ${err.message}`
     }
   };
 
-  // =====================================================
-  // DETAILS
-  // =====================================================
+
+  /* =====================================================
+     DETAILS
+  ===================================================== */
 
   const handleDetails = (
     teacher
@@ -342,8 +297,7 @@ ${err.message}`
       `Teacher Details
 
 ID: ${
-        teacher.teacher_id ||
-        "N/A"
+        teacher.teacher_id || "N/A"
       }
 
 Name: ${
@@ -353,30 +307,37 @@ Name: ${
       }
 
 Course: ${
-        teacher.course ||
-        "N/A"
+        teacher.course || "N/A"
       }
 
 Designation: ${
-        teacher.designation ||
-        "N/A"
+        teacher.designation || "N/A"
       }
 
 Branch: ${
-        teacher.branch ||
-        "N/A"
+        teacher.branch || "N/A"
       }
 
 Mobile: ${
-        teacher.mobile ||
-        "N/A"
+        teacher.mobile || "N/A"
+      }
+
+User: ${
+        teacher.user_created
+          ? teacher.username
+          : "Not Created"
+      }
+
+Role: ${
+        teacher.role || "N/A"
       }`
     );
   };
 
-  // =====================================================
-  // OPEN USER MODAL
-  // =====================================================
+
+  /* =====================================================
+     OPEN USER MODAL
+  ===================================================== */
 
   const openAddUserModal = (
     teacher
@@ -396,56 +357,37 @@ Mobile: ${
 
     setPassword("");
 
-    setRole(
-      "Teacher"
-    );
+    setRole("Teacher");
 
-    setShowUserModal(
-      true
-    );
+    setShowUserModal(true);
   };
 
-  // =====================================================
-  // CLOSE USER MODAL
-  // =====================================================
+
+  /* =====================================================
+     CLOSE USER MODAL
+  ===================================================== */
 
   const closeUserModal = () => {
 
-    if (userLoading) {
+    if (userLoading) return;
 
-      return;
-    }
-
-    setShowUserModal(
-      false
-    );
-
-    setSelectedTeacher(
-      null
-    );
-
+    setShowUserModal(false);
+    setSelectedTeacher(null);
     setUsername("");
-
     setPassword("");
-
-    setRole(
-      "Teacher"
-    );
+    setRole("Teacher");
   };
 
-  // =====================================================
-  // CREATE USER
-  // =====================================================
+
+  /* =====================================================
+     CREATE USER
+  ===================================================== */
 
   const handleCreateUser = async (
     e
   ) => {
 
     e.preventDefault();
-
-    // ---------------------------------------------------
-    // TEACHER CHECK
-    // ---------------------------------------------------
 
     if (!selectedTeacher) {
 
@@ -455,10 +397,6 @@ Mobile: ${
 
       return;
     }
-
-    // ---------------------------------------------------
-    // USERNAME
-    // ---------------------------------------------------
 
     const cleanUsername =
       username.trim();
@@ -472,10 +410,6 @@ Mobile: ${
       return;
     }
 
-    // ---------------------------------------------------
-    // PASSWORD
-    // ---------------------------------------------------
-
     if (!password) {
 
       alert(
@@ -485,9 +419,7 @@ Mobile: ${
       return;
     }
 
-    if (
-      password.length < 6
-    ) {
+    if (password.length < 6) {
 
       alert(
         "Password কমপক্ষে 6 characters হতে হবে।"
@@ -495,10 +427,6 @@ Mobile: ${
 
       return;
     }
-
-    // ---------------------------------------------------
-    // TEACHER ID
-    // ---------------------------------------------------
 
     const teacherId =
       selectedTeacher.teacher_id;
@@ -512,18 +440,11 @@ Mobile: ${
       return;
     }
 
-    // ---------------------------------------------------
-    // FULL NAME
-    // ---------------------------------------------------
-
     const fullName =
       selectedTeacher.name_en ||
       selectedTeacher.name_bn ||
       String(teacherId);
 
-    // ---------------------------------------------------
-    // REQUEST DATA
-    // ---------------------------------------------------
 
     const requestData = {
 
@@ -543,34 +464,19 @@ Mobile: ${
         role,
 
       status:
-        "active",
+        "1",
     };
 
-    console.log(
-      "================================"
-    );
 
     console.log(
-      "CREATE USER REQUEST"
-    );
-
-    console.log(
+      "CREATE ADMIN REQUEST:",
       requestData
     );
 
-    console.log(
-      "================================"
-    );
 
     try {
 
-      setUserLoading(
-        true
-      );
-
-      // -------------------------------------------------
-      // FETCH
-      // -------------------------------------------------
+      setUserLoading(true);
 
       const response =
         await fetch(
@@ -581,7 +487,6 @@ Mobile: ${
             mode: "cors",
 
             headers: {
-
               "Content-Type":
                 "application/json",
 
@@ -596,35 +501,22 @@ Mobile: ${
           }
         );
 
-      console.log(
-        "User Create HTTP Status:",
-        response.status
-      );
-
-      console.log(
-        "User Create HTTP OK:",
-        response.ok
-      );
-
-      // -------------------------------------------------
-      // READ TEXT FIRST
-      // -------------------------------------------------
 
       const responseText =
         await response.text();
 
       console.log(
-        "Raw User Create Response:",
+        "Create User Status:",
+        response.status
+      );
+
+      console.log(
+        "Create User Response:",
         responseText
       );
 
-      // -------------------------------------------------
-      // EMPTY RESPONSE
-      // -------------------------------------------------
 
-      if (
-        !responseText.trim()
-      ) {
+      if (!responseText.trim()) {
 
         alert(
           `Server থেকে কোনো response পাওয়া যায়নি।
@@ -635,9 +527,6 @@ HTTP Status: ${response.status}`
         return;
       }
 
-      // -------------------------------------------------
-      // JSON PARSE
-      // -------------------------------------------------
 
       let result;
 
@@ -648,41 +537,20 @@ HTTP Status: ${response.status}`
             responseText
           );
 
-      } catch (
-        jsonError
-      ) {
-
-        console.error(
-          "JSON Parse Error:",
-          jsonError
-        );
+      } catch {
 
         alert(
           `PHP থেকে valid JSON পাওয়া যায়নি।
 
-HTTP Status: ${
-            response.status
-          }
-
-Server Response:
-
 ${responseText.substring(
             0,
-            1500
+            1000
           )}`
         );
 
         return;
       }
 
-      console.log(
-        "Parsed User Response:",
-        result
-      );
-
-      // -------------------------------------------------
-      // BACKEND ERROR
-      // -------------------------------------------------
 
       if (
         !response.ok ||
@@ -691,40 +559,29 @@ ${responseText.substring(
 
         alert(
           result.message ||
-          result.error ||
-          `User account তৈরি করা যায়নি।
-
-HTTP Status: ${
-            response.status
-          }`
+          "User account তৈরি করা যায়নি।"
         );
 
         return;
       }
 
-      // -------------------------------------------------
-      // USER ID
-      // -------------------------------------------------
 
-      const createdUserId =
+      const adminId =
         result.admin_id ||
         result.user_id ||
-        result.id ||
         null;
 
-      console.log(
-        "Created User ID:",
-        createdUserId
-      );
 
-      // -------------------------------------------------
-      // UPDATE LOCAL TEACHER
-      // -------------------------------------------------
+      /*
+      =================================================
+      UPDATE CURRENT TEACHER
+      =================================================
+      */
 
       setTeachers(
-        (prev) =>
+        prev =>
           prev.map(
-            (teacher) => {
+            teacher => {
 
               if (
                 String(
@@ -743,19 +600,22 @@ HTTP Status: ${
                     true,
 
                   user_id:
-                    createdUserId,
+                    adminId,
 
                   admin_id:
-                    createdUserId,
-
-                  user_status:
-                    "active",
+                    adminId,
 
                   username:
                     cleanUsername,
 
                   role:
                     role,
+
+                  user_role:
+                    role,
+
+                  user_status:
+                    "1",
                 };
               }
 
@@ -764,88 +624,50 @@ HTTP Status: ${
           )
       );
 
-      // -------------------------------------------------
-      // SUCCESS
-      // -------------------------------------------------
 
       alert(
         `User account successfully created!
 
 Username: ${cleanUsername}
 
-User ID: ${
-          createdUserId ||
-          "N/A"
+Admin ID: ${
+          adminId || "N/A"
         }`
       );
 
-      // -------------------------------------------------
-      // CLOSE MODAL
-      // -------------------------------------------------
 
-      setShowUserModal(
-        false
-      );
-
-      setSelectedTeacher(
-        null
-      );
-
-      setUsername("");
-
-      setPassword("");
-
-      setRole(
-        "Teacher"
-      );
+      closeUserModal();
 
     } catch (err) {
 
       console.error(
-        "================================"
-      );
-
-      console.error(
-        "CREATE USER FETCH ERROR"
-      );
-
-      console.error(
+        "Create User Error:",
         err
-      );
-
-      console.error(
-        "================================"
       );
 
       alert(
         `Server-এর সাথে যোগাযোগ করা যাচ্ছে না।
 
 Error:
-${err.message}
-
-API:
-${API_BASE_URL}/user_create.php`
+${err.message}`
       );
 
     } finally {
 
-      setUserLoading(
-        false
-      );
+      setUserLoading(false);
     }
   };
 
-  // =====================================================
-  // PERMISSION
-  // =====================================================
+
+  /* =====================================================
+     PERMISSION
+  ===================================================== */
 
   const handlePermission = (
     teacher
   ) => {
 
-    if (
-      !teacher.user_created
-    ) {
+    if (!teacher.user_created) {
 
       alert(
         "প্রথমে এই Teacher-এর User Account তৈরি করুন।"
@@ -855,13 +677,13 @@ ${API_BASE_URL}/user_create.php`
     }
 
     const userId =
-      teacher.user_id ||
-      teacher.admin_id;
+      teacher.admin_id ||
+      teacher.user_id;
 
     if (!userId) {
 
       alert(
-        "এই User-এর ID পাওয়া যাচ্ছে না। Teacher list refresh করুন।"
+        "এই User-এর ID পাওয়া যাচ্ছে না।"
       );
 
       return;
@@ -876,12 +698,10 @@ ${API_BASE_URL}/user_create.php`
 
       admin_id:
         userId,
+
     });
   };
 
-  // =====================================================
-  // CLOSE PERMISSION
-  // =====================================================
 
   const closePermissionModal =
     () => {
@@ -891,29 +711,26 @@ ${API_BASE_URL}/user_create.php`
       );
     };
 
-  // =====================================================
-  // SEARCH
-  // =====================================================
+
+  /* =====================================================
+     SEARCH
+  ===================================================== */
 
   const filteredTeachers =
     teachers.filter(
-      (teacher) => {
+      teacher => {
 
         const query =
           searchTerm
             .trim()
             .toLowerCase();
 
-        if (!query) {
-
-          return true;
-        }
+        if (!query) return true;
 
         return (
 
           String(
-            teacher.teacher_id ||
-            ""
+            teacher.teacher_id || ""
           )
             .toLowerCase()
             .includes(query)
@@ -921,8 +738,7 @@ ${API_BASE_URL}/user_create.php`
           ||
 
           String(
-            teacher.name_en ||
-            ""
+            teacher.name_en || ""
           )
             .toLowerCase()
             .includes(query)
@@ -930,8 +746,7 @@ ${API_BASE_URL}/user_create.php`
           ||
 
           String(
-            teacher.name_bn ||
-            ""
+            teacher.name_bn || ""
           )
             .toLowerCase()
             .includes(query)
@@ -939,8 +754,7 @@ ${API_BASE_URL}/user_create.php`
           ||
 
           String(
-            teacher.mobile ||
-            ""
+            teacher.mobile || ""
           )
             .toLowerCase()
             .includes(query)
@@ -948,8 +762,7 @@ ${API_BASE_URL}/user_create.php`
           ||
 
           String(
-            teacher.course ||
-            ""
+            teacher.course || ""
           )
             .toLowerCase()
             .includes(query)
@@ -957,8 +770,7 @@ ${API_BASE_URL}/user_create.php`
           ||
 
           String(
-            teacher.designation ||
-            ""
+            teacher.designation || ""
           )
             .toLowerCase()
             .includes(query)
@@ -966,8 +778,15 @@ ${API_BASE_URL}/user_create.php`
           ||
 
           String(
-            teacher.branch ||
-            ""
+            teacher.branch || ""
+          )
+            .toLowerCase()
+            .includes(query)
+
+          ||
+
+          String(
+            teacher.username || ""
           )
             .toLowerCase()
             .includes(query)
@@ -975,17 +794,14 @@ ${API_BASE_URL}/user_create.php`
       }
     );
 
-  // =====================================================
-  // RETURN
-  // =====================================================
+
+  /* =====================================================
+     RETURN
+  ===================================================== */
 
   return (
 
     <div className="teacher-container">
-
-      {/* =================================================
-          HEADER
-      ================================================= */}
 
       <div className="teacher-header">
 
@@ -1004,26 +820,20 @@ ${API_BASE_URL}/user_create.php`
         <div className="total-badge">
 
           Total:{" "}
-          {
-            filteredTeachers.length
-          }
+          {filteredTeachers.length}
 
         </div>
 
       </div>
 
 
-      {/* =================================================
-          SEARCH
-      ================================================= */}
-
       <div className="search-section">
 
         <input
           type="text"
-          placeholder="Search by ID, name, mobile, course, designation or branch..."
+          placeholder="Search by ID, name, mobile, course, designation, branch or username..."
           value={searchTerm}
-          onChange={(e) =>
+          onChange={e =>
             setSearchTerm(
               e.target.value
             )
@@ -1033,10 +843,6 @@ ${API_BASE_URL}/user_create.php`
 
       </div>
 
-
-      {/* =================================================
-          LOADING
-      ================================================= */}
 
       {loading && (
 
@@ -1049,10 +855,6 @@ ${API_BASE_URL}/user_create.php`
       )}
 
 
-      {/* =================================================
-          ERROR
-      ================================================= */}
-
       {error && (
 
         <div className="teacher-message error">
@@ -1064,17 +866,12 @@ ${API_BASE_URL}/user_create.php`
       )}
 
 
-      {/* =================================================
-          TABLE
-      ================================================= */}
-
       {!loading &&
         !error && (
 
           <div className="table-card">
 
-            {filteredTeachers.length ===
-            0 ? (
+            {filteredTeachers.length === 0 ? (
 
               <div className="teacher-message">
 
@@ -1092,45 +889,25 @@ ${API_BASE_URL}/user_create.php`
 
                     <tr>
 
-                      <th>
-                        Photo
-                      </th>
+                      <th>Photo</th>
 
-                      <th>
-                        ID No
-                      </th>
+                      <th>ID No</th>
 
-                      <th>
-                        Name
-                      </th>
+                      <th>Name</th>
 
-                      <th>
-                        Course
-                      </th>
+                      <th>Course</th>
 
-                      <th>
-                        Designation
-                      </th>
+                      <th>Designation</th>
 
-                      <th>
-                        Branch
-                      </th>
+                      <th>Branch</th>
 
-                      <th>
-                        Mobile
-                      </th>
+                      <th>Mobile</th>
 
-                      <th>
-                        Status
-                      </th>
+                      <th>Status</th>
 
-                      <th>
-                        User
-                      </th>
+                      <th>User</th>
 
-                      <th>
-                        Action
-                      </th>
+                      <th>Action</th>
 
                     </tr>
 
@@ -1140,7 +917,7 @@ ${API_BASE_URL}/user_create.php`
                   <tbody>
 
                     {filteredTeachers.map(
-                      (teacher) => (
+                      teacher => (
 
                         <tr
                           key={
@@ -1148,8 +925,6 @@ ${API_BASE_URL}/user_create.php`
                             teacher.teacher_id
                           }
                         >
-
-                          {/* PHOTO */}
 
                           <td>
 
@@ -1169,9 +944,7 @@ ${API_BASE_URL}/user_create.php`
                               ) : (
 
                                 <div className="no-photo">
-
                                   No Photo
-
                                 </div>
 
                               )}
@@ -1181,8 +954,6 @@ ${API_BASE_URL}/user_create.php`
                           </td>
 
 
-                          {/* ID */}
-
                           <td className="teacher-id">
 
                             {
@@ -1191,8 +962,6 @@ ${API_BASE_URL}/user_create.php`
 
                           </td>
 
-
-                          {/* NAME */}
 
                           <td>
 
@@ -1226,55 +995,37 @@ ${API_BASE_URL}/user_create.php`
                           </td>
 
 
-                          {/* COURSE */}
-
                           <td>
-
                             {
                               teacher.course ||
                               "N/A"
                             }
-
                           </td>
 
 
-                          {/* DESIGNATION */}
-
                           <td>
-
                             {
                               teacher.designation ||
                               "N/A"
                             }
-
                           </td>
 
 
-                          {/* BRANCH */}
-
                           <td>
-
                             {
                               teacher.branch ||
                               "N/A"
                             }
-
                           </td>
 
 
-                          {/* MOBILE */}
-
                           <td>
-
                             {
                               teacher.mobile ||
                               "N/A"
                             }
-
                           </td>
 
-
-                          {/* TEACHER STATUS */}
 
                           <td>
 
@@ -1283,7 +1034,9 @@ ${API_BASE_URL}/user_create.php`
                                 teacher.status ===
                                   "Present" ||
                                 teacher.status ===
-                                  "active"
+                                  "active" ||
+                                teacher.status ===
+                                  "1"
                                   ? "active"
                                   : "inactive"
                               }`}
@@ -1299,7 +1052,9 @@ ${API_BASE_URL}/user_create.php`
                           </td>
 
 
-                          {/* USER */}
+                          {/* =================================
+                              ADMIN USER
+                          ================================= */}
 
                           <td>
 
@@ -1321,6 +1076,17 @@ ${API_BASE_URL}/user_create.php`
                                   }
 
                                 </small>
+
+                                {teacher.role && (
+
+                                  <small>
+
+                                    Role:{" "}
+                                    {teacher.role}
+
+                                  </small>
+
+                                )}
 
                               </div>
 
@@ -1346,13 +1112,13 @@ ${API_BASE_URL}/user_create.php`
                           </td>
 
 
-                          {/* ACTION */}
+                          {/* =================================
+                              ACTION
+                          ================================= */}
 
                           <td>
 
                             <div className="action-buttons">
-
-                              {/* DETAILS */}
 
                               <button
                                 type="button"
@@ -1387,8 +1153,6 @@ ${API_BASE_URL}/user_create.php`
                               </button>
 
 
-                              {/* EDIT */}
-
                               <button
                                 type="button"
                                 className="btn-action btn-edit"
@@ -1418,8 +1182,6 @@ ${API_BASE_URL}/user_create.php`
                               </button>
 
 
-                              {/* PERMISSION */}
-
                               {teacher.user_created && (
 
                                 <button
@@ -1439,8 +1201,6 @@ ${API_BASE_URL}/user_create.php`
 
                               )}
 
-
-                              {/* DELETE */}
 
                               <button
                                 type="button"
@@ -1493,7 +1253,7 @@ ${API_BASE_URL}/user_create.php`
 
 
       {/* =================================================
-          CREATE USER MODAL
+          CREATE ADMIN USER MODAL
       ================================================= */}
 
       {showUserModal && (
@@ -1505,12 +1265,10 @@ ${API_BASE_URL}/user_create.php`
 
           <div
             className="user-modal"
-            onClick={(e) =>
+            onClick={e =>
               e.stopPropagation()
             }
           >
-
-            {/* HEADER */}
 
             <div className="user-modal-header">
 
@@ -1532,15 +1290,11 @@ ${API_BASE_URL}/user_create.php`
                 onClick={closeUserModal}
                 disabled={userLoading}
               >
-
                 ×
-
               </button>
 
             </div>
 
-
-            {/* FORM */}
 
             <form
               onSubmit={
@@ -1548,8 +1302,6 @@ ${API_BASE_URL}/user_create.php`
               }
               className="user-form"
             >
-
-              {/* TEACHER INFO */}
 
               <div className="user-teacher-info">
 
@@ -1572,6 +1324,7 @@ ${API_BASE_URL}/user_create.php`
 
                 </div>
 
+
                 <div>
 
                   <strong>
@@ -1587,7 +1340,6 @@ ${API_BASE_URL}/user_create.php`
                   <span>
 
                     ID:{" "}
-
                     {
                       selectedTeacher?.teacher_id
                     }
@@ -1597,7 +1349,6 @@ ${API_BASE_URL}/user_create.php`
                   <span>
 
                     Branch:{" "}
-
                     {
                       selectedTeacher?.branch ||
                       "N/A"
@@ -1610,8 +1361,6 @@ ${API_BASE_URL}/user_create.php`
               </div>
 
 
-              {/* USERNAME */}
-
               <div className="form-group">
 
                 <label>
@@ -1621,7 +1370,7 @@ ${API_BASE_URL}/user_create.php`
                 <input
                   type="text"
                   value={username}
-                  onChange={(e) =>
+                  onChange={e =>
                     setUsername(
                       e.target.value
                     )
@@ -1634,8 +1383,6 @@ ${API_BASE_URL}/user_create.php`
               </div>
 
 
-              {/* PASSWORD */}
-
               <div className="form-group">
 
                 <label>
@@ -1645,7 +1392,7 @@ ${API_BASE_URL}/user_create.php`
                 <input
                   type="password"
                   value={password}
-                  onChange={(e) =>
+                  onChange={e =>
                     setPassword(
                       e.target.value
                     )
@@ -1658,8 +1405,6 @@ ${API_BASE_URL}/user_create.php`
               </div>
 
 
-              {/* ROLE */}
-
               <div className="form-group">
 
                 <label>
@@ -1668,7 +1413,7 @@ ${API_BASE_URL}/user_create.php`
 
                 <select
                   value={role}
-                  onChange={(e) =>
+                  onChange={e =>
                     setRole(
                       e.target.value
                     )
@@ -1697,19 +1442,17 @@ ${API_BASE_URL}/user_create.php`
               </div>
 
 
-              {/* BUTTONS */}
-
               <div className="user-form-actions">
 
                 <button
                   type="button"
                   className="user-cancel-btn"
-                  onClick={closeUserModal}
+                  onClick={
+                    closeUserModal
+                  }
                   disabled={userLoading}
                 >
-
                   Cancel
-
                 </button>
 
                 <button

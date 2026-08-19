@@ -1,38 +1,16 @@
 import { useEffect, useState } from "react";
 import "./PermissionModal.css";
 
-const API_BASE_URL =
-  "http://localhost/sunshine-api/api";
+const API_BASE_URL = "http://localhost/sunshine-api/api";
 
 const PERMISSIONS = [
-  {
-    key: "teacher",
-    label: "Teacher",
-  },
-  {
-    key: "student",
-    label: "Student",
-  },
-  {
-    key: "course",
-    label: "Course",
-  },
-  {
-    key: "branch",
-    label: "Branch",
-  },
-  {
-    key: "income",
-    label: "Income",
-  },
-  {
-    key: "expense",
-    label: "Expense",
-  },
-  {
-    key: "report",
-    label: "Reports",
-  },
+  { key: "teacher", label: "Teacher" },
+  { key: "student", label: "Student" },
+  { key: "course", label: "Course" },
+  { key: "branch", label: "Branch" },
+  { key: "income", label: "Income" },
+  { key: "expense", label: "Expense" },
+  { key: "report", label: "Reports" },
 ];
 
 const createDefaultPermission = () => ({
@@ -42,72 +20,93 @@ const createDefaultPermission = () => ({
   can_delete: false,
 });
 
-export default function PermissionModal({
-  teacher,
-  onClose,
-}) {
+export default function PermissionModal({ teacher, onClose }) {
   const [permissions, setPermissions] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("error");
 
-  /*
-  |--------------------------------------------------------------------------
-  | Teacher ID
-  |--------------------------------------------------------------------------
-  */
+  /* =====================================================
+     ADMIN ID
+     
+     admins.id
+  ===================================================== */
 
-  const getTeacherId = () => {
-    return String(
-      teacher?.teacher_id ??
-        teacher?.teacherId ??
-        ""
-    ).trim();
+  const getAdminId = () => {
+    const id =
+      teacher?.admin_id ??
+      teacher?.user_id ??
+      null;
+
+    return id !== null && id !== undefined
+      ? String(id).trim()
+      : "";
   };
 
+  /* =====================================================
+     TEACHER ID
 
-  /*
-  |--------------------------------------------------------------------------
-  | Empty Permissions
-  |--------------------------------------------------------------------------
-  */
+     admins.teacher_id
+  ===================================================== */
+
+  const getTeacherId = () => {
+    const id =
+      teacher?.teacher_id ??
+      teacher?.teacherId ??
+      "";
+
+    return String(id).trim();
+  };
+
+  /* =====================================================
+     EMPTY PERMISSIONS
+  ===================================================== */
 
   const createEmptyPermissions = () => {
     const result = {};
 
     PERMISSIONS.forEach((item) => {
-      result[item.key] =
-        createDefaultPermission();
+      result[item.key] = createDefaultPermission();
     });
 
     return result;
   };
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | Load
-  |--------------------------------------------------------------------------
-  */
+  /* =====================================================
+     LOAD PERMISSIONS
+  ===================================================== */
 
   useEffect(() => {
     loadPermissions();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teacher]);
 
-
   const loadPermissions = async () => {
+    const adminId = getAdminId();
     const teacherId = getTeacherId();
 
-    if (!teacherId) {
+    console.log("Permission Teacher:", teacher);
+    console.log("Permission Admin ID:", adminId);
+    console.log("Permission Teacher ID:", teacherId);
+
+    /*
+      Permission-এর জন্য Admin ID সবচেয়ে গুরুত্বপূর্ণ।
+      তবে PHP compatibility-এর জন্য teacher_id-ও পাঠানো হচ্ছে।
+    */
+
+    if (!adminId && !teacherId) {
       setLoading(false);
-      setPermissions(
-        createEmptyPermissions()
-      );
+
+      setPermissions(createEmptyPermissions());
+
       setMessage(
-        "Teacher ID পাওয়া যায়নি।"
+        "Admin ID এবং Teacher ID পাওয়া যায়নি।"
       );
+
       setMessageType("error");
+
       return;
     }
 
@@ -115,11 +114,20 @@ export default function PermissionModal({
       setLoading(true);
       setMessage("");
 
+      const params = new URLSearchParams();
+
+      if (adminId) {
+        params.append("admin_id", adminId);
+      }
+
+      if (teacherId) {
+        params.append("teacher_id", teacherId);
+      }
+
       const url =
-        `${API_BASE_URL}/permission_get.php` +
-        `?teacher_id=${encodeURIComponent(
-          teacherId
-        )}`;
+        `${API_BASE_URL}/permission_get.php?${params.toString()}`;
+
+      console.log("Permission GET URL:", url);
 
       const response = await fetch(url, {
         method: "GET",
@@ -130,16 +138,16 @@ export default function PermissionModal({
 
       const text = await response.text();
 
+      console.log(
+        "Permission GET Response:",
+        text
+      );
+
       let data;
 
       try {
         data = JSON.parse(text);
       } catch {
-        console.error(
-          "Invalid JSON:",
-          text
-        );
-
         throw new Error(
           "Server থেকে সঠিক JSON response পাওয়া যায়নি।"
         );
@@ -162,9 +170,7 @@ export default function PermissionModal({
       const permissionData =
         createEmptyPermissions();
 
-      if (
-        Array.isArray(data.permissions)
-      ) {
+      if (Array.isArray(data.permissions)) {
         data.permissions.forEach((item) => {
           const key = String(
             item.permission || ""
@@ -191,9 +197,7 @@ export default function PermissionModal({
       }
 
       setPermissions(permissionData);
-
     } catch (error) {
-
       console.error(
         "Permission Load Error:",
         error
@@ -209,18 +213,14 @@ export default function PermissionModal({
       );
 
       setMessageType("error");
-
     } finally {
       setLoading(false);
     }
   };
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | Change Permission
-  |--------------------------------------------------------------------------
-  */
+  /* =====================================================
+     CHANGE PERMISSION
+  ===================================================== */
 
   const handlePermissionChange = (
     permission,
@@ -239,16 +239,11 @@ export default function PermissionModal({
     }));
   };
 
+  /* =====================================================
+     ROW ALL
+  ===================================================== */
 
-  /*
-  |--------------------------------------------------------------------------
-  | Row All
-  |--------------------------------------------------------------------------
-  */
-
-  const isRowAllSelected = (
-    permission
-  ) => {
+  const isRowAllSelected = (permission) => {
     const current =
       permissions[permission];
 
@@ -264,10 +259,7 @@ export default function PermissionModal({
     );
   };
 
-
-  const handleSelectAll = (
-    permission
-  ) => {
+  const handleSelectAll = (permission) => {
     const allSelected =
       isRowAllSelected(permission);
 
@@ -283,12 +275,9 @@ export default function PermissionModal({
     }));
   };
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | Global All
-  |--------------------------------------------------------------------------
-  */
+  /* =====================================================
+     GLOBAL ALL
+  ===================================================== */
 
   const isAllSelected = () => {
     return PERMISSIONS.every((item) =>
@@ -296,10 +285,8 @@ export default function PermissionModal({
     );
   };
 
-
   const handleSelectAllPermissions = () => {
-    const newValue =
-      !isAllSelected();
+    const newValue = !isAllSelected();
 
     const newPermissions = {};
 
@@ -312,26 +299,24 @@ export default function PermissionModal({
       };
     });
 
-    setPermissions(
-      newPermissions
-    );
+    setPermissions(newPermissions);
   };
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | Save
-  |--------------------------------------------------------------------------
-  */
+  /* =====================================================
+     SAVE PERMISSIONS
+  ===================================================== */
 
   const handleSave = async () => {
+    const adminId = getAdminId();
     const teacherId = getTeacherId();
 
-    if (!teacherId) {
+    if (!adminId && !teacherId) {
       setMessage(
-        "Teacher ID পাওয়া যায়নি।"
+        "Admin ID এবং Teacher ID পাওয়া যায়নি।"
       );
+
       setMessageType("error");
+
       return;
     }
 
@@ -362,6 +347,21 @@ export default function PermissionModal({
           };
         });
 
+      /*
+        Admin ID + Teacher ID দুটোই পাঠানো হচ্ছে।
+      */
+
+      const requestData = {
+        admin_id: adminId || null,
+        teacher_id: teacherId || null,
+        permissions: permissionList,
+      };
+
+      console.log(
+        "Permission Save Request:",
+        requestData
+      );
+
       const response = await fetch(
         `${API_BASE_URL}/permission_save.php`,
         {
@@ -375,27 +375,25 @@ export default function PermissionModal({
               "application/json",
           },
 
-          body: JSON.stringify({
-            teacher_id: teacherId,
-            permissions:
-              permissionList,
-          }),
+          body: JSON.stringify(
+            requestData
+          ),
         }
       );
 
       const text =
         await response.text();
 
+      console.log(
+        "Permission Save Response:",
+        text
+      );
+
       let data;
 
       try {
         data = JSON.parse(text);
       } catch {
-        console.error(
-          "Invalid JSON:",
-          text
-        );
-
         throw new Error(
           "Server থেকে সঠিক JSON response পাওয়া যায়নি।"
         );
@@ -424,9 +422,7 @@ export default function PermissionModal({
       setTimeout(() => {
         onClose();
       }, 700);
-
     } catch (error) {
-
       console.error(
         "Permission Save Error:",
         error
@@ -438,18 +434,14 @@ export default function PermissionModal({
       );
 
       setMessageType("error");
-
     } finally {
       setSaving(false);
     }
   };
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | Modal
-  |--------------------------------------------------------------------------
-  */
+  /* =====================================================
+     MODAL
+  ===================================================== */
 
   return (
     <div
@@ -467,8 +459,9 @@ export default function PermissionModal({
         }
       >
 
-        <div className="permission-modal-header">
+        {/* HEADER */}
 
+        <div className="permission-modal-header">
           <div>
             <h2>
               Manage Permissions
@@ -477,11 +470,22 @@ export default function PermissionModal({
             <p>
               {teacher?.name_en ||
                 teacher?.name_bn ||
-                "Teacher"}
+                teacher?.username ||
+                "User"}
             </p>
 
             <span>
-              ID: {getTeacherId()}
+              Admin ID:{" "}
+              {getAdminId() ||
+                "Not Found"}
+            </span>
+
+            <br />
+
+            <span>
+              Teacher ID:{" "}
+              {getTeacherId() ||
+                "Not Found"}
             </span>
           </div>
 
@@ -493,9 +497,9 @@ export default function PermissionModal({
           >
             ×
           </button>
-
         </div>
 
+        {/* BODY */}
 
         <div className="permission-modal-body">
 
@@ -506,7 +510,6 @@ export default function PermissionModal({
           ) : (
             <>
               <div className="permission-toolbar">
-
                 <button
                   type="button"
                   className="permission-select-all"
@@ -519,9 +522,7 @@ export default function PermissionModal({
                     ? "Unselect All"
                     : "Select All"}
                 </button>
-
               </div>
-
 
               <div className="permission-table-wrapper">
 
@@ -529,12 +530,29 @@ export default function PermissionModal({
 
                   <thead>
                     <tr>
-                      <th>Module</th>
-                      <th>View</th>
-                      <th>Add</th>
-                      <th>Edit</th>
-                      <th>Delete</th>
-                      <th>All</th>
+                      <th>
+                        Module
+                      </th>
+
+                      <th>
+                        View
+                      </th>
+
+                      <th>
+                        Add
+                      </th>
+
+                      <th>
+                        Edit
+                      </th>
+
+                      <th>
+                        Delete
+                      </th>
+
+                      <th>
+                        All
+                      </th>
                     </tr>
                   </thead>
 
@@ -542,7 +560,6 @@ export default function PermissionModal({
 
                     {PERMISSIONS.map(
                       (item) => {
-
                         const current =
                           permissions[
                             item.key
@@ -565,14 +582,15 @@ export default function PermissionModal({
                               {item.label}
                             </td>
 
-
                             {[
                               "can_view",
                               "can_add",
                               "can_edit",
                               "can_delete",
                             ].map(
-                              (action) => (
+                              (
+                                action
+                              ) => (
                                 <td
                                   key={
                                     action
@@ -599,11 +617,11 @@ export default function PermissionModal({
                                     />
 
                                     <span />
+
                                   </label>
                                 </td>
                               )
                             )}
-
 
                             <td>
                               <label className="permission-checkbox">
@@ -624,6 +642,7 @@ export default function PermissionModal({
                                 />
 
                                 <span />
+
                               </label>
                             </td>
 
@@ -640,7 +659,6 @@ export default function PermissionModal({
             </>
           )}
 
-
           {message && (
             <div
               className={`permission-message ${messageType}`}
@@ -651,6 +669,7 @@ export default function PermissionModal({
 
         </div>
 
+        {/* FOOTER */}
 
         <div className="permission-modal-footer">
 
@@ -670,7 +689,8 @@ export default function PermissionModal({
             disabled={
               loading ||
               saving ||
-              !getTeacherId()
+              (!getAdminId() &&
+                !getTeacherId())
             }
           >
             {saving
