@@ -1,122 +1,191 @@
-/* =====================================================
+/* =========================================================
    ADMIN LAYOUT
-===================================================== */
+========================================================= */
 
 .admin-layout-container {
   display: flex;
-  width: 100%;
   min-height: 100vh;
-
-  background: #f8fafc;
+  width: 100%;
+  background: #f5f7fb;
 }
 
 
-/* =====================================================
+/* =========================================================
    SIDEBAR
-===================================================== */
+========================================================= */
 
 .admin-sidebar {
   width: 250px;
   min-width: 250px;
-  height: 100vh;
+  min-height: 100vh;
 
   display: flex;
   flex-direction: column;
 
   background: #ffffff;
 
-  border-right: 1px solid #e2e8f0;
+  border-right: 1px solid #e5e7eb;
 
   box-sizing: border-box;
 
-  position: sticky;
-  top: 0;
+  overflow-y: auto;
 }
 
 
-/* =====================================================
-   SIDEBAR HEADER
-===================================================== */
+/* =========================================================
+   USER PROFILE
+========================================================= */
 
-.sidebar-header {
-  padding: 20px;
+.sidebar-user-profile {
+  display: flex;
+  align-items: center;
 
-  border-bottom: 1px solid #e2e8f0;
+  gap: 12px;
+
+  padding: 18px 16px;
+
+  margin-bottom: 5px;
+
+  border-bottom: 1px solid #eeeeee;
 
   background: #ffffff;
 }
 
-.sidebar-header h2 {
-  margin: 0;
 
-  color: #1e293b;
+/* =========================================================
+   USER PHOTO
+========================================================= */
 
-  font-size: 22px;
-  font-weight: 700;
+.sidebar-user-photo {
+  width: 42px;
+  height: 42px;
 
-  line-height: 1.2;
+  min-width: 42px;
+
+  border-radius: 50%;
+
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-size: 18px;
+  font-weight: 600;
+
+  border: 2px solid #e5e7eb;
+
+  box-sizing: border-box;
 }
 
-.sidebar-header p {
-  margin: 5px 0 0;
 
-  color: #64748b;
+.sidebar-user-photo img {
+  width: 100%;
+  height: 100%;
 
-  font-size: 13px;
+  object-fit: cover;
+
+  display: block;
 }
 
 
-/* =====================================================
-   SIDEBAR MENU
-===================================================== */
+/* =========================================================
+   PHOTO FALLBACK
+========================================================= */
+
+.sidebar-user-photo.photo-fallback {
+  background: #2563eb;
+
+  color: #ffffff;
+}
+
+
+.sidebar-user-photo.photo-fallback::after {
+  content: "";
+}
+
+
+/* =========================================================
+   USER INFORMATION
+========================================================= */
+
+.sidebar-user-info {
+  min-width: 0;
+
+  flex: 1;
+}
+
+
+.sidebar-user-name {
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: #1f2937;
+
+  line-height: 1.3;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+
+.sidebar-user-role {
+  margin-top: 3px;
+
+  font-size: 12px;
+
+  color: #6b7280;
+
+  text-transform: capitalize;
+
+  line-height: 1.3;
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
 
 .sidebar-menu {
   flex: 1;
 
-  padding: 12px 10px;
-
-  overflow-y: auto;
-  overflow-x: hidden;
+  padding: 8px 10px 15px;
 
   box-sizing: border-box;
 }
 
 
-/* =====================================================
-   SIDEBAR GROUP
-===================================================== */
-
-.sidebar-group {
-  width: 100%;
-
-  margin-bottom: 4px;
-}
-
-
-/* =====================================================
-   DASHBOARD / NORMAL SIDEBAR LINK
-===================================================== */
+/* =========================================================
+   NORMAL LINK
+========================================================= */
 
 .sidebar-link {
-  width: 100%;
-  min-height: 42px;
-
   display: flex;
+
   align-items: center;
 
-  padding: 0 12px;
+  min-height: 42px;
 
-  box-sizing: border-box;
+  padding: 0 13px;
+
+  margin-bottom: 4px;
 
   border-radius: 7px;
 
-  color: #475569;
-
-  background: transparent;
-
   text-decoration: none;
 
+  color: #374151;
+
   font-size: 14px;
+
   font-weight: 500;
 
   transition:
@@ -124,151 +193,146 @@
     color 0.2s ease;
 }
 
-.sidebar-link:hover {
-  background: #f1f5f9;
 
-  color: #1e293b;
+.sidebar-link:hover {
+  background: #f3f4f6;
+
+  color: #111827;
 }
 
-.sidebar-link.active {
-  background: #eff6ff;
 
-  color: #2563eb;
+.sidebar-link.active {
+  background: #2563eb;
+
+  color: #ffffff;
 
   font-weight: 600;
 }
 
 
-/* =====================================================
-   PARENT MENU BUTTON
-===================================================== */
+/* =========================================================
+   SIDEBAR GROUP
+========================================================= */
+
+.sidebar-group {
+  margin-bottom: 4px;
+}
+
+
+/* =========================================================
+   PARENT BUTTON
+========================================================= */
 
 .sidebar-parent {
   width: 100%;
+
   min-height: 42px;
 
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 12px;
-
-  box-sizing: border-box;
+  padding: 0 13px;
 
   border: none;
-  border-radius: 7px;
 
-  outline: none;
+  border-radius: 7px;
 
   background: transparent;
 
-  color: #475569;
+  color: #374151;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  cursor: pointer;
 
   font-family: inherit;
 
   font-size: 14px;
-  font-weight: 600;
+
+  font-weight: 500;
 
   text-align: left;
-
-  cursor: pointer;
 
   transition:
     background 0.2s ease,
     color 0.2s ease;
 }
 
-.sidebar-parent:hover {
-  background: #f1f5f9;
 
-  color: #1e293b;
+.sidebar-parent:hover {
+  background: #f3f4f6;
+
+  color: #111827;
 }
 
-
-/* =====================================================
-   ACTIVE PARENT MENU
-===================================================== */
 
 .sidebar-parent.parent-active {
   background: #eff6ff;
 
   color: #2563eb;
+
+  font-weight: 600;
 }
 
 
-/* =====================================================
-   MENU ARROW
-===================================================== */
+/* =========================================================
+   ARROW
+========================================================= */
 
 .menu-arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 18px;
-  height: 18px;
-
-  color: #94a3b8;
-
   font-size: 9px;
 
-  transition: transform 0.2s ease;
+  opacity: 0.75;
+
+  margin-left: 8px;
 }
 
-.sidebar-parent.parent-active .menu-arrow {
-  color: #2563eb;
-}
 
-
-/* =====================================================
-   SUBMENU
-===================================================== */
+/* =========================================================
+   SUB MENU
+========================================================= */
 
 .sidebar-submenu {
-  margin: 3px 0 5px 12px;
+  margin-left: 10px;
 
-  padding: 3px 0 3px 10px;
+  margin-top: 3px;
 
-  border-left: 2px solid #e2e8f0;
+  margin-bottom: 4px;
 
-  box-sizing: border-box;
+  padding-left: 10px;
+
+  border-left: 1px solid #e5e7eb;
 }
 
 
-/* =====================================================
-   SUBMENU LINKS
-===================================================== */
-
 .sidebar-submenu a {
-  width: 100%;
-  min-height: 36px;
+  display: block;
 
-  display: flex;
-  align-items: center;
+  padding: 9px 10px;
 
-  padding: 0 10px;
-
-  box-sizing: border-box;
+  margin: 2px 0;
 
   border-radius: 6px;
 
-  color: #64748b;
-
   text-decoration: none;
 
+  color: #6b7280;
+
   font-size: 13px;
-  font-weight: 500;
 
   transition:
     background 0.2s ease,
     color 0.2s ease;
 }
 
-.sidebar-submenu a:hover {
-  background: #f8fafc;
 
-  color: #1e293b;
+.sidebar-submenu a:hover {
+  background: #f3f4f6;
+
+  color: #2563eb;
 }
+
 
 .sidebar-submenu a.active {
   background: #eff6ff;
@@ -279,47 +343,29 @@
 }
 
 
-/* =====================================================
-   MAIN CONTENT
-===================================================== */
-
-.admin-main {
-  flex: 1;
-
-  min-width: 0;
-  min-height: 100vh;
-
-  background: #f8fafc;
-
-  box-sizing: border-box;
-
-  overflow-x: auto;
-}
-
-
-/* =====================================================
-   LOGOUT BUTTON
-===================================================== */
+/* =========================================================
+   LOGOUT
+========================================================= */
 
 .logout-button {
   width: calc(100% - 20px);
 
-  min-height: 40px;
+  margin: 8px 10px 15px;
 
-  margin: 10px;
-
-  padding: 0 12px;
+  min-height: 42px;
 
   border: none;
+
   border-radius: 7px;
 
   background: #fee2e2;
 
-  color: #b91c1c;
+  color: #dc2626;
 
   font-family: inherit;
 
   font-size: 14px;
+
   font-weight: 600;
 
   cursor: pointer;
@@ -329,502 +375,132 @@
     color 0.2s ease;
 }
 
+
 .logout-button:hover {
   background: #fecaca;
 
-  color: #991b1b;
+  color: #b91c1c;
 }
 
 
-/* =====================================================
-   SIDEBAR SCROLLBAR
-===================================================== */
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
 
-.sidebar-menu::-webkit-scrollbar {
+.admin-main {
+  flex: 1;
+
+  min-width: 0;
+
+  min-height: 100vh;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  background: #f5f7fb;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.admin-sidebar::-webkit-scrollbar {
   width: 5px;
 }
 
-.sidebar-menu::-webkit-scrollbar-track {
+
+.admin-sidebar::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.sidebar-menu::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
 
   border-radius: 10px;
 }
 
-.sidebar-menu::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 
-/* =====================================================
-   FIREFOX SCROLLBAR
-===================================================== */
-
-.sidebar-menu {
-  scrollbar-width: thin;
-
-  scrollbar-color: #cbd5e1 transparent;
-}
-
-
-/* =====================================================
-   MOBILE / TABLET
-===================================================== */
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
 @media (max-width: 768px) {
 
   .admin-sidebar {
     width: 220px;
+
     min-width: 220px;
   }
 
 
-  .sidebar-header {
-    padding: 18px 15px;
+  .admin-main {
+    padding: 15px;
   }
 
 
-  .sidebar-header h2 {
-    font-size: 20px;
-  }
-
-
-  .sidebar-header p {
-    font-size: 12px;
-  }
-
-
-  .sidebar-menu {
-    padding: 10px 8px;
-  }
-
-
-  .sidebar-link,
-  .sidebar-parent {
-    min-height: 40px;
-
-    padding: 0 10px;
-
-    font-size: 13px;
-  }
-
-
-  .sidebar-submenu {
-    margin-left: 10px;
-
-    padding-left: 8px;
-  }
-
-
-  .sidebar-submenu a {
-    min-height: 34px;
-
-    padding: 0 8px;
-
-    font-size: 12px;
-  }
-
-
-  .logout-button {
-    min-height: 38px;
-
-    font-size: 13px;
-  }
-}
-
-
-/* =====================================================
-   SMALL MOBILE
-===================================================== */
-
-@media (max-width: 480px) {
-
-  .admin-sidebar {
-    width: 200px;
-    min-width: 200px;
-  }
-
-
-  .sidebar-header {
+  .sidebar-user-profile {
     padding: 15px 12px;
   }
 
 
-  .sidebar-header h2 {
-    font-size: 18px;
+  .sidebar-user-photo {
+    width: 38px;
+
+    height: 38px;
+
+    min-width: 38px;
   }
 
 
-  .sidebar-header p {
+  .sidebar-user-name {
+    font-size: 13px;
+  }
+
+
+  .sidebar-user-role {
     font-size: 11px;
+  }
+
+}
+
+
+@media (max-width: 576px) {
+
+  .admin-sidebar {
+    width: 200px;
+
+    min-width: 200px;
+  }
+
+
+  .sidebar-menu {
+    padding-left: 7px;
+
+    padding-right: 7px;
   }
 
 
   .sidebar-link,
   .sidebar-parent {
-    min-height: 38px;
-
-    font-size: 12px;
+    font-size: 13px;
   }
 
 
   .sidebar-submenu a {
-    min-height: 32px;
-
-    font-size: 11px;
-  }
-
-
-  .menu-arrow {
-    font-size: 8px;
-  }
-}
-
-
-/* =====================================================
-   PRINT
-   ONLY STUDENT PROFILE
-===================================================== */
-
-@media print {
-
-  /* -----------------------------------------
-     A4 PAGE
-  ----------------------------------------- */
-
-  @page {
-    size: A4 portrait;
-    margin: 10mm;
-  }
-
-
-  /* -----------------------------------------
-     BODY
-  ----------------------------------------- */
-
-  html,
-  body {
-    margin: 0 !important;
-    padding: 0 !important;
-
-    width: 100% !important;
-
-    background: #ffffff !important;
-  }
-
-
-  /* -----------------------------------------
-     HIDE ADMIN ELEMENTS
-  ----------------------------------------- */
-
-  .admin-sidebar,
-  .admin-header,
-  .admin-navbar,
-  .admin-footer,
-
-  .sidebar,
-  .header,
-  .navbar,
-  .footer,
-
-  nav,
-  footer {
-    display: none !important;
-  }
-
-
-  /* -----------------------------------------
-     ADMIN LAYOUT
-  ----------------------------------------- */
-
-  .admin-layout-container {
-    display: block !important;
-
-    width: 100% !important;
-    min-height: auto !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    background: #ffffff !important;
+    font-size: 12px;
   }
 
 
   .admin-main {
-    display: block !important;
-
-    width: 100% !important;
-    min-width: 0 !important;
-    min-height: auto !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    background: #ffffff !important;
-
-    overflow: visible !important;
+    padding: 10px;
   }
 
-
-  /* -----------------------------------------
-     ONLY STUDENT PROFILE
-  ----------------------------------------- */
-
-  .student-profile {
-    display: block !important;
-
-    width: 100% !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    background: #ffffff !important;
-  }
-
-
-  /* -----------------------------------------
-     PROFILE HEADER
-     Hide browser print heading/header
-  ----------------------------------------- */
-
-  .student-profile .profile-header {
-    display: none !important;
-  }
-
-
-  /* -----------------------------------------
-     PROFILE CARD
-  ----------------------------------------- */
-
-  .student-profile .profile-card {
-    width: 100% !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    border: none !important;
-    box-shadow: none !important;
-
-    background: #ffffff !important;
-  }
-
-
-  /* -----------------------------------------
-     PROFILE TOP
-  ----------------------------------------- */
-
-  .student-profile .profile-top {
-    display: flex !important;
-
-    align-items: center !important;
-
-    width: 100% !important;
-
-    margin-bottom: 8mm !important;
-
-    padding-bottom: 5mm !important;
-
-    border-bottom: 1px solid #cbd5e1 !important;
-  }
-
-
-  .student-profile .profile-photo-box {
-    flex: 0 0 30mm !important;
-
-    width: 30mm !important;
-    height: 38mm !important;
-
-    margin-right: 6mm !important;
-
-    overflow: hidden !important;
-
-    border: 1px solid #cbd5e1 !important;
-
-    border-radius: 4px !important;
-
-    box-shadow: none !important;
-  }
-
-
-  .student-profile .profile-photo-box img {
-    width: 100% !important;
-    height: 100% !important;
-
-    object-fit: cover !important;
-  }
-
-
-  .student-profile .profile-basic {
-    flex: 1 !important;
-  }
-
-
-  .student-profile .profile-basic h2 {
-    margin: 0 0 2mm !important;
-
-    font-size: 18pt !important;
-  }
-
-
-  .student-profile .bangla-name {
-    margin: 0 0 2mm !important;
-
-    font-size: 11pt !important;
-  }
-
-
-  .student-profile .profile-id {
-    margin-bottom: 3mm !important;
-
-    font-size: 9pt !important;
-  }
-
-
-  .student-profile .profile-tags {
-    display: flex !important;
-
-    gap: 3mm !important;
-  }
-
-
-  .student-profile .profile-tags span {
-    padding: 1.5mm 3mm !important;
-
-    font-size: 8pt !important;
-
-    border: 1px solid #cbd5e1 !important;
-
-    border-radius: 3mm !important;
-  }
-
-
-  /* -----------------------------------------
-     SECTIONS
-  ----------------------------------------- */
-
-  .student-profile .profile-section {
-    margin-bottom: 6mm !important;
-
-    page-break-inside: avoid !important;
-
-    break-inside: avoid !important;
-  }
-
-
-  .student-profile .profile-section h3 {
-    margin: 0 0 3mm !important;
-    padding: 2mm 3mm !important;
-
-    font-size: 11pt !important;
-
-    border-bottom: 1px solid #cbd5e1 !important;
-
-    background: #f8fafc !important;
-
-    color: #1e293b !important;
-  }
-
-
-  /* -----------------------------------------
-     INFORMATION GRID
-  ----------------------------------------- */
-
-  .student-profile .info-grid {
-    display: grid !important;
-
-    grid-template-columns: repeat(4, 1fr) !important;
-
-    gap: 2.5mm !important;
-
-    width: 100% !important;
-  }
-
-
-  .student-profile .info-grid > div {
-    padding: 2mm !important;
-
-    min-width: 0 !important;
-
-    border: 1px solid #e2e8f0 !important;
-
-    border-radius: 2mm !important;
-
-    page-break-inside: avoid !important;
-  }
-
-
-  .student-profile .info-grid label {
-    display: block !important;
-
-    margin-bottom: 1mm !important;
-
-    font-size: 7.5pt !important;
-
-    color: #64748b !important;
-  }
-
-
-  .student-profile .info-grid p {
-    margin: 0 !important;
-
-    font-size: 9pt !important;
-
-    line-height: 1.3 !important;
-
-    color: #1e293b !important;
-
-    word-break: break-word !important;
-  }
-
-
-  /* -----------------------------------------
-     EDUCATION
-  ----------------------------------------- */
-
-  .student-profile .education-block {
-    margin-bottom: 4mm !important;
-
-    page-break-inside: avoid !important;
-
-    break-inside: avoid !important;
-  }
-
-
-  .student-profile .education-block h4 {
-    margin: 0 0 2mm !important;
-
-    padding: 1.5mm 3mm !important;
-
-    font-size: 10pt !important;
-
-    color: #334155 !important;
-
-    background: #f1f5f9 !important;
-
-    border-left: 3px solid #2563eb !important;
-  }
-
-
-  /* -----------------------------------------
-     BUTTONS HIDE
-  ----------------------------------------- */
-
-  .profile-buttons,
-  .back-button,
-  .print-button {
-    display: none !important;
-  }
-
-
-  /* -----------------------------------------
-     ERROR / LOADING
-  ----------------------------------------- */
-
-  .profile-error,
-  .profile-loading {
-    display: none !important;
-  }
 }
