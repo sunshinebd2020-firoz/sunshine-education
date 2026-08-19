@@ -5,10 +5,6 @@ const API_BASE_URL =
   "http://localhost/sunshine-api/api";
 
 
-/* =====================================================
-   ALL PERMISSIONS
-===================================================== */
-
 const PERMISSIONS = [
 
   {
@@ -74,22 +70,24 @@ const PERMISSIONS = [
 ];
 
 
-const createDefaultPermission = () => ({
+const createDefaultPermission =
+  () => ({
 
-  can_view: false,
+    can_view: false,
 
-  can_add: false,
+    can_add: false,
 
-  can_edit: false,
+    can_edit: false,
 
-  can_delete: false,
+    can_delete: false,
 
-});
+  });
 
 
 export default function PermissionModal({
   teacher,
   onClose,
+  onSaved,
 }) {
 
   const [permissions, setPermissions] =
@@ -108,49 +106,162 @@ export default function PermissionModal({
     useState("error");
 
 
-  /* =====================================================
-     ADMIN ID
-  ===================================================== */
+  /*
+  =====================================================
+  CURRENT USER
+  =====================================================
+  */
 
-  const getAdminId = () => {
+  const getCurrentUser = () => {
+
+    try {
+
+      const saved =
+        localStorage.getItem(
+          "sunshine_user"
+        );
+
+
+      if (saved) {
+
+        const user =
+          JSON.parse(saved);
+
+        if (
+          user &&
+          (
+            user.id ||
+            user.admin_id ||
+            user.user_id
+          )
+        ) {
+
+          return user;
+        }
+      }
+
+    } catch {
+      // Ignore
+    }
+
+
+    return null;
+  };
+
+
+  /*
+  =====================================================
+  CURRENT ADMIN ID
+  =====================================================
+  */
+
+  const getCurrentAdminId = () => {
+
+    const user =
+      getCurrentUser();
+
+
+    if (!user) return "";
+
+
+    return String(
+      user.id ||
+      user.admin_id ||
+      user.user_id ||
+      ""
+    ).trim();
+  };
+
+
+  /*
+  =====================================================
+  TARGET ADMIN ID
+  =====================================================
+  */
+
+  const getTargetAdminId = () => {
 
     const id =
       teacher?.admin_id ??
       teacher?.user_id ??
-      teacher?.id ??
       null;
 
-    return id !== null &&
-      id !== undefined
-      ? String(id).trim()
-      : "";
 
+    if (
+      id === null ||
+      id === undefined ||
+      id === ""
+    ) {
+
+      return "";
+    }
+
+
+    return String(
+      id
+    ).trim();
   };
 
 
-  /* =====================================================
-     EMPTY
-  ===================================================== */
+  /*
+  =====================================================
+  SELF CHECK
+  =====================================================
+  */
 
-  const createEmptyPermissions = () => {
+  const isSelfPermissionChange =
+    () => {
 
-    const result = {};
+      const currentId =
+        getCurrentAdminId();
 
-    PERMISSIONS.forEach((item) => {
-
-      result[item.key] =
-        createDefaultPermission();
-
-    });
-
-    return result;
-
-  };
+      const targetId =
+        getTargetAdminId();
 
 
-  /* =====================================================
-     LOAD
-  ===================================================== */
+      return (
+
+        currentId !== "" &&
+
+        targetId !== "" &&
+
+        currentId === targetId
+
+      );
+    };
+
+
+  /*
+  =====================================================
+  EMPTY PERMISSIONS
+  =====================================================
+  */
+
+  const createEmptyPermissions =
+    () => {
+
+      const result = {};
+
+
+      PERMISSIONS.forEach(
+        item => {
+
+          result[item.key] =
+            createDefaultPermission();
+
+        }
+      );
+
+
+      return result;
+    };
+
+
+  /*
+  =====================================================
+  LOAD
+  =====================================================
+  */
 
   useEffect(() => {
 
@@ -161,244 +272,282 @@ export default function PermissionModal({
   }, [teacher]);
 
 
-  const loadPermissions = async () => {
+  const loadPermissions =
+    async () => {
 
-    const adminId =
-      getAdminId();
-
-
-    if (!adminId) {
-
-      setLoading(false);
-
-      setPermissions(
-        createEmptyPermissions()
-      );
-
-      setMessage(
-        "Admin ID পাওয়া যায়নি।"
-      );
-
-      setMessageType("error");
-
-      return;
-
-    }
+      const targetId =
+        getTargetAdminId();
 
 
-    try {
+      if (!targetId) {
 
-      setLoading(true);
-
-      setMessage("");
-
-
-      const url =
-        `${API_BASE_URL}/permission_get.php?admin_id=${encodeURIComponent(
-          adminId
-        )}`;
-
-
-      const response =
-        await fetch(url, {
-
-          method: "GET",
-
-          headers: {
-            Accept:
-              "application/json",
-          },
-
-        });
-
-
-      const text =
-        await response.text();
-
-
-      let data;
-
-      try {
-
-        data =
-          JSON.parse(text);
-
-      } catch {
-
-        throw new Error(
-          "Server থেকে সঠিক JSON response পাওয়া যায়নি।"
+        setPermissions(
+          createEmptyPermissions()
         );
 
-      }
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          data.message ||
-          `Server error: ${response.status}`
+        setMessage(
+          "Admin ID পাওয়া যায়নি।"
         );
 
-      }
-
-
-      if (!data.success) {
-
-        throw new Error(
-          data.message ||
-          "Permission load করা যাচ্ছে না।"
+        setMessageType(
+          "error"
         );
 
+        setLoading(false);
+
+        return;
       }
-
-
-      const permissionData =
-        createEmptyPermissions();
 
 
       if (
-        Array.isArray(
-          data.permissions
-        )
+        isSelfPermissionChange()
       ) {
 
-        data.permissions.forEach(
-          (item) => {
-
-            const key =
-              String(
-                item.permission ||
-                ""
-              )
-                .trim()
-                .toLowerCase();
-
-
-            if (
-              permissionData[key]
-            ) {
-
-              permissionData[key] = {
-
-                can_view:
-                  Number(
-                    item.can_view
-                  ) === 1,
-
-                can_add:
-                  Number(
-                    item.can_add
-                  ) === 1,
-
-                can_edit:
-                  Number(
-                    item.can_edit
-                  ) === 1,
-
-                can_delete:
-                  Number(
-                    item.can_delete
-                  ) === 1,
-
-              };
-
-            }
-
-          }
+        setPermissions(
+          createEmptyPermissions()
         );
 
+        setMessage(
+          "আপনি নিজের permission পরিবর্তন করতে পারবেন না।"
+        );
+
+        setMessageType(
+          "error"
+        );
+
+        setLoading(false);
+
+        return;
+      }
+
+
+      try {
+
+        setLoading(true);
+
+        setMessage("");
+
+
+        const response =
+          await fetch(
+            `${API_BASE_URL}/permission_get.php?admin_id=${encodeURIComponent(
+              targetId
+            )}`,
+            {
+              method: "GET",
+
+              credentials: "include",
+
+              headers: {
+                Accept:
+                  "application/json"
+              }
+            }
+          );
+
+
+        const text =
+          await response.text();
+
+
+        if (!text.trim()) {
+
+          throw new Error(
+            "Server থেকে empty response পাওয়া গেছে।"
+          );
+        }
+
+
+        const data =
+          JSON.parse(text);
+
+
+        if (
+          !response.ok ||
+          !data.success
+        ) {
+
+          throw new Error(
+            data.message ||
+            "Permission load করা যাচ্ছে না।"
+          );
+        }
+
+
+        const permissionData =
+          createEmptyPermissions();
+
+
+        if (
+          Array.isArray(
+            data.permissions
+          )
+        ) {
+
+          data.permissions.forEach(
+            item => {
+
+              const key =
+                String(
+                  item.permission ||
+                  ""
+                )
+                  .trim()
+                  .toLowerCase();
+
+
+              if (
+                permissionData[key]
+              ) {
+
+                permissionData[key] = {
+
+                  can_view:
+                    Number(
+                      item.can_view
+                    ) === 1,
+
+                  can_add:
+                    Number(
+                      item.can_add
+                    ) === 1,
+
+                  can_edit:
+                    Number(
+                      item.can_edit
+                    ) === 1,
+
+                  can_delete:
+                    Number(
+                      item.can_delete
+                    ) === 1,
+
+                };
+              }
+
+            }
+          );
+        }
+
+
+        setPermissions(
+          permissionData
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Permission Load Error:",
+          error
+        );
+
+
+        setPermissions(
+          createEmptyPermissions()
+        );
+
+
+        setMessage(
+          error.message ||
+          "Permission load করা যাচ্ছে না।"
+        );
+
+        setMessageType(
+          "error"
+        );
+
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+
+  /*
+  =====================================================
+  CHANGE
+  =====================================================
+  */
+
+  const handlePermissionChange =
+    (
+      permission,
+      action
+    ) => {
+
+      if (
+        saving ||
+        isSelfPermissionChange()
+      ) {
+        return;
       }
 
 
       setPermissions(
-        permissionData
+        prev => ({
+
+          ...prev,
+
+          [permission]: {
+
+            ...(prev[permission] ||
+              createDefaultPermission()),
+
+            [action]:
+              !prev[permission]?.[
+                action
+              ],
+
+          },
+
+        })
       );
+    };
 
 
-    } catch (error) {
-
-      console.error(
-        "Permission Load Error:",
-        error
-      );
-
-
-      setPermissions(
-        createEmptyPermissions()
-      );
-
-
-      setMessage(
-        error.message ||
-        "Permission load করা যাচ্ছে না।"
-      );
-
-      setMessageType("error");
-
-
-    } finally {
-
-      setLoading(false);
-
-    }
-
-  };
-
-
-  /* =====================================================
-     CHANGE
-  ===================================================== */
-
-  const handlePermissionChange = (
-    permission,
-    action
-  ) => {
-
-    setPermissions((prev) => ({
-
-      ...prev,
-
-      [permission]: {
-
-        ...(prev[permission] ||
-          createDefaultPermission()),
-
-        [action]:
-          !prev[permission]?.[action],
-
-      },
-
-    }));
-
-  };
-
-
-  /* =====================================================
-     ROW ALL
-  ===================================================== */
+  /*
+  =====================================================
+  ROW ALL
+  =====================================================
+  */
 
   const isRowAllSelected =
-    (permission) => {
+    permission => {
 
       const current =
-        permissions[permission];
+        permissions[
+          permission
+        ];
+
 
       if (!current) {
         return false;
       }
 
+
       return (
+
         current.can_view &&
         current.can_add &&
         current.can_edit &&
         current.can_delete
-      );
 
+      );
     };
 
 
   const handleSelectAll =
-    (permission) => {
+    permission => {
+
+      if (
+        saving ||
+        isSelfPermissionChange()
+      ) {
+        return;
+      }
+
 
       const allSelected =
         isRowAllSelected(
@@ -406,59 +555,71 @@ export default function PermissionModal({
         );
 
 
-      setPermissions((prev) => ({
+      setPermissions(
+        prev => ({
 
-        ...prev,
+          ...prev,
 
-        [permission]: {
+          [permission]: {
 
-          can_view:
-            !allSelected,
+            can_view:
+              !allSelected,
 
-          can_add:
-            !allSelected,
+            can_add:
+              !allSelected,
 
-          can_edit:
-            !allSelected,
+            can_edit:
+              !allSelected,
 
-          can_delete:
-            !allSelected,
+            can_delete:
+              !allSelected,
 
-        },
+          },
 
-      }));
-
+        })
+      );
     };
 
 
-  /* =====================================================
-     GLOBAL ALL
-  ===================================================== */
+  /*
+  =====================================================
+  GLOBAL ALL
+  =====================================================
+  */
 
-  const isAllSelected = () => {
+  const isAllSelected =
+    () => {
 
-    return PERMISSIONS.every(
-      (item) =>
-        isRowAllSelected(
-          item.key
-        )
-    );
-
-  };
+      return PERMISSIONS.every(
+        item =>
+          isRowAllSelected(
+            item.key
+          )
+      );
+    };
 
 
   const handleSelectAllPermissions =
     () => {
 
+      if (
+        saving ||
+        isSelfPermissionChange()
+      ) {
+        return;
+      }
+
+
       const newValue =
         !isAllSelected();
 
 
-      const newPermissions = {};
+      const newPermissions =
+        {};
 
 
       PERMISSIONS.forEach(
-        (item) => {
+        item => {
 
           newPermissions[
             item.key
@@ -485,212 +646,222 @@ export default function PermissionModal({
       setPermissions(
         newPermissions
       );
-
     };
 
 
-  /* =====================================================
-     SAVE
-  ===================================================== */
+  /*
+  =====================================================
+  SAVE
+  =====================================================
+  */
 
-  const handleSave = async () => {
+  const handleSave =
+    async () => {
 
-    const adminId =
-      getAdminId();
-
-
-    if (!adminId) {
-
-      setMessage(
-        "Admin ID পাওয়া যায়নি।"
-      );
-
-      setMessageType(
-        "error"
-      );
-
-      return;
-
-    }
+      const targetId =
+        getTargetAdminId();
 
 
-    try {
+      if (!targetId) {
 
-      setSaving(true);
-
-      setMessage("");
-
-
-      const permissionList =
-        PERMISSIONS.map(
-          (item) => {
-
-            const current =
-              permissions[
-                item.key
-              ] ||
-              createDefaultPermission();
-
-
-            return {
-
-              permission:
-                item.key,
-
-              can_view:
-                current.can_view
-                  ? 1
-                  : 0,
-
-              can_add:
-                current.can_add
-                  ? 1
-                  : 0,
-
-              can_edit:
-                current.can_edit
-                  ? 1
-                  : 0,
-
-              can_delete:
-                current.can_delete
-                  ? 1
-                  : 0,
-
-            };
-
-          }
+        setMessage(
+          "Target Admin ID পাওয়া যায়নি।"
         );
 
-
-      const requestData = {
-
-        admin_id:
-          adminId,
-
-        permissions:
-          permissionList,
-
-      };
-
-
-      const response =
-        await fetch(
-          `${API_BASE_URL}/permission_save.php`,
-          {
-
-            method: "POST",
-
-            headers: {
-
-              "Content-Type":
-                "application/json",
-
-              Accept:
-                "application/json",
-
-            },
-
-            body:
-              JSON.stringify(
-                requestData
-              ),
-
-          }
+        setMessageType(
+          "error"
         );
 
+        return;
+      }
 
-      const text =
-        await response.text();
 
+      if (
+        isSelfPermissionChange()
+      ) {
 
-      let data;
+        setMessage(
+          "আপনি নিজের permission পরিবর্তন করতে পারবেন না।"
+        );
+
+        setMessageType(
+          "error"
+        );
+
+        return;
+      }
+
 
       try {
 
-        data =
+        setSaving(true);
+
+        setMessage("");
+
+
+        const permissionList =
+          PERMISSIONS.map(
+            item => {
+
+              const current =
+                permissions[
+                  item.key
+                ] ||
+                createDefaultPermission();
+
+
+              return {
+
+                permission:
+                  item.key,
+
+                can_view:
+                  current.can_view
+                    ? 1
+                    : 0,
+
+                can_add:
+                  current.can_add
+                    ? 1
+                    : 0,
+
+                can_edit:
+                  current.can_edit
+                    ? 1
+                    : 0,
+
+                can_delete:
+                  current.can_delete
+                    ? 1
+                    : 0,
+
+              };
+            }
+          );
+
+
+        const response =
+          await fetch(
+            `${API_BASE_URL}/permission_save.php`,
+            {
+              method: "POST",
+
+              credentials: "include",
+
+              headers: {
+
+                "Content-Type":
+                  "application/json",
+
+                Accept:
+                  "application/json"
+
+              },
+
+              body:
+                JSON.stringify({
+
+                  admin_id:
+                    Number(
+                      targetId
+                    ),
+
+                  permissions:
+                    permissionList
+
+                })
+            }
+          );
+
+
+        const text =
+          await response.text();
+
+
+        if (!text.trim()) {
+
+          throw new Error(
+            "Server থেকে empty response পাওয়া গেছে।"
+          );
+        }
+
+
+        const data =
           JSON.parse(text);
 
-      } catch {
 
-        throw new Error(
-          "Server থেকে সঠিক JSON response পাওয়া যায়নি।"
+        if (
+          !response.ok ||
+          !data.success
+        ) {
+
+          throw new Error(
+            data.message ||
+            "Permission save করা যায়নি।"
+          );
+        }
+
+
+        setMessage(
+          "Permissions successfully saved."
         );
 
-      }
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          data.message ||
-          `Server error: ${response.status}`
+        setMessageType(
+          "success"
         );
 
-      }
+
+        if (onSaved) {
+          onSaved();
+        }
 
 
-      if (!data.success) {
+        setTimeout(
+          () => {
 
-        throw new Error(
-          data.message ||
-          "Permission save করা যায়নি।"
+            onClose();
+
+          },
+          700
         );
 
+
+      } catch (error) {
+
+        console.error(
+          "Permission Save Error:",
+          error
+        );
+
+
+        setMessage(
+          error.message ||
+          "Server-এর সাথে যোগাযোগ করা যাচ্ছে না।"
+        );
+
+        setMessageType(
+          "error"
+        );
+
+
+      } finally {
+
+        setSaving(false);
       }
+    };
 
 
-      setMessage(
-        "Permissions successfully saved."
-      );
-
-      setMessageType(
-        "success"
-      );
-
-
-      setTimeout(() => {
-
-        onClose();
-
-      }, 700);
-
-
-    } catch (error) {
-
-      console.error(
-        "Permission Save Error:",
-        error
-      );
-
-
-      setMessage(
-        error.message ||
-        "Server-এর সাথে যোগাযোগ করা যাচ্ছে না।"
-      );
-
-      setMessageType(
-        "error"
-      );
-
-
-    } finally {
-
-      setSaving(false);
-
-    }
-
-  };
-
-
-  /* =====================================================
-     RENDER
-  ===================================================== */
+  /*
+  =====================================================
+  RENDER
+  =====================================================
+  */
 
   return (
 
     <div
       className="permission-modal-overlay"
+
       onClick={() => {
 
         if (!saving) {
@@ -702,7 +873,8 @@ export default function PermissionModal({
 
       <div
         className="permission-modal"
-        onClick={(e) =>
+
+        onClick={e =>
           e.stopPropagation()
         }
       >
@@ -716,17 +888,25 @@ export default function PermissionModal({
             </h2>
 
             <p>
-              {teacher?.full_name ||
+
+              {
+                teacher?.full_name ||
                 teacher?.name_en ||
                 teacher?.name_bn ||
                 teacher?.username ||
-                "User"}
+                "User"
+              }
+
             </p>
 
             <span>
+
               Admin ID:{" "}
-              {getAdminId() ||
-                "Not Found"}
+              {
+                getTargetAdminId() ||
+                "Not Found"
+              }
+
             </span>
 
           </div>
@@ -734,11 +914,16 @@ export default function PermissionModal({
 
           <button
             type="button"
+
             className="permission-close"
+
             onClick={onClose}
+
             disabled={saving}
           >
+
             ×
+
           </button>
 
         </div>
@@ -749,7 +934,9 @@ export default function PermissionModal({
           {loading ? (
 
             <div className="permission-loading">
+
               Loading permissions...
+
             </div>
 
           ) : (
@@ -760,15 +947,25 @@ export default function PermissionModal({
 
                 <button
                   type="button"
+
                   className="permission-select-all"
+
                   onClick={
                     handleSelectAllPermissions
                   }
-                  disabled={saving}
+
+                  disabled={
+                    saving ||
+                    isSelfPermissionChange()
+                  }
                 >
-                  {isAllSelected()
-                    ? "Unselect All"
-                    : "Select All"}
+
+                  {
+                    isAllSelected()
+                      ? "Unselect All"
+                      : "Select All"
+                  }
+
                 </button>
 
               </div>
@@ -814,7 +1011,7 @@ export default function PermissionModal({
                   <tbody>
 
                     {PERMISSIONS.map(
-                      (item) => {
+                      item => {
 
                         const current =
                           permissions[
@@ -838,7 +1035,11 @@ export default function PermissionModal({
                           >
 
                             <td className="permission-module">
-                              {item.label}
+
+                              {
+                                item.label
+                              }
+
                             </td>
 
 
@@ -846,9 +1047,9 @@ export default function PermissionModal({
                               "can_view",
                               "can_add",
                               "can_edit",
-                              "can_delete",
+                              "can_delete"
                             ].map(
-                              (action) => (
+                              action => (
 
                                 <td
                                   key={
@@ -860,19 +1061,23 @@ export default function PermissionModal({
 
                                     <input
                                       type="checkbox"
+
                                       checked={
                                         current[
                                           action
-                                        ]
+                                        ] === true
                                       }
+
                                       onChange={() =>
                                         handlePermissionChange(
                                           item.key,
                                           action
                                         )
                                       }
+
                                       disabled={
-                                        saving
+                                        saving ||
+                                        isSelfPermissionChange()
                                       }
                                     />
 
@@ -892,16 +1097,20 @@ export default function PermissionModal({
 
                                 <input
                                   type="checkbox"
+
                                   checked={
                                     allSelected
                                   }
+
                                   onChange={() =>
                                     handleSelectAll(
                                       item.key
                                     )
                                   }
+
                                   disabled={
-                                    saving
+                                    saving ||
+                                    isSelfPermissionChange()
                                   }
                                 />
 
@@ -934,7 +1143,9 @@ export default function PermissionModal({
             <div
               className={`permission-message ${messageType}`}
             >
+
               {message}
+
             </div>
 
           )}
@@ -946,27 +1157,38 @@ export default function PermissionModal({
 
           <button
             type="button"
+
             className="permission-cancel-btn"
+
             onClick={onClose}
+
             disabled={saving}
           >
+
             Cancel
+
           </button>
 
 
           <button
             type="button"
+
             className="permission-save-btn"
+
             onClick={handleSave}
+
             disabled={
               loading ||
               saving ||
-              !getAdminId()
+              !getTargetAdminId() ||
+              isSelfPermissionChange()
             }
           >
+
             {saving
               ? "Saving..."
               : "Save Permissions"}
+
           </button>
 
         </div>
@@ -974,7 +1196,5 @@ export default function PermissionModal({
       </div>
 
     </div>
-
   );
-
 }

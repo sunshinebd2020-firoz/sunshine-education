@@ -8,12 +8,18 @@ const API_BASE_URL =
 const IMAGE_BASE_URL =
   "http://localhost/sunshine-api/uploads/teachers";
 
+
 export default function TeacherList({ onEditTeacher }) {
 
   const [teachers, setTeachers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [myPermissions, setMyPermissions] = useState({});
+  const [permissionLoading, setPermissionLoading] =
+    useState(true);
 
   const [showUserModal, setShowUserModal] =
     useState(false);
@@ -21,14 +27,9 @@ export default function TeacherList({ onEditTeacher }) {
   const [selectedTeacher, setSelectedTeacher] =
     useState(null);
 
-  const [username, setUsername] =
-    useState("");
-
-  const [password, setPassword] =
-    useState("");
-
-  const [role, setRole] =
-    useState("Teacher");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("Teacher");
 
   const [userLoading, setUserLoading] =
     useState(false);
@@ -38,72 +39,509 @@ export default function TeacherList({ onEditTeacher }) {
 
 
   /* =====================================================
+     CURRENT USER
+  ===================================================== */
+
+  const getCurrentAdmin = () => {
+
+    const possibleKeys = [
+      "sunshine_user",
+      "admin",
+      "user",
+      "loggedInUser",
+      "currentUser",
+      "adminUser",
+      "userData"
+    ];
+
+    for (const key of possibleKeys) {
+
+      try {
+
+        const value =
+          localStorage.getItem(key);
+
+        if (!value) continue;
+
+        const parsed =
+          JSON.parse(value);
+
+        if (
+          parsed &&
+          (
+            parsed.id ||
+            parsed.admin_id ||
+            parsed.user_id
+          )
+        ) {
+
+          return parsed;
+        }
+
+      } catch {
+        // Ignore invalid JSON
+      }
+    }
+
+
+    const adminId =
+      localStorage.getItem("admin_id") ||
+      localStorage.getItem("user_id");
+
+
+    if (adminId) {
+
+      return {
+        id: adminId,
+        admin_id: adminId
+      };
+    }
+
+
+    return null;
+  };
+
+
+  /* =====================================================
+     CURRENT ADMIN ID
+  ===================================================== */
+
+  const getCurrentAdminId = () => {
+
+    const admin =
+      getCurrentAdmin();
+
+    if (!admin) return "";
+
+    return String(
+      admin.id ||
+      admin.admin_id ||
+      admin.user_id ||
+      ""
+    ).trim();
+  };
+
+
+  /* =====================================================
+     CURRENT ROLE
+  ===================================================== */
+
+  const getCurrentRole = () => {
+
+    const admin =
+      getCurrentAdmin();
+
+    if (!admin) return "";
+
+    return String(
+      admin.role ||
+      admin.user_role ||
+      admin.userRole ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
+  };
+
+
+  /* =====================================================
+     ADMINISTRATOR CHECK
+
+     Admin / Administrator / Super Admin
+     = FULL ACCESS
+  ===================================================== */
+
+  const isAdministrator = () => {
+
+    const roleValue =
+      getCurrentRole();
+
+    return (
+      roleValue === "admin" ||
+      roleValue === "administrator" ||
+      roleValue === "super admin" ||
+      roleValue === "superadmin"
+    );
+  };
+
+
+  /* =====================================================
+     LOAD MY PERMISSIONS
+  ===================================================== */
+
+  const loadMyPermissions = async () => {
+
+    /*
+    -----------------------------------------------------
+    ADMINISTRATOR DOES NOT NEED DATABASE PERMISSION
+    -----------------------------------------------------
+    */
+
+    if (isAdministrator()) {
+
+      setMyPermissions({
+
+        teacher: {
+          can_view: true,
+          can_add: true,
+          can_edit: true,
+          can_delete: true
+        },
+
+        student: {
+          can_view: true,
+          can_add: true,
+          can_edit: true,
+          can_delete: true
+        },
+
+        course: {
+          can_view: true,
+          can_add: true,
+          can_edit: true,
+          can_delete: true
+        },
+
+        branch: {
+          can_view: true,
+          can_add: true,
+          can_edit: true,
+          can_delete: true
+        },
+
+        income: {
+          can_view: true,
+          can_add: true,
+          can_edit: true,
+          can_delete: true
+        },
+
+        expense: {
+          can_view: true,
+          can_add: true,
+          can_edit: true,
+          can_delete: true
+        },
+
+        report: {
+          can_view: true,
+          can_add: true,
+          can_edit: true,
+          can_delete: true
+        },
+
+        notice: {
+          can_view: true,
+          can_add: true,
+          can_edit: true,
+          can_delete: true
+        },
+
+        gallery: {
+          can_view: true,
+          can_add: true,
+          can_edit: true,
+          can_delete: true
+        },
+
+        banner: {
+          can_view: true,
+          can_add: true,
+          can_edit: true,
+          can_delete: true
+        },
+
+        download: {
+          can_view: true,
+          can_add: true,
+          can_edit: true,
+          can_delete: true
+        },
+
+        setting: {
+          can_view: true,
+          can_add: true,
+          can_edit: true,
+          can_delete: true
+        }
+
+      });
+
+      setPermissionLoading(false);
+
+      return;
+    }
+
+
+    const adminId =
+      getCurrentAdminId();
+
+
+    if (!adminId) {
+
+      setMyPermissions({});
+      setPermissionLoading(false);
+
+      return;
+    }
+
+
+    try {
+
+      setPermissionLoading(true);
+
+
+      const response =
+        await fetch(
+          `${API_BASE_URL}/permission_get.php?admin_id=${encodeURIComponent(
+            adminId
+          )}`,
+          {
+            method: "GET",
+
+            headers: {
+              Accept: "application/json"
+            }
+          }
+        );
+
+
+      const responseText =
+        await response.text();
+
+
+      if (!responseText.trim()) {
+
+        throw new Error(
+          "Permission server returned empty response."
+        );
+      }
+
+
+      let data;
+
+      try {
+
+        data =
+          JSON.parse(responseText);
+
+      } catch {
+
+        throw new Error(
+          "Invalid JSON response from permission_get.php."
+        );
+      }
+
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+
+        throw new Error(
+          data.message ||
+          "Permission load failed."
+        );
+      }
+
+
+      const permissionMap = {};
+
+
+      if (
+        Array.isArray(
+          data.permissions
+        )
+      ) {
+
+        data.permissions.forEach(
+          item => {
+
+            const key =
+              String(
+                item.permission || ""
+              )
+                .trim()
+                .toLowerCase();
+
+
+            if (!key) return;
+
+
+            permissionMap[key] = {
+
+              can_view:
+                Number(item.can_view) === 1,
+
+              can_add:
+                Number(item.can_add) === 1,
+
+              can_edit:
+                Number(item.can_edit) === 1,
+
+              can_delete:
+                Number(item.can_delete) === 1
+
+            };
+
+          }
+        );
+
+      }
+
+
+      setMyPermissions(
+        permissionMap
+      );
+
+    } catch (err) {
+
+      console.error(
+        "Permission Load Error:",
+        err
+      );
+
+      setMyPermissions({});
+
+    } finally {
+
+      setPermissionLoading(false);
+    }
+  };
+
+
+  /* =====================================================
+     PERMISSION FLAGS
+  ===================================================== */
+
+  const teacherPermission =
+    myPermissions.teacher || {};
+
+
+  const canViewTeacher =
+    isAdministrator() ||
+    Boolean(
+      teacherPermission.can_view
+    );
+
+
+  const canAddTeacher =
+    isAdministrator() ||
+    Boolean(
+      teacherPermission.can_add
+    );
+
+
+  const canEditTeacher =
+    isAdministrator() ||
+    Boolean(
+      teacherPermission.can_edit
+    );
+
+
+  const canDeleteTeacher =
+    isAdministrator() ||
+    Boolean(
+      teacherPermission.can_delete
+    );
+
+
+  /*
+  Permission management is a SETTING-level operation.
+  Only Administrator or Setting add/edit permission.
+  */
+
+  const settingPermission =
+    myPermissions.setting || {};
+
+
+  const canManagePermissions =
+    isAdministrator() ||
+    Boolean(
+      settingPermission.can_add ||
+      settingPermission.can_edit
+    );
+
+
+  /* =====================================================
      FETCH TEACHERS
   ===================================================== */
 
-  const fetchTeachers = async (signal) => {
+  const fetchTeachers = async signal => {
 
     try {
 
       setLoading(true);
       setError("");
 
-      const response = await fetch(
-        `${API_BASE_URL}/teacher_list.php`,
-        {
-          method: "GET",
-          signal,
-          headers: {
-            Accept: "application/json",
-          },
-        }
-      );
+
+      const response =
+        await fetch(
+          `${API_BASE_URL}/teacher_list.php`,
+          {
+            method: "GET",
+            signal,
+
+            headers: {
+              Accept: "application/json"
+            }
+          }
+        );
+
 
       const responseText =
         await response.text();
 
-      console.log(
-        "Teacher List Status:",
-        response.status
-      );
 
       console.log(
-        "Teacher List Response:",
+        "Teacher API Response:",
         responseText
       );
 
+
       if (!response.ok) {
+
         throw new Error(
           `HTTP ${response.status}`
         );
       }
 
+
+      if (!responseText.trim()) {
+
+        throw new Error(
+          "Empty server response."
+        );
+      }
+
+
       let data;
 
       try {
 
-        data = JSON.parse(
-          responseText
-        );
+        data =
+          JSON.parse(responseText);
 
       } catch {
 
         throw new Error(
-          "Invalid JSON response."
+          "Invalid JSON response from teacher_list.php"
         );
       }
 
-      if (data.success) {
+
+      if (
+        data.success &&
+        Array.isArray(data.teachers)
+      ) {
 
         setTeachers(
-          Array.isArray(data.teachers)
-            ? data.teachers
-            : []
+          data.teachers
         );
 
       } else {
 
-        setError(
+        throw new Error(
           data.message ||
           "Teacher information not found."
         );
@@ -112,22 +550,29 @@ export default function TeacherList({ onEditTeacher }) {
     } catch (err) {
 
       if (
-        err.name !== "AbortError"
+        err.name === "AbortError"
       ) {
 
-        console.error(
-          "Teacher List Error:",
-          err
-        );
-
-        setError(
-          "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
-        );
+        return;
       }
+
+
+      console.error(
+        "Teacher List Error:",
+        err
+      );
+
+
+      setError(
+        `Teacher List load করা যাচ্ছে না। ${
+          err.message || ""
+        }`
+      );
 
     } finally {
 
       if (!signal?.aborted) {
+
         setLoading(false);
       }
     }
@@ -135,7 +580,7 @@ export default function TeacherList({ onEditTeacher }) {
 
 
   /* =====================================================
-     LOAD
+     INITIAL LOAD
   ===================================================== */
 
   useEffect(() => {
@@ -143,12 +588,18 @@ export default function TeacherList({ onEditTeacher }) {
     const controller =
       new AbortController();
 
+
+    loadMyPermissions();
+
     fetchTeachers(
       controller.signal
     );
 
+
     return () => {
+
       controller.abort();
+
     };
 
   }, []);
@@ -158,9 +609,17 @@ export default function TeacherList({ onEditTeacher }) {
      DELETE TEACHER
   ===================================================== */
 
-  const handleDelete = async (
-    teacherId
-  ) => {
+  const handleDelete = async teacherId => {
+
+    if (!canDeleteTeacher) {
+
+      alert(
+        "আপনার Teacher Delete করার permission নেই।"
+      );
+
+      return;
+    }
+
 
     if (!teacherId) {
 
@@ -171,12 +630,15 @@ export default function TeacherList({ onEditTeacher }) {
       return;
     }
 
+
     const confirmed =
       window.confirm(
         `আপনি কি নিশ্চিতভাবে ID: ${teacherId} ডিলিট করতে চান?`
       );
 
+
     if (!confirmed) return;
+
 
     try {
 
@@ -191,18 +653,25 @@ export default function TeacherList({ onEditTeacher }) {
                 "application/json",
 
               Accept:
-                "application/json",
+                "application/json"
             },
 
             body: JSON.stringify({
+
               teacher_id:
                 teacherId,
-            }),
+
+              requester_admin_id:
+                getCurrentAdminId()
+
+            })
           }
         );
 
+
       const text =
         await response.text();
+
 
       let result;
 
@@ -220,11 +689,13 @@ export default function TeacherList({ onEditTeacher }) {
         return;
       }
 
+
       if (result.success) {
 
         alert(
           "Teacher deleted successfully!"
         );
+
 
         setTeachers(
           prev =>
@@ -249,10 +720,14 @@ export default function TeacherList({ onEditTeacher }) {
 
     } catch (err) {
 
-      console.error(err);
+      console.error(
+        "Delete Error:",
+        err
+      );
+
 
       alert(
-        "Server error occurred while deleting."
+        "Server-এর সাথে যোগাযোগ করা যাচ্ছে না।"
       );
     }
   };
@@ -262,9 +737,17 @@ export default function TeacherList({ onEditTeacher }) {
      EDIT
   ===================================================== */
 
-  const handleEdit = (
-    teacher
-  ) => {
+  const handleEdit = teacher => {
+
+    if (!canEditTeacher) {
+
+      alert(
+        "আপনার Teacher Edit করার permission নেই।"
+      );
+
+      return;
+    }
+
 
     if (onEditTeacher) {
 
@@ -286,12 +769,20 @@ export default function TeacherList({ onEditTeacher }) {
 
 
   /* =====================================================
-     DETAILS
+     DETAILS / VIEW
   ===================================================== */
 
-  const handleDetails = (
-    teacher
-  ) => {
+  const handleDetails = teacher => {
+
+    if (!canViewTeacher) {
+
+      alert(
+        "আপনার Teacher List দেখার permission নেই।"
+      );
+
+      return;
+    }
+
 
     alert(
       `Teacher Details
@@ -336,16 +827,25 @@ Role: ${
 
 
   /* =====================================================
-     OPEN USER MODAL
+     ADD USER
   ===================================================== */
 
-  const openAddUserModal = (
-    teacher
-  ) => {
+  const openAddUserModal = teacher => {
+
+    if (!canAddTeacher) {
+
+      alert(
+        "আপনার Teacher-এর User Account তৈরি করার permission নেই।"
+      );
+
+      return;
+    }
+
 
     setSelectedTeacher(
       teacher
     );
+
 
     setUsername(
       teacher.teacher_id
@@ -354,6 +854,7 @@ Role: ${
           ).toLowerCase()
         : ""
     );
+
 
     setPassword("");
 
@@ -383,11 +884,20 @@ Role: ${
      CREATE USER
   ===================================================== */
 
-  const handleCreateUser = async (
-    e
-  ) => {
+  const handleCreateUser = async e => {
 
     e.preventDefault();
+
+
+    if (!canAddTeacher) {
+
+      alert(
+        "আপনার User Account তৈরি করার permission নেই।"
+      );
+
+      return;
+    }
+
 
     if (!selectedTeacher) {
 
@@ -398,8 +908,10 @@ Role: ${
       return;
     }
 
+
     const cleanUsername =
       username.trim();
+
 
     if (!cleanUsername) {
 
@@ -410,6 +922,7 @@ Role: ${
       return;
     }
 
+
     if (!password) {
 
       alert(
@@ -418,6 +931,7 @@ Role: ${
 
       return;
     }
+
 
     if (password.length < 6) {
 
@@ -428,8 +942,10 @@ Role: ${
       return;
     }
 
+
     const teacherId =
       selectedTeacher.teacher_id;
+
 
     if (!teacherId) {
 
@@ -439,6 +955,7 @@ Role: ${
 
       return;
     }
+
 
     const fullName =
       selectedTeacher.name_en ||
@@ -464,19 +981,14 @@ Role: ${
         role,
 
       status:
-        "1",
+        "1"
     };
-
-
-    console.log(
-      "CREATE ADMIN REQUEST:",
-      requestData
-    );
 
 
     try {
 
       setUserLoading(true);
+
 
       const response =
         await fetch(
@@ -484,36 +996,24 @@ Role: ${
           {
             method: "POST",
 
-            mode: "cors",
-
             headers: {
               "Content-Type":
                 "application/json",
 
               Accept:
-                "application/json",
+                "application/json"
             },
 
             body:
               JSON.stringify(
                 requestData
-              ),
+              )
           }
         );
 
 
       const responseText =
         await response.text();
-
-      console.log(
-        "Create User Status:",
-        response.status
-      );
-
-      console.log(
-        "Create User Response:",
-        responseText
-      );
 
 
       if (!responseText.trim()) {
@@ -572,12 +1072,6 @@ ${responseText.substring(
         null;
 
 
-      /*
-      =================================================
-      UPDATE CURRENT TEACHER
-      =================================================
-      */
-
       setTeachers(
         prev =>
           prev.map(
@@ -615,9 +1109,10 @@ ${responseText.substring(
                     role,
 
                   user_status:
-                    "1",
+                    "1"
                 };
               }
+
 
               return teacher;
             }
@@ -645,6 +1140,7 @@ Admin ID: ${
         err
       );
 
+
       alert(
         `Server-এর সাথে যোগাযোগ করা যাচ্ছে না।
 
@@ -660,12 +1156,20 @@ ${err.message}`
 
 
   /* =====================================================
-     PERMISSION
+     PERMISSION MODAL
   ===================================================== */
 
-  const handlePermission = (
-    teacher
-  ) => {
+  const handlePermission = teacher => {
+
+    if (!canManagePermissions) {
+
+      alert(
+        "আপনার অন্য User-এর permission পরিবর্তন করার permission নেই।"
+      );
+
+      return;
+    }
+
 
     if (!teacher.user_created) {
 
@@ -676,9 +1180,11 @@ ${err.message}`
       return;
     }
 
+
     const userId =
       teacher.admin_id ||
       teacher.user_id;
+
 
     if (!userId) {
 
@@ -689,6 +1195,26 @@ ${err.message}`
       return;
     }
 
+
+    /*
+    -----------------------------------------------------
+    নিজের permission নিজে পরিবর্তন করা যাবে না
+    -----------------------------------------------------
+    */
+
+    if (
+      String(userId) ===
+      String(getCurrentAdminId())
+    ) {
+
+      alert(
+        "আপনি নিজের permission নিজে পরিবর্তন করতে পারবেন না।"
+      );
+
+      return;
+    }
+
+
     setPermissionTeacher({
 
       ...teacher,
@@ -697,8 +1223,7 @@ ${err.message}`
         userId,
 
       admin_id:
-        userId,
-
+        userId
     });
   };
 
@@ -725,7 +1250,9 @@ ${err.message}`
             .trim()
             .toLowerCase();
 
+
         if (!query) return true;
+
 
         return (
 
@@ -790,9 +1317,35 @@ ${err.message}`
           )
             .toLowerCase()
             .includes(query)
+
         );
+
       }
     );
+
+
+  /* =====================================================
+     VIEW PERMISSION
+  ===================================================== */
+
+  if (
+    !permissionLoading &&
+    !canViewTeacher
+  ) {
+
+    return (
+
+      <div className="teacher-container">
+
+        <div className="teacher-message error">
+
+          আপনার Teacher List দেখার permission নেই।
+
+        </div>
+
+      </div>
+    );
+  }
 
 
   /* =====================================================
@@ -802,6 +1355,11 @@ ${err.message}`
   return (
 
     <div className="teacher-container">
+
+
+      {/* =================================================
+          HEADER
+      ================================================= */}
 
       <div className="teacher-header">
 
@@ -817,6 +1375,7 @@ ${err.message}`
 
         </div>
 
+
         <div className="total-badge">
 
           Total:{" "}
@@ -827,22 +1386,34 @@ ${err.message}`
       </div>
 
 
+      {/* =================================================
+          SEARCH
+      ================================================= */}
+
       <div className="search-section">
 
         <input
           type="text"
+
           placeholder="Search by ID, name, mobile, course, designation, branch or username..."
+
           value={searchTerm}
+
           onChange={e =>
             setSearchTerm(
               e.target.value
             )
           }
+
           className="search-input"
         />
 
       </div>
 
+
+      {/* =================================================
+          LOADING
+      ================================================= */}
 
       {loading && (
 
@@ -855,6 +1426,10 @@ ${err.message}`
       )}
 
 
+      {/* =================================================
+          ERROR
+      ================================================= */}
+
       {error && (
 
         <div className="teacher-message error">
@@ -865,6 +1440,10 @@ ${err.message}`
 
       )}
 
+
+      {/* =================================================
+          TABLE
+      ================================================= */}
 
       {!loading &&
         !error && (
@@ -890,23 +1469,14 @@ ${err.message}`
                     <tr>
 
                       <th>Photo</th>
-
                       <th>ID No</th>
-
                       <th>Name</th>
-
                       <th>Course</th>
-
                       <th>Designation</th>
-
                       <th>Branch</th>
-
                       <th>Mobile</th>
-
                       <th>Status</th>
-
                       <th>User</th>
-
                       <th>Action</th>
 
                     </tr>
@@ -926,6 +1496,9 @@ ${err.message}`
                           }
                         >
 
+
+                          {/* PHOTO */}
+
                           <td>
 
                             <div className="teacher-photo">
@@ -934,17 +1507,21 @@ ${err.message}`
 
                                 <img
                                   src={`${IMAGE_BASE_URL}/${teacher.photo}`}
+
                                   alt={
                                     teacher.name_en ||
                                     "Teacher"
                                   }
+
                                   loading="lazy"
                                 />
 
                               ) : (
 
                                 <div className="no-photo">
+
                                   No Photo
+
                                 </div>
 
                               )}
@@ -954,6 +1531,8 @@ ${err.message}`
                           </td>
 
 
+                          {/* ID */}
+
                           <td className="teacher-id">
 
                             {
@@ -962,6 +1541,8 @@ ${err.message}`
 
                           </td>
 
+
+                          {/* NAME */}
 
                           <td>
 
@@ -976,6 +1557,7 @@ ${err.message}`
                                 }
 
                               </span>
+
 
                               {teacher.name_bn &&
                                 teacher.name_en && (
@@ -995,37 +1577,55 @@ ${err.message}`
                           </td>
 
 
+                          {/* COURSE */}
+
                           <td>
+
                             {
                               teacher.course ||
                               "N/A"
                             }
+
                           </td>
 
 
+                          {/* DESIGNATION */}
+
                           <td>
+
                             {
                               teacher.designation ||
                               "N/A"
                             }
+
                           </td>
 
 
+                          {/* BRANCH */}
+
                           <td>
+
                             {
                               teacher.branch ||
                               "N/A"
                             }
+
                           </td>
 
 
+                          {/* MOBILE */}
+
                           <td>
+
                             {
                               teacher.mobile ||
                               "N/A"
                             }
+
                           </td>
 
+
+                          {/* STATUS */}
 
                           <td>
 
@@ -1052,9 +1652,7 @@ ${err.message}`
                           </td>
 
 
-                          {/* =================================
-                              ADMIN USER
-                          ================================= */}
+                          {/* USER */}
 
                           <td>
 
@@ -1068,6 +1666,7 @@ ${err.message}`
 
                                 </span>
 
+
                                 <small>
 
                                   {
@@ -1077,12 +1676,15 @@ ${err.message}`
 
                                 </small>
 
+
                                 {teacher.role && (
 
                                   <small>
 
                                     Role:{" "}
-                                    {teacher.role}
+                                    {
+                                      teacher.role
+                                    }
 
                                   </small>
 
@@ -1090,12 +1692,15 @@ ${err.message}`
 
                               </div>
 
-                            ) : (
+                            ) : canAddTeacher ? (
 
                               <button
                                 type="button"
+
                                 className="btn-add-user"
+
                                 title="Create User Account"
+
                                 onClick={() =>
                                   openAddUserModal(
                                     teacher
@@ -1107,128 +1712,174 @@ ${err.message}`
 
                               </button>
 
+                            ) : (
+
+                              <span>
+                                No User
+                              </span>
+
                             )}
 
                           </td>
 
 
-                          {/* =================================
-                              ACTION
-                          ================================= */}
+                          {/* ACTION */}
 
                           <td>
 
                             <div className="action-buttons">
 
-                              <button
-                                type="button"
-                                className="btn-action btn-details"
-                                title="Details"
-                                onClick={() =>
-                                  handleDetails(
-                                    teacher
-                                  )
-                                }
-                              >
 
-                                <svg
-                                  width="15"
-                                  height="15"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                >
+                              {/* VIEW */}
 
-                                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-
-                                  <circle
-                                    cx="12"
-                                    cy="12"
-                                    r="3"
-                                  />
-
-                                </svg>
-
-                              </button>
-
-
-                              <button
-                                type="button"
-                                className="btn-action btn-edit"
-                                title="Edit"
-                                onClick={() =>
-                                  handleEdit(
-                                    teacher
-                                  )
-                                }
-                              >
-
-                                <svg
-                                  width="15"
-                                  height="15"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                >
-
-                                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-
-                                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-
-                                </svg>
-
-                              </button>
-
-
-                              {teacher.user_created && (
+                              {canViewTeacher && (
 
                                 <button
                                   type="button"
-                                  className="btn-action btn-permission"
-                                  title="Permissions"
+
+                                  className="btn-action btn-details"
+
+                                  title="Details"
+
                                   onClick={() =>
-                                    handlePermission(
+                                    handleDetails(
                                       teacher
                                     )
                                   }
                                 >
 
-                                  🔐
+                                  <svg
+                                    width="15"
+                                    height="15"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                  >
+
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+
+                                    <circle
+                                      cx="12"
+                                      cy="12"
+                                      r="3"
+                                    />
+
+                                  </svg>
 
                                 </button>
 
                               )}
 
 
-                              <button
-                                type="button"
-                                className="btn-action btn-delete"
-                                title="Delete"
-                                onClick={() =>
-                                  handleDelete(
-                                    teacher.teacher_id
-                                  )
-                                }
-                              >
+                              {/* EDIT */}
 
-                                <svg
-                                  width="15"
-                                  height="15"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
+                              {canEditTeacher && (
+
+                                <button
+                                  type="button"
+
+                                  className="btn-action btn-edit"
+
+                                  title="Edit"
+
+                                  onClick={() =>
+                                    handleEdit(
+                                      teacher
+                                    )
+                                  }
                                 >
 
-                                  <polyline points="3 6 5 6 21 6" />
+                                  <svg
+                                    width="15"
+                                    height="15"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                  >
 
-                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
 
-                                </svg>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
 
-                              </button>
+                                  </svg>
+
+                                </button>
+
+                              )}
+
+
+                              {/* PERMISSION */}
+
+                              {teacher.user_created &&
+                                canManagePermissions &&
+                                String(
+                                  teacher.admin_id ||
+                                  teacher.user_id ||
+                                  ""
+                                ) !==
+                                  String(
+                                    getCurrentAdminId()
+                                  ) && (
+
+                                  <button
+                                    type="button"
+
+                                    className="btn-action btn-permission"
+
+                                    title="Permissions"
+
+                                    onClick={() =>
+                                      handlePermission(
+                                        teacher
+                                      )
+                                    }
+                                  >
+
+                                    🔐
+
+                                  </button>
+
+                                )}
+
+
+                              {/* DELETE */}
+
+                              {canDeleteTeacher && (
+
+                                <button
+                                  type="button"
+
+                                  className="btn-action btn-delete"
+
+                                  title="Delete"
+
+                                  onClick={() =>
+                                    handleDelete(
+                                      teacher.teacher_id
+                                    )
+                                  }
+                                >
+
+                                  <svg
+                                    width="15"
+                                    height="15"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                  >
+
+                                    <polyline points="3 6 5 6 21 6" />
+
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+
+                                  </svg>
+
+                                </button>
+
+                              )}
 
                             </div>
 
@@ -1253,18 +1904,20 @@ ${err.message}`
 
 
       {/* =================================================
-          CREATE ADMIN USER MODAL
+          CREATE USER MODAL
       ================================================= */}
 
       {showUserModal && (
 
         <div
           className="user-modal-overlay"
+
           onClick={closeUserModal}
         >
 
           <div
             className="user-modal"
+
             onClick={e =>
               e.stopPropagation()
             }
@@ -1284,13 +1937,19 @@ ${err.message}`
 
               </div>
 
+
               <button
                 type="button"
+
                 className="user-modal-close"
+
                 onClick={closeUserModal}
+
                 disabled={userLoading}
               >
+
                 ×
+
               </button>
 
             </div>
@@ -1300,8 +1959,12 @@ ${err.message}`
               onSubmit={
                 handleCreateUser
               }
+
               className="user-form"
             >
+
+
+              {/* TEACHER INFO */}
 
               <div className="user-teacher-info">
 
@@ -1311,6 +1974,7 @@ ${err.message}`
 
                     <img
                       src={`${IMAGE_BASE_URL}/${selectedTeacher.photo}`}
+
                       alt="Teacher"
                     />
 
@@ -1337,6 +2001,7 @@ ${err.message}`
 
                   </strong>
 
+
                   <span>
 
                     ID:{" "}
@@ -1345,6 +2010,7 @@ ${err.message}`
                     }
 
                   </span>
+
 
                   <span>
 
@@ -1361,6 +2027,8 @@ ${err.message}`
               </div>
 
 
+              {/* USERNAME */}
+
               <div className="form-group">
 
                 <label>
@@ -1369,19 +2037,26 @@ ${err.message}`
 
                 <input
                   type="text"
+
                   value={username}
+
                   onChange={e =>
                     setUsername(
                       e.target.value
                     )
                   }
+
                   placeholder="Enter username"
+
                   autoComplete="username"
+
                   disabled={userLoading}
                 />
 
               </div>
 
+
+              {/* PASSWORD */}
 
               <div className="form-group">
 
@@ -1391,19 +2066,26 @@ ${err.message}`
 
                 <input
                   type="password"
+
                   value={password}
+
                   onChange={e =>
                     setPassword(
                       e.target.value
                     )
                   }
+
                   placeholder="Minimum 6 characters"
+
                   autoComplete="new-password"
+
                   disabled={userLoading}
                 />
 
               </div>
 
+
+              {/* ROLE */}
 
               <div className="form-group">
 
@@ -1413,11 +2095,13 @@ ${err.message}`
 
                 <select
                   value={role}
+
                   onChange={e =>
                     setRole(
                       e.target.value
                     )
                   }
+
                   disabled={userLoading}
                 >
 
@@ -1442,22 +2126,32 @@ ${err.message}`
               </div>
 
 
+              {/* FORM BUTTONS */}
+
               <div className="user-form-actions">
 
                 <button
                   type="button"
+
                   className="user-cancel-btn"
+
                   onClick={
                     closeUserModal
                   }
+
                   disabled={userLoading}
                 >
+
                   Cancel
+
                 </button>
+
 
                 <button
                   type="submit"
+
                   className="user-create-btn"
+
                   disabled={userLoading}
                 >
 
@@ -1485,19 +2179,21 @@ ${err.message}`
       {permissionTeacher && (
 
         <PermissionModal
+
           teacher={
             permissionTeacher
           }
+
           onClose={
             closePermissionModal
           }
+
           onSaved={() => {
 
-            console.log(
-              "Permissions updated successfully."
-            );
+            loadMyPermissions();
 
           }}
+
         />
 
       )}
