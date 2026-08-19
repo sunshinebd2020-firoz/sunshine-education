@@ -2,7 +2,6 @@ import "./Footer.css";
 import { useEffect, useState } from "react";
 
 export default function Footer() {
-
   const [branches, setBranches] = useState([]);
 
   /* =====================================================
@@ -10,11 +9,8 @@ export default function Footer() {
   ===================================================== */
 
   useEffect(() => {
-
     const fetchBranches = async () => {
-
       try {
-
         const response = await fetch(
           "http://localhost/sunshine-api/api/branch_list.php"
         );
@@ -22,31 +18,20 @@ export default function Footer() {
         const data = await response.json();
 
         if (data.success) {
-
           const activeBranches = (data.branches || []).filter(
             (branch) =>
               String(branch.status).toLowerCase() === "active"
           );
 
           setBranches(activeBranches);
-
         }
-
       } catch (error) {
-
-        console.error(
-          "Branch load error:",
-          error
-        );
-
+        console.error("Branch load error:", error);
       }
-
     };
 
     fetchBranches();
-
   }, []);
-
 
   return (
     <footer className="footer">
@@ -55,10 +40,9 @@ export default function Footer() {
 
         <div className="footer-main">
 
-
-          {/* =========================
+          {/* =================================================
               BRANCHES
-          ========================= */}
+          ================================================= */}
 
           <section className="branches-section">
 
@@ -67,7 +51,6 @@ export default function Footer() {
             </h2>
 
             <div className="footer-title-line"></div>
-
 
             <div className="branches-items">
 
@@ -80,52 +63,91 @@ export default function Footer() {
                     key={branch.id}
                   >
 
-                    <h3>
-                      📍{" "}
+                    {/* Branch Name */}
+
+                    <h3 className="branch-name">
+
+                      <span className="branch-pin">
+                        📍
+                      </span>
+
                       {branch.branch_name_bn ||
                         branch.branch_name}
+
                     </h3>
 
 
+                    {/* Address */}
+
                     {branch.address && (
-                      <p>
-                        {branch.address}
+                      <p className="branch-info">
+
+                        <span className="branch-icon">
+                          🏠
+                        </span>
+
+                        <span>
+                          {branch.address}
+                        </span>
+
                       </p>
                     )}
 
+
+                    {/* Mobile */}
 
                     {branch.mobile && (
+                      <p className="branch-info">
 
-                      <p>
-                        ☎️ {branch.mobile}
+                        <span className="branch-icon">
+                          ☎️
+                        </span>
+
+                        <span>
+                          {branch.mobile}
+                        </span>
+
                       </p>
-
                     )}
 
+
+                    {/* Email */}
 
                     {branch.email && (
+                      <p className="branch-info">
 
-                      <p>
-                        ✉️ {branch.email}
+                        <span className="branch-icon">
+                          ✉️
+                        </span>
+
+                        <span>
+                          {branch.email}
+                        </span>
+
                       </p>
-
                     )}
 
 
-                    {branch.map_link && (
+                    {/* Google Maps */}
 
-                      <p>
+                    {branch.map_link && (
+                      <p className="branch-map">
 
                         <a
                           href={branch.map_link}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          🗺️ View on Google Maps
+
+                          <span>
+                            🗺️
+                          </span>
+
+                          View on Google Maps
+
                         </a>
 
                       </p>
-
                     )}
 
                   </div>
@@ -145,9 +167,9 @@ export default function Footer() {
           </section>
 
 
-          {/* =========================
+          {/* =================================================
               MOBILE APP
-          ========================= */}
+          ================================================= */}
 
           <section className="mobile-app-section">
 
@@ -160,7 +182,6 @@ export default function Footer() {
 
             <div className="app-buttons">
 
-
               {/* Google Play */}
 
               <a
@@ -171,8 +192,11 @@ export default function Footer() {
               >
 
                 <div className="store-icon google-icon">
+
                   <span className="play-triangle"></span>
+
                 </div>
+
 
                 <div className="store-button-text">
 
@@ -202,6 +226,7 @@ export default function Footer() {
                   
                 </div>
 
+
                 <div className="store-button-text">
 
                   <small>
@@ -225,9 +250,9 @@ export default function Footer() {
       </div>
 
 
-      {/* =========================
+      {/* =================================================
           FOOTER BOTTOM
-      ========================= */}
+      ================================================= */}
 
       <div className="footer-bottom">
 

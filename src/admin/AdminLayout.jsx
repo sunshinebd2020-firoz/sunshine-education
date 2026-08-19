@@ -690,9 +690,6 @@ export default function AdminLayout() {
 
   /* =====================================================
      USER PHOTO
-     
-     আপনার login response-এ photo/profile_photo/avatar
-     যেটি থাকবে সেটি ব্যবহার করবে।
   ===================================================== */
 
   const userPhoto =
@@ -700,6 +697,39 @@ export default function AdminLayout() {
     user?.profile_photo ||
     user?.avatar ||
     "";
+
+
+  /* =====================================================
+     USER PHOTO URL
+
+     যদি photo already full URL হয়,
+     তাহলে সেটাই ব্যবহার করবে।
+
+     যদি শুধু filename হয়,
+     তাহলে teacher uploads folder ব্যবহার করবে।
+  ===================================================== */
+
+  const userPhotoUrl =
+    userPhoto
+      ? (
+          String(userPhoto).startsWith(
+            "http://"
+          ) ||
+          String(userPhoto).startsWith(
+            "https://"
+          ) ||
+          String(userPhoto).startsWith(
+            "data:"
+        )
+        )
+          ? userPhoto
+          : `http://localhost/sunshine-api/uploads/teachers/${String(
+              userPhoto
+            ).replace(
+              /^.*[\\/]/,
+              ""
+            )}`
+      : "";
 
 
   /* =====================================================
@@ -749,26 +779,25 @@ export default function AdminLayout() {
 
     <div className="admin-layout-container">
 
+
       <aside className="admin-sidebar">
 
 
         {/* =================================================
            USER PROFILE
-           
-           Sunshine / Admin Panel বাদ দেওয়া হয়েছে।
-           Dashboard-এর ঠিক উপরে User Profile।
         ================================================= */}
 
         <div className="sidebar-user-profile">
 
           <div className="sidebar-user-photo">
 
-            {userPhoto ? (
+            {userPhotoUrl ? (
 
               <img
-                src={userPhoto}
+                src={userPhotoUrl}
                 alt={userName}
                 onError={(e) => {
+
                   e.currentTarget.style.display =
                     "none";
 
@@ -776,6 +805,7 @@ export default function AdminLayout() {
                     .classList.add(
                       "photo-fallback"
                     );
+
                 }}
               />
 

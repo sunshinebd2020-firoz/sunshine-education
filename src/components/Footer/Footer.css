@@ -4,14 +4,9 @@
 
 .footer {
   width: 100%;
-
-  margin-top: auto;
-
-  background: #0f172a;
-
+  background: #111827;
   color: #ffffff;
-
-  box-sizing: border-box;
+  margin-top: auto;
 }
 
 
@@ -22,27 +17,54 @@
 .footer-container {
   width: 100%;
   max-width: 1200px;
-
   margin: 0 auto;
-
-  padding: 40px 25px;
-
+  padding: 40px 20px 30px;
   box-sizing: border-box;
 }
 
 
 /* =====================================================
-   FOOTER MAIN
+   MAIN FOOTER
 ===================================================== */
+
+/*
+   5-column layout
+
+   Column 1 = Branch
+   Column 2 = Branch
+   Column 3 = Branch
+   Column 4 = Branch
+   Column 5 = Mobile App
+
+   Branch সংখ্যা যতই বাড়ুক,
+   grid automatically নতুন column/row তৈরি করবে।
+*/
 
 .footer-main {
   display: grid;
 
-  grid-template-columns: 1fr 280px;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr))
+    minmax(190px, 0.9fr);
 
-  gap: 50px;
+  gap: 28px;
 
   align-items: start;
+}
+
+
+/* =====================================================
+   BRANCHES SECTION
+===================================================== */
+
+.branches-section {
+  /*
+     Branch section পুরো 4 column জুড়ে থাকবে
+  */
+
+  grid-column: 1 / 5;
+
+  min-width: 0;
 }
 
 
@@ -53,33 +75,28 @@
 .footer-section-title {
   margin: 0;
 
-  color: #ffffff;
-
-  font-size: 20px;
+  font-size: 22px;
 
   font-weight: 700;
+
+  letter-spacing: 0.3px;
+
+  color: #ffffff;
 }
 
+
 .footer-title-line {
-  width: 45px;
+  width: 50px;
 
   height: 3px;
 
-  margin-top: 8px;
+  margin-top: 9px;
+
   margin-bottom: 22px;
 
-  background: #3b82f6;
+  border-radius: 10px;
 
-  border-radius: 3px;
-}
-
-
-/* =====================================================
-   BRANCHES SECTION
-===================================================== */
-
-.branches-section {
-  min-width: 0;
+  background: #38bdf8;
 }
 
 
@@ -90,59 +107,64 @@
 .branches-items {
   display: grid;
 
-  grid-template-columns:
-    repeat(
-      auto-fit,
-      minmax(220px, 1fr)
-    );
+  /*
+     প্রতিটি branch একটি column
+  */
 
-  gap: 25px;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 24px;
 }
 
 
 /* =====================================================
-   SINGLE BRANCH
+   BRANCH
 ===================================================== */
 
 .branch {
   min-width: 0;
 
-  padding: 15px;
+  padding: 0 0 18px;
 
-  background: rgba(255, 255, 255, 0.05);
+  margin: 0;
 
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  border-radius: 8px;
-
-  box-sizing: border-box;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-.branch:hover {
-  background: rgba(255, 255, 255, 0.08);
-
-  transform: translateY(-2px);
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.12);
 }
 
 
 /* =====================================================
-   BRANCH TITLE
+   BRANCH NAME
 ===================================================== */
 
-.branch h3 {
+.branch-name {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 7px;
+
   margin: 0 0 10px;
 
   color: #ffffff;
 
-  font-size: 15px;
+  font-size: 16px;
 
-  font-weight: 600;
+  font-weight: 700;
 
-  line-height: 1.5;
+  line-height: 1.4;
+}
+
+
+/* =====================================================
+   BRANCH PIN
+===================================================== */
+
+.branch-pin {
+  font-size: 17px;
+
+  flex-shrink: 0;
 }
 
 
@@ -150,35 +172,74 @@
    BRANCH INFORMATION
 ===================================================== */
 
-.branch p {
-  margin: 5px 0;
+.branch-info {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 7px;
+
+  margin: 6px 0;
 
   color: #cbd5e1;
 
-  font-size: 13px;
+  font-size: 12.5px;
 
-  line-height: 1.6;
+  line-height: 1.5;
+
+  word-break: break-word;
 }
 
 
 /* =====================================================
-   GOOGLE MAP LINK
+   BRANCH ICON
 ===================================================== */
 
-.branch a {
-  color: #60a5fa;
+.branch-icon {
+  width: 17px;
+
+  min-width: 17px;
+
+  text-align: center;
+
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   GOOGLE MAP
+===================================================== */
+
+.branch-map {
+  margin: 10px 0 0;
+}
+
+
+.branch-map a {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  color: #38bdf8;
+
+  font-size: 12.5px;
+
+  font-weight: 600;
 
   text-decoration: none;
 
-  font-size: 13px;
-
-  transition: color 0.2s ease;
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
 }
 
-.branch a:hover {
-  color: #93c5fd;
 
-  text-decoration: underline;
+.branch-map a:hover {
+  color: #7dd3fc;
+
+  transform: translateX(3px);
 }
 
 
@@ -187,17 +248,21 @@
 ===================================================== */
 
 .no-branches {
+  margin: 0;
+
   color: #94a3b8;
 
-  font-size: 13px;
+  font-size: 14px;
 }
 
 
 /* =====================================================
-   MOBILE APP SECTION
+   MOBILE APP
 ===================================================== */
 
 .mobile-app-section {
+  grid-column: 5;
+
   min-width: 0;
 }
 
@@ -220,40 +285,45 @@
 ===================================================== */
 
 .store-button {
-  width: 100%;
-
-  min-height: 58px;
-
   display: flex;
 
   align-items: center;
 
-  gap: 12px;
+  width: 190px;
 
-  padding: 8px 14px;
+  min-height: 57px;
+
+  padding: 8px 11px;
 
   box-sizing: border-box;
 
-  border: 1px solid
-    rgba(255, 255, 255, 0.15);
+  border:
+    1px solid rgba(255, 255, 255, 0.18);
 
-  border-radius: 8px;
-
-  background: #020617;
+  border-radius: 9px;
 
   color: #ffffff;
 
   text-decoration: none;
 
+  background:
+    rgba(255, 255, 255, 0.04);
+
   transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+    transform 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease;
 }
 
-.store-button:hover {
-  background: #1e293b;
 
-  transform: translateY(-2px);
+.store-button:hover {
+  transform: translateY(-3px);
+
+  background:
+    rgba(255, 255, 255, 0.09);
+
+  border-color:
+    rgba(255, 255, 255, 0.35);
 }
 
 
@@ -262,46 +332,54 @@
 ===================================================== */
 
 .store-icon {
-  width: 32px;
-  height: 32px;
+  width: 35px;
+
+  height: 35px;
 
   display: flex;
 
   align-items: center;
+
   justify-content: center;
+
+  margin-right: 9px;
 
   flex-shrink: 0;
 }
 
 
 /* =====================================================
-   GOOGLE PLAY ICON
+   GOOGLE PLAY
 ===================================================== */
 
 .google-icon {
   position: relative;
 }
 
+
 .play-triangle {
   width: 0;
+
   height: 0;
 
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
+  border-top:
+    11px solid transparent;
 
-  border-left: 16px solid #ffffff;
+  border-bottom:
+    11px solid transparent;
+
+  border-left:
+    18px solid #ffffff;
 
   display: block;
 }
 
 
 /* =====================================================
-   APPLE ICON
+   APPLE
 ===================================================== */
 
 .apple-icon {
-  color: #ffffff;
-
   font-size: 29px;
 
   line-height: 1;
@@ -317,25 +395,27 @@
 
   flex-direction: column;
 
-  justify-content: center;
+  line-height: 1.2;
 }
 
+
 .store-button-text small {
-  margin-bottom: 2px;
+  font-size: 8px;
+
+  letter-spacing: 0.5px;
 
   color: #cbd5e1;
 
-  font-size: 9px;
-
-  line-height: 1;
+  margin-bottom: 3px;
 }
 
+
 .store-button-text strong {
+  font-size: 14px;
+
+  font-weight: 600;
+
   color: #ffffff;
-
-  font-size: 15px;
-
-  line-height: 1.2;
 }
 
 
@@ -346,36 +426,29 @@
 .footer-bottom {
   width: 100%;
 
-  padding: 15px 25px;
+  border-top:
+    1px solid rgba(255, 255, 255, 0.10);
+
+  padding: 18px 20px;
 
   box-sizing: border-box;
 
-  border-top: 1px solid
-    rgba(255, 255, 255, 0.08);
-
-  background: #020617;
-
   display: flex;
 
-  align-items: center;
   justify-content: space-between;
 
+  align-items: center;
+
   gap: 20px;
-}
-
-
-/* =====================================================
-   COPYRIGHT
-===================================================== */
-
-.footer-bottom p {
-  margin: 0;
 
   color: #94a3b8;
 
-  font-size: 12px;
+  font-size: 13px;
+}
 
-  line-height: 1.5;
+
+.footer-bottom p {
+  margin: 0;
 }
 
 
@@ -389,10 +462,6 @@
   text-decoration: none;
 }
 
-.admin-login-link:hover {
-  color: #60a5fa;
-}
-
 
 /* =====================================================
    DEVELOPER
@@ -402,18 +471,20 @@
   text-align: right;
 }
 
+
 .developer a {
-  color: #60a5fa;
+  color: #38bdf8;
+
+  font-weight: 600;
 
   text-decoration: none;
 
-  font-weight: 500;
+  transition: color 0.25s ease;
 }
 
-.developer a:hover {
-  color: #93c5fd;
 
-  text-decoration: underline;
+.developer a:hover {
+  color: #7dd3fc;
 }
 
 
@@ -421,24 +492,68 @@
    TABLET
 ===================================================== */
 
-@media (max-width: 900px) {
+@media (max-width: 1050px) {
+
+  .footer-main {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr))
+      minmax(190px, 0.9fr);
+  }
+
+
+  .branches-section {
+    grid-column: 1 / 4;
+  }
+
+
+  .branches-items {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+
+  .mobile-app-section {
+    grid-column: 4;
+  }
+
+}
+
+
+/* =====================================================
+   SMALL TABLET
+===================================================== */
+
+@media (max-width: 800px) {
 
   .footer-main {
     grid-template-columns: 1fr;
 
-    gap: 35px;
+    gap: 38px;
   }
 
-  .mobile-app-section {
-    max-width: 400px;
+
+  .branches-section {
+    grid-column: auto;
   }
+
+
+  .branches-items {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 25px;
+  }
+
+
+  .mobile-app-section {
+    grid-column: auto;
+  }
+
 
   .app-buttons {
     flex-direction: row;
-  }
 
-  .store-button {
-    min-width: 180px;
+    flex-wrap: wrap;
   }
 
 }
@@ -448,67 +563,54 @@
    MOBILE
 ===================================================== */
 
-@media (max-width: 600px) {
+@media (max-width: 550px) {
 
   .footer-container {
-    padding: 30px 15px;
-  }
-
-
-  .footer-main {
-    gap: 30px;
-  }
-
-
-  .footer-section-title {
-    font-size: 18px;
+    padding:
+      32px 18px 28px;
   }
 
 
   .branches-items {
     grid-template-columns: 1fr;
 
-    gap: 12px;
+    gap: 20px;
   }
 
 
   .branch {
-    padding: 13px;
+    padding-bottom: 18px;
   }
 
 
-  .branch h3 {
-    font-size: 14px;
+  .branch-name {
+    font-size: 16px;
   }
 
 
-  .branch p {
-    font-size: 12px;
+  .branch-info {
+    font-size: 13px;
   }
 
 
   .app-buttons {
     flex-direction: column;
-
-    gap: 10px;
   }
 
 
   .store-button {
-    width: 100%;
-
-    min-width: 0;
+    width: 200px;
   }
 
 
   .footer-bottom {
     flex-direction: column;
 
-    align-items: center;
-
     text-align: center;
 
-    padding: 15px;
+    padding: 17px 15px;
+
+    gap: 7px;
   }
 
 
@@ -523,42 +625,12 @@
    SMALL MOBILE
 ===================================================== */
 
-@media (max-width: 400px) {
-
-  .footer-container {
-    padding: 25px 12px;
-  }
-
-
-  .branch {
-    padding: 12px;
-  }
-
-
-  .branch h3 {
-    font-size: 13px;
-  }
-
-
-  .branch p {
-    font-size: 11px;
-  }
-
+@media (max-width: 380px) {
 
   .store-button {
-    min-height: 54px;
+    width: 100%;
 
-    padding: 7px 12px;
-  }
-
-
-  .store-button-text strong {
-    font-size: 14px;
-  }
-
-
-  .footer-bottom p {
-    font-size: 11px;
+    max-width: 210px;
   }
 
 }
