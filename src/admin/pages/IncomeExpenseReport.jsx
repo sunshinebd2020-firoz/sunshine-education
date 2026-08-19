@@ -1,308 +1,403 @@
+import { useEffect, useMemo, useState } from "react";
 import "./IncomeExpenseReport.css";
-import { useEffect, useState } from "react";
+
+const API_URL =
+  "http://localhost/sunshine-api/api/income_expense_report.php";
+
+
+const formatAmount = (amount) => {
+  return Number(amount || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+
+const formatNumber = (number) => {
+  return Number(number || 0).toLocaleString("en-US");
+};
+
 
 export default function IncomeExpenseReport() {
-  const [income, setIncome] = useState([]);
-  const [expenses, setExpenses] = useState([]);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const currentYear =
+    new Date().getFullYear().toString();
 
-  const [branch, setBranch] = useState("");
-  const [search, setSearch] = useState("");
 
-  /* =====================================================
-     BRANCHES
-  ===================================================== */
+  const [year, setYear] =
+    useState(currentYear);
 
-  const branches = [
-    "Rajshahi Main Branch",
-    "Ramchandrapur Branch",
-    "Khulna Branch",
-    "Tangail Branch",
-  ];
+  const [month, setMonth] =
+    useState("all");
 
-  /* =====================================================
-     CURRENT MONTH
-  ===================================================== */
+  const [branch, setBranch] =
+    useState("all");
 
-  const today = new Date();
 
-  const currentYear = today.getFullYear();
-  const currentMonth = today.getMonth() + 1;
+  const [report, setReport] =
+    useState(null);
 
-  const currentMonthName = today.toLocaleString("en-US", {
-    month: "long",
-  });
+  const [loading, setLoading] =
+    useState(true);
 
-  /* =====================================================
-     LOAD REPORT DATA
-  ===================================================== */
+  const [error, setError] =
+    useState("");
 
-  useEffect(() => {
-    fetchReportData();
-  }, []);
 
-  const fetchReportData = async () => {
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD REPORT
+  |--------------------------------------------------------------------------
+  */
+
+  const loadReport = async () => {
+
     try {
+
       setLoading(true);
       setError("");
 
-      const response = await fetch(
-        "http://localhost/sunshine-api/api/income_expense_report.php"
+
+      const params =
+        new URLSearchParams();
+
+      params.append("year", year);
+      params.append("month", month);
+      params.append("branch", branch);
+
+
+      const response =
+        await fetch(
+          `${API_URL}?${params.toString()}`
+        );
+
+
+      if (!response.ok) {
+        throw new Error(
+          "Server error"
+        );
+      }
+
+
+      const data =
+        await response.json();
+
+
+      if (!data.success) {
+
+        throw new Error(
+          data.message ||
+            "Report loading failed."
+        );
+      }
+
+
+      setReport(data);
+
+    } catch (err) {
+
+      console.error(
+        "Income Expense Report Error:",
+        err
       );
 
-      const data = await response.json();
+      setError(
+        err.message ||
+          "Server connection failed."
+      );
 
-      console.log("Report API Response:", data);
-
-      if (data.success) {
-        setIncome(data.income || []);
-        setExpenses(data.expenses || []);
-      } else {
-        setError(data.message || "Report data পাওয়া যায়নি।");
-      }
-    } catch (error) {
-      console.error("Report fetch error:", error);
-
-      setError("Server-এর সাথে সংযোগ করা যাচ্ছে না।");
     } finally {
+
       setLoading(false);
+
     }
   };
 
-  /* =====================================================
-     DATE FORMAT
-  ===================================================== */
 
-  const formatDate = (date) => {
-    if (!date) return "-";
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD WHEN FILTER CHANGES
+  |--------------------------------------------------------------------------
+  */
 
-    const parts = date.split("-");
+  useEffect(() => {
 
-    if (parts.length === 3) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
+    loadReport();
 
-    return date;
-  };
+  }, [year, month, branch]);
 
-  /* =====================================================
-     CURRENT MONTH FILTER
-  ===================================================== */
 
-  const isCurrentMonth = (date) => {
-    if (!date) return false;
+  /*
+  |--------------------------------------------------------------------------
+  | MONTH NAMES
+  |--------------------------------------------------------------------------
+  */
 
-    const parts = date.split("-");
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
-    if (parts.length !== 3) return false;
 
-    const year = Number(parts[0]);
-    const month = Number(parts[1]);
+  /*
+  |--------------------------------------------------------------------------
+  | MAX MONTHLY VALUE
+  |--------------------------------------------------------------------------
+  */
 
-    return year === currentYear && month === currentMonth;
-  };
+  const maxMonthlyValue =
+    useMemo(() => {
 
-  /* =====================================================
-     SEARCH TEXT
-  ===================================================== */
+      if (
+        !report ||
+        !Array.isArray(report.monthly)
+      ) {
+        return 1;
+      }
 
-  const searchText = search.trim().toLowerCase();
 
-  /* =====================================================
-     FILTER INCOME
-  ===================================================== */
-
-  const filteredIncome = income.filter((item) => {
-    const matchesDate = isCurrentMonth(item.income_date);
-
-    const matchesBranch =
-      branch === "" ||
-      String(item.branch || "") === branch;
-
-    const matchesSearch =
-      searchText === "" ||
-      String(item.income_type || "")
-        .toLowerCase()
-        .includes(searchText) ||
-      String(item.description || "")
-        .toLowerCase()
-        .includes(searchText) ||
-      String(item.payment_method || "")
-        .toLowerCase()
-        .includes(searchText) ||
-      String(item.branch || "")
-        .toLowerCase()
-        .includes(searchText);
-
-    return (
-      matchesDate &&
-      matchesBranch &&
-      matchesSearch
-    );
-  });
-
-  /* =====================================================
-     FILTER EXPENSE
-  ===================================================== */
-
-  const filteredExpenses = expenses.filter((item) => {
-    const matchesDate = isCurrentMonth(item.expense_date);
-
-    const matchesBranch =
-      branch === "" ||
-      String(item.branch || "") === branch;
-
-    const matchesSearch =
-      searchText === "" ||
-      String(item.expense_type || "")
-        .toLowerCase()
-        .includes(searchText) ||
-      String(item.description || "")
-        .toLowerCase()
-        .includes(searchText) ||
-      String(item.payment_method || "")
-        .toLowerCase()
-        .includes(searchText) ||
-      String(item.branch || "")
-        .toLowerCase()
-        .includes(searchText);
-
-    return (
-      matchesDate &&
-      matchesBranch &&
-      matchesSearch
-    );
-  });
-
-  /* =====================================================
-     TOTAL
-  ===================================================== */
-
-  const totalIncome = filteredIncome.reduce(
-    (total, item) =>
-      total + Number(item.amount || 0),
-    0
-  );
-
-  const totalExpense = filteredExpenses.reduce(
-    (total, item) =>
-      total + Number(item.amount || 0),
-    0
-  );
-
-  const netBalance = totalIncome - totalExpense;
-
-  /* =====================================================
-     BRANCH WISE SUMMARY
-  ===================================================== */
-
-  const branchSummary = branches
-    .filter((branchName) => {
-      return branch === "" || branch === branchName;
-    })
-    .map((branchName) => {
-      const branchIncome = filteredIncome
-        .filter(
-          (item) =>
-            String(item.branch || "") === branchName
-        )
-        .reduce(
-          (total, item) =>
-            total + Number(item.amount || 0),
-          0
+      const values =
+        report.monthly.flatMap(
+          (item) => [
+            Number(item.income || 0),
+            Number(item.expense || 0),
+          ]
         );
 
-      const branchExpense = filteredExpenses
-        .filter(
-          (item) =>
-            String(item.branch || "") === branchName
-        )
-        .reduce(
-          (total, item) =>
-            total + Number(item.amount || 0),
-          0
+
+      return Math.max(
+        ...values,
+        1
+      );
+
+    }, [report]);
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | MAX BRANCH VALUE
+  |--------------------------------------------------------------------------
+  */
+
+  const maxBranchValue =
+    useMemo(() => {
+
+      if (
+        !report ||
+        !Array.isArray(report.branches)
+      ) {
+        return 1;
+      }
+
+
+      const values =
+        report.branches.flatMap(
+          (item) => [
+            Number(item.income || 0),
+            Number(item.expense || 0),
+          ]
         );
 
-      return {
-        branch: branchName,
-        income: branchIncome,
-        expense: branchExpense,
-        balance: branchIncome - branchExpense,
-      };
-    });
 
-  /* =====================================================
-     CLEAR FILTER
-  ===================================================== */
+      return Math.max(
+        ...values,
+        1
+      );
 
-  const clearFilters = () => {
-    setBranch("");
-    setSearch("");
-  };
+    }, [report]);
 
-  /* =====================================================
-     LOADING
-  ===================================================== */
 
-  if (loading) {
+  /*
+  |--------------------------------------------------------------------------
+  | LOADING
+  |--------------------------------------------------------------------------
+  */
+
+  if (loading && !report) {
+
     return (
-      <div className="income-expense-report">
+      <div className="income-report-page">
+
         <div className="report-loading">
-          Report loading হচ্ছে...
+
+          <div className="loading-spinner"></div>
+
+          <p>
+            Income & Expense Report loading...
+          </p>
+
         </div>
+
       </div>
     );
   }
 
-  /* =====================================================
-     RETURN
-  ===================================================== */
+
+  /*
+  |--------------------------------------------------------------------------
+  | ERROR
+  |--------------------------------------------------------------------------
+  */
+
+  if (error && !report) {
+
+    return (
+      <div className="income-report-page">
+
+        <div className="report-error">
+
+          <h2>
+            ⚠️ Report Loading Failed
+          </h2>
+
+          <p>
+            {error}
+          </p>
+
+          <button
+            type="button"
+            onClick={loadReport}
+          >
+            🔄 Try Again
+          </button>
+
+        </div>
+
+      </div>
+    );
+  }
+
+
+  const summary =
+    report?.summary || {};
+
 
   return (
-    <div className="income-expense-report">
 
-      {/* =================================================
+    <div className="income-report-page">
+
+
+      {/* =====================================================
           HEADER
-      ================================================= */}
+      ===================================================== */}
 
       <div className="report-header">
 
         <div>
-          <h1>Income & Expense Report</h1>
+
+          <h1>
+            📊 Income & Expense Analysis
+          </h1>
 
           <p>
-            প্রতিষ্ঠানের আয় ও ব্যয়ের বিস্তারিত হিসাব
+            আয় ও ব্যয়ের বিস্তারিত বিশ্লেষণ
           </p>
 
-          <div className="current-month">
-            Current Month:{" "}
-            <strong>
-              {currentMonthName} {currentYear}
-            </strong>
-          </div>
         </div>
+
 
         <button
           type="button"
-          className="report-refresh-btn"
-          onClick={fetchReportData}
+          className="report-refresh"
+          onClick={loadReport}
         >
-          ↻ Refresh
+          🔄 Refresh
         </button>
 
       </div>
 
-      {/* =================================================
-          FILTER
-      ================================================= */}
+
+      {/* =====================================================
+          FILTERS
+      ===================================================== */}
 
       <div className="report-filters">
 
-        <div className="report-filter-group">
+        <div className="filter-item">
 
-          <label>Branch</label>
+          <label>
+            Year
+          </label>
+
+          <select
+            value={year}
+            onChange={(e) =>
+              setYear(e.target.value)
+            }
+          >
+
+            <option value="all">
+              All Years
+            </option>
+
+            {(
+              report?.options?.years || []
+            ).map((item) => (
+
+              <option
+                key={item}
+                value={item}
+              >
+                {item}
+              </option>
+
+            ))}
+
+          </select>
+
+        </div>
+
+
+        <div className="filter-item">
+
+          <label>
+            Month
+          </label>
+
+          <select
+            value={month}
+            onChange={(e) =>
+              setMonth(e.target.value)
+            }
+          >
+
+            <option value="all">
+              All Months
+            </option>
+
+            {months.map(
+              (monthName, index) => (
+
+                <option
+                  key={index}
+                  value={index + 1}
+                >
+                  {monthName}
+                </option>
+
+              )
+            )}
+
+          </select>
+
+        </div>
+
+
+        <div className="filter-item">
+
+          <label>
+            Branch
+          </label>
 
           <select
             value={branch}
@@ -310,400 +405,798 @@ export default function IncomeExpenseReport() {
               setBranch(e.target.value)
             }
           >
-            <option value="">
+
+            <option value="all">
               All Branches
             </option>
 
-            {branches.map((item) => (
+            {(
+              report?.options?.branches || []
+            ).map((item) => (
+
               <option
                 key={item}
                 value={item}
               >
                 {item}
               </option>
+
             ))}
+
           </select>
 
         </div>
 
-        <div className="report-filter-group search-group">
 
-          <label>Search</label>
+        <div className="filter-status">
 
-          <input
-            type="text"
-            value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
-            placeholder="Search income / expense..."
-          />
+          {loading
+            ? "Updating..."
+            : "✓ Report Updated"}
 
         </div>
 
-        <button
-          type="button"
-          className="report-clear-btn"
-          onClick={clearFilters}
-        >
-          Clear
-        </button>
-
       </div>
 
-      {/* =================================================
-          ERROR
-      ================================================= */}
+
+      {/* =====================================================
+          ERROR MESSAGE
+      ===================================================== */}
 
       {error && (
-        <div className="report-error">
+
+        <div className="report-inline-error">
           {error}
         </div>
+
       )}
 
-      {/* =================================================
-          BRANCH WISE SUMMARY
-      ================================================= */}
 
-      <div className="branch-summary-container">
+      {/* =====================================================
+          SUMMARY CARDS
+      ===================================================== */}
 
-        {branchSummary.map((item) => (
+      <section className="report-summary-grid">
 
-          <div
-            className="branch-summary"
-            key={item.branch}
-          >
 
-            <div className="branch-summary-title">
-              {item.branch}
-            </div>
+        <div className="summary-card income-card">
 
-            <div className="branch-summary-cards">
+          <div className="summary-icon">
+            💰
+          </div>
 
-              {/* INCOME */}
+          <div>
 
-              <div className="summary-card income-card">
+            <span>
+              Total Income
+            </span>
 
-                <div className="summary-icon">
-                  ↑
-                </div>
+            <strong>
+              ৳ {formatAmount(
+                summary.total_income
+              )}
+            </strong>
 
-                <div>
-                  <span>Total Income</span>
+            <small>
+              {formatNumber(
+                summary.income_transactions
+              )} transactions
+            </small>
 
-                  <strong>
-                    ৳ {item.income.toLocaleString()}
-                  </strong>
-                </div>
+          </div>
 
-              </div>
+        </div>
 
-              {/* EXPENSE */}
 
-              <div className="summary-card expense-card">
+        <div className="summary-card expense-card">
 
-                <div className="summary-icon">
-                  ↓
-                </div>
+          <div className="summary-icon">
+            💸
+          </div>
 
-                <div>
-                  <span>Total Expense</span>
+          <div>
 
-                  <strong>
-                    ৳ {item.expense.toLocaleString()}
-                  </strong>
-                </div>
+            <span>
+              Total Expense
+            </span>
 
-              </div>
+            <strong>
+              ৳ {formatAmount(
+                summary.total_expense
+              )}
+            </strong>
 
-              {/* BALANCE */}
+            <small>
+              {formatNumber(
+                summary.expense_transactions
+              )} transactions
+            </small>
+
+          </div>
+
+        </div>
+
+
+        <div
+          className={`summary-card ${
+            Number(summary.net_balance || 0) >= 0
+              ? "balance-positive"
+              : "balance-negative"
+          }`}
+        >
+
+          <div className="summary-icon">
+            📈
+          </div>
+
+          <div>
+
+            <span>
+              Net Balance
+            </span>
+
+            <strong>
+              ৳ {formatAmount(
+                summary.net_balance
+              )}
+            </strong>
+
+            <small>
+              Income − Expense
+            </small>
+
+          </div>
+
+        </div>
+
+
+        <div className="summary-card transaction-card">
+
+          <div className="summary-icon">
+            🧾
+          </div>
+
+          <div>
+
+            <span>
+              Total Transactions
+            </span>
+
+            <strong>
+              {formatNumber(
+                Number(
+                  summary.income_transactions || 0
+                ) +
+                Number(
+                  summary.expense_transactions || 0
+                )
+              )}
+            </strong>
+
+            <small>
+              Income + Expense
+            </small>
+
+          </div>
+
+        </div>
+
+
+      </section>
+
+
+      {/* =====================================================
+          MONTHLY CHART
+      ===================================================== */}
+
+      <section className="report-section">
+
+        <div className="section-title">
+
+          <div>
+
+            <h2>
+              📈 Monthly Income vs Expense
+            </h2>
+
+            <p>
+              {year === "all"
+                ? "All Years"
+                : `Year ${year}`}
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div className="monthly-chart">
+
+          {(
+            report?.monthly || []
+          ).map((item) => {
+
+            const income =
+              Number(item.income || 0);
+
+            const expense =
+              Number(item.expense || 0);
+
+
+            const incomeHeight =
+              Math.max(
+                (income / maxMonthlyValue) * 100,
+                income > 0 ? 3 : 0
+              );
+
+            const expenseHeight =
+              Math.max(
+                (expense / maxMonthlyValue) * 100,
+                expense > 0 ? 3 : 0
+              );
+
+
+            return (
 
               <div
-                className={`summary-card ${
-                  item.balance >= 0
-                    ? "balance-positive"
-                    : "balance-negative"
-                }`}
+                className="month-column"
+                key={item.month}
               >
 
-                <div className="summary-icon">
-                  ৳
+                <div className="chart-bars">
+
+                  <div
+                    className="chart-bar income-bar"
+                    style={{
+                      height: `${incomeHeight}%`,
+                    }}
+                    title={`Income: ৳ ${formatAmount(income)}`}
+                  >
+                    {income > 0 && (
+                      <span>
+                        {formatAmount(income)}
+                      </span>
+                    )}
+                  </div>
+
+
+                  <div
+                    className="chart-bar expense-bar"
+                    style={{
+                      height: `${expenseHeight}%`,
+                    }}
+                    title={`Expense: ৳ ${formatAmount(expense)}`}
+                  >
+                    {expense > 0 && (
+                      <span>
+                        {formatAmount(expense)}
+                      </span>
+                    )}
+                  </div>
+
                 </div>
 
-                <div>
-                  <span>Net Balance</span>
 
-                  <strong>
-                    ৳ {item.balance.toLocaleString()}
-                  </strong>
+                <div className="month-name">
+                  {item.month_name.substring(
+                    0,
+                    3
+                  )}
                 </div>
 
               </div>
 
-            </div>
+            );
 
-          </div>
-
-        ))}
-
-      </div>
-
-      {/* =================================================
-          OVERALL SUMMARY
-      ================================================= */}
-
-      <div className="report-overall">
-
-        <div>
-          Overall Income:
-          <strong>
-            ৳ {totalIncome.toLocaleString()}
-          </strong>
-        </div>
-
-        <div>
-          Overall Expense:
-          <strong>
-            ৳ {totalExpense.toLocaleString()}
-          </strong>
-        </div>
-
-        <div>
-          Overall Balance:
-          <strong>
-            ৳ {netBalance.toLocaleString()}
-          </strong>
-        </div>
-
-      </div>
-
-      {/* =================================================
-          REPORT INFO
-      ================================================= */}
-
-      <div className="report-info">
-
-        <span>
-          Income Records:{" "}
-          <strong>
-            {filteredIncome.length}
-          </strong>
-        </span>
-
-        <span>
-          Expense Records:{" "}
-          <strong>
-            {filteredExpenses.length}
-          </strong>
-        </span>
-
-      </div>
-
-      {/* =================================================
-          INCOME SECTION
-      ================================================= */}
-
-      <section className="report-section">
-
-        <div className="report-section-header income-section-header">
-
-          <div>
-            <h2>Income Details</h2>
-
-            <p>
-              {currentMonthName} {currentYear} income records
-            </p>
-          </div>
-
-          <strong>
-            ৳ {totalIncome.toLocaleString()}
-          </strong>
+          })}
 
         </div>
 
-        <div className="report-table-wrapper">
 
-          {filteredIncome.length === 0 ? (
+        <div className="chart-legend">
 
-            <div className="report-empty">
-              এই মাসে কোনো Income record পাওয়া যায়নি।
-            </div>
+          <span>
+            <i className="legend-income"></i>
+            Income
+          </span>
 
-          ) : (
-
-            <table className="report-table">
-
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Date</th>
-                  <th>Income Type</th>
-                  <th>Description</th>
-                  <th>Payment</th>
-                  <th>Branch</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
-
-              <tbody>
-
-                {filteredIncome.map(
-                  (item, index) => (
-
-                    <tr key={item.id}>
-
-                      <td>
-                        {index + 1}
-                      </td>
-
-                      <td>
-                        {formatDate(
-                          item.income_date
-                        )}
-                      </td>
-
-                      <td>
-                        <span className="income-badge">
-                          {item.income_type || "-"}
-                        </span>
-                      </td>
-
-                      <td>
-                        {item.description || "-"}
-                      </td>
-
-                      <td>
-                        {item.payment_method || "-"}
-                      </td>
-
-                      <td>
-                        {item.branch || "-"}
-                      </td>
-
-                      <td className="income-amount">
-                        ৳{" "}
-                        {Number(
-                          item.amount || 0
-                        ).toLocaleString()}
-                      </td>
-
-                    </tr>
-
-                  )
-                )}
-
-              </tbody>
-
-            </table>
-
-          )}
+          <span>
+            <i className="legend-expense"></i>
+            Expense
+          </span>
 
         </div>
 
       </section>
 
-      {/* =================================================
-          EXPENSE SECTION
-      ================================================= */}
+
+      {/* =====================================================
+          BRANCH ANALYSIS
+      ===================================================== */}
 
       <section className="report-section">
 
-        <div className="report-section-header expense-section-header">
+        <div className="section-title">
 
           <div>
-            <h2>Expense Details</h2>
+
+            <h2>
+              🏢 Branch-wise Analysis
+            </h2>
 
             <p>
-              {currentMonthName} {currentYear} expense records
+              Branch অনুযায়ী Income ও Expense
             </p>
-          </div>
 
-          <strong>
-            ৳ {totalExpense.toLocaleString()}
-          </strong>
+          </div>
 
         </div>
 
-        <div className="report-table-wrapper">
 
-          {filteredExpenses.length === 0 ? (
+        {report?.branches?.length > 0 ? (
 
-            <div className="report-empty">
-              এই মাসে কোনো Expense record পাওয়া যায়নি।
-            </div>
+          <div className="branch-chart">
 
-          ) : (
+            {report.branches.map(
+              (item) => {
 
-            <table className="report-table">
+                const income =
+                  Number(item.income || 0);
 
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Date</th>
-                  <th>Expense Type</th>
-                  <th>Description</th>
-                  <th>Payment</th>
-                  <th>Branch</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
+                const expense =
+                  Number(item.expense || 0);
 
-              <tbody>
 
-                {filteredExpenses.map(
-                  (item, index) => (
+                const incomeWidth =
+                  (income / maxBranchValue) * 100;
 
-                    <tr key={item.id}>
+                const expenseWidth =
+                  (expense / maxBranchValue) * 100;
 
-                      <td>
-                        {index + 1}
-                      </td>
 
-                      <td>
-                        {formatDate(
-                          item.expense_date
-                        )}
-                      </td>
+                return (
 
-                      <td>
-                        <span className="expense-badge">
-                          {item.expense_type || "-"}
+                  <div
+                    className="branch-row"
+                    key={item.branch}
+                  >
+
+                    <div className="branch-name">
+                      {item.branch}
+                    </div>
+
+
+                    <div className="branch-bars">
+
+                      <div className="branch-bar-line">
+
+                        <div
+                          className="branch-income-bar"
+                          style={{
+                            width: `${incomeWidth}%`,
+                          }}
+                        ></div>
+
+                        <span>
+                          ৳ {formatAmount(income)}
                         </span>
-                      </td>
 
-                      <td>
-                        {item.description || "-"}
-                      </td>
+                      </div>
 
-                      <td>
-                        {item.payment_method || "-"}
-                      </td>
 
-                      <td>
-                        {item.branch || "-"}
-                      </td>
+                      <div className="branch-bar-line">
 
-                      <td className="expense-amount">
-                        ৳{" "}
-                        {Number(
-                          item.amount || 0
-                        ).toLocaleString()}
-                      </td>
+                        <div
+                          className="branch-expense-bar"
+                          style={{
+                            width: `${expenseWidth}%`,
+                          }}
+                        ></div>
 
-                    </tr>
+                        <span>
+                          ৳ {formatAmount(expense)}
+                        </span>
 
-                  )
-                )}
+                      </div>
 
-              </tbody>
+                    </div>
 
-            </table>
 
-          )}
+                    <div
+                      className={`branch-balance ${
+                        Number(item.balance) >= 0
+                          ? "positive"
+                          : "negative"
+                      }`}
+                    >
+                      ৳ {formatAmount(
+                        item.balance
+                      )}
+                    </div>
+
+                  </div>
+
+                );
+
+              }
+            )}
+
+          </div>
+
+        ) : (
+
+          <div className="empty-report">
+            কোনো branch data পাওয়া যায়নি।
+          </div>
+
+        )}
+
+
+        <div className="branch-legend">
+
+          <span>
+            <i className="legend-income"></i>
+            Income
+          </span>
+
+          <span>
+            <i className="legend-expense"></i>
+            Expense
+          </span>
+
+          <span>
+            Balance = Income − Expense
+          </span>
 
         </div>
 
       </section>
+
+
+      {/* =====================================================
+          TYPE ANALYSIS
+      ===================================================== */}
+
+      <div className="analysis-two-column">
+
+
+        {/* ================= INCOME TYPES ================= */}
+
+        <section className="report-section type-section">
+
+          <div className="section-title">
+
+            <div>
+
+              <h2>
+                💰 Income Type Analysis
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          {report?.income_types?.length > 0 ? (
+
+            <div className="type-list">
+
+              {report.income_types.map(
+                (item, index) => {
+
+                  const percentage =
+                    summary.total_income > 0
+                      ? (
+                          Number(item.total) /
+                          Number(summary.total_income)
+                        ) * 100
+                      : 0;
+
+
+                  return (
+
+                    <div
+                      className="type-item"
+                      key={`${item.type}-${index}`}
+                    >
+
+                      <div className="type-top">
+
+                        <strong>
+                          {item.type || "Unknown"}
+                        </strong>
+
+                        <span>
+                          ৳ {formatAmount(
+                            item.total
+                          )}
+                        </span>
+
+                      </div>
+
+
+                      <div className="type-progress">
+
+                        <div
+                          className="type-progress-fill income-progress"
+                          style={{
+                            width: `${percentage}%`,
+                          }}
+                        ></div>
+
+                      </div>
+
+
+                      <div className="type-bottom">
+
+                        <span>
+                          {percentage.toFixed(1)}%
+                        </span>
+
+                        <span>
+                          {formatNumber(
+                            item.transactions
+                          )} transactions
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                  );
+
+                }
+              )}
+
+            </div>
+
+          ) : (
+
+            <div className="empty-report">
+              কোনো income data পাওয়া যায়নি।
+            </div>
+
+          )}
+
+        </section>
+
+
+        {/* ================= EXPENSE TYPES ================= */}
+
+        <section className="report-section type-section">
+
+          <div className="section-title">
+
+            <div>
+
+              <h2>
+                💸 Expense Type Analysis
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          {report?.expense_types?.length > 0 ? (
+
+            <div className="type-list">
+
+              {report.expense_types.map(
+                (item, index) => {
+
+                  const percentage =
+                    summary.total_expense > 0
+                      ? (
+                          Number(item.total) /
+                          Number(summary.total_expense)
+                        ) * 100
+                      : 0;
+
+
+                  return (
+
+                    <div
+                      className="type-item"
+                      key={`${item.type}-${index}`}
+                    >
+
+                      <div className="type-top">
+
+                        <strong>
+                          {item.type || "Unknown"}
+                        </strong>
+
+                        <span>
+                          ৳ {formatAmount(
+                            item.total
+                          )}
+                        </span>
+
+                      </div>
+
+
+                      <div className="type-progress">
+
+                        <div
+                          className="type-progress-fill expense-progress"
+                          style={{
+                            width: `${percentage}%`,
+                          }}
+                        ></div>
+
+                      </div>
+
+
+                      <div className="type-bottom">
+
+                        <span>
+                          {percentage.toFixed(1)}%
+                        </span>
+
+                        <span>
+                          {formatNumber(
+                            item.transactions
+                          )} transactions
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                  );
+
+                }
+              )}
+
+            </div>
+
+          ) : (
+
+            <div className="empty-report">
+              কোনো expense data পাওয়া যায়নি।
+            </div>
+
+          )}
+
+        </section>
+
+      </div>
+
+
+      {/* =====================================================
+          MONTHLY TABLE
+      ===================================================== */}
+
+      <section className="report-section">
+
+        <div className="section-title">
+
+          <div>
+
+            <h2>
+              📋 Monthly Summary
+            </h2>
+
+            <p>
+              মাসভিত্তিক আয়, ব্যয় ও balance
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div className="report-table-container">
+
+          <table className="report-table">
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  Month
+                </th>
+
+                <th>
+                  Income
+                </th>
+
+                <th>
+                  Expense
+                </th>
+
+                <th>
+                  Net Balance
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody>
+
+              {(
+                report?.monthly || []
+              ).map((item) => (
+
+                <tr
+                  key={item.month}
+                >
+
+                  <td>
+                    <strong>
+                      {item.month_name}
+                    </strong>
+                  </td>
+
+                  <td className="income-text">
+                    ৳ {formatAmount(
+                      item.income
+                    )}
+                  </td>
+
+                  <td className="expense-text">
+                    ৳ {formatAmount(
+                      item.expense
+                    )}
+                  </td>
+
+                  <td
+                    className={
+                      Number(item.balance) >= 0
+                        ? "balance-text-positive"
+                        : "balance-text-negative"
+                    }
+                  >
+                    ৳ {formatAmount(
+                      item.balance
+                    )}
+                  </td>
+
+                </tr>
+
+              ))}
+
+
+              {/* ================= GRAND TOTAL ================= */}
+
+              <tr className="grand-total-row">
+
+                <td>
+                  GRAND TOTAL
+                </td>
+
+                <td>
+                  ৳ {formatAmount(
+                    summary.total_income
+                  )}
+                </td>
+
+                <td>
+                  ৳ {formatAmount(
+                    summary.total_expense
+                  )}
+                </td>
+
+                <td>
+                  ৳ {formatAmount(
+                    summary.net_balance
+                  )}
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
 
     </div>
   );
