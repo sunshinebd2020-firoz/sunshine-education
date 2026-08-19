@@ -1,8 +1,21 @@
 import "./IncomeEntry.css";
 import { useEffect, useState } from "react";
 
+const API_BASE_URL =
+  "http://localhost/sunshine-api/api";
+
+const getToday = () => {
+  const now = new Date();
+
+  return `${now.getFullYear()}-${String(
+    now.getMonth() + 1
+  ).padStart(2, "0")}-${String(
+    now.getDate()
+  ).padStart(2, "0")}`;
+};
+
 const initialForm = {
-  income_date: new Date().toISOString().split("T")[0],
+  income_date: getToday(),
   income_type: "",
   student_id: "",
   student_name: "",
@@ -11,6 +24,49 @@ const initialForm = {
   payment_method: "",
   branch: "",
   note: "",
+};
+
+const getLoggedInUser = () => {
+  const keys = [
+    "sunshine_user",
+    "admin",
+    "user",
+    "loggedInUser",
+  ];
+
+  for (const key of keys) {
+    const value = localStorage.getItem(key);
+
+    if (!value) continue;
+
+    try {
+      const user = JSON.parse(value);
+
+      if (user && typeof user === "object") {
+        return user;
+      }
+    } catch (error) {
+      console.error(
+        `Invalid localStorage data: ${key}`,
+        error
+      );
+    }
+  }
+
+  return null;
+};
+
+const isAdminRole = (role) => {
+  const normalized = String(role || "")
+    .trim()
+    .toLowerCase();
+
+  return [
+    "admin",
+    "administrator",
+    "super admin",
+    "superadmin",
+  ].includes(normalized);
 };
 
 export default function IncomeEntry() {
@@ -24,9 +80,114 @@ export default function IncomeEntry() {
 
   const [message, setMessage] = useState("");
 
-  const [loadingStudents, setLoadingStudents] = useState(true);
-  const [loadingBranches, setLoadingBranches] = useState(true);
+  const [loadingStudents, setLoadingStudents] =
+    useState(true);
+
+  const [loadingBranches, setLoadingBranches] =
+    useState(true);
+
   const [saving, setSaving] = useState(false);
+
+  const [teacherId, setTeacherId] = useState("");
+  const [userRole, setUserRole] = useState("");
+  const [userBranch, setUserBranch] = useState("");
+
+  /* =====================================================
+     LOAD USER + BRANCH
+  ===================================================== */
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const user = getLoggedInUser();
+
+      if (!user) {
+        setMessage(
+          "Login user information পাওয়া যায়নি।"
+        );
+        return;
+      }
+
+      const currentTeacherId = String(
+        user.teacher_id ||
+          user.teacherId ||
+          ""
+      ).trim();
+
+      const currentRole = String(
+        user.role || ""
+      )
+        .trim()
+        .toLowerCase();
+
+      setTeacherId(currentTeacherId);
+      setUserRole(currentRole);
+
+      /*
+       * Login storage-এ branch না থাকলেও
+       * teacher_list.php থেকে branch বের করা হবে।
+       */
+      if (currentTeacherId) {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/teacher_list.php`
+          );
+
+          const data = await response.json();
+
+          console.log(
+            "Teacher List Response:",
+            data
+          );
+
+          const teachers = Array.isArray(
+            data.data
+          )
+            ? data.data
+            : Array.isArray(
+                data.teachers
+              )
+            ? data.teachers
+            : [];
+
+          const currentTeacher =
+            teachers.find(
+              (teacher) =>
+                String(
+                  teacher.teacher_id || ""
+                ).trim() === currentTeacherId
+            );
+
+          if (currentTeacher) {
+            const branch =
+              currentTeacher.branch ||
+              currentTeacher.branch_name ||
+              "";
+
+            setUserBranch(
+              String(branch).trim()
+            );
+
+            if (
+              !isAdminRole(currentRole)
+            ) {
+              setForm((prev) => ({
+                ...prev,
+                branch:
+                  String(branch).trim(),
+              }));
+            }
+          }
+        } catch (error) {
+          console.error(
+            "Teacher branch fetch error:",
+            error
+          );
+        }
+      }
+    };
+
+    loadUser();
+  }, []);
 
   /* =====================================================
      LOAD STUDENTS
@@ -38,34 +199,33 @@ export default function IncomeEntry() {
         setLoadingStudents(true);
 
         const response = await fetch(
-          "http://localhost/sunshine-api/api/students.php"
+          `${API_BASE_URL}/students.php`
         );
 
         if (!response.ok) {
-          throw new Error("Student server error");
+          throw new Error(
+            "Student server error"
+          );
         }
 
         const data = await response.json();
 
-        console.log("Students API Response:", data);
+        const records = Array.isArray(
+          data.students
+        )
+          ? data.students
+          : Array.isArray(data.data)
+          ? data.data
+          : [];
 
-        if (data.success) {
-          setStudents(
-            Array.isArray(data.students)
-              ? data.students
-              : []
-          );
-        } else {
-          console.error(
-            "Student API Error:",
-            data.message
-          );
-        }
+        setStudents(records);
       } catch (error) {
         console.error(
           "Student fetch error:",
           error
         );
+
+        setStudents([]);
       } finally {
         setLoadingStudents(false);
       }
@@ -73,7 +233,6 @@ export default function IncomeEntry() {
 
     fetchStudents();
   }, []);
-
 
   /* =====================================================
      LOAD BRANCHES
@@ -85,34 +244,33 @@ export default function IncomeEntry() {
         setLoadingBranches(true);
 
         const response = await fetch(
-          "http://localhost/sunshine-api/api/branch_list.php"
+          `${API_BASE_URL}/branch_list.php`
         );
 
         if (!response.ok) {
-          throw new Error("Branch server error");
+          throw new Error(
+            "Branch server error"
+          );
         }
 
         const data = await response.json();
 
-        console.log("Branch API Response:", data);
+        const records = Array.isArray(
+          data.branches
+        )
+          ? data.branches
+          : Array.isArray(data.data)
+          ? data.data
+          : [];
 
-        if (data.success) {
-          setBranches(
-            Array.isArray(data.branches)
-              ? data.branches
-              : []
-          );
-        } else {
-          console.error(
-            "Branch API Error:",
-            data.message
-          );
-        }
+        setBranches(records);
       } catch (error) {
         console.error(
           "Branch fetch error:",
           error
         );
+
+        setBranches([]);
       } finally {
         setLoadingBranches(false);
       }
@@ -121,9 +279,8 @@ export default function IncomeEntry() {
     fetchBranches();
   }, []);
 
-
   /* =====================================================
-     GET STUDENT NAME
+     STUDENT NAME
   ===================================================== */
 
   const getStudentName = (student) => {
@@ -135,13 +292,14 @@ export default function IncomeEntry() {
     );
   };
 
-
   /* =====================================================
      SEARCH STUDENTS
   ===================================================== */
 
   const searchStudents = (value) => {
-    const search = value.trim().toLowerCase();
+    const search = String(value || "")
+      .trim()
+      .toLowerCase();
 
     if (!search) {
       setSuggestions([]);
@@ -154,9 +312,10 @@ export default function IncomeEntry() {
           student.student_id || ""
         ).toLowerCase();
 
-        const studentName = getStudentName(
-          student
-        ).toLowerCase();
+        const studentName =
+          getStudentName(
+            student
+          ).toLowerCase();
 
         return (
           studentId.includes(search) ||
@@ -168,9 +327,8 @@ export default function IncomeEntry() {
     setSuggestions(filtered);
   };
 
-
   /* =====================================================
-     STUDENT ID CHANGE
+     STUDENT ID
   ===================================================== */
 
   const handleStudentIdChange = (e) => {
@@ -182,13 +340,11 @@ export default function IncomeEntry() {
     }));
 
     setActiveField("id");
-
     searchStudents(value);
   };
 
-
   /* =====================================================
-     STUDENT NAME CHANGE
+     STUDENT NAME
   ===================================================== */
 
   const handleStudentNameChange = (e) => {
@@ -200,10 +356,8 @@ export default function IncomeEntry() {
     }));
 
     setActiveField("name");
-
     searchStudents(value);
   };
-
 
   /* =====================================================
      SELECT STUDENT
@@ -212,24 +366,22 @@ export default function IncomeEntry() {
   const selectStudent = (student) => {
     setForm((prev) => ({
       ...prev,
-
       student_id:
         student.student_id || "",
-
       student_name:
         getStudentName(student),
-
-      branch:
-        student.branch || prev.branch,
+      branch: isAdminRole(userRole)
+        ? student.branch ||
+          prev.branch
+        : userBranch,
     }));
 
     setSuggestions([]);
     setActiveField("");
   };
 
-
   /* =====================================================
-     CLOSE SUGGESTIONS
+     BLUR
   ===================================================== */
 
   const handleBlur = () => {
@@ -239,20 +391,28 @@ export default function IncomeEntry() {
     }, 200);
   };
 
-
   /* =====================================================
-     NORMAL CHANGE
+     CHANGE
   ===================================================== */
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const {
+      name,
+      value,
+    } = e.target;
+
+    if (
+      name === "branch" &&
+      !isAdminRole(userRole)
+    ) {
+      return;
+    }
 
     setForm((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-
 
   /* =====================================================
      SUBMIT
@@ -263,32 +423,76 @@ export default function IncomeEntry() {
 
     setMessage("");
 
+    if (!teacherId) {
+      setMessage(
+        "Teacher ID পাওয়া যাচ্ছে না। আবার login করুন।"
+      );
+      return;
+    }
+
+    if (
+      !isAdminRole(userRole) &&
+      !userBranch
+    ) {
+      setMessage(
+        "আপনার branch assign করা হয়নি।"
+      );
+      return;
+    }
+
+    if (
+      isAdminRole(userRole) &&
+      !form.branch
+    ) {
+      setMessage(
+        "Branch নির্বাচন করুন।"
+      );
+      return;
+    }
+
     try {
       setSaving(true);
 
+      const payload = {
+        ...form,
+        teacher_id: teacherId,
+        role: userRole,
+        branch: isAdminRole(userRole)
+          ? form.branch
+          : userBranch,
+      };
+
+      console.log(
+        "Income Payload:",
+        payload
+      );
+
       const response = await fetch(
-        "http://localhost/sunshine-api/api/add_income.php",
+        `${API_BASE_URL}/add_income.php`,
         {
           method: "POST",
-
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
+            Accept:
+              "application/json",
           },
-
-          body: JSON.stringify(form),
+          body: JSON.stringify(
+            payload
+          ),
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Income server error");
-      }
-
-      const data = await response.json();
+      const text =
+        await response.text();
 
       console.log(
-        "Income API Response:",
-        data
+        "Income Response:",
+        text
       );
+
+      const data =
+        JSON.parse(text);
 
       if (data.success) {
         setMessage(
@@ -297,11 +501,12 @@ export default function IncomeEntry() {
 
         setForm({
           ...initialForm,
-
           income_date:
-            new Date()
-              .toISOString()
-              .split("T")[0],
+            getToday(),
+          branch:
+            isAdminRole(userRole)
+              ? ""
+              : userBranch,
         });
 
         setSuggestions([]);
@@ -309,7 +514,7 @@ export default function IncomeEntry() {
       } else {
         setMessage(
           data.message ||
-            "Income যোগ করা যায়নি"
+            "Income যোগ করা যায়নি।"
         );
       }
     } catch (error) {
@@ -319,45 +524,35 @@ export default function IncomeEntry() {
       );
 
       setMessage(
-        "Server-এর সাথে সংযোগ করা যাচ্ছে না"
+        "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
       );
     } finally {
       setSaving(false);
     }
   };
 
-
-  /* =====================================================
-     RENDER
-  ===================================================== */
-
   return (
     <div className="income-entry">
 
-      {/* =================================================
-          HEADER
-      ================================================= */}
-
       <div className="income-entry-header">
-
         <div>
-
-          <h1>
-            Income Entry
-          </h1>
+          <h1>Income Entry</h1>
 
           <p>
             নতুন Income তথ্য যোগ করুন
           </p>
 
+          {!isAdminRole(userRole) &&
+            userBranch && (
+              <p>
+                Branch:{" "}
+                <strong>
+                  {userBranch}
+                </strong>
+              </p>
+            )}
         </div>
-
       </div>
-
-
-      {/* =================================================
-          FORM
-      ================================================= */}
 
       <form
         className="income-form"
@@ -366,13 +561,7 @@ export default function IncomeEntry() {
 
         <div className="form-grid">
 
-
-          {/* =================================================
-              INCOME DATE
-          ================================================= */}
-
           <div className="form-group">
-
             <label>
               Income Date *
             </label>
@@ -380,31 +569,31 @@ export default function IncomeEntry() {
             <input
               type="date"
               name="income_date"
-              value={form.income_date}
-              onChange={handleChange}
+              value={
+                form.income_date
+              }
+              onChange={
+                handleChange
+              }
               required
             />
-
           </div>
 
-
-          {/* =================================================
-              INCOME TYPE
-          ================================================= */}
-
           <div className="form-group">
-
             <label>
               Income Type *
             </label>
 
             <select
               name="income_type"
-              value={form.income_type}
-              onChange={handleChange}
+              value={
+                form.income_type
+              }
+              onChange={
+                handleChange
+              }
               required
             >
-
               <option value="">
                 Select Income Type
               </option>
@@ -424,18 +613,10 @@ export default function IncomeEntry() {
               <option value="Other">
                 Other
               </option>
-
             </select>
-
           </div>
 
-
-          {/* =================================================
-              STUDENT ID
-          ================================================= */}
-
           <div className="form-group student-autocomplete">
-
             <label>
               Student ID
             </label>
@@ -443,28 +624,32 @@ export default function IncomeEntry() {
             <input
               type="text"
               name="student_id"
-              value={form.student_id}
-              onChange={handleStudentIdChange}
+              value={
+                form.student_id
+              }
+              onChange={
+                handleStudentIdChange
+              }
               onFocus={() => {
                 setActiveField("id");
                 searchStudents(
                   form.student_id
                 );
               }}
-              onBlur={handleBlur}
+              onBlur={
+                handleBlur
+              }
               placeholder="Enter Student ID"
               autoComplete="off"
             />
 
-
-            {activeField === "id" &&
-              suggestions.length > 0 && (
-
+            {activeField ===
+              "id" &&
+              suggestions.length >
+                0 && (
                 <div className="student-suggestions">
-
                   {suggestions.map(
                     (student) => (
-
                       <div
                         key={
                           student.id ||
@@ -477,7 +662,6 @@ export default function IncomeEntry() {
                           )
                         }
                       >
-
                         <strong>
                           {
                             student.student_id
@@ -491,34 +675,20 @@ export default function IncomeEntry() {
                             )
                           }
                         </span>
-
                       </div>
-
                     )
                   )}
-
                 </div>
-
               )}
 
-
             <small>
-
               {loadingStudents
                 ? "Student data loading..."
                 : "Student ID লিখলে student suggestion দেখাবে"}
-
             </small>
-
           </div>
 
-
-          {/* =================================================
-              STUDENT NAME
-          ================================================= */}
-
           <div className="form-group student-autocomplete">
-
             <label>
               Student Name
             </label>
@@ -526,31 +696,35 @@ export default function IncomeEntry() {
             <input
               type="text"
               name="student_name"
-              value={form.student_name}
+              value={
+                form.student_name
+              }
               onChange={
                 handleStudentNameChange
               }
               onFocus={() => {
-                setActiveField("name");
+                setActiveField(
+                  "name"
+                );
 
                 searchStudents(
                   form.student_name
                 );
               }}
-              onBlur={handleBlur}
+              onBlur={
+                handleBlur
+              }
               placeholder="Enter Student Name"
               autoComplete="off"
             />
 
-
-            {activeField === "name" &&
-              suggestions.length > 0 && (
-
+            {activeField ===
+              "name" &&
+              suggestions.length >
+                0 && (
                 <div className="student-suggestions">
-
                   {suggestions.map(
                     (student) => (
-
                       <div
                         key={
                           student.id ||
@@ -563,7 +737,6 @@ export default function IncomeEntry() {
                           )
                         }
                       >
-
                         <strong>
                           {
                             student.student_id
@@ -577,34 +750,20 @@ export default function IncomeEntry() {
                             )
                           }
                         </span>
-
                       </div>
-
                     )
                   )}
-
                 </div>
-
               )}
 
-
             <small>
-
               {loadingStudents
                 ? "Student data loading..."
                 : "Student Name লিখলে suggestion দেখাবে"}
-
             </small>
-
           </div>
 
-
-          {/* =================================================
-              AMOUNT
-          ================================================= */}
-
           <div className="form-group">
-
             <label>
               Amount *
             </label>
@@ -612,33 +771,33 @@ export default function IncomeEntry() {
             <input
               type="number"
               name="amount"
-              value={form.amount}
-              onChange={handleChange}
+              value={
+                form.amount
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Enter amount"
               min="0"
               step="0.01"
               required
             />
-
           </div>
 
-
-          {/* =================================================
-              PAYMENT METHOD
-          ================================================= */}
-
           <div className="form-group">
-
             <label>
               Payment Method
             </label>
 
             <select
               name="payment_method"
-              value={form.payment_method}
-              onChange={handleChange}
+              value={
+                form.payment_method
+              }
+              onChange={
+                handleChange
+              }
             >
-
               <option value="">
                 Select Payment Method
               </option>
@@ -662,64 +821,64 @@ export default function IncomeEntry() {
               <option value="Rocket">
                 Rocket
               </option>
-
             </select>
-
           </div>
 
-
-          {/* =================================================
-              BRANCH - DYNAMIC
-          ================================================= */}
-
           <div className="form-group">
-
             <label>
               Branch
             </label>
 
-            <select
-              name="branch"
-              value={form.branch}
-              onChange={handleChange}
-            >
+            {isAdminRole(userRole) ? (
+              <select
+                name="branch"
+                value={
+                  form.branch
+                }
+                onChange={
+                  handleChange
+                }
+                required
+              >
+                <option value="">
+                  {loadingBranches
+                    ? "Loading Branches..."
+                    : "Select Branch"}
+                </option>
 
-              <option value="">
-                {loadingBranches
-                  ? "Loading Branches..."
-                  : "Select Branch"}
-              </option>
-
-              {branches.map(
-                (branch) => (
-
-                  <option
-                    key={branch.id}
-                    value={
-                      branch.branch_name
-                    }
-                  >
-
-                    {branch.branch_name_bn
-                      ? `${branch.branch_name} - ${branch.branch_name_bn}`
-                      : branch.branch_name}
-
-                  </option>
-
-                )
-              )}
-
-            </select>
-
+                {branches.map(
+                  (branchItem) => (
+                    <option
+                      key={
+                        branchItem.id
+                      }
+                      value={
+                        branchItem.branch_name
+                      }
+                    >
+                      {branchItem.branch_name_bn
+                        ? `${branchItem.branch_name} - ${branchItem.branch_name_bn}`
+                        : branchItem.branch_name}
+                    </option>
+                  )
+                )}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={
+                  loadingBranches &&
+                  !userBranch
+                    ? "Loading..."
+                    : userBranch ||
+                      "Branch not assigned"
+                }
+                readOnly
+              />
+            )}
           </div>
 
-
-          {/* =================================================
-              DESCRIPTION
-          ================================================= */}
-
           <div className="form-group full-width">
-
             <label>
               Description
             </label>
@@ -727,73 +886,54 @@ export default function IncomeEntry() {
             <input
               type="text"
               name="description"
-              value={form.description}
-              onChange={handleChange}
+              value={
+                form.description
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Income description"
             />
-
           </div>
 
-
-          {/* =================================================
-              NOTE
-          ================================================= */}
-
           <div className="form-group full-width">
-
             <label>
               Note
             </label>
 
             <textarea
               name="note"
-              value={form.note}
-              onChange={handleChange}
+              value={
+                form.note
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Additional note"
               rows="4"
-            ></textarea>
-
+            />
           </div>
-
 
         </div>
 
-
-        {/* =================================================
-            MESSAGE
-        ================================================= */}
-
         {message && (
-
           <div className="income-message">
             {message}
           </div>
-
         )}
 
-
-        {/* =================================================
-            BUTTON
-        ================================================= */}
-
         <div className="form-actions">
-
           <button
             type="submit"
             disabled={saving}
           >
-
             {saving
               ? "Saving..."
               : "Save Income"}
-
           </button>
-
         </div>
 
-
       </form>
-
     </div>
   );
 }

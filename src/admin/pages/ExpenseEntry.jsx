@@ -1,8 +1,21 @@
 import "./ExpenseEntry.css";
 import { useEffect, useState } from "react";
 
+const API_BASE_URL =
+  "http://localhost/sunshine-api/api";
+
+const getToday = () => {
+  const now = new Date();
+
+  return `${now.getFullYear()}-${String(
+    now.getMonth() + 1
+  ).padStart(2, "0")}-${String(
+    now.getDate()
+  ).padStart(2, "0")}`;
+};
+
 const initialForm = {
-  expense_date: new Date().toISOString().split("T")[0],
+  expense_date: getToday(),
   expense_type: "",
   staff_id: "",
   staff_name: "",
@@ -13,24 +26,201 @@ const initialForm = {
   note: "",
 };
 
+const getLoggedInUser = () => {
+  const keys = [
+    "sunshine_user",
+    "admin",
+    "user",
+    "loggedInUser",
+  ];
+
+  for (const key of keys) {
+    const value = localStorage.getItem(key);
+
+    if (!value) continue;
+
+    try {
+      const user = JSON.parse(value);
+
+      if (user && typeof user === "object") {
+        return user;
+      }
+    } catch (error) {
+      console.error(
+        `Invalid localStorage data: ${key}`,
+        error
+      );
+    }
+  }
+
+  return null;
+};
+
+const isAdminRole = (role) => {
+  const normalized = String(role || "")
+    .trim()
+    .toLowerCase();
+
+  return [
+    "admin",
+    "administrator",
+    "super admin",
+    "superadmin",
+  ].includes(normalized);
+};
+
 export default function ExpenseEntry() {
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] =
+    useState(initialForm);
 
-  const [staffs, setStaffs] = useState([]);
-  const [branches, setBranches] = useState([]);
+  const [staffs, setStaffs] =
+    useState([]);
 
-  const [suggestions, setSuggestions] = useState([]);
-  const [activeField, setActiveField] = useState("");
+  const [branches, setBranches] =
+    useState([]);
 
-  const [message, setMessage] = useState("");
+  const [suggestions, setSuggestions] =
+    useState([]);
 
-  const [loadingStaffs, setLoadingStaffs] = useState(true);
-  const [loadingBranches, setLoadingBranches] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [activeField, setActiveField] =
+    useState("");
 
+  const [message, setMessage] =
+    useState("");
+
+  const [loadingStaffs, setLoadingStaffs] =
+    useState(true);
+
+  const [loadingBranches, setLoadingBranches] =
+    useState(true);
+
+  const [saving, setSaving] =
+    useState(false);
+
+  const [teacherId, setTeacherId] =
+    useState("");
+
+  const [userRole, setUserRole] =
+    useState("");
+
+  const [userBranch, setUserBranch] =
+    useState("");
 
   /* =====================================================
-     LOAD STAFF / TEACHERS
+     LOAD USER + BRANCH
+  ===================================================== */
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const user =
+        getLoggedInUser();
+
+      if (!user) {
+        setMessage(
+          "Login user information পাওয়া যায়নি।"
+        );
+        return;
+      }
+
+      const currentTeacherId =
+        String(
+          user.teacher_id ||
+            user.teacherId ||
+            ""
+        ).trim();
+
+      const currentRole =
+        String(
+          user.role || ""
+        )
+          .trim()
+          .toLowerCase();
+
+      setTeacherId(
+        currentTeacherId
+      );
+      setUserRole(
+        currentRole
+      );
+
+      if (currentTeacherId) {
+        try {
+          const response =
+            await fetch(
+              `${API_BASE_URL}/teacher_list.php`
+            );
+
+          const data =
+            await response.json();
+
+          console.log(
+            "Teacher List Response:",
+            data
+          );
+
+          const teachers =
+            Array.isArray(
+              data.data
+            )
+              ? data.data
+              : Array.isArray(
+                  data.teachers
+                )
+              ? data.teachers
+              : [];
+
+          const currentTeacher =
+            teachers.find(
+              (teacher) =>
+                String(
+                  teacher.teacher_id ||
+                    ""
+                ).trim() ===
+                currentTeacherId
+            );
+
+          if (currentTeacher) {
+            const branch =
+              currentTeacher.branch ||
+              currentTeacher.branch_name ||
+              "";
+
+            setUserBranch(
+              String(
+                branch
+              ).trim()
+            );
+
+            if (
+              !isAdminRole(
+                currentRole
+              )
+            ) {
+              setForm(
+                (prev) => ({
+                  ...prev,
+                  branch:
+                    String(
+                      branch
+                    ).trim(),
+                })
+              );
+            }
+          }
+        } catch (error) {
+          console.error(
+            "Teacher branch fetch error:",
+            error
+          );
+        }
+      }
+    };
+
+    loadUser();
+  }, []);
+
+  /* =====================================================
+     LOAD STAFFS
   ===================================================== */
 
   useEffect(() => {
@@ -38,38 +228,32 @@ export default function ExpenseEntry() {
       try {
         setLoadingStaffs(true);
 
-        const response = await fetch(
-          "http://localhost/sunshine-api/api/teacher_list.php"
-        );
+        const response =
+          await fetch(
+            `${API_BASE_URL}/teacher_list.php`
+          );
 
         if (!response.ok) {
-          throw new Error("Teacher server error");
+          throw new Error(
+            "Teacher server error"
+          );
         }
 
-        const data = await response.json();
+        const data =
+          await response.json();
 
-        console.log(
-          "Teacher API Response:",
-          data
-        );
+        const records =
+          Array.isArray(
+            data.data
+          )
+            ? data.data
+            : Array.isArray(
+                data.teachers
+              )
+            ? data.teachers
+            : [];
 
-        if (data.success) {
-          setStaffs(
-            Array.isArray(data.data)
-              ? data.data
-              : Array.isArray(data.teachers)
-              ? data.teachers
-              : []
-          );
-        } else {
-          console.error(
-            "Teacher API Error:",
-            data.message
-          );
-
-          setStaffs([]);
-        }
-
+        setStaffs(records);
       } catch (error) {
         console.error(
           "Staff fetch error:",
@@ -77,7 +261,6 @@ export default function ExpenseEntry() {
         );
 
         setStaffs([]);
-
       } finally {
         setLoadingStaffs(false);
       }
@@ -85,7 +268,6 @@ export default function ExpenseEntry() {
 
     fetchStaffs();
   }, []);
-
 
   /* =====================================================
      LOAD BRANCHES
@@ -96,36 +278,32 @@ export default function ExpenseEntry() {
       try {
         setLoadingBranches(true);
 
-        const response = await fetch(
-          "http://localhost/sunshine-api/api/branch_list.php"
-        );
+        const response =
+          await fetch(
+            `${API_BASE_URL}/branch_list.php`
+          );
 
         if (!response.ok) {
-          throw new Error("Branch server error");
+          throw new Error(
+            "Branch server error"
+          );
         }
 
-        const data = await response.json();
+        const data =
+          await response.json();
 
-        console.log(
-          "Branch API Response:",
-          data
-        );
+        const records =
+          Array.isArray(
+            data.branches
+          )
+            ? data.branches
+            : Array.isArray(
+                data.data
+              )
+            ? data.data
+            : [];
 
-        if (data.success) {
-          setBranches(
-            Array.isArray(data.branches)
-              ? data.branches
-              : []
-          );
-        } else {
-          console.error(
-            "Branch API Error:",
-            data.message
-          );
-
-          setBranches([]);
-        }
-
+        setBranches(records);
       } catch (error) {
         console.error(
           "Branch fetch error:",
@@ -133,7 +311,6 @@ export default function ExpenseEntry() {
         );
 
         setBranches([]);
-
       } finally {
         setLoadingBranches(false);
       }
@@ -142,12 +319,13 @@ export default function ExpenseEntry() {
     fetchBranches();
   }, []);
 
-
   /* =====================================================
      STAFF ID
   ===================================================== */
 
-  const getStaffId = (staff) => {
+  const getStaffId = (
+    staff
+  ) => {
     return (
       staff.teacher_id ||
       staff.staff_id ||
@@ -156,12 +334,13 @@ export default function ExpenseEntry() {
     );
   };
 
-
   /* =====================================================
      STAFF NAME
   ===================================================== */
 
-  const getStaffName = (staff) => {
+  const getStaffName = (
+    staff
+  ) => {
     return (
       staff.nameBn ||
       staff.name_bn ||
@@ -174,102 +353,145 @@ export default function ExpenseEntry() {
     );
   };
 
-
   /* =====================================================
      SEARCH STAFF
   ===================================================== */
 
-  const searchStaffs = (value) => {
-    const search = String(value || "")
-      .trim()
-      .toLowerCase();
+  const searchStaffs = (
+    value
+  ) => {
+    const search =
+      String(value || "")
+        .trim()
+        .toLowerCase();
 
     if (!search) {
       setSuggestions([]);
       return;
     }
 
-    const filtered = staffs
-      .filter((staff) => {
-        const staffId = String(
-          getStaffId(staff)
-        ).toLowerCase();
+    const filtered =
+      staffs
+        .filter((staff) => {
+          const staffId =
+            String(
+              getStaffId(
+                staff
+              )
+            ).toLowerCase();
 
-        const staffName = String(
-          getStaffName(staff)
-        ).toLowerCase();
+          const staffName =
+            String(
+              getStaffName(
+                staff
+              )
+            ).toLowerCase();
 
-        return (
-          staffId.includes(search) ||
-          staffName.includes(search)
-        );
-      })
-      .slice(0, 8);
+          return (
+            staffId.includes(
+              search
+            ) ||
+            staffName.includes(
+              search
+            )
+          );
+        })
+        .slice(0, 8);
 
-    setSuggestions(filtered);
+    setSuggestions(
+      filtered
+    );
   };
-
 
   /* =====================================================
      STAFF ID CHANGE
   ===================================================== */
 
-  const handleStaffIdChange = (e) => {
-    const value = e.target.value;
+  const handleStaffIdChange =
+    (e) => {
+      const value =
+        e.target.value;
 
-    setForm((prev) => ({
-      ...prev,
-      staff_id: value,
-    }));
+      setForm(
+        (prev) => ({
+          ...prev,
+          staff_id:
+            value,
+        })
+      );
 
-    setActiveField("staff-id");
+      setActiveField(
+        "staff-id"
+      );
 
-    searchStaffs(value);
-  };
-
+      searchStaffs(
+        value
+      );
+    };
 
   /* =====================================================
      STAFF NAME CHANGE
   ===================================================== */
 
-  const handleStaffNameChange = (e) => {
-    const value = e.target.value;
+  const handleStaffNameChange =
+    (e) => {
+      const value =
+        e.target.value;
 
-    setForm((prev) => ({
-      ...prev,
-      staff_name: value,
-    }));
+      setForm(
+        (prev) => ({
+          ...prev,
+          staff_name:
+            value,
+        })
+      );
 
-    setActiveField("staff-name");
+      setActiveField(
+        "staff-name"
+      );
 
-    searchStaffs(value);
-  };
-
+      searchStaffs(
+        value
+      );
+    };
 
   /* =====================================================
      SELECT STAFF
   ===================================================== */
 
-  const selectStaff = (staff) => {
-    setForm((prev) => ({
-      ...prev,
+  const selectStaff = (
+    staff
+  ) => {
+    setForm(
+      (prev) => ({
+        ...prev,
 
-      staff_id:
-        getStaffId(staff),
+        staff_id:
+          getStaffId(
+            staff
+          ),
 
-      staff_name:
-        getStaffName(staff),
+        staff_name:
+          getStaffName(
+            staff
+          ),
 
-      branch:
-        staff.branch ||
-        staff.branch_name ||
-        prev.branch,
-    }));
+        branch:
+          isAdminRole(
+            userRole
+          )
+            ? (
+                staff.branch ||
+                staff.branch_name ||
+                prev.branch
+              )
+            : userBranch,
+      })
+    );
 
     setSuggestions([]);
     setActiveField("");
   };
-
 
   /* =====================================================
      BLUR
@@ -282,88 +504,180 @@ export default function ExpenseEntry() {
     }, 200);
   };
 
-
   /* =====================================================
-     NORMAL CHANGE
+     CHANGE
   ===================================================== */
 
-  const handleChange = (e) => {
+  const handleChange = (
+    e
+  ) => {
     const {
       name,
       value,
     } = e.target;
 
-    /*
-     * Expense type change
-     */
+    if (
+      name === "branch" &&
+      !isAdminRole(
+        userRole
+      )
+    ) {
+      return;
+    }
+
     if (
       name === "expense_type" &&
       value !== "Salary"
     ) {
-      setForm((prev) => ({
-        ...prev,
+      setForm(
+        (prev) => ({
+          ...prev,
 
-        expense_type: value,
+          expense_type:
+            value,
 
-        staff_id: "",
+          staff_id:
+            "",
 
-        staff_name: "",
-      }));
+          staff_name:
+            "",
+
+          branch:
+            isAdminRole(
+              userRole
+            )
+              ? prev.branch
+              : userBranch,
+        })
+      );
 
       setSuggestions([]);
-
       setActiveField("");
-
       return;
     }
 
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm(
+      (prev) => ({
+        ...prev,
+        [name]:
+          value,
+      })
+    );
   };
-
 
   /* =====================================================
      SUBMIT
   ===================================================== */
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (
+    e
+  ) => {
     e.preventDefault();
 
     setMessage("");
 
+    if (!teacherId) {
+      setMessage(
+        "Teacher ID পাওয়া যাচ্ছে না। আবার login করুন।"
+      );
+      return;
+    }
+
+    if (
+      !isAdminRole(
+        userRole
+      ) &&
+      !userBranch
+    ) {
+      setMessage(
+        "আপনার branch assign করা হয়নি।"
+      );
+      return;
+    }
+
+    if (
+      isAdminRole(
+        userRole
+      ) &&
+      !form.branch
+    ) {
+      setMessage(
+        "Branch নির্বাচন করুন।"
+      );
+      return;
+    }
+
+    if (
+      form.expense_type ===
+        "Salary" &&
+      (
+        !form.staff_id ||
+        !form.staff_name
+      )
+    ) {
+      setMessage(
+        "Salary-এর জন্য Staff ID এবং Staff Name নির্বাচন করুন।"
+      );
+      return;
+    }
+
     try {
       setSaving(true);
 
-      const response = await fetch(
-        "http://localhost/sunshine-api/api/add_expense.php",
-        {
-          method: "POST",
+      const payload = {
+        ...form,
 
-          headers: {
-            "Content-Type": "application/json",
-          },
+        teacher_id:
+          teacherId,
 
-          body: JSON.stringify(form),
-        }
-      );
+        role:
+          userRole,
 
-      if (!response.ok) {
-        throw new Error(
-          "Expense server error"
-        );
-      }
-
-      const data = await response.json();
+        branch:
+          isAdminRole(
+            userRole
+          )
+            ? form.branch
+            : userBranch,
+      };
 
       console.log(
-        "Expense API Response:",
-        data
+        "Expense Payload:",
+        payload
       );
 
-      if (data.success) {
+      const response =
+        await fetch(
+          `${API_BASE_URL}/add_expense.php`,
+          {
+            method: "POST",
 
+            headers: {
+              "Content-Type":
+                "application/json",
+              Accept:
+                "application/json",
+            },
+
+            body:
+              JSON.stringify(
+                payload
+              ),
+          }
+        );
+
+      const text =
+        await response.text();
+
+      console.log(
+        "Expense Response:",
+        text
+      );
+
+      const data =
+        JSON.parse(text);
+
+      if (data.success) {
         setMessage(
           "Expense সফলভাবে যোগ হয়েছে!"
         );
@@ -372,57 +686,43 @@ export default function ExpenseEntry() {
           ...initialForm,
 
           expense_date:
-            new Date()
-              .toISOString()
-              .split("T")[0],
+            getToday(),
+
+          branch:
+            isAdminRole(
+              userRole
+            )
+              ? ""
+              : userBranch,
         });
 
         setSuggestions([]);
-
         setActiveField("");
-
       } else {
-
         setMessage(
           data.message ||
-          "Expense যোগ করা যায়নি"
+            "Expense যোগ করা যায়নি।"
         );
       }
-
     } catch (error) {
-
       console.error(
         "Expense submit error:",
         error
       );
 
       setMessage(
-        "Server-এর সাথে সংযোগ করা যাচ্ছে না"
+        "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
       );
-
     } finally {
-
       setSaving(false);
     }
   };
 
-
-  /* =====================================================
-     RENDER
-  ===================================================== */
-
   return (
     <div className="expense-entry">
 
-
-      {/* =================================================
-          HEADER
-      ================================================= */}
-
       <div className="expense-entry-header">
-
         <div>
-
           <h1>
             Expense Entry
           </h1>
@@ -431,14 +731,17 @@ export default function ExpenseEntry() {
             নতুন Expense তথ্য যোগ করুন
           </p>
 
+          {!isAdminRole(userRole) &&
+            userBranch && (
+              <p>
+                Branch:{" "}
+                <strong>
+                  {userBranch}
+                </strong>
+              </p>
+            )}
         </div>
-
       </div>
-
-
-      {/* =================================================
-          FORM
-      ================================================= */}
 
       <form
         className="expense-form"
@@ -447,13 +750,7 @@ export default function ExpenseEntry() {
 
         <div className="expense-form-grid">
 
-
-          {/* =================================================
-              DATE
-          ================================================= */}
-
           <div className="expense-form-group">
-
             <label>
               Expense Date *
             </label>
@@ -461,31 +758,31 @@ export default function ExpenseEntry() {
             <input
               type="date"
               name="expense_date"
-              value={form.expense_date}
-              onChange={handleChange}
+              value={
+                form.expense_date
+              }
+              onChange={
+                handleChange
+              }
               required
             />
-
           </div>
 
-
-          {/* =================================================
-              EXPENSE TYPE
-          ================================================= */}
-
           <div className="expense-form-group">
-
             <label>
               Expense Type *
             </label>
 
             <select
               name="expense_type"
-              value={form.expense_type}
-              onChange={handleChange}
+              value={
+                form.expense_type
+              }
+              onChange={
+                handleChange
+              }
               required
             >
-
               <option value="">
                 Select Expense Type
               </option>
@@ -521,19 +818,11 @@ export default function ExpenseEntry() {
               <option value="Other">
                 Other
               </option>
-
             </select>
-
           </div>
 
-
-          {/* =================================================
-              STAFF ID
-              ONLY SALARY
-          ================================================= */}
-
-          {form.expense_type === "Salary" && (
-
+          {form.expense_type ===
+            "Salary" && (
             <div className="expense-form-group staff-autocomplete">
 
               <label>
@@ -543,10 +832,13 @@ export default function ExpenseEntry() {
               <input
                 type="text"
                 name="staff_id"
-                value={form.staff_id}
-                onChange={handleStaffIdChange}
+                value={
+                  form.staff_id
+                }
+                onChange={
+                  handleStaffIdChange
+                }
                 onFocus={() => {
-
                   setActiveField(
                     "staff-id"
                   );
@@ -554,80 +846,61 @@ export default function ExpenseEntry() {
                   searchStaffs(
                     form.staff_id
                   );
-
                 }}
-                onBlur={handleBlur}
+                onBlur={
+                  handleBlur
+                }
                 placeholder="Enter Staff ID"
                 autoComplete="off"
               />
 
+              {activeField ===
+                "staff-id" &&
+                suggestions.length >
+                  0 && (
+                <div className="staff-suggestions">
+                  {suggestions.map(
+                    (staff) => (
+                      <div
+                        key={String(
+                          getStaffId(
+                            staff
+                          )
+                        )}
+                        className="staff-suggestion"
+                        onMouseDown={() =>
+                          selectStaff(
+                            staff
+                          )
+                        }
+                      >
+                        <strong>
+                          {getStaffId(
+                            staff
+                          )}
+                        </strong>
 
-              {activeField === "staff-id" &&
-                suggestions.length > 0 && (
-
-                  <div className="staff-suggestions">
-
-                    {suggestions.map(
-                      (staff) => (
-
-                        <div
-                          key={
-                            String(
-                              getStaffId(
-                                staff
-                              )
-                            )
-                          }
-                          className="staff-suggestion"
-                          onMouseDown={() =>
-                            selectStaff(
-                              staff
-                            )
-                          }
-                        >
-
-                          <strong>
-                            {getStaffId(
-                              staff
-                            )}
-                          </strong>
-
-                          <span>
-                            {getStaffName(
-                              staff
-                            )}
-                          </span>
-
-                        </div>
-
-                      )
-                    )}
-
-                  </div>
-
-                )}
-
+                        <span>
+                          {getStaffName(
+                            staff
+                          )}
+                        </span>
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
 
               <small>
-
                 {loadingStaffs
                   ? "Staff data loading..."
                   : "Staff ID লিখলে suggestion দেখাবে"}
-
               </small>
-
             </div>
-
           )}
 
-
-          {/* =================================================
-              STAFF NAME
-              ONLY SALARY
-          ================================================= */}
-
-          {form.expense_type === "Salary" && (
-
+          {form.expense_type ===
+            "Salary" && (
             <div className="expense-form-group staff-autocomplete">
 
               <label>
@@ -637,10 +910,13 @@ export default function ExpenseEntry() {
               <input
                 type="text"
                 name="staff_name"
-                value={form.staff_name}
-                onChange={handleStaffNameChange}
+                value={
+                  form.staff_name
+                }
+                onChange={
+                  handleStaffNameChange
+                }
                 onFocus={() => {
-
                   setActiveField(
                     "staff-name"
                   );
@@ -648,79 +924,60 @@ export default function ExpenseEntry() {
                   searchStaffs(
                     form.staff_name
                   );
-
                 }}
-                onBlur={handleBlur}
+                onBlur={
+                  handleBlur
+                }
                 placeholder="Enter Staff Name"
                 autoComplete="off"
               />
 
+              {activeField ===
+                "staff-name" &&
+                suggestions.length >
+                  0 && (
+                <div className="staff-suggestions">
+                  {suggestions.map(
+                    (staff) => (
+                      <div
+                        key={String(
+                          getStaffId(
+                            staff
+                          )
+                        )}
+                        className="staff-suggestion"
+                        onMouseDown={() =>
+                          selectStaff(
+                            staff
+                          )
+                        }
+                      >
+                        <strong>
+                          {getStaffId(
+                            staff
+                          )}
+                        </strong>
 
-              {activeField === "staff-name" &&
-                suggestions.length > 0 && (
-
-                  <div className="staff-suggestions">
-
-                    {suggestions.map(
-                      (staff) => (
-
-                        <div
-                          key={
-                            String(
-                              getStaffId(
-                                staff
-                              )
-                            )
-                          }
-                          className="staff-suggestion"
-                          onMouseDown={() =>
-                            selectStaff(
-                              staff
-                            )
-                          }
-                        >
-
-                          <strong>
-                            {getStaffId(
-                              staff
-                            )}
-                          </strong>
-
-                          <span>
-                            {getStaffName(
-                              staff
-                            )}
-                          </span>
-
-                        </div>
-
-                      )
-                    )}
-
-                  </div>
-
-                )}
-
+                        <span>
+                          {getStaffName(
+                            staff
+                          )}
+                        </span>
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
 
               <small>
-
                 {loadingStaffs
                   ? "Staff data loading..."
                   : "Staff Name লিখলে suggestion দেখাবে"}
-
               </small>
-
             </div>
-
           )}
 
-
-          {/* =================================================
-              AMOUNT
-          ================================================= */}
-
           <div className="expense-form-group">
-
             <label>
               Amount *
             </label>
@@ -728,33 +985,33 @@ export default function ExpenseEntry() {
             <input
               type="number"
               name="amount"
-              value={form.amount}
-              onChange={handleChange}
+              value={
+                form.amount
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Enter amount"
               min="0"
               step="0.01"
               required
             />
-
           </div>
 
-
-          {/* =================================================
-              PAYMENT METHOD
-          ================================================= */}
-
           <div className="expense-form-group">
-
             <label>
               Payment Method
             </label>
 
             <select
               name="payment_method"
-              value={form.payment_method}
-              onChange={handleChange}
+              value={
+                form.payment_method
+              }
+              onChange={
+                handleChange
+              }
             >
-
               <option value="">
                 Select Payment Method
               </option>
@@ -778,15 +1035,8 @@ export default function ExpenseEntry() {
               <option value="Rocket">
                 Rocket
               </option>
-
             </select>
-
           </div>
-
-
-          {/* =================================================
-              BRANCH - DYNAMIC
-          ================================================= */}
 
           <div className="expense-form-group">
 
@@ -794,57 +1044,56 @@ export default function ExpenseEntry() {
               Branch
             </label>
 
-            <select
-              name="branch"
-              value={form.branch}
-              onChange={handleChange}
-            >
+            {isAdminRole(
+              userRole
+            ) ? (
+              <select
+                name="branch"
+                value={
+                  form.branch
+                }
+                onChange={
+                  handleChange
+                }
+                required
+              >
+                <option value="">
+                  {loadingBranches
+                    ? "Loading Branches..."
+                    : "Select Branch"}
+                </option>
 
-              <option value="">
-
-                {loadingBranches
-                  ? "Loading Branches..."
-                  : "Select Branch"}
-
-              </option>
-
-
-              {branches.map(
-                (branch) => (
-
-                  <option
-                    key={branch.id}
-                    value={
-                      branch.branch_name
-                    }
-                  >
-
-                    {branch.branch_name_bn
-                      ? `${branch.branch_name} - ${branch.branch_name_bn}`
-                      : branch.branch_name}
-
-                  </option>
-
-                )
-              )}
-
-            </select>
-
-
-            <small>
-
-              {loadingBranches
-                ? "Branch data loading..."
-                : `${branches.length}টি branch available`}
-
-            </small>
-
+                {branches.map(
+                  (branchItem) => (
+                    <option
+                      key={
+                        branchItem.id
+                      }
+                      value={
+                        branchItem.branch_name
+                      }
+                    >
+                      {branchItem.branch_name_bn
+                        ? `${branchItem.branch_name} - ${branchItem.branch_name_bn}`
+                        : branchItem.branch_name}
+                    </option>
+                  )
+                )}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={
+                  loadingBranches &&
+                  !userBranch
+                    ? "Loading..."
+                    : userBranch ||
+                      "Branch not assigned"
+                }
+                readOnly
+              />
+            )}
           </div>
-
-
-          {/* =================================================
-              DESCRIPTION
-          ================================================= */}
 
           <div className="expense-form-group full-width">
 
@@ -855,17 +1104,15 @@ export default function ExpenseEntry() {
             <input
               type="text"
               name="description"
-              value={form.description}
-              onChange={handleChange}
+              value={
+                form.description
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Expense description"
             />
-
           </div>
-
-
-          {/* =================================================
-              NOTE
-          ================================================= */}
 
           <div className="expense-form-group full-width">
 
@@ -875,34 +1122,24 @@ export default function ExpenseEntry() {
 
             <textarea
               name="note"
-              value={form.note}
-              onChange={handleChange}
+              value={
+                form.note
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Additional note"
               rows="4"
             />
-
           </div>
-
 
         </div>
 
-
-        {/* =================================================
-            MESSAGE
-        ================================================= */}
-
         {message && (
-
           <div className="expense-message">
             {message}
           </div>
-
         )}
-
-
-        {/* =================================================
-            BUTTON
-        ================================================= */}
 
         <div className="expense-form-actions">
 
@@ -910,18 +1147,14 @@ export default function ExpenseEntry() {
             type="submit"
             disabled={saving}
           >
-
             {saving
               ? "Saving..."
               : "Save Expense"}
-
           </button>
 
         </div>
 
-
       </form>
-
     </div>
   );
 }
