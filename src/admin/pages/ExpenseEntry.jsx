@@ -17,35 +17,57 @@ export default function ExpenseEntry() {
   const [form, setForm] = useState(initialForm);
 
   const [staffs, setStaffs] = useState([]);
+  const [branches, setBranches] = useState([]);
+
   const [suggestions, setSuggestions] = useState([]);
   const [activeField, setActiveField] = useState("");
 
   const [message, setMessage] = useState("");
 
-  /* ================= LOAD STAFF ================= */
+  const [loadingStaffs, setLoadingStaffs] = useState(true);
+  const [loadingBranches, setLoadingBranches] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+
+  /* =====================================================
+     LOAD STAFF / TEACHERS
+  ===================================================== */
 
   useEffect(() => {
     const fetchStaffs = async () => {
       try {
+        setLoadingStaffs(true);
+
         const response = await fetch(
           "http://localhost/sunshine-api/api/teacher_list.php"
         );
 
+        if (!response.ok) {
+          throw new Error("Teacher server error");
+        }
+
         const data = await response.json();
 
-        console.log("Teacher API Response:", data);
+        console.log(
+          "Teacher API Response:",
+          data
+        );
 
         if (data.success) {
           setStaffs(
-            data.data ||
-            data.teachers ||
-            []
+            Array.isArray(data.data)
+              ? data.data
+              : Array.isArray(data.teachers)
+              ? data.teachers
+              : []
           );
         } else {
           console.error(
             "Teacher API Error:",
             data.message
           );
+
+          setStaffs([]);
         }
 
       } catch (error) {
@@ -53,6 +75,11 @@ export default function ExpenseEntry() {
           "Staff fetch error:",
           error
         );
+
+        setStaffs([]);
+
+      } finally {
+        setLoadingStaffs(false);
       }
     };
 
@@ -60,7 +87,65 @@ export default function ExpenseEntry() {
   }, []);
 
 
-  /* ================= STAFF ID ================= */
+  /* =====================================================
+     LOAD BRANCHES
+  ===================================================== */
+
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        setLoadingBranches(true);
+
+        const response = await fetch(
+          "http://localhost/sunshine-api/api/branch_list.php"
+        );
+
+        if (!response.ok) {
+          throw new Error("Branch server error");
+        }
+
+        const data = await response.json();
+
+        console.log(
+          "Branch API Response:",
+          data
+        );
+
+        if (data.success) {
+          setBranches(
+            Array.isArray(data.branches)
+              ? data.branches
+              : []
+          );
+        } else {
+          console.error(
+            "Branch API Error:",
+            data.message
+          );
+
+          setBranches([]);
+        }
+
+      } catch (error) {
+        console.error(
+          "Branch fetch error:",
+          error
+        );
+
+        setBranches([]);
+
+      } finally {
+        setLoadingBranches(false);
+      }
+    };
+
+    fetchBranches();
+  }, []);
+
+
+  /* =====================================================
+     STAFF ID
+  ===================================================== */
 
   const getStaffId = (staff) => {
     return (
@@ -72,7 +157,9 @@ export default function ExpenseEntry() {
   };
 
 
-  /* ================= STAFF NAME ================= */
+  /* =====================================================
+     STAFF NAME
+  ===================================================== */
 
   const getStaffName = (staff) => {
     return (
@@ -81,16 +168,19 @@ export default function ExpenseEntry() {
       staff.nameEn ||
       staff.name_en ||
       staff.name ||
+      staff.teacher_name_bn ||
+      staff.teacher_name_en ||
       ""
     );
   };
 
 
-  /* ================= SEARCH STAFF ================= */
+  /* =====================================================
+     SEARCH STAFF
+  ===================================================== */
 
   const searchStaffs = (value) => {
-
-    const search = value
+    const search = String(value || "")
       .trim()
       .toLowerCase();
 
@@ -101,7 +191,6 @@ export default function ExpenseEntry() {
 
     const filtered = staffs
       .filter((staff) => {
-
         const staffId = String(
           getStaffId(staff)
         ).toLowerCase();
@@ -114,7 +203,6 @@ export default function ExpenseEntry() {
           staffId.includes(search) ||
           staffName.includes(search)
         );
-
       })
       .slice(0, 8);
 
@@ -122,10 +210,11 @@ export default function ExpenseEntry() {
   };
 
 
-  /* ================= STAFF ID CHANGE ================= */
+  /* =====================================================
+     STAFF ID CHANGE
+  ===================================================== */
 
   const handleStaffIdChange = (e) => {
-
     const value = e.target.value;
 
     setForm((prev) => ({
@@ -139,10 +228,11 @@ export default function ExpenseEntry() {
   };
 
 
-  /* ================= STAFF NAME CHANGE ================= */
+  /* =====================================================
+     STAFF NAME CHANGE
+  ===================================================== */
 
   const handleStaffNameChange = (e) => {
-
     const value = e.target.value;
 
     setForm((prev) => ({
@@ -156,14 +246,24 @@ export default function ExpenseEntry() {
   };
 
 
-  /* ================= SELECT STAFF ================= */
+  /* =====================================================
+     SELECT STAFF
+  ===================================================== */
 
   const selectStaff = (staff) => {
-
     setForm((prev) => ({
       ...prev,
-      staff_id: getStaffId(staff),
-      staff_name: getStaffName(staff),
+
+      staff_id:
+        getStaffId(staff),
+
+      staff_name:
+        getStaffName(staff),
+
+      branch:
+        staff.branch ||
+        staff.branch_name ||
+        prev.branch,
     }));
 
     setSuggestions([]);
@@ -171,63 +271,70 @@ export default function ExpenseEntry() {
   };
 
 
-  /* ================= BLUR ================= */
+  /* =====================================================
+     BLUR
+  ===================================================== */
 
   const handleBlur = () => {
-
     setTimeout(() => {
       setSuggestions([]);
       setActiveField("");
     }, 200);
-
   };
 
 
-  /* ================= NORMAL CHANGE ================= */
+  /* =====================================================
+     NORMAL CHANGE
+  ===================================================== */
 
   const handleChange = (e) => {
-
     const {
       name,
-      value
+      value,
     } = e.target;
+
+    /*
+     * Expense type change
+     */
+    if (
+      name === "expense_type" &&
+      value !== "Salary"
+    ) {
+      setForm((prev) => ({
+        ...prev,
+
+        expense_type: value,
+
+        staff_id: "",
+
+        staff_name: "",
+      }));
+
+      setSuggestions([]);
+
+      setActiveField("");
+
+      return;
+    }
 
     setForm((prev) => ({
       ...prev,
       [name]: value,
     }));
-
-    /* Salary না হলে staff information clear */
-
-    if (
-      name === "expense_type" &&
-      value !== "Salary"
-    ) {
-
-      setForm((prev) => ({
-        ...prev,
-        expense_type: value,
-        staff_id: "",
-        staff_name: "",
-      }));
-
-      setSuggestions([]);
-      setActiveField("");
-
-    }
-
   };
 
 
-  /* ================= SUBMIT ================= */
+  /* =====================================================
+     SUBMIT
+  ===================================================== */
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     setMessage("");
 
     try {
+      setSaving(true);
 
       const response = await fetch(
         "http://localhost/sunshine-api/api/add_expense.php",
@@ -241,6 +348,12 @@ export default function ExpenseEntry() {
           body: JSON.stringify(form),
         }
       );
+
+      if (!response.ok) {
+        throw new Error(
+          "Expense server error"
+        );
+      }
 
       const data = await response.json();
 
@@ -257,6 +370,7 @@ export default function ExpenseEntry() {
 
         setForm({
           ...initialForm,
+
           expense_date:
             new Date()
               .toISOString()
@@ -264,6 +378,7 @@ export default function ExpenseEntry() {
         });
 
         setSuggestions([]);
+
         setActiveField("");
 
       } else {
@@ -272,7 +387,6 @@ export default function ExpenseEntry() {
           data.message ||
           "Expense যোগ করা যায়নি"
         );
-
       }
 
     } catch (error) {
@@ -286,21 +400,32 @@ export default function ExpenseEntry() {
         "Server-এর সাথে সংযোগ করা যাচ্ছে না"
       );
 
-    }
+    } finally {
 
+      setSaving(false);
+    }
   };
 
+
+  /* =====================================================
+     RENDER
+  ===================================================== */
 
   return (
     <div className="expense-entry">
 
-      {/* ================= HEADER ================= */}
+
+      {/* =================================================
+          HEADER
+      ================================================= */}
 
       <div className="expense-entry-header">
 
         <div>
 
-          <h1>Expense Entry</h1>
+          <h1>
+            Expense Entry
+          </h1>
 
           <p>
             নতুন Expense তথ্য যোগ করুন
@@ -311,7 +436,9 @@ export default function ExpenseEntry() {
       </div>
 
 
-      {/* ================= FORM ================= */}
+      {/* =================================================
+          FORM
+      ================================================= */}
 
       <form
         className="expense-form"
@@ -320,7 +447,10 @@ export default function ExpenseEntry() {
 
         <div className="expense-form-grid">
 
-          {/* ================= DATE ================= */}
+
+          {/* =================================================
+              DATE
+          ================================================= */}
 
           <div className="expense-form-group">
 
@@ -339,7 +469,9 @@ export default function ExpenseEntry() {
           </div>
 
 
-          {/* ================= EXPENSE TYPE ================= */}
+          {/* =================================================
+              EXPENSE TYPE
+          ================================================= */}
 
           <div className="expense-form-group">
 
@@ -397,7 +529,7 @@ export default function ExpenseEntry() {
 
           {/* =================================================
               STAFF ID
-              শুধুমাত্র Salary হলে দেখাবে
+              ONLY SALARY
           ================================================= */}
 
           {form.expense_type === "Salary" && (
@@ -440,8 +572,10 @@ export default function ExpenseEntry() {
 
                         <div
                           key={
-                            getStaffId(
-                              staff
+                            String(
+                              getStaffId(
+                                staff
+                              )
                             )
                           }
                           className="staff-suggestion"
@@ -473,8 +607,13 @@ export default function ExpenseEntry() {
 
                 )}
 
+
               <small>
-                Staff ID লিখলে suggestion দেখাবে
+
+                {loadingStaffs
+                  ? "Staff data loading..."
+                  : "Staff ID লিখলে suggestion দেখাবে"}
+
               </small>
 
             </div>
@@ -484,7 +623,7 @@ export default function ExpenseEntry() {
 
           {/* =================================================
               STAFF NAME
-              শুধুমাত্র Salary হলে দেখাবে
+              ONLY SALARY
           ================================================= */}
 
           {form.expense_type === "Salary" && (
@@ -527,8 +666,10 @@ export default function ExpenseEntry() {
 
                         <div
                           key={
-                            getStaffId(
-                              staff
+                            String(
+                              getStaffId(
+                                staff
+                              )
                             )
                           }
                           className="staff-suggestion"
@@ -560,8 +701,13 @@ export default function ExpenseEntry() {
 
                 )}
 
+
               <small>
-                Staff Name লিখলে suggestion দেখাবে
+
+                {loadingStaffs
+                  ? "Staff data loading..."
+                  : "Staff Name লিখলে suggestion দেখাবে"}
+
               </small>
 
             </div>
@@ -569,7 +715,9 @@ export default function ExpenseEntry() {
           )}
 
 
-          {/* ================= AMOUNT ================= */}
+          {/* =================================================
+              AMOUNT
+          ================================================= */}
 
           <div className="expense-form-group">
 
@@ -591,7 +739,9 @@ export default function ExpenseEntry() {
           </div>
 
 
-          {/* ================= PAYMENT ================= */}
+          {/* =================================================
+              PAYMENT METHOD
+          ================================================= */}
 
           <div className="expense-form-group">
 
@@ -634,7 +784,9 @@ export default function ExpenseEntry() {
           </div>
 
 
-          {/* ================= BRANCH ================= */}
+          {/* =================================================
+              BRANCH - DYNAMIC
+          ================================================= */}
 
           <div className="expense-form-group">
 
@@ -649,31 +801,50 @@ export default function ExpenseEntry() {
             >
 
               <option value="">
-                Select Branch
+
+                {loadingBranches
+                  ? "Loading Branches..."
+                  : "Select Branch"}
+
               </option>
 
-              <option value="Rajshahi Main Branch">
-                Rajshahi Main Branch
-              </option>
 
-              <option value="Ramchandrapur Branch">
-                Ramchandrapur Branch
-              </option>
+              {branches.map(
+                (branch) => (
 
-              <option value="Khulna Branch">
-                Khulna Branch
-              </option>
+                  <option
+                    key={branch.id}
+                    value={
+                      branch.branch_name
+                    }
+                  >
 
-              <option value="Tangail Branch">
-                Tangail Branch
-              </option>
+                    {branch.branch_name_bn
+                      ? `${branch.branch_name} - ${branch.branch_name_bn}`
+                      : branch.branch_name}
+
+                  </option>
+
+                )
+              )}
 
             </select>
+
+
+            <small>
+
+              {loadingBranches
+                ? "Branch data loading..."
+                : `${branches.length}টি branch available`}
+
+            </small>
 
           </div>
 
 
-          {/* ================= DESCRIPTION ================= */}
+          {/* =================================================
+              DESCRIPTION
+          ================================================= */}
 
           <div className="expense-form-group full-width">
 
@@ -692,7 +863,9 @@ export default function ExpenseEntry() {
           </div>
 
 
-          {/* ================= NOTE ================= */}
+          {/* =================================================
+              NOTE
+          ================================================= */}
 
           <div className="expense-form-group full-width">
 
@@ -710,10 +883,13 @@ export default function ExpenseEntry() {
 
           </div>
 
+
         </div>
 
 
-        {/* ================= MESSAGE ================= */}
+        {/* =================================================
+            MESSAGE
+        ================================================= */}
 
         {message && (
 
@@ -724,15 +900,25 @@ export default function ExpenseEntry() {
         )}
 
 
-        {/* ================= BUTTON ================= */}
+        {/* =================================================
+            BUTTON
+        ================================================= */}
 
         <div className="expense-form-actions">
 
-          <button type="submit">
-            Save Expense
+          <button
+            type="submit"
+            disabled={saving}
+          >
+
+            {saving
+              ? "Saving..."
+              : "Save Expense"}
+
           </button>
 
         </div>
+
 
       </form>
 
