@@ -7,9 +7,32 @@ const IMAGE_URL = "http://localhost/sunshine-api/";
 export default function Home() {
   const [banners, setBanners] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [previousSlide, setPreviousSlide] = useState(null);
   const [loadingBanners, setLoadingBanners] = useState(true);
 
-  /* ================= FETCH BANNERS ================= */
+  /*
+  =========================================================
+  ANIMATION DIRECTION
+
+  next     = নতুন slide ডান দিক থেকে আসবে
+  previous = নতুন slide বাম দিক থেকে আসবে
+  =========================================================
+  */
+
+  const [slideDirection, setSlideDirection] = useState("next");
+
+  /*
+  =========================================================
+  ANIMATION RUNNING
+  =========================================================
+  */
+
+  const [isAnimating, setIsAnimating] = useState(false);
+
+
+  /* ======================================================
+     FETCH BANNERS
+  ====================================================== */
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -36,9 +59,14 @@ export default function Home() {
             );
 
           setBanners(activeBanners);
+          setCurrentSlide(0);
+          setPreviousSlide(null);
         }
       } catch (error) {
-        console.error("Banner load error:", error);
+        console.error(
+          "Banner load error:",
+          error
+        );
       } finally {
         setLoadingBanners(false);
       }
@@ -48,154 +76,287 @@ export default function Home() {
   }, []);
 
 
-  /* ================= AUTO SLIDE ================= */
+  /* ======================================================
+     CHANGE SLIDE
+  ====================================================== */
+
+  const changeSlide = (newIndex, direction = "next") => {
+    if (
+      banners.length <= 1 ||
+      isAnimating ||
+      newIndex === currentSlide
+    ) {
+      return;
+    }
+
+    setPreviousSlide(currentSlide);
+    setSlideDirection(direction);
+    setIsAnimating(true);
+    setCurrentSlide(newIndex);
+
+    /*
+      Animation duration:
+      800ms
+
+      Animation শেষ হলে old slide DOM থেকে
+      আর দেখা যাবে না।
+    */
+
+    setTimeout(() => {
+      setPreviousSlide(null);
+      setIsAnimating(false);
+    }, 800);
+  };
+
+
+  /* ======================================================
+     NEXT
+  ====================================================== */
+
+  const nextSlide = () => {
+    if (banners.length === 0) return;
+
+    const nextIndex =
+      currentSlide === banners.length - 1
+        ? 0
+        : currentSlide + 1;
+
+    changeSlide(
+      nextIndex,
+      "next"
+    );
+  };
+
+
+  /* ======================================================
+     PREVIOUS
+  ====================================================== */
+
+  const previousBanner = () => {
+    if (banners.length === 0) return;
+
+    const previousIndex =
+      currentSlide === 0
+        ? banners.length - 1
+        : currentSlide - 1;
+
+    changeSlide(
+      previousIndex,
+      "previous"
+    );
+  };
+
+
+  /* ======================================================
+     AUTO SLIDE
+  ====================================================== */
 
   useEffect(() => {
     if (banners.length <= 1) return;
 
     const interval = setInterval(() => {
-      setCurrentSlide((prev) =>
-        prev === banners.length - 1
-          ? 0
-          : prev + 1
-      );
+      if (!isAnimating) {
+        const nextIndex =
+          currentSlide === banners.length - 1
+            ? 0
+            : currentSlide + 1;
+
+        changeSlide(
+          nextIndex,
+          "next"
+        );
+      }
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [banners.length]);
+  }, [
+    banners.length,
+    currentSlide,
+    isAnimating
+  ]);
 
 
-  /* ================= NEXT ================= */
-
-  const nextSlide = () => {
-    if (banners.length === 0) return;
-
-    setCurrentSlide((prev) =>
-      prev === banners.length - 1
-        ? 0
-        : prev + 1
-    );
-  };
-
-
-  /* ================= PREVIOUS ================= */
-
-  const previousSlide = () => {
-    if (banners.length === 0) return;
-
-    setCurrentSlide((prev) =>
-      prev === 0
-        ? banners.length - 1
-        : prev - 1
-    );
-  };
-
-
-  /* ================= GO TO SLIDE ================= */
+  /* ======================================================
+     GO TO SLIDE
+  ====================================================== */
 
   const goToSlide = (index) => {
-    setCurrentSlide(index);
+    if (
+      index === currentSlide ||
+      isAnimating
+    ) {
+      return;
+    }
+
+    /*
+      Dot থেকে কোন দিকে animation হবে
+      সেটা index দেখে নির্ধারণ করছি।
+    */
+
+    const direction =
+      index > currentSlide
+        ? "next"
+        : "previous";
+
+    changeSlide(
+      index,
+      direction
+    );
   };
+
+
+  /* ======================================================
+     CURRENT BANNER
+  ====================================================== */
+
+  const currentBanner =
+    banners[currentSlide];
+
+
+  /* ======================================================
+     PREVIOUS BANNER
+  ====================================================== */
+
+  const oldBanner =
+    previousSlide !== null
+      ? banners[previousSlide]
+      : null;
 
 
   return (
     <div className="home-page">
 
-      {/* ================= BANNER ================= */}
+      {/* =================================================
+          BANNER
+      ================================================= */}
 
       <section className="home-banner">
 
-        {!loadingBanners && banners.length > 0 && (
+        {!loadingBanners &&
+          banners.length > 0 && (
 
-          <div className="banner-slider">
+            <div className="banner-slider">
 
-            {banners.map((banner, index) => (
+              {/* ==========================================
+                  OLD SLIDE
+              ========================================== */}
 
-              <div
-                key={banner.id}
-                className={`banner-slide ${
-                  index === currentSlide
-                    ? "active"
-                    : ""
-                }`}
-                style={{
-                  backgroundImage: `url("${IMAGE_URL}${banner.banner_image}")`,
-                }}
-              />
-
-            ))}
-
-
-            {/* PREVIOUS */}
-
-            {banners.length > 1 && (
-              <button
-                type="button"
-                className="banner-arrow banner-prev"
-                onClick={previousSlide}
-                aria-label="Previous Banner"
-              >
-                ❮
-              </button>
-            )}
+              {oldBanner && (
+                <div
+                  key={`old-${oldBanner.id}`}
+                  className={`banner-slide banner-old ${
+                    slideDirection === "next"
+                      ? "slide-old-left"
+                      : "slide-old-right"
+                  }`}
+                  style={{
+                    backgroundImage: `url("${IMAGE_URL}${oldBanner.banner_image}")`,
+                  }}
+                />
+              )}
 
 
-            {/* NEXT */}
+              {/* ==========================================
+                  CURRENT / NEW SLIDE
+              ========================================== */}
 
-            {banners.length > 1 && (
-              <button
-                type="button"
-                className="banner-arrow banner-next"
-                onClick={nextSlide}
-                aria-label="Next Banner"
-              >
-                ❯
-              </button>
-            )}
+              {currentBanner && (
+                <div
+                  key={`current-${currentBanner.id}`}
+                  className={`banner-slide banner-current ${
+                    isAnimating
+                      ? slideDirection === "next"
+                        ? "slide-new-from-right"
+                        : "slide-new-from-left"
+                      : "slide-new-normal"
+                  }`}
+                  style={{
+                    backgroundImage: `url("${IMAGE_URL}${currentBanner.banner_image}")`,
+                  }}
+                />
+              )}
 
 
-            {/* DOTS */}
+              {/* ==========================================
+                  PREVIOUS BUTTON
+              ========================================== */}
 
-            {banners.length > 1 && (
+              {banners.length > 1 && (
+                <button
+                  type="button"
+                  className="banner-arrow banner-prev"
+                  onClick={previousBanner}
+                  disabled={isAnimating}
+                  aria-label="Previous Banner"
+                >
+                  ❮
+                </button>
+              )}
 
-              <div className="banner-dots">
 
-                {banners.map((banner, index) => (
+              {/* ==========================================
+                  NEXT BUTTON
+              ========================================== */}
 
-                  <button
-                    key={banner.id}
-                    type="button"
-                    className={
-                      index === currentSlide
-                        ? "banner-dot active"
-                        : "banner-dot"
-                    }
-                    onClick={() =>
-                      goToSlide(index)
-                    }
-                    aria-label={`Banner ${
-                      index + 1
-                    }`}
-                  />
+              {banners.length > 1 && (
+                <button
+                  type="button"
+                  className="banner-arrow banner-next"
+                  onClick={nextSlide}
+                  disabled={isAnimating}
+                  aria-label="Next Banner"
+                >
+                  ❯
+                </button>
+              )}
 
-                ))}
 
-              </div>
+              {/* ==========================================
+                  DOTS
+              ========================================== */}
 
-            )}
+              {banners.length > 1 && (
+                <div className="banner-dots">
 
-          </div>
+                  {banners.map(
+                    (banner, index) => (
+                      <button
+                        key={banner.id}
+                        type="button"
+                        className={
+                          index === currentSlide
+                            ? "banner-dot active"
+                            : "banner-dot"
+                        }
+                        onClick={() =>
+                          goToSlide(index)
+                        }
+                        disabled={isAnimating}
+                        aria-label={`Banner ${
+                          index + 1
+                        }`}
+                      />
+                    )
+                  )}
 
-        )}
+                </div>
+              )}
+
+            </div>
+          )}
 
       </section>
 
 
-      {/* ================= MAIN TWO COLUMN AREA ================= */}
+      {/* =================================================
+          MAIN TWO COLUMN AREA
+      ================================================= */}
 
       <div className="home-layout">
 
-        {/* ================= LEFT COLUMN ================= */}
+        {/* =================================================
+            LEFT COLUMN
+        ================================================= */}
 
         <main className="home-main">
 
@@ -338,7 +499,9 @@ export default function Home() {
         </main>
 
 
-        {/* ================= RIGHT SIDEBAR ================= */}
+        {/* =================================================
+            RIGHT SIDEBAR
+        ================================================= */}
 
         <aside className="home-sidebar">
 
@@ -389,7 +552,9 @@ export default function Home() {
       </div>
 
 
-      {/* ================= FEATURES ================= */}
+      {/* =================================================
+          FEATURES
+      ================================================= */}
 
       <section className="home-section features-section">
 
@@ -445,7 +610,9 @@ export default function Home() {
       </section>
 
 
-      {/* ================= ABOUT ================= */}
+      {/* =================================================
+          ABOUT
+      ================================================= */}
 
       <section className="about-home">
 

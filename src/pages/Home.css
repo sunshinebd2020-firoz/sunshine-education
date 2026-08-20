@@ -1,161 +1,343 @@
-/* =========================================
+/* =========================================================
    HOME PAGE
-========================================= */
+========================================================= */
 
 .home-page {
   width: 100%;
-  background: #f8fafc;
-  box-sizing: border-box;
+  min-height: 100vh;
+  background: #ffffff;
+  overflow-x: hidden;
 }
 
 
-/* =========================================
+/* =========================================================
    BANNER
-========================================= */
+========================================================= */
 
 .home-banner {
-  position: relative;
-
   width: 100%;
-  height: 420px;
-
+  position: relative;
   overflow: hidden;
-
-  background: #0f172a;
+  background: #111827;
 }
 
-
-/* =========================================
-   BANNER SLIDER
-========================================= */
 
 .banner-slider {
+  width: 100%;
+  height: 460px;
+
   position: relative;
 
-  width: 100%;
-  height: 100%;
-
   overflow: hidden;
+
+  isolation: isolate;
 }
 
 
-/* =========================================
-   BANNER SLIDE
-========================================= */
+/* =========================================================
+   ALL SLIDES
+========================================================= */
 
 .banner-slide {
   position: absolute;
 
-  top: 0;
-  left: 0;
+  inset: 0;
 
   width: 100%;
   height: 100%;
 
-  background-position: center;
   background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
 
-  transform: translateX(100%);
+  will-change: transform;
 
-  opacity: 0;
+  backface-visibility: hidden;
 
-  transition:
-    transform 0.8s ease-in-out,
-    opacity 0.8s ease-in-out;
+  transform: translate3d(0, 0, 0);
 }
 
 
-/* Active slide */
+/* =========================================================
+   OLD SLIDE
+========================================================= */
 
-.banner-slide.active {
-  transform: translateX(0);
-
-  opacity: 1;
-
+.banner-old {
   z-index: 2;
+
+  animation-duration: 0.8s;
+
+  animation-timing-function:
+    cubic-bezier(0.65, 0, 0.35, 1);
+
+  animation-fill-mode: forwards;
+
+  pointer-events: none;
 }
 
 
-/* =========================================
+/*
+  NEXT করলে:
+
+  OLD
+  Center → Left
+*/
+
+.slide-old-left {
+  animation-name:
+    bannerOldExitLeft;
+}
+
+
+/*
+  PREVIOUS করলে:
+
+  OLD
+  Center → Right
+*/
+
+.slide-old-right {
+  animation-name:
+    bannerOldExitRight;
+}
+
+
+/* =========================================================
+   NEW SLIDE
+========================================================= */
+
+.banner-current {
+  z-index: 3;
+
+  animation-duration: 0.8s;
+
+  animation-timing-function:
+    cubic-bezier(0.65, 0, 0.35, 1);
+
+  animation-fill-mode: forwards;
+
+  pointer-events: none;
+}
+
+
+/*
+  NEXT:
+
+  NEW
+  Right → Center
+*/
+
+.slide-new-from-right {
+  animation-name:
+    bannerNewEnterRight;
+}
+
+
+/*
+  PREVIOUS:
+
+  NEW
+  Left → Center
+*/
+
+.slide-new-from-left {
+  animation-name:
+    bannerNewEnterLeft;
+}
+
+
+/*
+  যখন animation চলছে না
+*/
+
+.slide-new-normal {
+  transform:
+    translate3d(0, 0, 0);
+}
+
+
+/* =========================================================
+   KEYFRAMES
+========================================================= */
+
+
+/*
+=========================================================
+OLD → LEFT
+=========================================================
+*/
+
+@keyframes bannerOldExitLeft {
+
+  0% {
+    transform:
+      translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform:
+      translate3d(-100%, 0, 0);
+  }
+
+}
+
+
+/*
+=========================================================
+NEW ← RIGHT
+=========================================================
+*/
+
+@keyframes bannerNewEnterRight {
+
+  0% {
+    transform:
+      translate3d(100%, 0, 0);
+  }
+
+  100% {
+    transform:
+      translate3d(0, 0, 0);
+  }
+
+}
+
+
+/*
+=========================================================
+OLD → RIGHT
+=========================================================
+*/
+
+@keyframes bannerOldExitRight {
+
+  0% {
+    transform:
+      translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform:
+      translate3d(100%, 0, 0);
+  }
+
+}
+
+
+/*
+=========================================================
+NEW ← LEFT
+=========================================================
+*/
+
+@keyframes bannerNewEnterLeft {
+
+  0% {
+    transform:
+      translate3d(-100%, 0, 0);
+  }
+
+  100% {
+    transform:
+      translate3d(0, 0, 0);
+  }
+
+}
+
+
+/* =========================================================
    ARROWS
-========================================= */
+========================================================= */
 
 .banner-arrow {
   position: absolute;
 
   top: 50%;
 
-  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
 
-  z-index: 5;
-
-  width: 45px;
-  height: 45px;
-
-  padding: 0;
+  transform:
+    translateY(-50%);
 
   border: none;
 
   border-radius: 50%;
 
-  background: rgba(0, 0, 0, 0.40);
+  background:
+    rgba(0, 0, 0, 0.45);
 
   color: #ffffff;
 
-  font-size: 22px;
-
-  cursor: pointer;
+  font-size: 25px;
 
   display: flex;
 
   align-items: center;
   justify-content: center;
 
+  cursor: pointer;
+
+  z-index: 10;
+
   transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+    background 0.25s ease,
+    transform 0.25s ease,
+    opacity 0.25s ease;
 }
 
+
 .banner-arrow:hover {
-  background: rgba(0, 0, 0, 0.70);
+  background:
+    rgba(0, 0, 0, 0.72);
 
   transform:
-    translateY(-50%)
-    scale(1.05);
+    translateY(-50%) scale(1.05);
+}
+
+
+.banner-arrow:active {
+  transform:
+    translateY(-50%) scale(0.94);
+}
+
+
+.banner-arrow:disabled {
+  cursor: default;
+  opacity: 0.7;
 }
 
 
 .banner-prev {
-  left: 20px;
+  left: 22px;
 }
 
 
 .banner-next {
-  right: 20px;
+  right: 22px;
 }
 
 
-/* =========================================
+/* =========================================================
    DOTS
-========================================= */
+========================================================= */
 
 .banner-dots {
   position: absolute;
 
-  bottom: 18px;
-
   left: 50%;
+  bottom: 20px;
 
-  transform: translateX(-50%);
-
-  z-index: 5;
+  transform:
+    translateX(-50%);
 
   display: flex;
 
   align-items: center;
 
   gap: 8px;
+
+  z-index: 10;
 }
 
 
@@ -169,144 +351,172 @@
 
   border-radius: 50%;
 
-  background: rgba(255, 255, 255, 0.60);
+  background:
+    rgba(255, 255, 255, 0.55);
 
   cursor: pointer;
 
   transition:
-    width 0.2s ease,
-    background 0.2s ease;
+    all 0.25s ease;
+}
+
+
+.banner-dot:hover {
+  background:
+    rgba(255, 255, 255, 0.9);
 }
 
 
 .banner-dot.active {
-  width: 25px;
+  width: 28px;
 
   border-radius: 10px;
 
-  background: #ffffff;
+  background:
+    #ffffff;
 }
 
 
-/* =========================================
+.banner-dot:disabled {
+  cursor: default;
+}
+
+
+/* =========================================================
    MAIN LAYOUT
-========================================= */
+========================================================= */
 
 .home-layout {
-  max-width: 1200px;
+  width: 100%;
+
+  max-width: 1400px;
 
   margin: 0 auto;
 
-  padding: 35px 20px;
+  padding: 40px 24px;
 
   display: grid;
 
   grid-template-columns:
-    minmax(0, 2fr)
-    minmax(300px, 1fr);
+    minmax(0, 1fr) 360px;
 
   gap: 30px;
-
-  align-items: start;
 }
 
-
-/* =========================================
-   LEFT MAIN
-========================================= */
 
 .home-main {
   min-width: 0;
 }
 
 
-/* =========================================
+/* =========================================================
    WELCOME
-========================================= */
+========================================================= */
 
 .welcome {
-  background: #ffffff;
-
-  padding: 35px 30px;
+  padding: 30px;
 
   margin-bottom: 30px;
 
-  border-radius: 12px;
+  background: #f8fafc;
 
-  text-align: center;
+  border-radius: 16px;
 
-  box-shadow:
-    0 4px 15px rgba(0, 0, 0, 0.07);
+  border: 1px solid #e2e8f0;
 }
 
 
 .welcome h1 {
-  margin: 0 0 15px;
+  margin: 0 0 12px;
 
   font-size: 32px;
 
-  color: #1e293b;
+  font-weight: 700;
+
+  color: #0f172a;
 }
 
 
 .welcome p {
   margin: 0;
 
-  color: #475569;
+  font-size: 16px;
 
   line-height: 1.8;
 
-  font-size: 17px;
+  color: #475569;
 }
 
 
-/* =========================================
-   COMMON SECTION
-========================================= */
+/* =========================================================
+   SECTION
+========================================================= */
 
 .home-section {
-  padding: 0;
-
-  margin-bottom: 30px;
+  margin-bottom: 35px;
 }
 
 
 .section-title {
-  text-align: center;
+  margin: 0 0 20px;
 
-  font-size: 27px;
+  padding-left: 14px;
 
-  margin: 0 0 25px;
+  position: relative;
 
-  color: #1e293b;
+  font-size: 25px;
+
+  font-weight: 700;
+
+  color: #0f172a;
 }
 
 
-/* =========================================
-   COURSES
-========================================= */
+.section-title::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+
+  top: 4px;
+
+  bottom: 4px;
+
+  width: 4px;
+
+  border-radius: 4px;
+
+  background: #2563eb;
+}
+
+
+/* =========================================================
+   COURSE CARDS
+========================================================= */
 
 .course-cards {
   display: grid;
 
   grid-template-columns:
-    repeat(3, 1fr);
+    repeat(3, minmax(0, 1fr));
 
-  gap: 18px;
+  gap: 20px;
 }
 
 
 .home-card {
+  padding: 24px;
+
   background: #ffffff;
 
-  padding: 25px 20px;
+  border: 1px solid #e2e8f0;
 
-  border-radius: 10px;
-
-  text-align: center;
+  border-radius: 16px;
 
   box-shadow:
-    0 4px 15px rgba(0, 0, 0, 0.07);
+    0 5px 18px
+    rgba(15, 23, 42, 0.06);
 
   transition:
     transform 0.25s ease,
@@ -315,35 +525,45 @@
 
 
 .home-card:hover {
-  transform: translateY(-4px);
+  transform:
+    translateY(-4px);
 
   box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.10);
-}
-
-
-.home-card h3 {
-  margin: 12px 0;
-}
-
-
-.home-card p {
-  color: #64748b;
-
-  line-height: 1.7;
-
-  margin: 0;
+    0 12px 28px
+    rgba(15, 23, 42, 0.10);
 }
 
 
 .card-icon {
-  font-size: 42px;
+  font-size: 38px;
+
+  margin-bottom: 14px;
 }
 
 
-/* =========================================
+.home-card h3 {
+  margin: 0 0 10px;
+
+  font-size: 19px;
+
+  color: #0f172a;
+}
+
+
+.home-card p {
+  margin: 0;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+
+  color: #64748b;
+}
+
+
+/* =========================================================
    NOTICE
-========================================= */
+========================================================= */
 
 .notice-section {
   margin-top: 10px;
@@ -353,19 +573,23 @@
 .notice-box {
   background: #ffffff;
 
-  border-radius: 10px;
+  border: 1px solid #e2e8f0;
 
-  box-shadow:
-    0 4px 15px rgba(0, 0, 0, 0.07);
+  border-radius: 15px;
 
   overflow: hidden;
+
+  box-shadow:
+    0 5px 18px
+    rgba(15, 23, 42, 0.05);
 }
 
 
 .notice-item {
-  padding: 18px 20px;
+  padding: 17px 20px;
 
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom:
+    1px solid #e2e8f0;
 }
 
 
@@ -374,38 +598,36 @@
 }
 
 
+.notice-date {
+  display: inline-block;
+
+  margin-bottom: 6px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  color: #2563eb;
+}
+
+
 .notice-item p {
-  margin: 7px 0 0;
+  margin: 0;
 
   color: #334155;
+
+  font-size: 15px;
 
   line-height: 1.6;
 }
 
 
-.notice-date {
-  display: inline-block;
-
-  padding: 4px 9px;
-
-  border-radius: 4px;
-
-  background: #eff6ff;
-
-  color: #2563eb;
-
-  font-size: 12px;
-
-  font-weight: 600;
-}
-
-
-/* =========================================
-   RIGHT SIDEBAR
-========================================= */
+/* =========================================================
+   SIDEBAR
+========================================================= */
 
 .home-sidebar {
-  min-width: 0;
+  width: 100%;
 
   display: flex;
 
@@ -416,47 +638,56 @@
 
 
 .sidebar-section {
+  width: 100%;
+
   background: #ffffff;
 
-  padding: 20px;
+  border-radius: 15px;
 
-  border-radius: 10px;
+  overflow: hidden;
+
+  border: 1px solid #e2e8f0;
 
   box-shadow:
-    0 4px 15px rgba(0, 0, 0, 0.07);
+    0 5px 18px
+    rgba(15, 23, 42, 0.06);
 }
 
 
-/* =========================================
+/* =========================================================
    FACEBOOK
-========================================= */
+========================================================= */
 
 .facebook-activity {
   width: 100%;
+
+  min-height: 500px;
 
   overflow: hidden;
 }
 
 
 .facebook-activity iframe {
-  max-width: 100%;
+  display: block;
+
+  width: 100%;
+
+  border: none;
 }
 
 
-/* =========================================
+/* =========================================================
    YOUTUBE
-========================================= */
+========================================================= */
 
 .youtube-container {
   width: 100%;
 
   aspect-ratio: 16 / 9;
 
-  overflow: hidden;
-
-  border-radius: 8px;
-
   background: #000000;
+
+  overflow: hidden;
 }
 
 
@@ -464,20 +695,23 @@
   width: 100%;
   height: 100%;
 
+  display: block;
+
   border: none;
 }
 
 
-/* =========================================
+/* =========================================================
    FEATURES
-========================================= */
+========================================================= */
 
 .features-section {
-  max-width: 1200px;
+  max-width: 1400px;
 
   margin: 0 auto;
 
-  padding: 15px 20px 40px;
+  padding:
+    0 24px 45px;
 }
 
 
@@ -485,131 +719,109 @@
   display: grid;
 
   grid-template-columns:
-    repeat(3, 1fr);
+    repeat(3, minmax(0, 1fr));
 
-  gap: 25px;
+  gap: 20px;
 }
 
 
-/* =========================================
+.features .home-card h2 {
+  margin: 0 0 12px;
+
+  font-size: 21px;
+
+  color: #0f172a;
+}
+
+
+.features .home-card p {
+  margin: 0;
+
+  line-height: 1.7;
+
+  color: #64748b;
+}
+
+
+/* =========================================================
    ABOUT
-========================================= */
+========================================================= */
 
 .about-home {
-  max-width: 1000px;
+  max-width: 1400px;
 
-  margin: 0 auto 50px;
+  margin: 0 auto;
 
-  padding: 40px 25px;
+  padding:
+    35px 24px 60px;
 
   text-align: center;
-
-  background: #ffffff;
-
-  border-radius: 10px;
-
-  box-shadow:
-    0 4px 15px rgba(0, 0, 0, 0.07);
 }
 
 
 .about-home h2 {
   margin: 0 0 15px;
 
-  color: #1e293b;
+  font-size: 28px;
+
+  color: #0f172a;
 }
 
 
 .about-home p {
-  margin: 0;
+  max-width: 900px;
+
+  margin: 0 auto;
+
+  font-size: 16px;
+
+  line-height: 1.9;
 
   color: #64748b;
-
-  line-height: 1.8;
 }
 
 
-/* =========================================
+/* =========================================================
    TABLET
-========================================= */
+========================================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
 
-  .home-layout {
-    grid-template-columns: 1fr;
+  .banner-slider {
+    height: 400px;
   }
 
 
-  .home-sidebar {
-    display: grid;
-
+  .home-layout {
     grid-template-columns:
-      repeat(2, 1fr);
+      minmax(0, 1fr) 320px;
 
-    align-items: start;
+    gap: 22px;
   }
 
 
   .course-cards {
     grid-template-columns:
-      repeat(3, 1fr);
-  }
-
-}
-
-
-/* =========================================
-   MOBILE
-========================================= */
-
-@media (max-width: 768px) {
-
-  .home-banner {
-    height: 350px;
-  }
-
-
-  .home-layout {
-    padding: 25px 15px;
-
-    display: block;
-  }
-
-
-  .welcome {
-    padding: 30px 20px;
-  }
-
-
-  .welcome h1 {
-    font-size: 27px;
-  }
-
-
-  .course-cards {
-    grid-template-columns: 1fr;
-  }
-
-
-  .home-sidebar {
-    display: flex;
-
-    margin-top: 30px;
+      repeat(2, minmax(0, 1fr));
   }
 
 
   .features {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
   }
 
-
-  .features-section {
-    padding: 15px;
-  }
+}
 
 
-  .section-title {
-    font-size: 24px;
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .banner-slider {
+    height: 280px;
   }
 
 
@@ -617,7 +829,7 @@
     width: 38px;
     height: 38px;
 
-    font-size: 18px;
+    font-size: 19px;
   }
 
 
@@ -630,17 +842,90 @@
     right: 10px;
   }
 
+
+  .banner-dots {
+    bottom: 12px;
+  }
+
+
+  .banner-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+
+  .banner-dot.active {
+    width: 22px;
+  }
+
+
+  .home-layout {
+    grid-template-columns: 1fr;
+
+    padding:
+      28px 16px;
+
+    gap: 28px;
+  }
+
+
+  .welcome {
+    padding: 22px;
+  }
+
+
+  .welcome h1 {
+    font-size: 26px;
+  }
+
+
+  .welcome p {
+    font-size: 15px;
+  }
+
+
+  .course-cards {
+    grid-template-columns: 1fr;
+  }
+
+
+  .features-section {
+    padding:
+      0 16px 35px;
+  }
+
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+
+
+  .section-title {
+    font-size: 22px;
+  }
+
+
+  .about-home {
+    padding:
+      25px 16px 45px;
+  }
+
+
+  .about-home h2 {
+    font-size: 24px;
+  }
+
 }
 
 
-/* =========================================
+/* =========================================================
    SMALL MOBILE
-========================================= */
+========================================================= */
 
-@media (max-width: 500px) {
+@media (max-width: 480px) {
 
-  .home-banner {
-    height: 320px;
+  .banner-slider {
+    height: 220px;
   }
 
 
@@ -648,17 +933,52 @@
     width: 34px;
     height: 34px;
 
-    font-size: 16px;
+    font-size: 17px;
   }
 
 
-  .banner-dots {
-    bottom: 12px;
+  .banner-prev {
+    left: 8px;
   }
 
 
-  .sidebar-section {
+  .banner-next {
+    right: 8px;
+  }
+
+
+  .welcome {
     padding: 18px;
+  }
+
+
+  .welcome h1 {
+    font-size: 23px;
+  }
+
+
+  .home-card {
+    padding: 20px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .banner-old,
+  .banner-current {
+    animation-duration: 0.01ms;
+  }
+
+  .home-card,
+  .banner-arrow,
+  .banner-dot {
+    transition: none;
   }
 
 }
