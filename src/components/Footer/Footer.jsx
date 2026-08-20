@@ -1,4 +1,5 @@
 import "./Footer.css";
+import API_BASE_URL from "../../config/api";
 import { useEffect, useState } from "react";
 
 export default function Footer() {
@@ -12,7 +13,8 @@ export default function Footer() {
     const fetchBranches = async () => {
       try {
         const response = await fetch(
-          "http://localhost/sunshine-api/api/branch_list.php"
+          `${API_BASE_URL}/branch_list.php`,
+          { credentials: "include" }
         );
 
         const data = await response.json();

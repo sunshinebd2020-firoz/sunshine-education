@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./TeacherEntry.css";
+import API_BASE_URL from "../../../config/api";
 
 export default function TeacherEntry() {
   const [formData, setFormData] = useState({
@@ -89,9 +90,10 @@ export default function TeacherEntry() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/teacher_entry.php",
+        `${API_BASE_URL}/teacher_entry.php`,
         {
           method: "POST",
+          credentials: "include",
           body: data,
         }
       );

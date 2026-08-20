@@ -1,4 +1,5 @@
 import "./IncomeEdit.css";
+import API_BASE_URL from "../../config/api";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -27,7 +28,8 @@ export default function IncomeEdit() {
     const fetchIncome = async () => {
       try {
         const response = await fetch(
-          "http://localhost/sunshine-api/api/income_list.php"
+          `${API_BASE_URL}/income_list.php`,
+          { credentials: "include" }
         );
 
         const data = await response.json();
@@ -82,9 +84,10 @@ export default function IncomeEdit() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/income_update.php",
+        `${API_BASE_URL}/income_update.php`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },

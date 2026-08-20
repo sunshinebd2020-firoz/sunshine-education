@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./Gallery.css";
+import API_BASE_URL, { API_ORIGIN } from "../config/api";
 
 export default function Gallery() {
   const [gallery, setGallery] = useState([]);
@@ -8,7 +9,9 @@ export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
-    fetch("http://localhost/sunshine-api/api/gallery_list.php")
+    fetch(`${API_BASE_URL}/gallery_list.php`, {
+      credentials: "include",
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -113,7 +116,7 @@ export default function Gallery() {
               onClick={() => setSelectedImage(item)}
             >
               <img
-                src={`http://localhost/sunshine-api/uploads/gallery/${item.image}`}
+                src={`${API_ORIGIN}/uploads/gallery/${item.image}`}
                 alt={item.title || "Gallery"}
               />
 
@@ -145,7 +148,7 @@ export default function Gallery() {
           </button>
 
           <img
-            src={`http://localhost/sunshine-api/uploads/gallery/${selectedImage.image}`}
+            src={`${API_ORIGIN}/uploads/gallery/${selectedImage.image}`}
             alt={selectedImage.title || "Gallery"}
             onClick={(e) => e.stopPropagation()}
           />

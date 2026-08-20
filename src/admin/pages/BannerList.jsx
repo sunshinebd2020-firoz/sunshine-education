@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import "./BannerList.css";
+import API_BASE_URL, { API_ORIGIN } from "../../config/api";
 
-const API = "http://localhost/sunshine-api/api";
-const IMAGE_URL = "http://localhost/sunshine-api/";
+const API = API_BASE_URL;
+const IMAGE_URL = `${API_ORIGIN}/`;
 
 export default function BannerList() {
   const [banners, setBanners] = useState([]);
@@ -23,7 +24,8 @@ export default function BannerList() {
       setLoading(true);
 
       const response = await fetch(
-        `${API}/banner_list.php`
+        `${API}/banner_list.php`,
+        { credentials: "include" }
       );
 
       const data = await response.json();
@@ -42,6 +44,7 @@ export default function BannerList() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchBanners();
   }, []);
 
@@ -154,6 +157,7 @@ export default function BannerList() {
         `${API}/banner_update.php`,
         {
           method: "POST",
+          credentials: "include",
           body: formData,
         }
       );
@@ -213,6 +217,7 @@ export default function BannerList() {
         `${API}/banner_delete.php`,
         {
           method: "POST",
+          credentials: "include",
           body: formData,
         }
       );

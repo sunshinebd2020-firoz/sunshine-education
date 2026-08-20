@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./GalleryList.css";
+import API_BASE_URL, { API_ORIGIN } from "../../config/api";
 
 export default function GalleryList() {
   const [gallery, setGallery] = useState([]);
@@ -14,7 +15,8 @@ export default function GalleryList() {
   const fetchGallery = async () => {
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/gallery_list.php"
+        `${API_BASE_URL}/gallery_list.php`,
+        { credentials: "include" }
       );
 
       const data = await response.json();
@@ -30,6 +32,7 @@ export default function GalleryList() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchGallery();
   }, []);
 
@@ -49,9 +52,10 @@ export default function GalleryList() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/gallery_delete.php",
+        `${API_BASE_URL}/gallery_delete.php`,
         {
           method: "POST",
+          credentials: "include",
           body: formData,
         }
       );
@@ -81,7 +85,7 @@ export default function GalleryList() {
     setCategory(item.category || "");
     setImage(null);
     setPreview(
-      `http://localhost/sunshine-api/uploads/gallery/${item.image}`
+      `${API_ORIGIN}/uploads/gallery/${item.image}`
     );
   };
 
@@ -131,9 +135,10 @@ export default function GalleryList() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/gallery_update.php",
+        `${API_BASE_URL}/gallery_update.php`,
         {
           method: "POST",
+          credentials: "include",
           body: formData,
         }
       );
@@ -182,7 +187,7 @@ export default function GalleryList() {
             >
 
               <img
-                src={`http://localhost/sunshine-api/uploads/gallery/${item.image}`}
+                src={`${API_ORIGIN}/uploads/gallery/${item.image}`}
                 alt={item.title || "Gallery"}
               />
 

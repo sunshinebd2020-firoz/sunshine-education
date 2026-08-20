@@ -1,11 +1,14 @@
 import "./Admission.css";
+import API_BASE_URL, { API_ORIGIN } from "../config/api";
 import { useEffect, useState } from "react";
 
 export default function Admission() {
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost/sunshine-api/api/latest_students.php")
+    fetch(`${API_BASE_URL}/latest_students.php`, {
+      credentials: "include",
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -46,7 +49,7 @@ export default function Admission() {
               {[...students, ...students].map((student, index) => {
 
                 const photoUrl = student.student_photo
-                  ? `http://localhost/sunshine-api/uploads/students/${student.student_photo}`
+                  ? `${API_ORIGIN}/uploads/students/${student.student_photo}`
                   : "/default-student.png";
 
                 return (

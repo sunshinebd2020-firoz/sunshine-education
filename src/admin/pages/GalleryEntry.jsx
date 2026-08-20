@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./GalleryEntry.css";
+import API_BASE_URL from "../../config/api";
 
 export default function GalleryEntry() {
   const [title, setTitle] = useState("");
@@ -35,9 +36,10 @@ export default function GalleryEntry() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/gallery_upload.php",
+        `${API_BASE_URL}/gallery_upload.php`,
         {
           method: "POST",
+          credentials: "include",
           body: formData,
         }
       );

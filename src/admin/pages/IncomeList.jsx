@@ -1,9 +1,7 @@
 import "./IncomeList.css";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const API_BASE_URL =
-  "http://localhost/sunshine-api/api";
+import API_BASE_URL from "../../config/api";
 
 
 /* =====================================================
@@ -145,6 +143,7 @@ export default function IncomeList() {
 
     if (!user) {
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError(
         "Login user information পাওয়া যায়নি। আবার login করুন।"
       );
@@ -277,7 +276,8 @@ export default function IncomeList() {
 
         const response =
           await fetch(
-            `${API_BASE_URL}/income_list.php?${params.toString()}`
+            `${API_BASE_URL}/income_list.php?${params.toString()}`,
+            { credentials: "include" }
           );
 
 
@@ -385,8 +385,10 @@ export default function IncomeList() {
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchIncome();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     teacherId,
     adminId,
@@ -518,6 +520,7 @@ export default function IncomeList() {
             `${API_BASE_URL}/income_delete.php`,
             {
               method: "POST",
+              credentials: "include",
 
               headers: {
                 "Content-Type":

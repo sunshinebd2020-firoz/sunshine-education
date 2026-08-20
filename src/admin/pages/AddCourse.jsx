@@ -1,4 +1,5 @@
 import "./AddCourse.css";
+import API_BASE_URL from "../../config/api";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -46,9 +47,10 @@ export default function AddCourse() {
       setLoading(true);
 
       const response = await fetch(
-        "http://localhost/sunshine-api/api/add_course.php",
+        `${API_BASE_URL}/add_course.php`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },

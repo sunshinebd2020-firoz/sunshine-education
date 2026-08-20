@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./StudentProfile.css";
+import API_BASE_URL, { API_ORIGIN } from "../../../config/api";
 
 export default function StudentProfile() {
   const { id } = useParams();
@@ -13,7 +14,8 @@ export default function StudentProfile() {
     const loadStudent = async () => {
       try {
         const response = await fetch(
-          `http://localhost/sunshine-api/api/student_details.php?id=${id}`
+          `${API_BASE_URL}/student_details.php?id=${id}`,
+          { credentials: "include" }
         );
 
         if (!response.ok) {
@@ -59,7 +61,7 @@ export default function StudentProfile() {
   }
 
   const photoUrl = student.student_photo
-    ? `http://localhost/sunshine-api/uploads/students/${student.student_photo}`
+    ? `${API_ORIGIN}/uploads/students/${student.student_photo}`
     : null;
 
   return (

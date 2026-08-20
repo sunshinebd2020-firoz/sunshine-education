@@ -1,12 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import "./TeacherList.css";
 import PermissionModal from "./PermissionModal";
+import API_BASE_URL, { API_ORIGIN } from "../../../config/api";
 
-const API_BASE_URL =
-  "http://localhost/sunshine-api/api";
-
-const IMAGE_BASE_URL =
-  "http://localhost/sunshine-api/uploads/teachers";
+const IMAGE_BASE_URL = `${API_ORIGIN}/uploads/teachers`;
 
 export default function TeacherList({ onEditTeacher }) {
 
@@ -290,6 +287,7 @@ export default function TeacherList({ onEditTeacher }) {
           )}`,
           {
             method: "GET",
+            credentials: "include",
 
             headers: {
               Accept: "application/json"
@@ -477,6 +475,7 @@ export default function TeacherList({ onEditTeacher }) {
           `${API_BASE_URL}/teacher_list.php`,
           {
             method: "GET",
+            credentials: "include",
             signal,
 
             headers: {
@@ -634,6 +633,7 @@ export default function TeacherList({ onEditTeacher }) {
       new AbortController();
 
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadMyPermissions();
 
     fetchTeachers(
@@ -647,6 +647,7 @@ export default function TeacherList({ onEditTeacher }) {
 
     };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
@@ -692,6 +693,7 @@ export default function TeacherList({ onEditTeacher }) {
           `${API_BASE_URL}/teacher_delete.php`,
           {
             method: "POST",
+            credentials: "include",
 
             headers: {
               "Content-Type":
@@ -1035,6 +1037,7 @@ ${teacher.role || "N/A"}`
           `${API_BASE_URL}/user_create.php`,
           {
             method: "POST",
+            credentials: "include",
 
             headers: {
               "Content-Type":

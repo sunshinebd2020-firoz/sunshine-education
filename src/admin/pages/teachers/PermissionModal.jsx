@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import "./PermissionModal.css";
-
-const API_BASE_URL =
-  "http://localhost/sunshine-api/api";
+import API_BASE_URL from "../../../config/api";
 
 
 const PERMISSIONS = [
@@ -263,15 +261,6 @@ export default function PermissionModal({
   =====================================================
   */
 
-  useEffect(() => {
-
-    loadPermissions();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-
-  }, [teacher]);
-
-
   const loadPermissions =
     async () => {
 
@@ -463,6 +452,15 @@ export default function PermissionModal({
         setLoading(false);
       }
     };
+
+
+  useEffect(() => {
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadPermissions();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teacher]);
 
 
   /*

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./BannerEntry.css";
+import API_BASE_URL from "../../config/api";
 
 export default function BannerEntry() {
   const [form, setForm] = useState({
@@ -55,9 +56,10 @@ export default function BannerEntry() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/banner_entry.php",
+        `${API_BASE_URL}/banner_entry.php`,
         {
           method: "POST",
+          credentials: "include",
           body: formData,
         }
       );

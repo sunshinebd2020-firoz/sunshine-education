@@ -1,4 +1,5 @@
 import "./StudentEntry.css";
+import API_BASE_URL from "../config/api";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -196,6 +197,7 @@ export default function StudentEntry() {
   useEffect(() => {
     if (!sameAddress) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm((prev) => ({
       ...prev,
 
@@ -269,7 +271,8 @@ export default function StudentEntry() {
         setCourseLoading(true);
 
         const response = await fetch(
-          "http://localhost/sunshine-api/api/course_list.php"
+          `${API_BASE_URL}/course_list.php`,
+          { credentials: "include" }
         );
 
         if (!response.ok) {
@@ -359,7 +362,8 @@ export default function StudentEntry() {
         setBranchLoading(true);
 
         const response = await fetch(
-          "http://localhost/sunshine-api/api/branch_list.php"
+          `${API_BASE_URL}/branch_list.php`,
+          { credentials: "include" }
         );
 
         if (!response.ok) {
@@ -434,9 +438,10 @@ export default function StudentEntry() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/add_student.php",
+        `${API_BASE_URL}/add_student.php`,
         {
           method: "POST",
+          credentials: "include",
           body: formData,
         }
       );

@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
-
-const API_BASE_URL =
-  "http://localhost/sunshine-api/api";
+import API_BASE_URL from "../config/api";
 
 export default function Login() {
 
@@ -98,7 +96,8 @@ export default function Login() {
         );
 
         throw new Error(
-          "Server থেকে সঠিক JSON response পাওয়া যায়নি।"
+          "Server থেকে সঠিক JSON response পাওয়া যায়নি।",
+          { cause: jsonError }
         );
       }
 

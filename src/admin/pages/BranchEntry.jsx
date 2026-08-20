@@ -1,4 +1,5 @@
 import "./BranchEntry.css";
+import API_BASE_URL from "../../config/api";
 import { useState } from "react";
 
 export default function BranchEntry() {
@@ -54,9 +55,10 @@ export default function BranchEntry() {
       setSaving(true);
 
       const response = await fetch(
-        "http://localhost/sunshine-api/api/branch_add.php",
+        `${API_BASE_URL}/branch_add.php`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },

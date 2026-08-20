@@ -1,8 +1,6 @@
 import "./ExpenseEntry.css";
 import { useEffect, useState } from "react";
-
-const API_BASE_URL =
-  "http://localhost/sunshine-api/api";
+import API_BASE_URL from "../../config/api";
 
 
 /* =====================================================
@@ -369,7 +367,8 @@ export default function ExpenseEntry() {
 
             const response =
               await fetch(
-                `${API_BASE_URL}/teacher_list.php`
+                `${API_BASE_URL}/teacher_list.php`,
+                { credentials: "include" }
               );
 
 
@@ -475,7 +474,8 @@ export default function ExpenseEntry() {
 
           const response =
             await fetch(
-              `${API_BASE_URL}/teacher_list.php`
+              `${API_BASE_URL}/teacher_list.php`,
+              { credentials: "include" }
             );
 
 
@@ -551,7 +551,8 @@ export default function ExpenseEntry() {
 
           const response =
             await fetch(
-              `${API_BASE_URL}/branch_list.php`
+              `${API_BASE_URL}/branch_list.php`,
+              { credentials: "include" }
             );
 
 
@@ -1040,6 +1041,7 @@ export default function ExpenseEntry() {
             `${API_BASE_URL}/add_expense.php`,
             {
               method: "POST",
+              credentials: "include",
 
               headers: {
                 "Content-Type":

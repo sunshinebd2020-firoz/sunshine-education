@@ -1,4 +1,5 @@
 import "./ExpenseEdit.css";
+import API_BASE_URL from "../../config/api";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -27,7 +28,8 @@ export default function ExpenseEdit() {
     const fetchExpense = async () => {
       try {
         const response = await fetch(
-          "http://localhost/sunshine-api/api/expense_list.php"
+          `${API_BASE_URL}/expense_list.php`,
+          { credentials: "include" }
         );
 
         const data = await response.json();
@@ -104,9 +106,10 @@ export default function ExpenseEdit() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/expense_update.php",
+        `${API_BASE_URL}/expense_update.php`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },

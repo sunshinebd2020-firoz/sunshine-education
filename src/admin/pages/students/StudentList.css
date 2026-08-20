@@ -395,3 +395,634 @@
   }
 
 }
+
+/* =========================================================
+   ASSIGNED TEACHER
+========================================================= */
+
+.assigned-teacher {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 130px;
+}
+
+.assigned-teacher strong {
+  font-size: 13px;
+  color: #1f2937;
+  white-space: nowrap;
+}
+
+.assigned-teacher small {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.teacher-not-assigned {
+  color: #9ca3af;
+  font-size: 12px;
+  font-style: italic;
+}
+
+
+/* =========================================================
+   TEACHER BUTTON
+========================================================= */
+
+.teacher-button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 7px;
+  background: #e0f2fe;
+  cursor: pointer;
+  font-size: 17px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.teacher-button:hover {
+  background: #bae6fd;
+  transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   TEACHER MODAL OVERLAY
+========================================================= */
+
+.teacher-modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+
+  padding: 20px;
+}
+
+
+/* =========================================================
+   TEACHER MODAL
+========================================================= */
+
+.teacher-modal {
+  width: 100%;
+  max-width: 500px;
+
+  background: #ffffff;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.2);
+
+  overflow: hidden;
+
+  animation: teacherModalShow 0.2s ease;
+}
+
+
+@keyframes teacherModalShow {
+
+  from {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+}
+
+
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
+.teacher-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 18px 20px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.teacher-modal-header h2 {
+  margin: 0;
+
+  font-size: 20px;
+  color: #111827;
+}
+
+.teacher-modal-header p {
+  margin: 4px 0 0;
+
+  font-size: 13px;
+  color: #6b7280;
+}
+
+
+.teacher-modal-close {
+  width: 34px;
+  height: 34px;
+
+  border: none;
+  border-radius: 7px;
+
+  background: #f3f4f6;
+
+  font-size: 25px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  color: #374151;
+}
+
+.teacher-modal-close:hover {
+  background: #e5e7eb;
+}
+
+
+/* =========================================================
+   MODAL BODY
+========================================================= */
+
+.teacher-modal-body {
+  padding: 22px 20px;
+}
+
+.teacher-modal-body label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #374151;
+}
+
+
+.teacher-modal-body select {
+  width: 100%;
+
+  height: 44px;
+
+  padding: 0 12px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  font-size: 14px;
+
+  color: #111827;
+
+  outline: none;
+}
+
+.teacher-modal-body select:focus {
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+
+.teacher-loading {
+  padding: 12px;
+
+  text-align: center;
+
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   MODAL FOOTER
+========================================================= */
+
+.teacher-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  padding: 15px 20px;
+
+  background: #f9fafb;
+
+  border-top: 1px solid #e5e7eb;
+}
+
+
+.teacher-cancel-button,
+.teacher-save-button {
+  height: 40px;
+
+  padding: 0 18px;
+
+  border-radius: 7px;
+
+  border: none;
+
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+
+.teacher-cancel-button {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.teacher-cancel-button:hover {
+  background: #d1d5db;
+}
+
+
+.teacher-save-button {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.teacher-save-button:hover {
+  background: #1d4ed8;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .teacher-modal {
+    max-width: 100%;
+  }
+
+  .teacher-modal-footer {
+    flex-direction: column;
+  }
+
+  .teacher-cancel-button,
+  .teacher-save-button {
+    width: 100%;
+  }
+
+}
+
+/* =====================================================
+   ASSIGN TEACHER BUTTON
+===================================================== */
+
+.assign-teacher-button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 7px;
+  background: #eef6ff;
+  cursor: pointer;
+  font-size: 17px;
+  transition: 0.2s ease;
+}
+
+.assign-teacher-button:hover {
+  background: #d9ecff;
+  transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   MODAL OVERLAY
+===================================================== */
+
+.assign-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  backdrop-filter: blur(3px);
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.assign-modal {
+  width: 100%;
+  max-width: 480px;
+
+  background: #ffffff;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.25);
+
+  overflow: hidden;
+
+  animation: assignModalIn 0.22s ease;
+}
+
+
+@keyframes assignModalIn {
+
+  from {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+}
+
+
+/* =====================================================
+   MODAL HEADER
+===================================================== */
+
+.assign-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 18px 20px;
+
+  background: #f7f9fc;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+.assign-modal-header h2 {
+  margin: 0;
+
+  font-size: 20px;
+
+  color: #1f2937;
+}
+
+
+.assign-modal-header p {
+  margin: 4px 0 0;
+
+  font-size: 13px;
+
+  color: #6b7280;
+}
+
+
+.assign-close-button {
+  width: 34px;
+  height: 34px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #eeeeee;
+
+  color: #444;
+
+  font-size: 24px;
+
+  cursor: pointer;
+
+  line-height: 1;
+}
+
+
+.assign-close-button:hover {
+  background: #e2e2e2;
+}
+
+
+/* =====================================================
+   SELECTED STUDENT
+===================================================== */
+
+.selected-student-box {
+  margin: 20px;
+
+  padding: 14px 16px;
+
+  border-radius: 9px;
+
+  background: #f5f8fc;
+
+  border: 1px solid #e1e7ef;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+
+.selected-student-box strong {
+  color: #1f2937;
+
+  font-size: 15px;
+}
+
+
+.selected-student-box span {
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.assign-form-group {
+  padding: 0 20px 20px;
+}
+
+
+.assign-form-group label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: #374151;
+}
+
+
+.assign-form-group select {
+  width: 100%;
+
+  height: 44px;
+
+  padding: 0 12px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  font-size: 14px;
+
+  color: #374151;
+
+  outline: none;
+}
+
+
+.assign-form-group select:focus {
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.teacher-loading {
+  padding: 12px;
+
+  border-radius: 8px;
+
+  background: #f5f5f5;
+
+  color: #666;
+
+  text-align: center;
+
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   MODAL ACTIONS
+===================================================== */
+
+.assign-modal-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding: 16px 20px;
+
+  border-top: 1px solid #e5e7eb;
+
+  background: #fafafa;
+}
+
+
+.assign-cancel-button,
+.assign-save-button {
+  min-height: 40px;
+
+  padding: 0 17px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  transition: 0.2s ease;
+}
+
+
+.assign-cancel-button {
+  background: #e5e7eb;
+
+  color: #374151;
+}
+
+
+.assign-cancel-button:hover {
+  background: #d1d5db;
+}
+
+
+.assign-save-button {
+  background: #2563eb;
+
+  color: white;
+}
+
+
+.assign-save-button:hover {
+  background: #1d4ed8;
+
+  transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+  .assign-modal {
+    max-width: 100%;
+  }
+
+
+  .assign-modal-overlay {
+    padding: 12px;
+  }
+
+
+  .assign-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+
+  .assign-cancel-button,
+  .assign-save-button {
+    width: 100%;
+  }
+
+}

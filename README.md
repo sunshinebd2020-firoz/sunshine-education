@@ -1,4 +1,28 @@
-# React + Vite
+# Sunshine Education
+
+## Setup
+
+```bash
+npm install
+npm run dev
+```
+
+Configure the PHP API URL in `.env` using `.env.example` as a template:
+
+```env
+VITE_API_BASE_URL=https://example.com/sunshine-api/api
+```
+
+The value must include the `/api` path. Run the production checks with:
+
+```bash
+npm run lint
+npm run build
+```
+
+The PHP API is not included in this repository. Admin authentication and
+permissions must be enforced by that backend; browser-side checks only
+control navigation and user experience.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

@@ -1,8 +1,9 @@
 import "./Home.css";
 import { useEffect, useState } from "react";
+import API_BASE_URL, { API_ORIGIN } from "../config/api";
 
-const API = "http://localhost/sunshine-api/api";
-const IMAGE_URL = "http://localhost/sunshine-api/";
+const API = API_BASE_URL;
+const IMAGE_URL = `${API_ORIGIN}/`;
 
 export default function Home() {
   const [banners, setBanners] = useState([]);
@@ -38,7 +39,8 @@ export default function Home() {
     const fetchBanners = async () => {
       try {
         const response = await fetch(
-          `${API}/banner_list.php`
+          `${API}/banner_list.php`,
+          { credentials: "include" }
         );
 
         const data = await response.json();
@@ -169,6 +171,7 @@ export default function Home() {
     }, 5000);
 
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     banners.length,
     currentSlide,

@@ -1,9 +1,7 @@
 import "./IncomeVoucher.css";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-const API_BASE_URL =
-  "http://localhost/sunshine-api/api";
+import API_BASE_URL from "../../config/api";
 
 
 /* =====================================================
@@ -145,7 +143,8 @@ export default function IncomeVoucher() {
 
           const response =
             await fetch(
-              `${API_BASE_URL}/income_voucher.php?${params.toString()}`
+              `${API_BASE_URL}/income_voucher.php?${params.toString()}`,
+              { credentials: "include" }
             );
 
 

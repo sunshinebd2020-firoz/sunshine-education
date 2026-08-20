@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import "./AdminLayout.css";
+import { API_ORIGIN } from "../config/api";
 
 export default function AdminLayout() {
 
@@ -43,6 +44,7 @@ export default function AdminLayout() {
       const loggedInUser =
         JSON.parse(savedUser);
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUser(loggedInUser);
 
     } catch (error) {
@@ -100,13 +102,6 @@ export default function AdminLayout() {
 
     Teacher-এর branch user.branch থেকে নেওয়া হবে।
   */
-
-  const teacherId =
-    user?.teacher_id
-      ? String(
-          user.teacher_id
-        ).trim()
-      : "";
 
   const userBranch =
     String(
@@ -416,6 +411,7 @@ export default function AdminLayout() {
       );
 
     if (activeMenu) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpenMenu(activeMenu);
     }
 
@@ -617,6 +613,7 @@ export default function AdminLayout() {
       );
     }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     user,
     location.pathname
@@ -769,7 +766,7 @@ export default function AdminLayout() {
         );
 
       return (
-        "http://localhost/sunshine-api/uploads/teachers/" +
+        `${API_ORIGIN}/uploads/teachers/` +
         cleanPhoto
       );
     };

@@ -1,8 +1,9 @@
 import "./StudentEdit.css";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { API_ORIGIN } from "../../../config/api";
 
-const API_BASE = "http://localhost/sunshine-api";
+const API_BASE = API_ORIGIN;
 
 export default function StudentEdit() {
   const { id } = useParams();
@@ -126,7 +127,8 @@ export default function StudentEdit() {
         setMessage("");
 
         const response = await fetch(
-          `${API_BASE}/api/student_details.php?id=${encodeURIComponent(id)}`
+          `${API_BASE}/api/student_details.php?id=${encodeURIComponent(id)}`,
+          { credentials: "include" }
         );
 
         const text = await response.text();
@@ -345,6 +347,7 @@ export default function StudentEdit() {
     return () => {
       mounted = false;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   /* =====================================================
@@ -750,6 +753,7 @@ export default function StudentEdit() {
         `${API_BASE}/api/student_update.php`,
         {
           method: "POST",
+          credentials: "include",
           body: formData,
         }
       );

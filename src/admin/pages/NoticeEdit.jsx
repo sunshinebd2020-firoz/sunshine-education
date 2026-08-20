@@ -1,6 +1,7 @@
 import "./NoticeEntry.css";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import API_BASE_URL from "../../config/api";
 
 export default function NoticeEdit() {
   const { id } = useParams();
@@ -22,7 +23,8 @@ export default function NoticeEdit() {
     const loadNotice = async () => {
       try {
         const response = await fetch(
-          "http://localhost/sunshine-api/api/notices.php"
+          `${API_BASE_URL}/notices.php`,
+          { credentials: "include" }
         );
 
         const data = await response.json();
@@ -73,9 +75,10 @@ export default function NoticeEdit() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/update_notice.php",
+        `${API_BASE_URL}/update_notice.php`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },

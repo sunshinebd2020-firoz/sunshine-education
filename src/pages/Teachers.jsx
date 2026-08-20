@@ -1,4 +1,5 @@
 import "./Teachers.css";
+import API_BASE_URL, { API_ORIGIN } from "../config/api";
 import { useEffect, useState } from "react";
 
 export default function Teachers() {
@@ -7,7 +8,9 @@ export default function Teachers() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost/sunshine-api/api/teacher_list.php")
+    fetch(`${API_BASE_URL}/teacher_list.php`, {
+      credentials: "include",
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Server error");
@@ -70,7 +73,7 @@ const exTeachers = teachers
 
         {teacher.photo ? (
           <img
-            src={`http://localhost/sunshine-api/uploads/teachers/${teacher.photo}`}
+            src={`${API_ORIGIN}/uploads/teachers/${teacher.photo}`}
             alt={
               teacher.name_en ||
               teacher.name_bn ||

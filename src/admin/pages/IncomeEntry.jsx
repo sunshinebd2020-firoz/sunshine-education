@@ -1,8 +1,6 @@
 import "./IncomeEntry.css";
 import { useEffect, useState } from "react";
-
-const API_BASE_URL =
-  "http://localhost/sunshine-api/api";
+import API_BASE_URL from "../../config/api";
 
 
 const getToday = () => {
@@ -115,7 +113,7 @@ export default function IncomeEntry() {
   const [message, setMessage] =
     useState("");
 
-  const [loadingStudents, setLoadingStudents] =
+  const [, setLoadingStudents] =
     useState(true);
 
   const [loadingBranches, setLoadingBranches] =
@@ -225,7 +223,8 @@ export default function IncomeEntry() {
 
           const response =
             await fetch(
-              `${API_BASE_URL}/teacher_list.php`
+              `${API_BASE_URL}/teacher_list.php`,
+              { credentials: "include" }
             );
 
           const data =
@@ -304,7 +303,8 @@ export default function IncomeEntry() {
 
           const response =
             await fetch(
-              `${API_BASE_URL}/students.php`
+              `${API_BASE_URL}/students.php`,
+              { credentials: "include" }
             );
 
           const data =
@@ -364,7 +364,8 @@ export default function IncomeEntry() {
 
           const response =
             await fetch(
-              `${API_BASE_URL}/branch_list.php`
+              `${API_BASE_URL}/branch_list.php`,
+              { credentials: "include" }
             );
 
           const data =
@@ -654,6 +655,7 @@ export default function IncomeEntry() {
             `${API_BASE_URL}/add_income.php`,
             {
               method: "POST",
+              credentials: "include",
 
               headers: {
                 "Content-Type":

@@ -1,4 +1,5 @@
 import "./Courses.css";
+import API_BASE_URL from "../config/api";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -21,7 +22,8 @@ export default function Courses() {
         setError("");
 
         const response = await fetch(
-          "http://localhost/sunshine-api/api/course_list.php"
+          `${API_BASE_URL}/course_list.php`,
+          { credentials: "include" }
         );
 
         if (!response.ok) {

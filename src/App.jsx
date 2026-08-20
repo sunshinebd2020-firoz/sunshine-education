@@ -1,98 +1,104 @@
-import { Routes, Route } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 import Header from "./components/Header/Header";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 
-import Login from "./admin/Login";
-import AdminLayout from "./admin/AdminLayout";
+const Login = lazy(() => import("./admin/Login"));
+const AdminLayout = lazy(() => import("./admin/AdminLayout"));
 
-import Dashboard from "./admin/pages/Dashboard";
+const Dashboard = lazy(() => import("./admin/pages/Dashboard"));
 
 // ================= STUDENTS =================
-import StudentEntry from "./admin/pages/students/StudentEntry";
-import StudentList from "./admin/pages/students/StudentList";
-import StudentEdit from "./admin/pages/students/StudentEdit";
-import StudentProfile from "./admin/pages/students/StudentProfile";
+const StudentEntry = lazy(() => import("./admin/pages/students/StudentEntry"));
+const StudentList = lazy(() => import("./admin/pages/students/StudentList"));
+const StudentEdit = lazy(() => import("./admin/pages/students/StudentEdit"));
+const StudentProfile = lazy(() => import("./admin/pages/students/StudentProfile"));
 
 // Pending Student List
-import PendingStudentList from "./admin/pages/PendingStudentList";
+const PendingStudentList = lazy(() => import("./admin/pages/PendingStudentList"));
 
 // ================= TEACHERS =================
-import TeacherEntry from "./admin/pages/teachers/TeacherEntry";
-import TeacherList from "./admin/pages/teachers/TeacherList";
+const TeacherEntry = lazy(() => import("./admin/pages/teachers/TeacherEntry"));
+const TeacherList = lazy(() => import("./admin/pages/teachers/TeacherList"));
 
 // ================= GALLERY =================
-import GalleryEntry from "./admin/pages/GalleryEntry";
-import GalleryList from "./admin/pages/GalleryList";
+const GalleryEntry = lazy(() => import("./admin/pages/GalleryEntry"));
+const GalleryList = lazy(() => import("./admin/pages/GalleryList"));
 
 // ================= BANNER =================
-import BannerEntry from "./admin/pages/BannerEntry";
-import BannerList from "./admin/pages/BannerList";
+const BannerEntry = lazy(() => import("./admin/pages/BannerEntry"));
+const BannerList = lazy(() => import("./admin/pages/BannerList"));
 
 // ================= INCOME =================
-import IncomeEntry from "./admin/pages/IncomeEntry";
-import IncomeList from "./admin/pages/IncomeList";
-import IncomeEdit from "./admin/pages/IncomeEdit";
+const IncomeEntry = lazy(() => import("./admin/pages/IncomeEntry"));
+const IncomeList = lazy(() => import("./admin/pages/IncomeList"));
+const IncomeEdit = lazy(() => import("./admin/pages/IncomeEdit"));
 
 // ================= EXPENSE =================
-import ExpenseEntry from "./admin/pages/ExpenseEntry";
-import ExpenseList from "./admin/pages/ExpenseList";
-import ExpenseEdit from "./admin/pages/ExpenseEdit";
+const ExpenseEntry = lazy(() => import("./admin/pages/ExpenseEntry"));
+const ExpenseList = lazy(() => import("./admin/pages/ExpenseList"));
+const ExpenseEdit = lazy(() => import("./admin/pages/ExpenseEdit"));
 
 // ================= INCOME-EXPENSE REPORT =================
-import IncomeExpenseReport from "./admin/pages/IncomeExpenseReport";
-import DueList from "./admin/pages/DueList";
-import IncomeVoucher from "./admin/pages/IncomeVoucher";
+const IncomeExpenseReport = lazy(() => import("./admin/pages/IncomeExpenseReport"));
+const DueList = lazy(() => import("./admin/pages/DueList"));
+const IncomeVoucher = lazy(() => import("./admin/pages/IncomeVoucher"));
 
 
 // ================= NOTICE =================
-import NoticeEntry from "./admin/pages/NoticeEntry";
-import NoticeList from "./admin/pages/NoticeList";
-import NoticeEdit from "./admin/pages/NoticeEdit";
+const NoticeEntry = lazy(() => import("./admin/pages/NoticeEntry"));
+const NoticeList = lazy(() => import("./admin/pages/NoticeList"));
+const NoticeEdit = lazy(() => import("./admin/pages/NoticeEdit"));
 
 // ================= COURSE =================
-import CourseList from "./admin/pages/CourseList";
-import AddCourse from "./admin/pages/AddCourse";
-import EditCourse from "./admin/pages/EditCourse";
+const CourseList = lazy(() => import("./admin/pages/CourseList"));
+const AddCourse = lazy(() => import("./admin/pages/AddCourse"));
+const EditCourse = lazy(() => import("./admin/pages/EditCourse"));
 
 // ================= BRANCH =================
-import BranchEntry from "./admin/pages/BranchEntry";
-import BranchList from "./admin/pages/BranchList";
-import BranchEdit from "./admin/pages/BranchEdit";
+const BranchEntry = lazy(() => import("./admin/pages/BranchEntry"));
+const BranchList = lazy(() => import("./admin/pages/BranchList"));
+const BranchEdit = lazy(() => import("./admin/pages/BranchEdit"));
 
 // ================= PUBLIC PAGES =================
-import Home from "./pages/Home";
-import Gallery from "./pages/Gallery";
-import Notice from "./pages/Notice";
-import Teachers from "./pages/Teachers";
-import Download from "./pages/Download";
-import About from "./pages/About";
-import Courses from "./pages/Courses";
-import Admission from "./pages/Admission";
-import Contact from "./pages/Contact";
+const Home = lazy(() => import("./pages/Home"));
+const Gallery = lazy(() => import("./pages/Gallery"));
+const Notice = lazy(() => import("./pages/Notice"));
+const Teachers = lazy(() => import("./pages/Teachers"));
+const Download = lazy(() => import("./pages/Download"));
+const About = lazy(() => import("./pages/About"));
+const Courses = lazy(() => import("./pages/Courses"));
+const Admission = lazy(() => import("./pages/Admission"));
+const Contact = lazy(() => import("./pages/Contact"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 // ================= PUBLIC STUDENT ENTRY =================
-import PublicStudentEntry from "./pages/StudentEntry";
+const PublicStudentEntry = lazy(() => import("./pages/StudentEntry"));
 
 
 export default function App() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   return (
     <div className="app">
 
       {/* ================= HEADER ================= */}
 
-      <Header />
+      {!isAdminRoute && <Header />}
 
       {/* ================= NAVBAR ================= */}
 
-      <Navbar />
+      {!isAdminRoute && <Navbar />}
 
       {/* ================= MAIN CONTENT ================= */}
 
       <main className="content">
 
-        <Routes>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
 
           {/* =====================================================
               PUBLIC WEBSITE
@@ -370,16 +376,27 @@ export default function App() {
               element={<IncomeVoucher />}
             />
 
+            <Route
+              path="*"
+              element={<NotFound />}
+            />
+
           </Route>
 
-        </Routes>
+          <Route
+            path="*"
+            element={<NotFound />}
+          />
+
+          </Routes>
+        </Suspense>
 
       </main>
 
 
       {/* ================= FOOTER ================= */}
 
-      <Footer />
+      {!isAdminRoute && <Footer />}
 
     </div>
   );

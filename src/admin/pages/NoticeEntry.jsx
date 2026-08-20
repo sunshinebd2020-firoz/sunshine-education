@@ -1,5 +1,6 @@
 import "./NoticeEntry.css";
 import { useState } from "react";
+import API_BASE_URL from "../../config/api";
 
 export default function NoticeEntry() {
   const [form, setForm] = useState({
@@ -30,9 +31,10 @@ export default function NoticeEntry() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/notice_entry.php",
+        `${API_BASE_URL}/notice_entry.php`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },

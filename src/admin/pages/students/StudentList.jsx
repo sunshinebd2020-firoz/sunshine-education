@@ -1,72 +1,442 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./StudentList.css";
+import API_BASE_URL, { API_ORIGIN } from "../../../config/api";
+
+const API = API_BASE_URL;
+const IMAGE_URL = API_ORIGIN;
 
 export default function StudentList() {
+
   const navigate = useNavigate();
 
   const [students, setStudents] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+
   const [search, setSearch] = useState("");
+
   const [message, setMessage] = useState("");
+
   const [loading, setLoading] = useState(true);
 
-  /* =====================================================
-     LOAD STUDENTS
-  ===================================================== */
+  const [teacherLoading, setTeacherLoading] =
+    useState(false);
+
+  const [showAssignModal, setShowAssignModal] =
+    useState(false);
+
+  const [selectedStudent, setSelectedStudent] =
+    useState(null);
+
+  const [selectedTeacher, setSelectedTeacher] =
+    useState("");
+
+
+  /*
+  =====================================================
+  GET CURRENT LOGIN
+  =====================================================
+  */
+
+  const getCurrentUser = () => {
+
+    const possibleKeys = [
+      "admin",
+      "currentAdmin",
+      "user",
+      "currentUser",
+      "loginUser",
+    ];
+
+    for (const key of possibleKeys) {
+
+      try {
+
+        const value =
+          localStorage.getItem(key);
+
+        if (!value) continue;
+
+        const data =
+          JSON.parse(value);
+
+        if (data && typeof data === "object") {
+
+          return data;
+        }
+
+      } catch {
+
+        console.warn(
+          `Invalid localStorage data: ${key}`
+        );
+
+      }
+    }
+
+    return null;
+  };
+
+
+  /*
+  =====================================================
+  LOGIN USER
+  =====================================================
+  */
+
+  const currentUser =
+    getCurrentUser();
+
+
+  const userRole = String(
+    currentUser?.role ||
+    currentUser?.user_role ||
+    currentUser?.admin_role ||
+    ""
+  ).trim();
+
+
+  const teacherId = String(
+    currentUser?.teacher_id ||
+    currentUser?.teacherId ||
+    currentUser?.user_teacher_id ||
+    ""
+  ).trim();
+
+
+  const isAdmin =
+    userRole.toLowerCase() === "admin" ||
+    userRole.toLowerCase() === "super admin" ||
+    userRole.toLowerCase() === "superadmin";
+
+
+  /*
+  =====================================================
+  LOAD STUDENTS
+  =====================================================
+  */
 
   const loadStudents = async () => {
+
     try {
+
       setLoading(true);
 
-      const response = await fetch(
-        "http://localhost/sunshine-api/api/students.php"
+      setMessage("");
+
+
+      const params =
+        new URLSearchParams();
+
+
+      params.set(
+        "role",
+        userRole
       );
 
-      const data = await response.json();
+
+      /*
+      ================================================
+      TEACHER ID
+      ================================================
+      */
+
+      if (!isAdmin) {
+
+        if (!teacherId) {
+
+          setStudents([]);
+
+          setMessage(
+            "আপনার Teacher ID পাওয়া যায়নি। আবার login করুন।"
+          );
+
+          setLoading(false);
+
+          return;
+        }
+
+        params.set(
+          "teacher_id",
+          teacherId
+        );
+      }
+
+
+      const response = await fetch(
+        `${API}/student_list_restricted.php?${params.toString()}`,
+        { credentials: "include" }
+      );
+
+
+      const data =
+        await response.json();
+
 
       if (data.success) {
+
         setStudents(
           Array.isArray(data.students)
             ? data.students
             : []
         );
+
         setMessage("");
+
       } else {
+
         setStudents([]);
+
         setMessage(
           data.message ||
-            "Student data পাওয়া যায়নি"
+          "Student data পাওয়া যায়নি।"
         );
       }
+
     } catch (error) {
-      console.error("Student loading error:", error);
+
+      console.error(
+        "Student loading error:",
+        error
+      );
+
+      setStudents([]);
 
       setMessage(
         "Server connection failed"
       );
+
     } finally {
+
       setLoading(false);
     }
   };
 
+
+  /*
+  =====================================================
+  LOAD TEACHERS
+  =====================================================
+  */
+
+  const loadTeachers = async () => {
+
+    try {
+
+      setTeacherLoading(true);
+
+
+      const response = await fetch(
+        `${API}/teacher_list.php`,
+        { credentials: "include" }
+      );
+
+
+      const data =
+        await response.json();
+
+
+      if (data.success) {
+
+        setTeachers(
+          Array.isArray(data.teachers)
+            ? data.teachers
+            : []
+        );
+
+      } else {
+
+        setTeachers([]);
+
+        setMessage(
+          data.message ||
+          "Teacher list পাওয়া যায়নি।"
+        );
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Teacher loading error:",
+        error
+      );
+
+      setTeachers([]);
+
+      setMessage(
+        "Teacher server connection failed"
+      );
+
+    } finally {
+
+      setTeacherLoading(false);
+    }
+  };
+
+
+  /*
+  =====================================================
+  INITIAL LOAD
+  =====================================================
+  */
+
   useEffect(() => {
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadStudents();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
-  /* =====================================================
-     ACTIVE / INACTIVE
-  ===================================================== */
+  /*
+  =====================================================
+  ASSIGN MODAL
+  =====================================================
+  */
 
-  const handleStatus = async (id, status) => {
+  const openAssignModal = (student) => {
+
+    setSelectedStudent(student);
+
+    setSelectedTeacher("");
+
+    setShowAssignModal(true);
+
+    loadTeachers();
+  };
+
+
+  /*
+  =====================================================
+  CLOSE MODAL
+  =====================================================
+  */
+
+  const closeAssignModal = () => {
+
+    setShowAssignModal(false);
+
+    setSelectedStudent(null);
+
+    setSelectedTeacher("");
+  };
+
+
+  /*
+  =====================================================
+  ASSIGN TEACHER
+  =====================================================
+  */
+
+  const handleAssignTeacher = async () => {
+
+    if (!selectedStudent) {
+
+      setMessage(
+        "Student নির্বাচন করা হয়নি।"
+      );
+
+      return;
+    }
+
+
+    if (!selectedTeacher) {
+
+      setMessage(
+        "অনুগ্রহ করে একজন teacher নির্বাচন করুন।"
+      );
+
+      return;
+    }
+
+
     try {
+
+      setMessage("");
+
+
       const response = await fetch(
-        "http://localhost/sunshine-api/api/student_status.php",
+        `${API}/student_teacher_assign.php`,
         {
           method: "POST",
+          credentials: "include",
+
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
+
+          body: JSON.stringify({
+            student_id:
+              selectedStudent.id,
+
+            teacher_id:
+              selectedTeacher,
+          }),
+        }
+      );
+
+
+      const data =
+        await response.json();
+
+
+      if (data.success) {
+
+        setMessage(
+          data.message ||
+          "Teacher assigned successfully."
+        );
+
+        closeAssignModal();
+
+      } else {
+
+        setMessage(
+          data.message ||
+          "Teacher assignment failed."
+        );
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Teacher assignment error:",
+        error
+      );
+
+      setMessage(
+        "Server connection failed"
+      );
+    }
+  };
+
+
+  /*
+  =====================================================
+  ACTIVE / INACTIVE
+  =====================================================
+  */
+
+  const handleStatus = async (
+    id,
+    status
+  ) => {
+
+    try {
+
+      const response = await fetch(
+        `${API}/student_status.php`,
+        {
+          method: "POST",
+          credentials: "include",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
           body: JSON.stringify({
             id,
             status,
@@ -74,22 +444,30 @@ export default function StudentList() {
         }
       );
 
-      const data = await response.json();
+
+      const data =
+        await response.json();
+
 
       if (data.success) {
+
         setMessage(
           data.message ||
-            "Status updated successfully"
+          "Status updated successfully"
         );
 
         loadStudents();
+
       } else {
+
         setMessage(
           data.message ||
-            "Status update failed"
+          "Status update failed"
         );
       }
+
     } catch (error) {
+
       console.error(
         "Status update error:",
         error
@@ -102,49 +480,69 @@ export default function StudentList() {
   };
 
 
-  /* =====================================================
-     DELETE STUDENT
-  ===================================================== */
+  /*
+  =====================================================
+  DELETE STUDENT
+  =====================================================
+  */
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "আপনি কি এই শিক্ষার্থীকে Delete করতে চান?"
-    );
+
+    const confirmDelete =
+      window.confirm(
+        "আপনি কি এই শিক্ষার্থীকে Delete করতে চান?"
+      );
+
 
     if (!confirmDelete) {
+
       return;
     }
 
+
     try {
+
       const response = await fetch(
-        "http://localhost/sunshine-api/api/delete_student.php",
+        `${API}/delete_student.php`,
         {
           method: "POST",
+          credentials: "include",
+
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
+
           body: JSON.stringify({
             id,
           }),
         }
       );
 
-      const data = await response.json();
+
+      const data =
+        await response.json();
+
 
       if (data.success) {
+
         setMessage(
           data.message ||
-            "Student deleted successfully"
+          "Student deleted successfully"
         );
 
         loadStudents();
+
       } else {
+
         setMessage(
           data.message ||
-            "Student delete failed"
+          "Student delete failed"
         );
       }
+
     } catch (error) {
+
       console.error(
         "Delete error:",
         error
@@ -157,62 +555,73 @@ export default function StudentList() {
   };
 
 
-  /* =====================================================
-     SEARCH
-  ===================================================== */
+  /*
+  =====================================================
+  SEARCH
+  =====================================================
+  */
 
   const filteredStudents =
     students.filter((student) => {
+
       const searchText =
         search.trim().toLowerCase();
 
+
       if (!searchText) {
+
         return true;
       }
 
+
       return (
+
         String(
           student.student_id || ""
         )
           .toLowerCase()
-          .includes(searchText) ||
+          .includes(searchText)
+
+        ||
 
         String(
           student.student_name_bn || ""
         )
           .toLowerCase()
-          .includes(searchText) ||
+          .includes(searchText)
+
+        ||
 
         String(
           student.student_name_en ||
-            student.student_name ||
-            ""
+          student.student_name ||
+          ""
         )
           .toLowerCase()
-          .includes(searchText) ||
+          .includes(searchText)
+
+        ||
 
         String(
+          student.student_mobile ||
           student.mobile ||
-            student.student_mobile ||
-            ""
+          ""
         )
           .toLowerCase()
-          .includes(searchText) ||
+          .includes(searchText)
+
+        ||
 
         String(
           student.course || ""
         )
           .toLowerCase()
-          .includes(searchText) ||
+          .includes(searchText)
+
+        ||
 
         String(
           student.language_level || ""
-        )
-          .toLowerCase()
-          .includes(searchText) ||
-
-        String(
-          student.branch || ""
         )
           .toLowerCase()
           .includes(searchText)
@@ -220,25 +629,34 @@ export default function StudentList() {
     });
 
 
-  /* =====================================================
-     PHOTO URL
-  ===================================================== */
+  /*
+  =====================================================
+  PHOTO
+  =====================================================
+  */
 
   const getPhotoUrl = (photo) => {
+
     if (!photo) {
+
       return "";
     }
 
-    return `http://localhost/sunshine-api/uploads/students/${photo}`;
+
+    return `${IMAGE_URL}/uploads/students/${photo}`;
   };
 
 
-  /* =====================================================
-     RENDER
-  ===================================================== */
+  /*
+  =====================================================
+  RENDER
+  =====================================================
+  */
 
   return (
+
     <div className="student-list">
+
 
       {/* =================================================
           HEADER
@@ -247,6 +665,7 @@ export default function StudentList() {
       <div className="student-list-header">
 
         <div>
+
           <h1>
             Student List
           </h1>
@@ -254,10 +673,14 @@ export default function StudentList() {
           <p>
             নিবন্ধিত শিক্ষার্থীদের তালিকা
           </p>
+
         </div>
 
+
         <div className="student-count">
+
           Total: {filteredStudents.length}
+
         </div>
 
       </div>
@@ -271,7 +694,7 @@ export default function StudentList() {
 
         <input
           type="text"
-          placeholder="Search by ID, name, mobile, course, level or branch..."
+          placeholder="Search by ID, name, mobile, course or level..."
           value={search}
           onChange={(e) =>
             setSearch(e.target.value)
@@ -286,9 +709,13 @@ export default function StudentList() {
       ================================================= */}
 
       {message && (
+
         <p className="student-message">
+
           {message}
+
         </p>
+
       )}
 
 
@@ -335,10 +762,6 @@ export default function StudentList() {
                   </th>
 
                   <th>
-                    Branch
-                  </th>
-
-                  <th>
                     Mobile
                   </th>
 
@@ -364,7 +787,8 @@ export default function StudentList() {
                       key={student.id}
                     >
 
-                      {/* ================= PHOTO ================= */}
+
+                      {/* PHOTO */}
 
                       <td>
 
@@ -393,36 +817,45 @@ export default function StudentList() {
                       </td>
 
 
-                      {/* ================= ID ================= */}
+                      {/* ID */}
 
                       <td>
 
                         <strong className="student-id">
+
                           {student.student_id ||
                             `#${student.id}`}
+
                         </strong>
 
                       </td>
 
 
-                      {/* ================= NAME ================= */}
+                      {/* NAME */}
 
                       <td>
 
                         <div className="student-name">
 
                           <strong>
+
                             {student.student_name_en ||
                               student.student_name ||
                               "-"}
+
                           </strong>
 
+
                           {student.student_name_bn && (
+
                             <span>
+
                               {
                                 student.student_name_bn
                               }
+
                             </span>
+
                           )}
 
                         </div>
@@ -430,40 +863,37 @@ export default function StudentList() {
                       </td>
 
 
-                      {/* ================= LANGUAGE ================= */}
+                      {/* LANGUAGE */}
 
                       <td>
-                        {student.course ||
-                          "-"}
+
+                        {student.course || "-"}
+
                       </td>
 
 
-                      {/* ================= LEVEL ================= */}
+                      {/* LEVEL */}
 
                       <td>
+
                         {student.language_level ||
                           "-"}
+
                       </td>
 
 
-                      {/* ================= BRANCH ================= */}
+                      {/* MOBILE */}
 
                       <td>
-                        {student.branch ||
-                          "-"}
-                      </td>
 
-
-                      {/* ================= MOBILE ================= */}
-
-                      <td>
                         {student.student_mobile ||
                           student.mobile ||
                           "-"}
+
                       </td>
 
 
-                      {/* ================= STATUS ================= */}
+                      {/* STATUS */}
 
                       <td>
 
@@ -487,13 +917,14 @@ export default function StudentList() {
                       </td>
 
 
-                      {/* ================= ACTION ================= */}
+                      {/* ACTION */}
 
                       <td>
 
                         <div className="student-actions">
 
-                          {/* Details */}
+
+                          {/* VIEW */}
 
                           <button
                             type="button"
@@ -509,7 +940,7 @@ export default function StudentList() {
                           </button>
 
 
-                          {/* Edit */}
+                          {/* EDIT */}
 
                           <button
                             type="button"
@@ -525,7 +956,27 @@ export default function StudentList() {
                           </button>
 
 
-                          {/* Active / Inactive */}
+                          {/* ASSIGN TEACHER */}
+
+                          {isAdmin && (
+
+                            <button
+                              type="button"
+                              className="assign-teacher-button"
+                              title="Assign Teacher"
+                              onClick={() =>
+                                openAssignModal(
+                                  student
+                                )
+                              }
+                            >
+                              👨‍🏫
+                            </button>
+
+                          )}
+
+
+                          {/* STATUS */}
 
                           {String(
                             student.status
@@ -565,7 +1016,7 @@ export default function StudentList() {
                           )}
 
 
-                          {/* Delete */}
+                          {/* DELETE */}
 
                           <button
                             type="button"
@@ -594,14 +1045,12 @@ export default function StudentList() {
             </table>
 
 
-            {/* =================================================
-                NO STUDENT
-            ================================================= */}
-
             {filteredStudents.length === 0 && (
 
               <p className="no-student">
+
                 কোনো শিক্ষার্থী পাওয়া যায়নি।
+
               </p>
 
             )}
@@ -611,6 +1060,175 @@ export default function StudentList() {
         )}
 
       </div>
+
+
+      {/* =================================================
+          ASSIGN TEACHER MODAL
+      ================================================= */}
+
+      {showAssignModal && (
+
+        <div
+          className="assign-modal-overlay"
+          onClick={closeAssignModal}
+        >
+
+          <div
+            className="assign-modal"
+            onClick={(e) =>
+              e.stopPropagation()
+            }
+          >
+
+            <div className="assign-modal-header">
+
+              <div>
+
+                <h2>
+                  Assign Teacher
+                </h2>
+
+                <p>
+                  শিক্ষার্থীকে শিক্ষক assign করুন
+                </p>
+
+              </div>
+
+
+              <button
+                type="button"
+                className="assign-close-button"
+                onClick={closeAssignModal}
+              >
+                ×
+              </button>
+
+            </div>
+
+
+            {/* STUDENT */}
+
+            {selectedStudent && (
+
+              <div className="selected-student-box">
+
+                <strong>
+
+                  {
+                    selectedStudent.student_name_en ||
+                    selectedStudent.student_name_bn ||
+                    "-"
+                  }
+
+                </strong>
+
+                <span>
+
+                  ID:
+                  {" "}
+                  {
+                    selectedStudent.student_id ||
+                    selectedStudent.id
+                  }
+
+                </span>
+
+              </div>
+
+            )}
+
+
+            {/* TEACHER */}
+
+            <div className="assign-form-group">
+
+              <label>
+                Select Teacher
+              </label>
+
+
+              {teacherLoading ? (
+
+                <div className="teacher-loading">
+
+                  Loading teachers...
+
+                </div>
+
+              ) : (
+
+                <select
+                  value={selectedTeacher}
+                  onChange={(e) =>
+                    setSelectedTeacher(
+                      e.target.value
+                    )
+                  }
+                >
+
+                  <option value="">
+                    -- Select Teacher --
+                  </option>
+
+
+                  {teachers.map(
+                    (teacher) => (
+
+                      <option
+                        key={teacher.id}
+                        value={teacher.teacher_id}
+                      >
+
+                        {teacher.name_en ||
+                          teacher.name_bn ||
+                          teacher.teacher_id}
+
+                        {" — "}
+
+                        {teacher.designation || ""}
+
+                      </option>
+
+                    )
+                  )}
+
+                </select>
+
+              )}
+
+            </div>
+
+
+            {/* BUTTONS */}
+
+            <div className="assign-modal-actions">
+
+              <button
+                type="button"
+                className="assign-cancel-button"
+                onClick={closeAssignModal}
+              >
+                Cancel
+              </button>
+
+
+              <button
+                type="button"
+                className="assign-save-button"
+                onClick={
+                  handleAssignTeacher
+                }
+              >
+                👨‍🏫 Assign Teacher
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
 
     </div>
   );

@@ -1,4 +1,5 @@
 import "./BranchList.css";
+import API_BASE_URL from "../../config/api";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -19,7 +20,8 @@ export default function BranchList() {
       setLoading(true);
 
       const response = await fetch(
-        "http://localhost/sunshine-api/api/branch_list.php"
+        `${API_BASE_URL}/branch_list.php`,
+        { credentials: "include" }
       );
 
       const data = await response.json();
@@ -55,6 +57,7 @@ export default function BranchList() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadBranches();
   }, []);
 
@@ -66,9 +69,10 @@ export default function BranchList() {
   const handleStatus = async (id, status) => {
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/branch_status.php",
+        `${API_BASE_URL}/branch_status.php`,
         {
           method: "POST",
+          credentials: "include",
 
           headers: {
             "Content-Type": "application/json",
@@ -125,9 +129,10 @@ export default function BranchList() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/branch_delete.php",
+        `${API_BASE_URL}/branch_delete.php`,
         {
           method: "POST",
+          credentials: "include",
 
           headers: {
             "Content-Type": "application/json",

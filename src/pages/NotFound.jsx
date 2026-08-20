@@ -1,3 +1,3 @@
-export default function Home() {
+export default function NotFound() {
   return <h1>Not Found</h1>;
 }

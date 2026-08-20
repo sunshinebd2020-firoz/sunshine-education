@@ -1,4 +1,5 @@
 import "./CourseList.css";
+import API_BASE_URL from "../../config/api";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -24,7 +25,8 @@ export default function CourseList() {
       setMessage("");
 
       const response = await fetch(
-        "http://localhost/sunshine-api/api/course_list.php"
+        `${API_BASE_URL}/course_list.php`,
+        { credentials: "include" }
       );
 
       const data = await response.json();
@@ -62,6 +64,7 @@ export default function CourseList() {
 
   useEffect(() => {
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCourses();
 
   }, []);
@@ -88,9 +91,10 @@ export default function CourseList() {
 
 
       const response = await fetch(
-        "http://localhost/sunshine-api/api/course_delete.php",
+        `${API_BASE_URL}/course_delete.php`,
         {
           method: "POST",
+          credentials: "include",
 
           headers: {
             "Content-Type": "application/json",

@@ -1,9 +1,7 @@
 import "./ExpenseList.css";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const API_BASE_URL =
-  "http://localhost/sunshine-api/api";
+import API_BASE_URL from "../../config/api";
 
 /* =====================================================
    GET LOGGED IN USER
@@ -198,6 +196,7 @@ export default function ExpenseList() {
 
     if (!user) {
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError(
         "Login user information পাওয়া যায়নি। আবার login করুন।"
       );
@@ -490,6 +489,7 @@ export default function ExpenseList() {
             url,
             {
               method: "GET",
+              credentials: "include",
 
               headers: {
                 Accept:
@@ -670,8 +670,10 @@ export default function ExpenseList() {
     }
 
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchExpenses();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     teacherId,
     adminId,
@@ -882,6 +884,7 @@ export default function ExpenseList() {
             `${API_BASE_URL}/expense_delete.php`,
             {
               method: "POST",
+              credentials: "include",
 
               headers: {
                 "Content-Type":

@@ -1,5 +1,6 @@
 import "./PendingStudentList.css";
 import { useEffect, useState } from "react";
+import API_BASE_URL, { API_ORIGIN } from "../../config/api";
 
 export default function PendingStudentList() {
   const [students, setStudents] = useState([]);
@@ -7,8 +8,8 @@ export default function PendingStudentList() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  const API = "http://localhost/sunshine-api/api/";
-  const UPLOADS = "http://localhost/sunshine-api/uploads/students/";
+  const API = `${API_BASE_URL}/`;
+  const UPLOADS = `${API_ORIGIN}/uploads/students/`;
 
   // =====================================================
   // LOAD PENDING STUDENTS
@@ -23,6 +24,7 @@ export default function PendingStudentList() {
         `${API}pending_students.php`,
         {
           method: "GET",
+          credentials: "include",
         }
       );
 
@@ -67,7 +69,9 @@ export default function PendingStudentList() {
   // =====================================================
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadStudents();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // =====================================================
@@ -105,6 +109,7 @@ export default function PendingStudentList() {
         `${API}approve_student.php`,
         {
           method: "POST",
+          credentials: "include",
           body: formData,
         }
       );
@@ -182,6 +187,7 @@ export default function PendingStudentList() {
         `${API}reject_student.php`,
         {
           method: "POST",
+          credentials: "include",
           body: formData,
         }
       );

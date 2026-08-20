@@ -1,6 +1,7 @@
 import "./NoticeList.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../../config/api";
 
 export default function NoticeList() {
   const [notices, setNotices] = useState([]);
@@ -18,7 +19,8 @@ export default function NoticeList() {
       setMessage("");
 
       const response = await fetch(
-        "http://localhost/sunshine-api/api/notices.php"
+        `${API_BASE_URL}/notices.php`,
+        { credentials: "include" }
       );
 
       const data = await response.json();
@@ -42,6 +44,7 @@ export default function NoticeList() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNotices();
   }, []);
 
@@ -56,9 +59,10 @@ export default function NoticeList() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/delete_notice.php",
+        `${API_BASE_URL}/delete_notice.php`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },

@@ -1,4 +1,5 @@
 import "./EditCourse.css";
+import API_BASE_URL from "../../config/api";
 import { useEffect, useState } from "react";
 import {
   useLocation,
@@ -48,6 +49,7 @@ export default function EditCourse() {
 
     if (!course) {
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMessage(
         "No course selected. Please go back to Course List and select a course."
       );
@@ -152,10 +154,11 @@ export default function EditCourse() {
 
 
       const response = await fetch(
-        "http://localhost/sunshine-api/api/course_update.php",
+        `${API_BASE_URL}/course_update.php`,
         {
 
           method: "POST",
+          credentials: "include",
 
           headers: {
             "Content-Type":

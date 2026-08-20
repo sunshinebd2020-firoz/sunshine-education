@@ -1,4 +1,5 @@
 import "./Notice.css";
+import API_BASE_URL from "../config/api";
 import { useEffect, useState } from "react";
 
 export default function Notice() {
@@ -15,7 +16,8 @@ export default function Notice() {
         setError("");
 
         const response = await fetch(
-          "http://localhost/sunshine-api/api/notices.php"
+          `${API_BASE_URL}/notices.php`,
+          { credentials: "include" }
         );
 
         const data = await response.json();

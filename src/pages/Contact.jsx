@@ -1,4 +1,5 @@
 import "./Contact.css";
+import API_BASE_URL from "../config/api";
 import { useEffect, useState } from "react";
 
 export default function Contact() {
@@ -20,7 +21,9 @@ export default function Contact() {
   ========================================= */
 
   useEffect(() => {
-    fetch("http://localhost/sunshine-api/api/branch_list.php")
+    fetch(`${API_BASE_URL}/branch_list.php`, {
+      credentials: "include",
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Branch server error");
@@ -129,9 +132,10 @@ export default function Contact() {
 
     try {
       const response = await fetch(
-        "http://localhost/sunshine-api/api/contact_message.php",
+        `${API_BASE_URL}/contact_message.php`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },

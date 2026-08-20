@@ -1,4 +1,5 @@
 import "./BranchEdit.css";
+import API_BASE_URL from "../../config/api";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -33,7 +34,8 @@ export default function BranchEdit() {
         setMessage("");
 
         const response = await fetch(
-          "http://localhost/sunshine-api/api/branch_list.php"
+          `${API_BASE_URL}/branch_list.php`,
+          { credentials: "include" }
         );
 
         const data = await response.json();
@@ -140,9 +142,10 @@ export default function BranchEdit() {
       setSaving(true);
 
       const response = await fetch(
-        "http://localhost/sunshine-api/api/branch_update.php",
+        `${API_BASE_URL}/branch_update.php`,
         {
           method: "POST",
+          credentials: "include",
 
           headers: {
             "Content-Type": "application/json",

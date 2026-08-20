@@ -1,4 +1,5 @@
 import "./Dashboard.css";
+import API_BASE_URL from "../../config/api";
 import { useEffect, useState } from "react";
 
 export default function Dashboard() {
@@ -19,6 +20,7 @@ export default function Dashboard() {
       try {
         const loggedInUser = JSON.parse(savedUser);
 
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setUser(loggedInUser);
 
         console.log("Logged-in User:", loggedInUser);
@@ -33,7 +35,8 @@ export default function Dashboard() {
     ===================================================== */
 
     fetch(
-      "http://localhost/sunshine-api/api/student_count.php"
+      `${API_BASE_URL}/student_count.php`
+      , { credentials: "include" }
     )
       .then((response) => {
         if (!response.ok) {
@@ -60,7 +63,8 @@ export default function Dashboard() {
     ===================================================== */
 
     fetch(
-      "http://localhost/sunshine-api/api/teacher_count.php"
+      `${API_BASE_URL}/teacher_count.php`
+      , { credentials: "include" }
     )
       .then((response) => {
         if (!response.ok) {

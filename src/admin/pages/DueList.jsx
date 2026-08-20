@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import "./DueList.css";
-
-const API_BASE_URL =
-  "http://localhost/sunshine-api/api";
+import API_BASE_URL from "../../config/api";
 
 
 /* =====================================================
@@ -114,7 +112,7 @@ export default function DueList() {
   const [message, setMessage] =
     useState("");
 
-  const [teacherId, setTeacherId] =
+  const [, setTeacherId] =
     useState("");
 
   const [userRole, setUserRole] =
@@ -222,7 +220,8 @@ export default function DueList() {
         );
 
         throw new Error(
-          "Server থেকে সঠিক JSON response পাওয়া যায়নি।"
+          "Server থেকে সঠিক JSON response পাওয়া যায়নি।",
+          { cause: error }
         );
 
       }
@@ -322,6 +321,7 @@ export default function DueList() {
 
     if (!user) {
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMessage(
         "Login user information পাওয়া যায়নি। আবার login করুন।"
       );

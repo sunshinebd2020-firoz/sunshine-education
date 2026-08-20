@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import "./IncomeExpenseReport.css";
+import API_BASE_URL from "../../config/api";
 
-const API_URL =
-  "http://localhost/sunshine-api/api/income_expense_report.php";
+const API_URL = `${API_BASE_URL}/income_expense_report.php`;
 
 
 const formatAmount = (amount) => {
@@ -68,7 +68,8 @@ export default function IncomeExpenseReport() {
 
       const response =
         await fetch(
-          `${API_URL}?${params.toString()}`
+          `${API_URL}?${params.toString()}`,
+          { credentials: "include" }
         );
 
 
@@ -122,8 +123,10 @@ export default function IncomeExpenseReport() {
 
   useEffect(() => {
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadReport();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, month, branch]);
 
 
