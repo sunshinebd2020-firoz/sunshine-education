@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 const API_BASE_URL =
   "http://localhost/sunshine-api/api";
 
+
+/* =====================================================
+   TODAY
+===================================================== */
+
 const getToday = () => {
+
   const now = new Date();
 
   return `${now.getFullYear()}-${String(
@@ -12,21 +18,44 @@ const getToday = () => {
   ).padStart(2, "0")}-${String(
     now.getDate()
   ).padStart(2, "0")}`;
+
 };
+
+
+/* =====================================================
+   INITIAL FORM
+===================================================== */
 
 const initialForm = {
-  expense_date: getToday(),
+
+  expense_date:
+    getToday(),
+
   expense_type: "",
+
   staff_id: "",
+
   staff_name: "",
+
   description: "",
+
   amount: "",
+
   payment_method: "",
+
   branch: "",
+
   note: "",
+
 };
 
+
+/* =====================================================
+   GET USER
+===================================================== */
+
 const getLoggedInUser = () => {
+
   const keys = [
     "sunshine_user",
     "admin",
@@ -34,131 +63,436 @@ const getLoggedInUser = () => {
     "loggedInUser",
   ];
 
+
   for (const key of keys) {
-    const value = localStorage.getItem(key);
+
+    const value =
+      localStorage.getItem(
+        key
+      );
+
 
     if (!value) continue;
 
-    try {
-      const user = JSON.parse(value);
 
-      if (user && typeof user === "object") {
+    try {
+
+      const user =
+        JSON.parse(value);
+
+
+      if (
+        user &&
+        typeof user === "object"
+      ) {
+
         return user;
+
       }
+
     } catch (error) {
+
       console.error(
         `Invalid localStorage data: ${key}`,
         error
       );
+
     }
+
   }
 
+
   return null;
+
 };
 
-const isAdminRole = (role) => {
-  const normalized = String(role || "")
-    .trim()
-    .toLowerCase();
+
+/* =====================================================
+   ADMIN ROLE
+===================================================== */
+
+const isAdminRole = (
+  role
+) => {
+
+  const normalized =
+    String(
+      role || ""
+    )
+      .trim()
+      .toLowerCase();
+
 
   return [
     "admin",
     "administrator",
     "super admin",
     "superadmin",
-  ].includes(normalized);
+  ].includes(
+    normalized
+  );
+
 };
 
+
+/* =====================================================
+   ADMIN ID
+===================================================== */
+
+const getAdminId = (
+  user
+) => {
+
+  if (!user) return "";
+
+  return String(
+    user.admin_id ||
+      user.adminId ||
+      user.id ||
+      user.user_id ||
+      user.userId ||
+      ""
+  ).trim();
+
+};
+
+
+/* =====================================================
+   TEACHER ID
+===================================================== */
+
+const getTeacherId = (
+  user
+) => {
+
+  if (!user) return "";
+
+  return String(
+    user.teacher_id ||
+      user.teacherId ||
+      user.teacherID ||
+      ""
+  ).trim();
+
+};
+
+
+/* =====================================================
+   COMPONENT
+===================================================== */
+
 export default function ExpenseEntry() {
-  const [form, setForm] =
-    useState(initialForm);
 
-  const [staffs, setStaffs] =
-    useState([]);
+  const [
+    form,
+    setForm
+  ] = useState(
+    initialForm
+  );
 
-  const [branches, setBranches] =
-    useState([]);
 
-  const [suggestions, setSuggestions] =
-    useState([]);
+  const [
+    staffs,
+    setStaffs
+  ] = useState([]);
 
-  const [activeField, setActiveField] =
-    useState("");
 
-  const [message, setMessage] =
-    useState("");
+  const [
+    branches,
+    setBranches
+  ] = useState([]);
 
-  const [loadingStaffs, setLoadingStaffs] =
-    useState(true);
 
-  const [loadingBranches, setLoadingBranches] =
-    useState(true);
+  const [
+    suggestions,
+    setSuggestions
+  ] = useState([]);
 
-  const [saving, setSaving] =
-    useState(false);
 
-  const [teacherId, setTeacherId] =
-    useState("");
+  const [
+    activeField,
+    setActiveField
+  ] = useState("");
 
-  const [userRole, setUserRole] =
-    useState("");
 
-  const [userBranch, setUserBranch] =
-    useState("");
+  const [
+    message,
+    setMessage
+  ] = useState("");
+
+
+  const [
+    loadingStaffs,
+    setLoadingStaffs
+  ] = useState(true);
+
+
+  const [
+    loadingBranches,
+    setLoadingBranches
+  ] = useState(true);
+
+
+  const [
+    saving,
+    setSaving
+  ] = useState(false);
+
+
+  const [
+    teacherId,
+    setTeacherId
+  ] = useState("");
+
+
+  const [
+    adminId,
+    setAdminId
+  ] = useState("");
+
+
+  const [
+    userRole,
+    setUserRole
+  ] = useState("");
+
+
+  const [
+    userBranch,
+    setUserBranch
+  ] = useState("");
+
 
   /* =====================================================
-     LOAD USER + BRANCH
+     LOAD USER
   ===================================================== */
 
   useEffect(() => {
-    const loadUser = async () => {
-      const user =
-        getLoggedInUser();
 
-      if (!user) {
-        setMessage(
-          "Login user information পাওয়া যায়নি।"
+    const loadUser =
+      async () => {
+
+        const user =
+          getLoggedInUser();
+
+
+        console.log(
+          "Expense Entry Logged User:",
+          user
         );
-        return;
-      }
 
-      const currentTeacherId =
-        String(
-          user.teacher_id ||
-            user.teacherId ||
-            ""
-        ).trim();
 
-      const currentRole =
-        String(
-          user.role || ""
-        )
-          .trim()
-          .toLowerCase();
+        if (!user) {
 
-      setTeacherId(
-        currentTeacherId
-      );
-      setUserRole(
-        currentRole
-      );
+          setMessage(
+            "Login user information পাওয়া যায়নি। আবার login করুন।"
+          );
 
-      if (currentTeacherId) {
+          return;
+        }
+
+
+        const currentTeacherId =
+          getTeacherId(
+            user
+          );
+
+
+        const currentAdminId =
+          getAdminId(
+            user
+          );
+
+
+        const currentRole =
+          String(
+            user.role || ""
+          )
+            .trim()
+            .toLowerCase();
+
+
+        const savedBranch =
+          String(
+            user.branch ||
+              user.branch_name ||
+              ""
+          ).trim();
+
+
+        setTeacherId(
+          currentTeacherId
+        );
+
+
+        setAdminId(
+          currentAdminId
+        );
+
+
+        setUserRole(
+          currentRole
+        );
+
+
+        if (savedBranch) {
+
+          setUserBranch(
+            savedBranch
+          );
+
+        }
+
+
+        console.log(
+          "Expense Teacher ID:",
+          currentTeacherId
+        );
+
+        console.log(
+          "Expense Admin ID:",
+          currentAdminId
+        );
+
+
+        /*
+         * Teacher ID localStorage-এ না থাকলেও
+         * admin_id থাকলে backend থেকে teacher_id
+         * resolve করা হবে।
+         */
+
+        if (
+          currentTeacherId
+        ) {
+
+          try {
+
+            const response =
+              await fetch(
+                `${API_BASE_URL}/teacher_list.php`
+              );
+
+
+            const data =
+              await response.json();
+
+
+            const teachers =
+              Array.isArray(
+                data.data
+              )
+                ? data.data
+                : Array.isArray(
+                    data.teachers
+                  )
+                ? data.teachers
+                : [];
+
+
+            const currentTeacher =
+              teachers.find(
+                (teacher) =>
+                  String(
+                    teacher.teacher_id ||
+                      ""
+                  ).trim() ===
+                  currentTeacherId
+              );
+
+
+            if (
+              currentTeacher
+            ) {
+
+              const branch =
+                String(
+                  currentTeacher.branch ||
+                    currentTeacher.branch_name ||
+                    ""
+                ).trim();
+
+
+              if (branch) {
+
+                setUserBranch(
+                  branch
+                );
+
+
+                if (
+                  !isAdminRole(
+                    currentRole
+                  )
+                ) {
+
+                  setForm(
+                    (prev) => ({
+                      ...prev,
+                      branch,
+                    })
+                  );
+
+                }
+
+              }
+
+            }
+
+          } catch (error) {
+
+            console.error(
+              "Teacher branch fetch error:",
+              error
+            );
+
+          }
+
+        }
+
+      };
+
+
+    loadUser();
+
+  }, []);
+
+
+  /* =====================================================
+     LOAD STAFFS
+  ===================================================== */
+
+  useEffect(() => {
+
+    const fetchStaffs =
+      async () => {
+
         try {
+
+          setLoadingStaffs(
+            true
+          );
+
+
           const response =
             await fetch(
               `${API_BASE_URL}/teacher_list.php`
             );
 
+
+          if (!response.ok) {
+
+            throw new Error(
+              "Teacher server error"
+            );
+
+          }
+
+
           const data =
             await response.json();
 
-          console.log(
-            "Teacher List Response:",
-            data
-          );
 
-          const teachers =
+          const records =
             Array.isArray(
               data.data
             )
@@ -169,155 +503,111 @@ export default function ExpenseEntry() {
               ? data.teachers
               : [];
 
-          const currentTeacher =
-            teachers.find(
-              (teacher) =>
-                String(
-                  teacher.teacher_id ||
-                    ""
-                ).trim() ===
-                currentTeacherId
-            );
 
-          if (currentTeacher) {
-            const branch =
-              currentTeacher.branch ||
-              currentTeacher.branch_name ||
-              "";
+          setStaffs(
+            records
+          );
 
-            setUserBranch(
-              String(
-                branch
-              ).trim()
-            );
-
-            if (
-              !isAdminRole(
-                currentRole
-              )
-            ) {
-              setForm(
-                (prev) => ({
-                  ...prev,
-                  branch:
-                    String(
-                      branch
-                    ).trim(),
-                })
-              );
-            }
-          }
         } catch (error) {
+
           console.error(
-            "Teacher branch fetch error:",
+            "Staff fetch error:",
             error
           );
-        }
-      }
-    };
 
-    loadUser();
-  }, []);
+          setStaffs([]);
 
-  /* =====================================================
-     LOAD STAFFS
-  ===================================================== */
+        } finally {
 
-  useEffect(() => {
-    const fetchStaffs = async () => {
-      try {
-        setLoadingStaffs(true);
-
-        const response =
-          await fetch(
-            `${API_BASE_URL}/teacher_list.php`
+          setLoadingStaffs(
+            false
           );
 
-        if (!response.ok) {
-          throw new Error(
-            "Teacher server error"
-          );
         }
 
-        const data =
-          await response.json();
+      };
 
-        const records =
-          Array.isArray(
-            data.data
-          )
-            ? data.data
-            : Array.isArray(
-                data.teachers
-              )
-            ? data.teachers
-            : [];
-
-        setStaffs(records);
-      } catch (error) {
-        console.error(
-          "Staff fetch error:",
-          error
-        );
-
-        setStaffs([]);
-      } finally {
-        setLoadingStaffs(false);
-      }
-    };
 
     fetchStaffs();
+
   }, []);
+
 
   /* =====================================================
      LOAD BRANCHES
   ===================================================== */
 
   useEffect(() => {
-    const fetchBranches = async () => {
-      try {
-        setLoadingBranches(true);
 
-        const response =
-          await fetch(
-            `${API_BASE_URL}/branch_list.php`
+    const fetchBranches =
+      async () => {
+
+        try {
+
+          setLoadingBranches(
+            true
           );
 
-        if (!response.ok) {
-          throw new Error(
-            "Branch server error"
+
+          const response =
+            await fetch(
+              `${API_BASE_URL}/branch_list.php`
+            );
+
+
+          if (!response.ok) {
+
+            throw new Error(
+              "Branch server error"
+            );
+
+          }
+
+
+          const data =
+            await response.json();
+
+
+          const records =
+            Array.isArray(
+              data.branches
+            )
+              ? data.branches
+              : Array.isArray(
+                  data.data
+                )
+              ? data.data
+              : [];
+
+
+          setBranches(
+            records
           );
+
+        } catch (error) {
+
+          console.error(
+            "Branch fetch error:",
+            error
+          );
+
+          setBranches([]);
+
+        } finally {
+
+          setLoadingBranches(
+            false
+          );
+
         }
 
-        const data =
-          await response.json();
+      };
 
-        const records =
-          Array.isArray(
-            data.branches
-          )
-            ? data.branches
-            : Array.isArray(
-                data.data
-              )
-            ? data.data
-            : [];
-
-        setBranches(records);
-      } catch (error) {
-        console.error(
-          "Branch fetch error:",
-          error
-        );
-
-        setBranches([]);
-      } finally {
-        setLoadingBranches(false);
-      }
-    };
 
     fetchBranches();
+
   }, []);
+
 
   /* =====================================================
      STAFF ID
@@ -326,13 +616,16 @@ export default function ExpenseEntry() {
   const getStaffId = (
     staff
   ) => {
+
     return (
       staff.teacher_id ||
       staff.staff_id ||
       staff.id ||
       ""
     );
+
   };
+
 
   /* =====================================================
      STAFF NAME
@@ -341,6 +634,7 @@ export default function ExpenseEntry() {
   const getStaffName = (
     staff
   ) => {
+
     return (
       staff.nameBn ||
       staff.name_bn ||
@@ -351,7 +645,9 @@ export default function ExpenseEntry() {
       staff.teacher_name_en ||
       ""
     );
+
   };
+
 
   /* =====================================================
      SEARCH STAFF
@@ -360,48 +656,68 @@ export default function ExpenseEntry() {
   const searchStaffs = (
     value
   ) => {
+
     const search =
-      String(value || "")
+      String(
+        value || ""
+      )
         .trim()
         .toLowerCase();
 
+
     if (!search) {
+
       setSuggestions([]);
+
       return;
+
     }
+
 
     const filtered =
       staffs
-        .filter((staff) => {
-          const staffId =
-            String(
-              getStaffId(
-                staff
-              )
-            ).toLowerCase();
+        .filter(
+          (staff) => {
 
-          const staffName =
-            String(
-              getStaffName(
-                staff
-              )
-            ).toLowerCase();
+            const staffId =
+              String(
+                getStaffId(
+                  staff
+                )
+              ).toLowerCase();
 
-          return (
-            staffId.includes(
-              search
-            ) ||
-            staffName.includes(
-              search
-            )
-          );
-        })
-        .slice(0, 8);
+
+            const staffName =
+              String(
+                getStaffName(
+                  staff
+                )
+              ).toLowerCase();
+
+
+            return (
+              staffId.includes(
+                search
+              ) ||
+              staffName.includes(
+                search
+              )
+            );
+
+          }
+        )
+        .slice(
+          0,
+          8
+        );
+
 
     setSuggestions(
       filtered
     );
+
   };
+
 
   /* =====================================================
      STAFF ID CHANGE
@@ -409,8 +725,10 @@ export default function ExpenseEntry() {
 
   const handleStaffIdChange =
     (e) => {
+
       const value =
         e.target.value;
+
 
       setForm(
         (prev) => ({
@@ -420,14 +738,18 @@ export default function ExpenseEntry() {
         })
       );
 
+
       setActiveField(
         "staff-id"
       );
 
+
       searchStaffs(
         value
       );
+
     };
+
 
   /* =====================================================
      STAFF NAME CHANGE
@@ -435,8 +757,10 @@ export default function ExpenseEntry() {
 
   const handleStaffNameChange =
     (e) => {
+
       const value =
         e.target.value;
+
 
       setForm(
         (prev) => ({
@@ -446,14 +770,18 @@ export default function ExpenseEntry() {
         })
       );
 
+
       setActiveField(
         "staff-name"
       );
 
+
       searchStaffs(
         value
       );
+
     };
+
 
   /* =====================================================
      SELECT STAFF
@@ -462,6 +790,7 @@ export default function ExpenseEntry() {
   const selectStaff = (
     staff
   ) => {
+
     setForm(
       (prev) => ({
         ...prev,
@@ -489,20 +818,30 @@ export default function ExpenseEntry() {
       })
     );
 
+
     setSuggestions([]);
+
     setActiveField("");
+
   };
+
 
   /* =====================================================
      BLUR
   ===================================================== */
 
   const handleBlur = () => {
+
     setTimeout(() => {
+
       setSuggestions([]);
+
       setActiveField("");
+
     }, 200);
+
   };
+
 
   /* =====================================================
      CHANGE
@@ -511,10 +850,12 @@ export default function ExpenseEntry() {
   const handleChange = (
     e
   ) => {
+
     const {
       name,
       value,
     } = e.target;
+
 
     if (
       name === "branch" &&
@@ -522,13 +863,17 @@ export default function ExpenseEntry() {
         userRole
       )
     ) {
+
       return;
+
     }
+
 
     if (
       name === "expense_type" &&
       value !== "Salary"
     ) {
+
       setForm(
         (prev) => ({
           ...prev,
@@ -551,178 +896,271 @@ export default function ExpenseEntry() {
         })
       );
 
+
       setSuggestions([]);
+
       setActiveField("");
+
       return;
+
     }
+
 
     setForm(
       (prev) => ({
         ...prev,
+
         [name]:
           value,
       })
     );
+
   };
+
 
   /* =====================================================
      SUBMIT
   ===================================================== */
 
-  const handleSubmit = async (
-    e
-  ) => {
-    e.preventDefault();
+  const handleSubmit =
+    async (e) => {
 
-    setMessage("");
+      e.preventDefault();
 
-    if (!teacherId) {
-      setMessage(
-        "Teacher ID পাওয়া যাচ্ছে না। আবার login করুন।"
-      );
-      return;
-    }
+      setMessage("");
 
-    if (
-      !isAdminRole(
-        userRole
-      ) &&
-      !userBranch
-    ) {
-      setMessage(
-        "আপনার branch assign করা হয়নি।"
-      );
-      return;
-    }
 
-    if (
-      isAdminRole(
-        userRole
-      ) &&
-      !form.branch
-    ) {
-      setMessage(
-        "Branch নির্বাচন করুন।"
-      );
-      return;
-    }
+      /*
+       * Teacher ID না থাকলেও Admin ID থাকলে
+       * backend সেটি দিয়ে teacher_id বের করবে।
+       */
 
-    if (
-      form.expense_type ===
-        "Salary" &&
-      (
-        !form.staff_id ||
-        !form.staff_name
-      )
-    ) {
-      setMessage(
-        "Salary-এর জন্য Staff ID এবং Staff Name নির্বাচন করুন।"
-      );
-      return;
-    }
+      if (
+        !teacherId &&
+        !adminId
+      ) {
 
-    try {
-      setSaving(true);
-
-      const payload = {
-        ...form,
-
-        teacher_id:
-          teacherId,
-
-        role:
-          userRole,
-
-        branch:
-          isAdminRole(
-            userRole
-          )
-            ? form.branch
-            : userBranch,
-      };
-
-      console.log(
-        "Expense Payload:",
-        payload
-      );
-
-      const response =
-        await fetch(
-          `${API_BASE_URL}/add_expense.php`,
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json",
-              Accept:
-                "application/json",
-            },
-
-            body:
-              JSON.stringify(
-                payload
-              ),
-          }
-        );
-
-      const text =
-        await response.text();
-
-      console.log(
-        "Expense Response:",
-        text
-      );
-
-      const data =
-        JSON.parse(text);
-
-      if (data.success) {
         setMessage(
-          "Expense সফলভাবে যোগ হয়েছে!"
+          "Login user-এর Admin ID / Teacher ID পাওয়া যাচ্ছে না। আবার login করুন।"
         );
 
-        setForm({
-          ...initialForm,
+        return;
 
-          expense_date:
-            getToday(),
+      }
+
+
+      if (
+        !isAdminRole(
+          userRole
+        ) &&
+        !userBranch
+      ) {
+
+        setMessage(
+          "আপনার branch assign করা হয়নি।"
+        );
+
+        return;
+
+      }
+
+
+      if (
+        isAdminRole(
+          userRole
+        ) &&
+        !form.branch
+      ) {
+
+        setMessage(
+          "Branch নির্বাচন করুন।"
+        );
+
+        return;
+
+      }
+
+
+      if (
+        form.expense_type ===
+          "Salary" &&
+        (
+          !form.staff_id ||
+          !form.staff_name
+        )
+      ) {
+
+        setMessage(
+          "Salary-এর জন্য Staff ID এবং Staff Name নির্বাচন করুন।"
+        );
+
+        return;
+
+      }
+
+
+      try {
+
+        setSaving(
+          true
+        );
+
+
+        const payload = {
+
+          ...form,
+
+          teacher_id:
+            teacherId,
+
+          admin_id:
+            adminId,
+
+          role:
+            userRole,
 
           branch:
             isAdminRole(
               userRole
             )
-              ? ""
+              ? form.branch
               : userBranch,
-        });
 
-        setSuggestions([]);
-        setActiveField("");
-      } else {
-        setMessage(
-          data.message ||
-            "Expense যোগ করা যায়নি।"
+        };
+
+
+        console.log(
+          "Expense Payload:",
+          payload
         );
-      }
-    } catch (error) {
-      console.error(
-        "Expense submit error:",
-        error
-      );
 
-      setMessage(
-        "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
+
+        const response =
+          await fetch(
+            `${API_BASE_URL}/add_expense.php`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                Accept:
+                  "application/json",
+              },
+
+              body:
+                JSON.stringify(
+                  payload
+                ),
+            }
+          );
+
+
+        const text =
+          await response.text();
+
+
+        console.log(
+          "Expense Response:",
+          text
+        );
+
+
+        let data;
+
+
+        try {
+
+          data =
+            JSON.parse(
+              text
+            );
+
+        } catch {
+
+          setMessage(
+            "Server থেকে সঠিক JSON response পাওয়া যায়নি।"
+          );
+
+          return;
+
+        }
+
+
+        if (
+          data.success
+        ) {
+
+          setMessage(
+            "Expense সফলভাবে যোগ হয়েছে!"
+          );
+
+
+          setForm({
+            ...initialForm,
+
+            expense_date:
+              getToday(),
+
+            branch:
+              isAdminRole(
+                userRole
+              )
+                ? ""
+                : userBranch,
+
+          });
+
+
+          setSuggestions([]);
+
+          setActiveField("");
+
+        } else {
+
+          setMessage(
+            data.message ||
+              "Expense যোগ করা যায়নি।"
+          );
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Expense submit error:",
+          error
+        );
+
+
+        setMessage(
+          "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
+        );
+
+      } finally {
+
+        setSaving(
+          false
+        );
+
+      }
+
+    };
+
+
+  /* =====================================================
+     RENDER
+  ===================================================== */
 
   return (
+
     <div className="expense-entry">
 
       <div className="expense-entry-header">
+
         <div>
+
           <h1>
             Expense Entry
           </h1>
@@ -731,26 +1169,38 @@ export default function ExpenseEntry() {
             নতুন Expense তথ্য যোগ করুন
           </p>
 
-          {!isAdminRole(userRole) &&
+
+          {!isAdminRole(
+            userRole
+          ) &&
             userBranch && (
+
               <p>
                 Branch:{" "}
                 <strong>
                   {userBranch}
                 </strong>
               </p>
+
             )}
+
         </div>
+
       </div>
+
 
       <form
         className="expense-form"
-        onSubmit={handleSubmit}
+        onSubmit={
+          handleSubmit
+        }
       >
 
         <div className="expense-form-grid">
 
+
           <div className="expense-form-group">
+
             <label>
               Expense Date *
             </label>
@@ -766,9 +1216,12 @@ export default function ExpenseEntry() {
               }
               required
             />
+
           </div>
 
+
           <div className="expense-form-group">
+
             <label>
               Expense Type *
             </label>
@@ -783,6 +1236,7 @@ export default function ExpenseEntry() {
               }
               required
             >
+
               <option value="">
                 Select Expense Type
               </option>
@@ -818,11 +1272,15 @@ export default function ExpenseEntry() {
               <option value="Other">
                 Other
               </option>
+
             </select>
+
           </div>
+
 
           {form.expense_type ===
             "Salary" && (
+
             <div className="expense-form-group staff-autocomplete">
 
               <label>
@@ -839,6 +1297,7 @@ export default function ExpenseEntry() {
                   handleStaffIdChange
                 }
                 onFocus={() => {
+
                   setActiveField(
                     "staff-id"
                   );
@@ -846,6 +1305,7 @@ export default function ExpenseEntry() {
                   searchStaffs(
                     form.staff_id
                   );
+
                 }}
                 onBlur={
                   handleBlur
@@ -854,13 +1314,17 @@ export default function ExpenseEntry() {
                 autoComplete="off"
               />
 
+
               {activeField ===
                 "staff-id" &&
                 suggestions.length >
                   0 && (
+
                 <div className="staff-suggestions">
+
                   {suggestions.map(
                     (staff) => (
+
                       <div
                         key={String(
                           getStaffId(
@@ -874,6 +1338,7 @@ export default function ExpenseEntry() {
                           )
                         }
                       >
+
                         <strong>
                           {getStaffId(
                             staff
@@ -885,22 +1350,31 @@ export default function ExpenseEntry() {
                             staff
                           )}
                         </span>
+
                       </div>
+
                     )
                   )}
+
                 </div>
+
               )}
+
 
               <small>
                 {loadingStaffs
                   ? "Staff data loading..."
                   : "Staff ID লিখলে suggestion দেখাবে"}
               </small>
+
             </div>
+
           )}
+
 
           {form.expense_type ===
             "Salary" && (
+
             <div className="expense-form-group staff-autocomplete">
 
               <label>
@@ -917,6 +1391,7 @@ export default function ExpenseEntry() {
                   handleStaffNameChange
                 }
                 onFocus={() => {
+
                   setActiveField(
                     "staff-name"
                   );
@@ -924,6 +1399,7 @@ export default function ExpenseEntry() {
                   searchStaffs(
                     form.staff_name
                   );
+
                 }}
                 onBlur={
                   handleBlur
@@ -932,13 +1408,17 @@ export default function ExpenseEntry() {
                 autoComplete="off"
               />
 
+
               {activeField ===
                 "staff-name" &&
                 suggestions.length >
                   0 && (
+
                 <div className="staff-suggestions">
+
                   {suggestions.map(
                     (staff) => (
+
                       <div
                         key={String(
                           getStaffId(
@@ -952,6 +1432,7 @@ export default function ExpenseEntry() {
                           )
                         }
                       >
+
                         <strong>
                           {getStaffId(
                             staff
@@ -963,21 +1444,30 @@ export default function ExpenseEntry() {
                             staff
                           )}
                         </span>
+
                       </div>
+
                     )
                   )}
+
                 </div>
+
               )}
+
 
               <small>
                 {loadingStaffs
                   ? "Staff data loading..."
                   : "Staff Name লিখলে suggestion দেখাবে"}
               </small>
+
             </div>
+
           )}
 
+
           <div className="expense-form-group">
+
             <label>
               Amount *
             </label>
@@ -996,9 +1486,12 @@ export default function ExpenseEntry() {
               step="0.01"
               required
             />
+
           </div>
 
+
           <div className="expense-form-group">
+
             <label>
               Payment Method
             </label>
@@ -1012,6 +1505,7 @@ export default function ExpenseEntry() {
                 handleChange
               }
             >
+
               <option value="">
                 Select Payment Method
               </option>
@@ -1035,8 +1529,11 @@ export default function ExpenseEntry() {
               <option value="Rocket">
                 Rocket
               </option>
+
             </select>
+
           </div>
+
 
           <div className="expense-form-group">
 
@@ -1044,9 +1541,11 @@ export default function ExpenseEntry() {
               Branch
             </label>
 
+
             {isAdminRole(
               userRole
             ) ? (
+
               <select
                 name="branch"
                 value={
@@ -1057,14 +1556,17 @@ export default function ExpenseEntry() {
                 }
                 required
               >
+
                 <option value="">
                   {loadingBranches
                     ? "Loading Branches..."
                     : "Select Branch"}
                 </option>
 
+
                 {branches.map(
                   (branchItem) => (
+
                     <option
                       key={
                         branchItem.id
@@ -1073,14 +1575,20 @@ export default function ExpenseEntry() {
                         branchItem.branch_name
                       }
                     >
+
                       {branchItem.branch_name_bn
                         ? `${branchItem.branch_name} - ${branchItem.branch_name_bn}`
                         : branchItem.branch_name}
+
                     </option>
+
                   )
                 )}
+
               </select>
+
             ) : (
+
               <input
                 type="text"
                 value={
@@ -1092,8 +1600,11 @@ export default function ExpenseEntry() {
                 }
                 readOnly
               />
+
             )}
+
           </div>
+
 
           <div className="expense-form-group full-width">
 
@@ -1112,7 +1623,9 @@ export default function ExpenseEntry() {
               }
               placeholder="Expense description"
             />
+
           </div>
+
 
           <div className="expense-form-group full-width">
 
@@ -1131,15 +1644,20 @@ export default function ExpenseEntry() {
               placeholder="Additional note"
               rows="4"
             />
+
           </div>
 
         </div>
 
+
         {message && (
+
           <div className="expense-message">
             {message}
           </div>
+
         )}
+
 
         <div className="expense-form-actions">
 
@@ -1147,14 +1665,19 @@ export default function ExpenseEntry() {
             type="submit"
             disabled={saving}
           >
+
             {saving
               ? "Saving..."
               : "Save Expense"}
+
           </button>
 
         </div>
 
       </form>
+
     </div>
+
   );
+
 }

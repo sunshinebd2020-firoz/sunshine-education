@@ -1,77 +1,79 @@
-/* =====================================================
-   TEACHER CONTAINER
-===================================================== */
+/* =========================================================
+   TEACHER LIST - MAIN CONTAINER
+========================================================= */
 
 .teacher-container {
   width: 100%;
-  min-height: 100%;
-  padding: 24px;
+  max-width: 100%;
+  padding: 18px;
   box-sizing: border-box;
-  background: #f5f7fb;
+  background: #f8fafc;
 }
 
 
-/* =====================================================
+/* =========================================================
    HEADER
-===================================================== */
+========================================================= */
 
 .teacher-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.header-text {
+  min-width: 0;
 }
 
 .header-text h1 {
   margin: 0;
-  font-size: 27px;
+  color: #1f2937;
+  font-size: 25px;
   font-weight: 700;
-  color: #111827;
+  line-height: 1.2;
 }
 
 .header-text p {
-  margin: 5px 0 0;
-  font-size: 13px;
+  margin: 3px 0 0;
   color: #6b7280;
+  font-size: 13px;
+  line-height: 1.3;
 }
 
 .total-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 82px;
-  padding: 8px 14px;
-  box-sizing: border-box;
-  border-radius: 9px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  color: #374151;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #eef2ff;
+  color: #3730a3;
   font-size: 13px;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.035);
+  white-space: nowrap;
 }
 
 
-/* =====================================================
-   SEARCH
-===================================================== */
+/* =========================================================
+   SEARCH SECTION
+========================================================= */
 
 .search-section {
-  margin-bottom: 16px;
+  width: 100%;
+  margin-bottom: 8px;
 }
 
 .search-input {
   width: 100%;
-  height: 43px;
-  padding: 0 14px;
+  height: 35px;
+  padding: 0 11px;
   box-sizing: border-box;
 
   border: 1px solid #d1d5db;
-  border-radius: 9px;
+  border-radius: 6px;
 
   background: #ffffff;
-  color: #111827;
+  color: #1f2937;
 
   font-size: 13px;
   outline: none;
@@ -85,42 +87,163 @@
   color: #9ca3af;
 }
 
-.search-input:hover {
-  border-color: #b8bec8;
-}
-
 .search-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
 }
 
 
-/* =====================================================
-   MESSAGE
-===================================================== */
+/* =========================================================
+   FILTER SECTION
+========================================================= */
+
+.teacher-filter-section {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  width: 100%;
+  margin-bottom: 10px;
+
+  flex-wrap: nowrap;
+}
+
+
+/* =========================================================
+   FILTER SELECT
+========================================================= */
+
+.teacher-filter-section select {
+  height: 32px;
+  min-width: 175px;
+
+  padding: 0 28px 0 9px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+
+  background-color: #ffffff;
+  color: #374151;
+
+  font-size: 12px;
+  font-weight: 500;
+
+  outline: none;
+  cursor: pointer;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.teacher-filter-section select:hover {
+  border-color: #9ca3af;
+}
+
+.teacher-filter-section select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+}
+
+
+/* =========================================================
+   CLEAR FILTER BUTTON
+========================================================= */
+
+.teacher-clear-filter {
+  height: 32px;
+
+  padding: 0 13px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+
+  background: #ffffff;
+  color: #374151;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  white-space: nowrap;
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.teacher-clear-filter:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.teacher-clear-filter:active {
+  transform: translateY(1px);
+}
+
+
+/* =========================================================
+   OPTIONAL OLD FILTER CLASS SUPPORT
+========================================================= */
+
+.teacher-filters {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+  flex-wrap: nowrap;
+}
+
+.teacher-filters select {
+  height: 32px;
+  min-width: 175px;
+  padding: 0 28px 0 9px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+
+  background: #fff;
+  color: #374151;
+
+  font-size: 12px;
+  outline: none;
+}
+
+
+/* =========================================================
+   MESSAGES
+========================================================= */
 
 .teacher-message {
-  padding: 28px;
-  text-align: center;
+  width: 100%;
+  padding: 18px;
+  margin: 10px 0;
+
+  border-radius: 7px;
 
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 11px;
 
-  color: #6b7280;
-  font-size: 13px;
+  color: #4b5563;
+  font-size: 14px;
+  text-align: center;
+
+  box-sizing: border-box;
 }
 
 .teacher-message.error {
-  color: #b91c1c;
   background: #fef2f2;
   border-color: #fecaca;
+  color: #b91c1c;
 }
 
 
-/* =====================================================
+/* =========================================================
    TABLE CARD
-===================================================== */
+========================================================= */
 
 .table-card {
   width: 100%;
@@ -128,77 +251,64 @@
   background: #ffffff;
 
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 8px;
 
   overflow: hidden;
 
-  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.035);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 
-/* =====================================================
-   RESPONSIVE TABLE
-===================================================== */
+/* =========================================================
+   TABLE RESPONSIVE
+========================================================= */
 
 .table-responsive {
   width: 100%;
   overflow-x: auto;
-
-  scrollbar-width: thin;
-  scrollbar-color: #c7cbd1 #f3f4f6;
-}
-
-.table-responsive::-webkit-scrollbar {
-  height: 7px;
-}
-
-.table-responsive::-webkit-scrollbar-track {
-  background: #f3f4f6;
-}
-
-.table-responsive::-webkit-scrollbar-thumb {
-  background: #c7cbd1;
-  border-radius: 10px;
+  -webkit-overflow-scrolling: touch;
 }
 
 
-/* =====================================================
+/* =========================================================
    TABLE
-===================================================== */
+========================================================= */
 
 .teacher-table {
   width: 100%;
-  min-width: 1050px;
+  min-width: 1150px;
 
   border-collapse: collapse;
 
-  font-size: 12.5px;
+  font-size: 12px;
 }
 
 .teacher-table thead {
-  background: #f8fafc;
+  background: #f1f5f9;
 }
 
 .teacher-table th {
-  padding: 12px 11px;
-
-  text-align: left;
-  white-space: nowrap;
+  padding: 10px 8px;
 
   color: #374151;
 
   font-size: 11px;
   font-weight: 700;
 
+  text-align: left;
+
   border-bottom: 1px solid #e5e7eb;
+
+  white-space: nowrap;
 }
 
 .teacher-table td {
-  padding: 10px 11px;
+  padding: 8px;
 
   color: #4b5563;
 
-  border-bottom: 1px solid #eef0f3;
+  border-bottom: 1px solid #f1f5f9;
 
   vertical-align: middle;
 }
@@ -208,7 +318,7 @@
 }
 
 .teacher-table tbody tr:hover {
-  background: #fafbff;
+  background: #f8fafc;
 }
 
 .teacher-table tbody tr:last-child td {
@@ -216,24 +326,25 @@
 }
 
 
-/* =====================================================
-   TEACHER PHOTO
-===================================================== */
+/* =========================================================
+   PHOTO
+========================================================= */
 
 .teacher-photo {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
+
+  border-radius: 6px;
 
   overflow: hidden;
 
-  border-radius: 8px;
-
   background: #f3f4f6;
-  border: 1px solid #e5e7eb;
 
   display: flex;
   align-items: center;
   justify-content: center;
+
+  border: 1px solid #e5e7eb;
 }
 
 .teacher-photo img {
@@ -241,6 +352,7 @@
   height: 100%;
 
   object-fit: cover;
+
   display: block;
 }
 
@@ -252,30 +364,27 @@
   align-items: center;
   justify-content: center;
 
-  text-align: center;
-
-  padding: 3px;
-  box-sizing: border-box;
-
   color: #9ca3af;
-  font-size: 8px;
+
+  font-size: 9px;
+  text-align: center;
 }
 
 
-/* =====================================================
+/* =========================================================
    TEACHER ID
-===================================================== */
+========================================================= */
 
 .teacher-id {
-  color: #4f46e5 !important;
-  font-weight: 700;
+  color: #1d4ed8 !important;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 
-/* =====================================================
+/* =========================================================
    NAME
-===================================================== */
+========================================================= */
 
 .name-wrapper {
   display: flex;
@@ -288,145 +397,127 @@
 .name-en {
   color: #111827;
   font-weight: 600;
+  line-height: 1.25;
 }
 
 .name-bn {
   color: #6b7280;
-  font-size: 10.5px;
+  font-size: 10px;
+  line-height: 1.25;
 }
 
 
-/* =====================================================
-   STATUS PILL
-===================================================== */
+/* =========================================================
+   STATUS
+========================================================= */
 
 .status-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  min-width: 60px;
+  min-width: 55px;
 
-  padding: 4px 9px;
+  padding: 3px 7px;
 
-  border-radius: 999px;
+  border-radius: 20px;
 
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 600;
 
   white-space: nowrap;
 }
 
 .status-pill.active {
-  color: #166534;
   background: #dcfce7;
-  border: 1px solid #bbf7d0;
+  color: #15803d;
 }
 
 .status-pill.inactive {
-  color: #991b1b;
   background: #fee2e2;
-  border: 1px solid #fecaca;
+  color: #b91c1c;
 }
 
 
-/* =====================================================
-   ADD USER BUTTON
-===================================================== */
-
-.btn-add-user {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-
-  padding: 6px 10px;
-
-  border: 1px solid #c7d2fe;
-  border-radius: 7px;
-
-  background: #eef2ff;
-  color: #4338ca;
-
-  font-size: 10.5px;
-  font-weight: 700;
-
-  cursor: pointer;
-  white-space: nowrap;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.15s ease;
-}
-
-.btn-add-user:hover {
-  background: #e0e7ff;
-  border-color: #a5b4fc;
-  transform: translateY(-1px);
-}
-
-.btn-add-user:active {
-  transform: translateY(0);
-}
-
-
-/* =====================================================
+/* =========================================================
    USER STATUS
-===================================================== */
+========================================================= */
 
 .user-status-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
+  gap: 2px;
 }
 
 .user-active-badge {
   display: inline-flex;
   align-items: center;
 
-  padding: 3px 7px;
+  width: fit-content;
 
-  border-radius: 6px;
+  padding: 3px 6px;
+
+  border-radius: 4px;
 
   background: #dcfce7;
   color: #15803d;
 
-  border: 1px solid #bbf7d0;
-
-  font-size: 9.5px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 600;
 }
 
 .user-status-wrapper small {
-  display: block;
-
-  max-width: 120px;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
   color: #6b7280;
-  font-size: 9.5px;
+  font-size: 10px;
 }
 
 
-/* =====================================================
+/* =========================================================
+   ADD USER BUTTON
+========================================================= */
+
+.btn-add-user {
+  height: 28px;
+
+  padding: 0 8px;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 5px;
+
+  background: #eff6ff;
+  color: #1d4ed8;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition: all 0.2s ease;
+}
+
+.btn-add-user:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+
+/* =========================================================
    ACTION BUTTONS
-===================================================== */
+========================================================= */
 
 .action-buttons {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
+
   white-space: nowrap;
 }
 
 .btn-action {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
 
   padding: 0;
 
@@ -434,98 +525,67 @@
   align-items: center;
   justify-content: center;
 
-  border-radius: 7px;
-  border: 1px solid transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 5px;
+
+  background: #ffffff;
 
   cursor: pointer;
 
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
-    transform 0.15s ease;
+    color 0.2s ease;
 }
 
-.btn-action:hover {
-  transform: translateY(-1px);
+.btn-action svg {
+  display: block;
 }
-
-.btn-action:active {
-  transform: translateY(0);
-}
-
-
-/* =====================================================
-   DETAILS
-===================================================== */
 
 .btn-details {
   color: #2563eb;
-  background: #eff6ff;
-  border-color: #dbeafe;
 }
 
 .btn-details:hover {
-  background: #dbeafe;
+  background: #eff6ff;
   border-color: #bfdbfe;
 }
 
-
-/* =====================================================
-   EDIT
-===================================================== */
-
 .btn-edit {
   color: #d97706;
+}
+
+.btn-edit:hover {
   background: #fffbeb;
   border-color: #fde68a;
 }
 
-.btn-edit:hover {
-  background: #fef3c7;
-  border-color: #fcd34d;
-}
-
-
-/* =====================================================
-   PERMISSION
-===================================================== */
-
 .btn-permission {
   color: #7c3aed;
-  background: #f5f3ff;
-  border-color: #ddd6fe;
-
-  font-size: 14px;
 }
 
 .btn-permission:hover {
-  background: #ede9fe;
-  border-color: #c4b5fd;
+  background: #f5f3ff;
+  border-color: #ddd6fe;
 }
-
-
-/* =====================================================
-   DELETE
-===================================================== */
 
 .btn-delete {
   color: #dc2626;
+}
+
+.btn-delete:hover {
   background: #fef2f2;
   border-color: #fecaca;
 }
 
-.btn-delete:hover {
-  background: #fee2e2;
-  border-color: #fca5a5;
-}
 
-
-/* =====================================================
+/* =========================================================
    USER MODAL OVERLAY
-===================================================== */
+========================================================= */
 
 .user-modal-overlay {
   position: fixed;
+
   inset: 0;
 
   z-index: 9999;
@@ -535,65 +595,51 @@
   justify-content: center;
 
   padding: 20px;
+
+  background: rgba(15, 23, 42, 0.55);
+
   box-sizing: border-box;
-
-  background: rgba(15, 23, 42, 0.58);
-
-  backdrop-filter: blur(3px);
-
-  animation: modalOverlayShow 0.2s ease;
-}
-
-@keyframes modalOverlayShow {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
 }
 
 
-/* =====================================================
+/* =========================================================
    USER MODAL
-===================================================== */
+========================================================= */
 
 .user-modal {
   width: 100%;
-  max-width: 480px;
+  max-width: 470px;
 
-  max-height: calc(100vh - 40px);
+  max-height: 90vh;
 
   overflow-y: auto;
 
   background: #ffffff;
 
-  border-radius: 16px;
+  border-radius: 10px;
 
-  border: 1px solid #e5e7eb;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.2);
 
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
-
-  animation: modalShow 0.22s ease;
+  animation: teacherModalIn 0.2s ease;
 }
 
-@keyframes modalShow {
+@keyframes teacherModalIn {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.98);
+    transform: translateY(-8px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
 
-/* =====================================================
+/* =========================================================
    MODAL HEADER
-===================================================== */
+========================================================= */
 
 .user-modal-header {
   display: flex;
@@ -602,11 +648,9 @@
 
   gap: 15px;
 
-  padding: 19px 21px;
+  padding: 16px 18px;
 
   border-bottom: 1px solid #e5e7eb;
-
-  background: #ffffff;
 }
 
 .user-modal-header h2 {
@@ -614,88 +658,123 @@
 
   color: #111827;
 
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 700;
 }
 
 .user-modal-header p {
-  margin: 5px 0 0;
+  margin: 3px 0 0;
 
   color: #6b7280;
 
-  font-size: 11.5px;
+  font-size: 11px;
 }
 
 .user-modal-close {
-  width: 33px;
-  height: 33px;
+  width: 30px;
+  height: 30px;
 
   flex-shrink: 0;
 
   border: none;
-  border-radius: 8px;
+  border-radius: 5px;
 
   background: #f3f4f6;
-  color: #6b7280;
+  color: #4b5563;
 
-  font-size: 23px;
+  font-size: 20px;
   line-height: 1;
 
   cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
 }
 
 .user-modal-close:hover {
-  background: #fee2e2;
-  color: #dc2626;
+  background: #e5e7eb;
 }
 
-.user-modal-close:disabled {
-  opacity: 0.5;
+
+/* =========================================================
+   USER FORM
+========================================================= */
+
+.user-form {
+  padding: 18px;
+}
+
+.form-group {
+  margin-bottom: 13px;
+}
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #374151;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  height: 36px;
+
+  padding: 0 10px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  color: #111827;
+
+  font-size: 13px;
+
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 2px rgba(37, 99, 235, 0.08);
+}
+
+.form-group input:disabled,
+.form-group select:disabled {
+  background: #f3f4f6;
   cursor: not-allowed;
 }
 
 
-/* =====================================================
-   USER FORM
-===================================================== */
-
-.user-form {
-  padding: 21px;
-}
-
-
-/* =====================================================
-   TEACHER INFO
-===================================================== */
+/* =========================================================
+   TEACHER INFO IN MODAL
+========================================================= */
 
 .user-teacher-info {
   display: flex;
   align-items: center;
 
-  gap: 13px;
+  gap: 12px;
 
-  margin-bottom: 21px;
+  padding: 10px;
 
-  padding: 12px;
-
-  background: #f8fafc;
+  margin-bottom: 15px;
 
   border: 1px solid #e5e7eb;
+  border-radius: 7px;
 
-  border-radius: 10px;
+  background: #f8fafc;
 }
 
 .user-teacher-photo {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
 
   flex-shrink: 0;
 
@@ -705,22 +784,18 @@
   align-items: center;
   justify-content: center;
 
-  border-radius: 9px;
+  border-radius: 6px;
 
   background: #e5e7eb;
-  border: 1px solid #d1d5db;
 
   color: #9ca3af;
 
-  font-size: 8px;
-  text-align: center;
+  font-size: 9px;
 }
 
 .user-teacher-photo img {
   width: 100%;
   height: 100%;
-
-  display: block;
 
   object-fit: cover;
 }
@@ -729,321 +804,235 @@
   display: flex;
   flex-direction: column;
 
-  gap: 3px;
-
-  min-width: 0;
+  gap: 2px;
 }
 
 .user-teacher-info strong {
   color: #111827;
 
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 13px;
 }
 
 .user-teacher-info span {
   color: #6b7280;
-  font-size: 10.5px;
+
+  font-size: 10px;
 }
 
 
-/* =====================================================
-   FORM GROUP
-===================================================== */
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  display: block;
-
-  margin-bottom: 6px;
-
-  color: #374151;
-
-  font-size: 11.5px;
-  font-weight: 700;
-}
-
-.form-group input,
-.form-group select {
-  width: 100%;
-  height: 42px;
-
-  padding: 0 11px;
-
-  box-sizing: border-box;
-
-  border: 1px solid #d1d5db;
-
-  border-radius: 8px;
-
-  outline: none;
-
-  background: #ffffff;
-  color: #111827;
-
-  font-size: 12.5px;
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-}
-
-.form-group input::placeholder {
-  color: #9ca3af;
-}
-
-.form-group input:hover,
-.form-group select:hover {
-  border-color: #b8bec8;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  border-color: #6366f1;
-
-  box-shadow:
-    0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-.form-group input:disabled,
-.form-group select:disabled {
-  background: #f3f4f6;
-
-  color: #9ca3af;
-
-  cursor: not-allowed;
-}
-
-
-/* =====================================================
+/* =========================================================
    FORM ACTIONS
-===================================================== */
+========================================================= */
 
 .user-form-actions {
   display: flex;
-
   justify-content: flex-end;
 
-  gap: 9px;
+  gap: 7px;
 
-  margin-top: 23px;
-
-  padding-top: 17px;
-
-  border-top: 1px solid #e5e7eb;
+  margin-top: 18px;
 }
 
 .user-cancel-btn,
 .user-create-btn {
-  min-width: 108px;
+  height: 34px;
 
-  height: 39px;
+  padding: 0 14px;
 
-  padding: 0 15px;
+  border-radius: 6px;
 
-  border-radius: 8px;
-
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
 
   cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.15s ease,
-    opacity 0.2s ease;
 }
 
 .user-cancel-btn {
-  color: #4b5563;
+  border: 1px solid #d1d5db;
 
   background: #ffffff;
-
-  border: 1px solid #d1d5db;
+  color: #374151;
 }
 
 .user-cancel-btn:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
+  background: #f3f4f6;
 }
 
 .user-create-btn {
+  border: 1px solid #2563eb;
+
+  background: #2563eb;
   color: #ffffff;
-
-  background: #4f46e5;
-
-  border: 1px solid #4f46e5;
 }
 
 .user-create-btn:hover {
-  background: #4338ca;
-  border-color: #4338ca;
-
-  transform: translateY(-1px);
+  background: #1d4ed8;
+  border-color: #1d4ed8;
 }
 
 .user-cancel-btn:disabled,
 .user-create-btn:disabled {
-  opacity: 0.55;
-
+  opacity: 0.6;
   cursor: not-allowed;
-
-  transform: none;
 }
 
 
-/* =====================================================
-   MOBILE
-===================================================== */
+/* =========================================================
+   TABLE SCROLLBAR
+========================================================= */
 
-@media (max-width: 768px) {
+.table-responsive::-webkit-scrollbar {
+  height: 7px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+
+/* =========================================================
+   RESPONSIVE - 900px
+========================================================= */
+
+@media (max-width: 900px) {
 
   .teacher-container {
-    padding: 15px;
+    padding: 14px;
   }
 
   .teacher-header {
     align-items: flex-start;
-    flex-direction: column;
-    gap: 11px;
   }
 
-  .header-text h1 {
-    font-size: 23px;
+  .teacher-filter-section {
+    flex-wrap: nowrap;
   }
 
-  .total-badge {
-    min-width: auto;
+  .teacher-filter-section select {
+    min-width: 160px;
   }
 
-  .search-input {
-    height: 42px;
-  }
-
-  .user-modal-overlay {
-    padding: 12px;
-  }
-
-  .user-modal {
-    max-height: calc(100vh - 24px);
-    border-radius: 13px;
-  }
-
-  .user-modal-header {
-    padding: 16px;
-  }
-
-  .user-modal-header h2 {
-    font-size: 18px;
-  }
-
-  .user-form {
-    padding: 16px;
-  }
-
-  .user-teacher-info {
-    padding: 11px;
-  }
-
-  .user-form-actions {
-    flex-direction: column-reverse;
-  }
-
-  .user-cancel-btn,
-  .user-create-btn {
-    width: 100%;
-  }
 }
 
 
-/* =====================================================
-   SMALL MOBILE
-===================================================== */
+/* =========================================================
+   RESPONSIVE - 650px
+========================================================= */
 
-@media (max-width: 480px) {
+@media (max-width: 650px) {
 
   .teacher-container {
     padding: 10px;
   }
+
+  .teacher-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+  }
+
+  .total-badge {
+    align-self: flex-start;
+  }
+
+  .teacher-filter-section {
+    width: 100%;
+    flex-wrap: nowrap;
+  }
+
+  .teacher-filter-section select {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .teacher-clear-filter {
+    flex-shrink: 0;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - 450px
+========================================================= */
+
+@media (max-width: 450px) {
 
   .header-text h1 {
     font-size: 21px;
   }
 
   .header-text p {
+    font-size: 11px;
+  }
+
+  .search-input {
+    height: 34px;
     font-size: 12px;
   }
 
-  .teacher-table {
-    min-width: 1000px;
+  .teacher-filter-section {
+    gap: 5px;
   }
 
-  .user-teacher-photo {
-    width: 50px;
-    height: 50px;
+  .teacher-filter-section select {
+    min-width: 0;
+    height: 31px;
+    padding-left: 7px;
+    padding-right: 22px;
+    font-size: 11px;
   }
 
-  .user-teacher-info strong {
-    font-size: 13px;
+  .teacher-clear-filter {
+    height: 31px;
+    padding: 0 10px;
+    font-size: 11px;
   }
+
+  .user-modal-overlay {
+    padding: 10px;
+  }
+
+  .user-modal {
+    max-height: 95vh;
+  }
+
 }
 
 
-/* =====================================================
-   TABLET
-===================================================== */
+/* =========================================================
+   PRINT
+========================================================= */
 
-@media (min-width: 769px) and (max-width: 1100px) {
+@media print {
 
   .teacher-container {
-    padding: 18px;
+    background: #ffffff;
+    padding: 0;
+  }
+
+  .search-section,
+  .teacher-filter-section,
+  .action-buttons,
+  .btn-add-user {
+    display: none;
+  }
+
+  .table-card {
+    border: none;
+    box-shadow: none;
   }
 
   .teacher-table {
-    min-width: 1050px;
-  }
-}
-
-
-/* =====================================================
-   ACCESSIBILITY
-===================================================== */
-
-.btn-action:focus-visible,
-.btn-add-user:focus-visible,
-.user-modal-close:focus-visible,
-.user-cancel-btn:focus-visible,
-.user-create-btn:focus-visible,
-.search-input:focus-visible,
-.form-group input:focus-visible,
-.form-group select:focus-visible {
-  outline: 2px solid #6366f1;
-  outline-offset: 2px;
-}
-
-
-/* =====================================================
-   REDUCED MOTION
-===================================================== */
-
-@media (prefers-reduced-motion: reduce) {
-
-  .teacher-table tbody tr,
-  .btn-action,
-  .btn-add-user,
-  .user-create-btn,
-  .user-cancel-btn,
-  .user-modal-close {
-    transition: none;
-  }
-
-  .user-modal-overlay,
-  .user-modal {
-    animation: none;
+    min-width: 0;
   }
 }

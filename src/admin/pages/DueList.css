@@ -1,0 +1,313 @@
+/* =====================================================
+   DUE LIST
+===================================================== */
+
+.due-list {
+  padding: 30px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.due-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.due-list h1 {
+  margin: 0 0 5px;
+  color: #1e293b;
+  font-size: 28px;
+}
+
+.due-list-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.due-branch {
+  margin-top: 5px !important;
+}
+
+.due-count {
+  background: #fff7ed;
+  color: #c2410c;
+  padding: 9px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+.due-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.due-summary-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.due-summary-card span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.due-summary-card strong {
+  color: #1e293b;
+  font-size: 21px;
+}
+
+.due-summary-danger {
+  background: #fff7f7;
+  border-color: #fecaca;
+}
+
+.due-summary-danger strong {
+  color: #dc2626;
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.due-search {
+  margin-bottom: 20px;
+}
+
+.due-search input {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px 15px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.due-search input:focus {
+  border-color: #3b82f6;
+  box-shadow:
+    0 0 0 3px
+    rgba(59, 130, 246, 0.12);
+}
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+.due-message {
+  padding: 11px 15px;
+  margin: 15px 0;
+  border-radius: 7px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   TABLE CONTAINER
+===================================================== */
+
+.due-table-container {
+  height: calc(100vh - 390px);
+  min-height: 350px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.due-table-container table {
+  width: 100%;
+  min-width: 1200px;
+  border-collapse: collapse;
+}
+
+
+/* =====================================================
+   TABLE HEADER
+===================================================== */
+
+.due-table-container thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+
+/* =====================================================
+   TABLE CELLS
+===================================================== */
+
+.due-table-container tbody td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 13px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.due-table-container tbody tr:hover {
+  background: #fffaf5;
+}
+
+.due-table-container tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* =====================================================
+   PHOTO
+===================================================== */
+
+.due-student-photo {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  display: block;
+}
+
+.due-no-photo {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   STUDENT ID
+===================================================== */
+
+.due-student-id {
+  color: #1d4ed8;
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   STUDENT NAME
+===================================================== */
+
+.due-student-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 150px;
+}
+
+.due-student-name strong {
+  color: #1e293b;
+  font-size: 13px;
+}
+
+.due-student-name span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   MONEY
+===================================================== */
+
+.money-cell {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.paid-cell {
+  color: #15803d !important;
+}
+
+.due-amount {
+  color: #dc2626;
+  font-size: 14px;
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.no-due {
+  padding: 25px;
+  margin: 0;
+  text-align: center;
+  color: #64748b;
+  background: #fff;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .due-list {
+    padding: 20px 15px;
+  }
+
+  .due-list-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .due-list h1 {
+    font-size: 24px;
+  }
+
+  .due-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .due-search input {
+    max-width: 100%;
+  }
+
+  .due-table-container {
+    border-radius: 8px;
+  }
+}

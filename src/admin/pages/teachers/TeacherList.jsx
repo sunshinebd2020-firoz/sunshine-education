@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./TeacherList.css";
 import PermissionModal from "./PermissionModal";
 
@@ -8,11 +8,13 @@ const API_BASE_URL =
 const IMAGE_BASE_URL =
   "http://localhost/sunshine-api/uploads/teachers";
 
-
 export default function TeacherList({ onEditTeacher }) {
 
   const [teachers, setTeachers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [selectedBranch, setSelectedBranch] = useState("");
+  const [selectedDesignation, setSelectedDesignation] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -74,7 +76,6 @@ export default function TeacherList({ onEditTeacher }) {
             parsed.user_id
           )
         ) {
-
           return parsed;
         }
 
@@ -83,11 +84,9 @@ export default function TeacherList({ onEditTeacher }) {
       }
     }
 
-
     const adminId =
       localStorage.getItem("admin_id") ||
       localStorage.getItem("user_id");
-
 
     if (adminId) {
 
@@ -96,7 +95,6 @@ export default function TeacherList({ onEditTeacher }) {
         admin_id: adminId
       };
     }
-
 
     return null;
   };
@@ -146,9 +144,6 @@ export default function TeacherList({ onEditTeacher }) {
 
   /* =====================================================
      ADMINISTRATOR CHECK
-
-     Admin / Administrator / Super Admin
-     = FULL ACCESS
   ===================================================== */
 
   const isAdministrator = () => {
@@ -156,12 +151,12 @@ export default function TeacherList({ onEditTeacher }) {
     const roleValue =
       getCurrentRole();
 
-    return (
-      roleValue === "admin" ||
-      roleValue === "administrator" ||
-      roleValue === "super admin" ||
-      roleValue === "superadmin"
-    );
+    return [
+      "admin",
+      "administrator",
+      "super admin",
+      "superadmin"
+    ].includes(roleValue);
   };
 
 
@@ -173,7 +168,7 @@ export default function TeacherList({ onEditTeacher }) {
 
     /*
     -----------------------------------------------------
-    ADMINISTRATOR DOES NOT NEED DATABASE PERMISSION
+    ADMINISTRATOR = FULL ACCESS
     -----------------------------------------------------
     */
 
@@ -268,14 +263,12 @@ export default function TeacherList({ onEditTeacher }) {
       });
 
       setPermissionLoading(false);
-
       return;
     }
 
 
     const adminId =
       getCurrentAdminId();
-
 
     if (!adminId) {
 
@@ -289,7 +282,6 @@ export default function TeacherList({ onEditTeacher }) {
     try {
 
       setPermissionLoading(true);
-
 
       const response =
         await fetch(
@@ -357,9 +349,19 @@ export default function TeacherList({ onEditTeacher }) {
         data.permissions.forEach(
           item => {
 
+            /*
+            ------------------------------------------------
+            IMPORTANT:
+            permission / module / name সব support করবে
+            ------------------------------------------------
+            */
+
             const key =
               String(
-                item.permission || ""
+                item.permission ||
+                item.module ||
+                item.name ||
+                ""
               )
                 .trim()
                 .toLowerCase();
@@ -386,7 +388,6 @@ export default function TeacherList({ onEditTeacher }) {
 
           }
         );
-
       }
 
 
@@ -406,50 +407,48 @@ export default function TeacherList({ onEditTeacher }) {
     } finally {
 
       setPermissionLoading(false);
+
     }
   };
 
 
   /* =====================================================
-     PERMISSION FLAGS
+     TEACHER PERMISSIONS
   ===================================================== */
 
   const teacherPermission =
     myPermissions.teacher || {};
 
 
+  /*
+  ---------------------------------------------------------
+  VIEW ONLY USER-ও Teacher List দেখতে পারবে
+  ---------------------------------------------------------
+  */
+
   const canViewTeacher =
     isAdministrator() ||
-    Boolean(
-      teacherPermission.can_view
-    );
+    teacherPermission.can_view === true;
 
 
   const canAddTeacher =
     isAdministrator() ||
-    Boolean(
-      teacherPermission.can_add
-    );
+    teacherPermission.can_add === true;
 
 
   const canEditTeacher =
     isAdministrator() ||
-    Boolean(
-      teacherPermission.can_edit
-    );
+    teacherPermission.can_edit === true;
 
 
   const canDeleteTeacher =
     isAdministrator() ||
-    Boolean(
-      teacherPermission.can_delete
-    );
+    teacherPermission.can_delete === true;
 
 
-  /*
-  Permission management is a SETTING-level operation.
-  Only Administrator or Setting add/edit permission.
-  */
+  /* =====================================================
+     PERMISSION MANAGEMENT
+  ===================================================== */
 
   const settingPermission =
     myPermissions.setting || {};
@@ -457,10 +456,8 @@ export default function TeacherList({ onEditTeacher }) {
 
   const canManagePermissions =
     isAdministrator() ||
-    Boolean(
-      settingPermission.can_add ||
-      settingPermission.can_edit
-    );
+    settingPermission.can_add === true ||
+    settingPermission.can_edit === true;
 
 
   /* =====================================================
@@ -535,8 +532,56 @@ export default function TeacherList({ onEditTeacher }) {
         Array.isArray(data.teachers)
       ) {
 
+        /*
+        ---------------------------------------------------
+        OLD → NEW
+        ---------------------------------------------------
+
+        admission/joining/created date অনুযায়ী
+        পুরোনো Teacher আগে থাকবে।
+        */
+
+        const sortedTeachers =
+          [...data.teachers].sort(
+            (a, b) => {
+
+              const dateA =
+                new Date(
+                  a.joining_date ||
+                  a.created_at ||
+                  a.id ||
+                  0
+                ).getTime();
+
+              const dateB =
+                new Date(
+                  b.joining_date ||
+                  b.created_at ||
+                  b.id ||
+                  0
+                ).getTime();
+
+
+              if (
+                Number.isNaN(dateA) ||
+                Number.isNaN(dateB)
+              ) {
+
+                return (
+                  Number(a.id || 0) -
+                  Number(b.id || 0)
+                );
+              }
+
+
+              return dateA - dateB;
+
+            }
+          );
+
+
         setTeachers(
-          data.teachers
+          sortedTeachers
         );
 
       } else {
@@ -552,7 +597,6 @@ export default function TeacherList({ onEditTeacher }) {
       if (
         err.name === "AbortError"
       ) {
-
         return;
       }
 
@@ -574,6 +618,7 @@ export default function TeacherList({ onEditTeacher }) {
       if (!signal?.aborted) {
 
         setLoading(false);
+
       }
     }
   };
@@ -606,7 +651,7 @@ export default function TeacherList({ onEditTeacher }) {
 
 
   /* =====================================================
-     DELETE TEACHER
+     DELETE
   ===================================================== */
 
   const handleDelete = async teacherId => {
@@ -769,7 +814,7 @@ export default function TeacherList({ onEditTeacher }) {
 
 
   /* =====================================================
-     DETAILS / VIEW
+     DETAILS
   ===================================================== */
 
   const handleDetails = teacher => {
@@ -787,41 +832,37 @@ export default function TeacherList({ onEditTeacher }) {
     alert(
       `Teacher Details
 
-ID: ${
-        teacher.teacher_id || "N/A"
-      }
+ID:
+${teacher.teacher_id || "N/A"}
 
-Name: ${
-        teacher.name_en ||
-        teacher.name_bn ||
-        "N/A"
-      }
+Name:
+${
+  teacher.name_en ||
+  teacher.name_bn ||
+  "N/A"
+}
 
-Course: ${
-        teacher.course || "N/A"
-      }
+Course:
+${teacher.course || "N/A"}
 
-Designation: ${
-        teacher.designation || "N/A"
-      }
+Designation:
+${teacher.designation || "N/A"}
 
-Branch: ${
-        teacher.branch || "N/A"
-      }
+Branch:
+${teacher.branch || "N/A"}
 
-Mobile: ${
-        teacher.mobile || "N/A"
-      }
+Mobile:
+${teacher.mobile || "N/A"}
 
-User: ${
-        teacher.user_created
-          ? teacher.username
-          : "Not Created"
-      }
+User:
+${
+  teacher.user_created
+    ? teacher.username
+    : "Not Created"
+}
 
-Role: ${
-        teacher.role || "N/A"
-      }`
+Role:
+${teacher.role || "N/A"}`
     );
   };
 
@@ -857,7 +898,6 @@ Role: ${
 
 
     setPassword("");
-
     setRole("Teacher");
 
     setShowUserModal(true);
@@ -1043,9 +1083,9 @@ HTTP Status: ${response.status}`
           `PHP থেকে valid JSON পাওয়া যায়নি।
 
 ${responseText.substring(
-            0,
-            1000
-          )}`
+  0,
+  1000
+)}`
         );
 
         return;
@@ -1196,12 +1236,6 @@ ${err.message}`
     }
 
 
-    /*
-    -----------------------------------------------------
-    নিজের permission নিজে পরিবর্তন করা যাবে না
-    -----------------------------------------------------
-    */
-
     if (
       String(userId) ===
       String(getCurrentAdminId())
@@ -1224,6 +1258,7 @@ ${err.message}`
 
       admin_id:
         userId
+
     });
   };
 
@@ -1234,94 +1269,235 @@ ${err.message}`
       setPermissionTeacher(
         null
       );
+
     };
 
 
   /* =====================================================
-     SEARCH
+     UNIQUE BRANCHES
+  ===================================================== */
+
+  const branchOptions =
+    useMemo(() => {
+
+      return [
+        ...new Set(
+          teachers
+            .map(
+              teacher =>
+                String(
+                  teacher.branch || ""
+                ).trim()
+            )
+            .filter(Boolean)
+        )
+      ].sort(
+        (a, b) =>
+          a.localeCompare(
+            b,
+            "en",
+            {
+              sensitivity:
+                "base"
+            }
+          )
+      );
+
+    }, [teachers]);
+
+
+  /* =====================================================
+     UNIQUE DESIGNATIONS
+  ===================================================== */
+
+  const designationOptions =
+    useMemo(() => {
+
+      return [
+        ...new Set(
+          teachers
+            .map(
+              teacher =>
+                String(
+                  teacher.designation || ""
+                ).trim()
+            )
+            .filter(Boolean)
+        )
+      ].sort(
+        (a, b) =>
+          a.localeCompare(
+            b,
+            "en",
+            {
+              sensitivity:
+                "base"
+            }
+          )
+      );
+
+    }, [teachers]);
+
+
+  /* =====================================================
+     FILTER + OLD TO NEW
   ===================================================== */
 
   const filteredTeachers =
-    teachers.filter(
-      teacher => {
+    useMemo(() => {
 
-        const query =
-          searchTerm
-            .trim()
-            .toLowerCase();
-
-
-        if (!query) return true;
+      const query =
+        searchTerm
+          .trim()
+          .toLowerCase();
 
 
-        return (
+      const filtered =
+        teachers.filter(
+          teacher => {
 
-          String(
-            teacher.teacher_id || ""
-          )
-            .toLowerCase()
-            .includes(query)
+            const matchesSearch =
+              !query ||
+              String(
+                teacher.teacher_id || ""
+              )
+                .toLowerCase()
+                .includes(query) ||
 
-          ||
+              String(
+                teacher.name_en || ""
+              )
+                .toLowerCase()
+                .includes(query) ||
 
-          String(
-            teacher.name_en || ""
-          )
-            .toLowerCase()
-            .includes(query)
+              String(
+                teacher.name_bn || ""
+              )
+                .toLowerCase()
+                .includes(query) ||
 
-          ||
+              String(
+                teacher.mobile || ""
+              )
+                .toLowerCase()
+                .includes(query) ||
 
-          String(
-            teacher.name_bn || ""
-          )
-            .toLowerCase()
-            .includes(query)
+              String(
+                teacher.course || ""
+              )
+                .toLowerCase()
+                .includes(query) ||
 
-          ||
+              String(
+                teacher.designation || ""
+              )
+                .toLowerCase()
+                .includes(query) ||
 
-          String(
-            teacher.mobile || ""
-          )
-            .toLowerCase()
-            .includes(query)
+              String(
+                teacher.branch || ""
+              )
+                .toLowerCase()
+                .includes(query) ||
 
-          ||
+              String(
+                teacher.username || ""
+              )
+                .toLowerCase()
+                .includes(query);
 
-          String(
-            teacher.course || ""
-          )
-            .toLowerCase()
-            .includes(query)
 
-          ||
+            const matchesBranch =
+              !selectedBranch ||
+              String(
+                teacher.branch || ""
+              ).trim() ===
+              selectedBranch;
 
-          String(
-            teacher.designation || ""
-          )
-            .toLowerCase()
-            .includes(query)
 
-          ||
+            const matchesDesignation =
+              !selectedDesignation ||
+              String(
+                teacher.designation || ""
+              ).trim() ===
+              selectedDesignation;
 
-          String(
-            teacher.branch || ""
-          )
-            .toLowerCase()
-            .includes(query)
 
-          ||
+            return (
+              matchesSearch &&
+              matchesBranch &&
+              matchesDesignation
+            );
 
-          String(
-            teacher.username || ""
-          )
-            .toLowerCase()
-            .includes(query)
-
+          }
         );
 
-      }
-    );
+
+      /*
+      -----------------------------------------------------
+      OLD → NEW
+      -----------------------------------------------------
+      */
+
+      return [...filtered].sort(
+        (a, b) => {
+
+          const dateA =
+            new Date(
+              a.joining_date ||
+              a.created_at ||
+              0
+            ).getTime();
+
+          const dateB =
+            new Date(
+              b.joining_date ||
+              b.created_at ||
+              0
+            ).getTime();
+
+
+          if (
+            !Number.isNaN(dateA) &&
+            !Number.isNaN(dateB) &&
+            dateA !== dateB
+          ) {
+
+            return dateA - dateB;
+          }
+
+
+          /*
+          একই date হলে ID দিয়ে পুরোনো আগে
+          */
+
+          return (
+            Number(a.id || 0) -
+            Number(b.id || 0)
+          );
+
+        }
+      );
+
+    }, [
+      teachers,
+      searchTerm,
+      selectedBranch,
+      selectedDesignation
+    ]);
+
+
+  /* =====================================================
+     CLEAR FILTER
+  ===================================================== */
+
+  const clearFilters = () => {
+
+    setSearchTerm("");
+    setSelectedBranch("");
+    setSelectedDesignation("");
+
+  };
 
 
   /* =====================================================
@@ -1344,6 +1520,7 @@ ${err.message}`
         </div>
 
       </div>
+
     );
   }
 
@@ -1358,7 +1535,7 @@ ${err.message}`
 
 
       {/* =================================================
-          HEADER
+          HEADER — INCOME STYLE
       ================================================= */}
 
       <div className="teacher-header">
@@ -1373,13 +1550,32 @@ ${err.message}`
             নিবন্ধিত শিক্ষকদের তালিকা
           </p>
 
+          <p className="teacher-current-info">
+
+            {selectedBranch
+              ? `Branch: ${selectedBranch}`
+              : "All Branches"}
+
+            {" • "}
+
+            {selectedDesignation
+              ? `Designation: ${selectedDesignation}`
+              : "All Designations"}
+
+          </p>
+
         </div>
 
 
         <div className="total-badge">
 
-          Total:{" "}
-          {filteredTeachers.length}
+          <span>
+            Total Teachers
+          </span>
+
+          <strong>
+            {filteredTeachers.length}
+          </strong>
 
         </div>
 
@@ -1387,15 +1583,15 @@ ${err.message}`
 
 
       {/* =================================================
-          SEARCH
+          FILTERS
       ================================================= */}
 
-      <div className="search-section">
+      <div className="teacher-filters">
 
         <input
           type="text"
 
-          placeholder="Search by ID, name, mobile, course, designation, branch or username..."
+          placeholder="Search ID, name, mobile, course, branch..."
 
           value={searchTerm}
 
@@ -1407,6 +1603,83 @@ ${err.message}`
 
           className="search-input"
         />
+
+
+        <select
+          value={selectedBranch}
+
+          onChange={e =>
+            setSelectedBranch(
+              e.target.value
+            )
+          }
+
+          className="teacher-filter-select"
+        >
+
+          <option value="">
+            All Branches
+          </option>
+
+          {branchOptions.map(
+            branch => (
+
+              <option
+                key={branch}
+                value={branch}
+              >
+                {branch}
+              </option>
+
+            )
+          )}
+
+        </select>
+
+
+        <select
+          value={selectedDesignation}
+
+          onChange={e =>
+            setSelectedDesignation(
+              e.target.value
+            )
+          }
+
+          className="teacher-filter-select"
+        >
+
+          <option value="">
+            All Designations
+          </option>
+
+          {designationOptions.map(
+            designation => (
+
+              <option
+                key={designation}
+                value={designation}
+              >
+                {designation}
+              </option>
+
+            )
+          )}
+
+        </select>
+
+
+        <button
+          type="button"
+
+          className="teacher-clear-filter"
+
+          onClick={
+            clearFilters
+          }
+        >
+          Clear
+        </button>
 
       </div>
 
@@ -1682,6 +1955,7 @@ ${err.message}`
                                   <small>
 
                                     Role:{" "}
+
                                     {
                                       teacher.role
                                     }
@@ -2005,6 +2279,7 @@ ${err.message}`
                   <span>
 
                     ID:{" "}
+
                     {
                       selectedTeacher?.teacher_id
                     }
@@ -2015,6 +2290,7 @@ ${err.message}`
                   <span>
 
                     Branch:{" "}
+
                     {
                       selectedTeacher?.branch ||
                       "N/A"
@@ -2199,5 +2475,6 @@ ${err.message}`
       )}
 
     </div>
+
   );
 }

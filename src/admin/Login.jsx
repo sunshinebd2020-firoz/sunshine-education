@@ -21,7 +21,6 @@ export default function Login() {
   const [error, setError] =
     useState("");
 
-
   /*
   =====================================================
   LOGIN
@@ -34,31 +33,19 @@ export default function Login() {
 
     setError("");
 
-
     if (!username.trim()) {
-
-      setError(
-        "Username দিন।"
-      );
-
+      setError("Username দিন।");
       return;
     }
-
 
     if (!password) {
-
-      setError(
-        "Password দিন।"
-      );
-
+      setError("Password দিন।");
       return;
     }
-
 
     try {
 
       setLoading(true);
-
 
       const response =
         await fetch(
@@ -76,21 +63,18 @@ export default function Login() {
                 "application/json"
             },
 
-            body:
-              JSON.stringify({
-                username:
-                  username.trim(),
+            body: JSON.stringify({
+              username:
+                username.trim(),
 
-                password:
-                  password
-              })
+              password:
+                password
+            })
           }
         );
 
-
       const text =
         await response.text();
-
 
       if (!text.trim()) {
 
@@ -99,7 +83,6 @@ export default function Login() {
         );
       }
 
-
       let data;
 
       try {
@@ -107,7 +90,7 @@ export default function Login() {
         data =
           JSON.parse(text);
 
-      } catch {
+      } catch (jsonError) {
 
         console.error(
           "Login raw response:",
@@ -118,7 +101,6 @@ export default function Login() {
           "Server থেকে সঠিক JSON response পাওয়া যায়নি।"
         );
       }
-
 
       if (
         !response.ok ||
@@ -131,7 +113,6 @@ export default function Login() {
         );
       }
 
-
       /*
       =================================================
       USER DATA
@@ -141,10 +122,9 @@ export default function Login() {
       const user =
         data.user || {};
 
-
       /*
       =================================================
-      ADMIN FULL ACCESS
+      ROLE
       =================================================
       */
 
@@ -155,17 +135,41 @@ export default function Login() {
           .trim()
           .toLowerCase();
 
-
       const isAdministrator =
         role === "admin" ||
         role === "administrator" ||
         role === "super admin" ||
         role === "superadmin";
 
+      /*
+      =================================================
+      BRANCH
+      =================================================
+      */
+
+      const branch =
+        String(
+          user.branch ||
+          user.branch_name ||
+          ""
+        ).trim();
 
       /*
       =================================================
-      NORMALIZE PERMISSIONS
+      TEACHER ID
+      =================================================
+      */
+
+      const teacherId =
+        user.teacher_id
+          ? String(
+              user.teacher_id
+            ).trim()
+          : "";
+
+      /*
+      =================================================
+      PERMISSIONS
       =================================================
       */
 
@@ -176,9 +180,10 @@ export default function Login() {
           ? user.permissions
           : [];
 
-
       /*
-      ADMIN = FULL ACCESS
+      =================================================
+      ADMIN FULL ACCESS
+      =================================================
       */
 
       if (isAdministrator) {
@@ -192,13 +197,11 @@ export default function Login() {
             can_delete: true
           }
         ];
-
       }
-
 
       /*
       =================================================
-      SAVE USER
+      LOGGED USER
       =================================================
       */
 
@@ -208,9 +211,11 @@ export default function Login() {
           user.id,
 
         admin_id:
+          user.admin_id ||
           user.id,
 
         user_id:
+          user.user_id ||
           user.id,
 
         username:
@@ -220,7 +225,13 @@ export default function Login() {
           user.full_name || "",
 
         teacher_id:
-          user.teacher_id || null,
+          teacherId || null,
+
+        branch:
+          branch,
+
+        branch_name:
+          branch,
 
         role:
           user.role || "",
@@ -231,11 +242,12 @@ export default function Login() {
         photo:
           user.photo || null,
 
+        is_admin:
+          isAdministrator,
+
         permissions:
           permissions
-
       };
-
 
       /*
       =================================================
@@ -250,20 +262,12 @@ export default function Login() {
         )
       );
 
-
-      /*
-      =================================================
-      BACKWARD COMPATIBILITY
-      =================================================
-      */
-
       localStorage.setItem(
         "admin",
         JSON.stringify(
           loggedInUser
         )
       );
-
 
       localStorage.setItem(
         "user",
@@ -272,7 +276,6 @@ export default function Login() {
         )
       );
 
-
       localStorage.setItem(
         "loggedInUser",
         JSON.stringify(
@@ -280,22 +283,52 @@ export default function Login() {
         )
       );
 
-
       localStorage.setItem(
         "admin_id",
         String(
-          user.id
+          loggedInUser.admin_id
         )
       );
-
 
       localStorage.setItem(
         "user_id",
         String(
-          user.id
+          loggedInUser.user_id
         )
       );
 
+      /*
+      =================================================
+      TEACHER BRANCH STORAGE
+      =================================================
+      */
+
+      if (!isAdministrator && branch) {
+
+        localStorage.setItem(
+          "teacher_branch",
+          branch
+        );
+
+      } else {
+
+        localStorage.removeItem(
+          "teacher_branch"
+        );
+      }
+
+      /*
+      =================================================
+      ADMIN FLAG
+      =================================================
+      */
+
+      localStorage.setItem(
+        "is_admin",
+        isAdministrator
+          ? "1"
+          : "0"
+      );
 
       /*
       =================================================
@@ -310,7 +343,6 @@ export default function Login() {
         }
       );
 
-
     } catch (err) {
 
       console.error(
@@ -318,20 +350,16 @@ export default function Login() {
         err
       );
 
-
       setError(
         err.message ||
         "Server-এর সাথে যোগাযোগ করা যাচ্ছে না।"
       );
 
-
     } finally {
 
       setLoading(false);
     }
-
   };
-
 
   /*
   =====================================================
@@ -357,17 +385,13 @@ export default function Login() {
 
         </div>
 
-
         {error && (
 
           <div className="login-error">
-
             {error}
-
           </div>
 
         )}
-
 
         <form
           onSubmit={
@@ -383,29 +407,18 @@ export default function Login() {
 
             <input
               type="text"
-
-              value={
-                username
+              value={username}
+              onChange={(e) =>
+                setUsername(
+                  e.target.value
+                )
               }
-
-              onChange={
-                e =>
-                  setUsername(
-                    e.target.value
-                  )
-              }
-
               autoComplete="username"
-
-              disabled={
-                loading
-              }
-
+              disabled={loading}
               placeholder="Enter username"
             />
 
           </div>
-
 
           <div className="form-group">
 
@@ -415,37 +428,22 @@ export default function Login() {
 
             <input
               type="password"
-
-              value={
-                password
+              value={password}
+              onChange={(e) =>
+                setPassword(
+                  e.target.value
+                )
               }
-
-              onChange={
-                e =>
-                  setPassword(
-                    e.target.value
-                  )
-              }
-
               autoComplete="current-password"
-
-              disabled={
-                loading
-              }
-
+              disabled={loading}
               placeholder="Enter password"
             />
 
           </div>
 
-
           <button
             type="submit"
-
-            disabled={
-              loading
-            }
-
+            disabled={loading}
             className="login-button"
           >
 
@@ -460,6 +458,5 @@ export default function Login() {
       </div>
 
     </div>
-
   );
 }

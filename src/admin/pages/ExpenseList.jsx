@@ -5,6 +5,10 @@ import { useNavigate } from "react-router-dom";
 const API_BASE_URL =
   "http://localhost/sunshine-api/api";
 
+/* =====================================================
+   GET LOGGED IN USER
+===================================================== */
+
 const getLoggedInUser = () => {
   const keys = [
     "sunshine_user",
@@ -35,19 +39,31 @@ const getLoggedInUser = () => {
   return null;
 };
 
+
+/* =====================================================
+   GET CURRENT DATE
+===================================================== */
+
 const getCurrentYearMonth = () => {
   const now = new Date();
 
   return {
     year: now.getFullYear(),
+
     month: String(
       now.getMonth() + 1
     ).padStart(2, "0"),
+
     day: String(
       now.getDate()
     ).padStart(2, "0"),
   };
 };
+
+
+/* =====================================================
+   CHECK ADMIN ROLE
+===================================================== */
 
 const isAdminRole = (role) => {
   const normalizedRole = String(
@@ -64,47 +80,100 @@ const isAdminRole = (role) => {
   ].includes(normalizedRole);
 };
 
+
+/* =====================================================
+   GET ADMIN ID
+===================================================== */
+
+const getAdminIdFromUser = (user) => {
+  if (!user) return "";
+
+  return String(
+    user.admin_id ||
+      user.adminId ||
+      user.id ||
+      user.user_id ||
+      user.userId ||
+      ""
+  ).trim();
+};
+
+
+/* =====================================================
+   GET TEACHER ID
+===================================================== */
+
+const getTeacherIdFromUser = (user) => {
+  if (!user) return "";
+
+  return String(
+    user.teacher_id ||
+      user.teacherId ||
+      user.teacherID ||
+      ""
+  ).trim();
+};
+
+
+/* =====================================================
+   COMPONENT
+===================================================== */
+
 export default function ExpenseList() {
-  const navigate =
-    useNavigate();
+
+  const navigate = useNavigate();
 
   const currentDate =
     getCurrentYearMonth();
+
 
   const [
     expenses,
     setExpenses
   ] = useState([]);
 
+
   const [
     loading,
     setLoading
   ] = useState(true);
+
 
   const [
     search,
     setSearch
   ] = useState("");
 
+
   const [
     selectedDay,
     setSelectedDay
   ] = useState("");
+
 
   const [
     teacherId,
     setTeacherId
   ] = useState("");
 
+
+  const [
+    adminId,
+    setAdminId
+  ] = useState("");
+
+
   const [
     userRole,
     setUserRole
   ] = useState("");
 
+
   const [
     userBranch,
     setUserBranch
   ] = useState("");
+
 
   const [
     error,
@@ -117,6 +186,7 @@ export default function ExpenseList() {
   ===================================================== */
 
   useEffect(() => {
+
     const user =
       getLoggedInUser();
 
@@ -125,33 +195,109 @@ export default function ExpenseList() {
       user
     );
 
+
     if (!user) {
+
       setError(
-        "Login user information পাওয়া যায়নি।"
+        "Login user information পাওয়া যায়নি। আবার login করুন।"
       );
+
+      setLoading(false);
+
       return;
     }
 
-    const id = String(
-      user.teacher_id ||
-        user.teacherId ||
-        ""
-    ).trim();
 
-    const role = String(
-      user.role || ""
-    )
-      .trim()
-      .toLowerCase();
+    const currentTeacherId =
+      getTeacherIdFromUser(user);
+
+
+    const currentAdminId =
+      getAdminIdFromUser(user);
+
+
+    const currentRole =
+      String(
+        user.role || ""
+      )
+        .trim()
+        .toLowerCase();
+
 
     const branch =
-      user.branch ||
-      user.branch_name ||
-      "";
+      String(
+        user.branch ||
+          user.branch_name ||
+          ""
+      ).trim();
 
-    setTeacherId(id);
-    setUserRole(role);
-    setUserBranch(branch);
+
+    /*
+    =====================================================
+    IMPORTANT
+
+    Admin-এর জন্য teacher_id ব্যবহার করা হবে না।
+
+    Teacher-এর জন্য teacher_id ব্যবহার হবে।
+    =====================================================
+    */
+
+    if (
+      isAdminRole(currentRole)
+    ) {
+
+      setTeacherId("");
+
+    } else {
+
+      setTeacherId(
+        currentTeacherId
+      );
+
+    }
+
+
+    setAdminId(
+      currentAdminId
+    );
+
+
+    setUserRole(
+      currentRole
+    );
+
+
+    if (branch) {
+
+      setUserBranch(
+        branch
+      );
+
+    }
+
+
+    console.log(
+      "Expense User Teacher ID:",
+      isAdminRole(currentRole)
+        ? "ADMIN - NOT USED"
+        : currentTeacherId
+    );
+
+    console.log(
+      "Expense User Admin ID:",
+      currentAdminId
+    );
+
+    console.log(
+      "Expense User Role:",
+      currentRole
+    );
+
+    console.log(
+      "Expense User Branch:",
+      branch
+    );
+
   }, []);
 
 
@@ -161,33 +307,109 @@ export default function ExpenseList() {
 
   const fetchExpenses =
     async () => {
+
       try {
+
         setLoading(true);
+
         setError("");
 
-        if (!teacherId) {
+
+        /*
+        ===================================================
+        ADMIN
+        ===================================================
+
+        Admin-এর জন্য teacher_id প্রয়োজন নেই।
+
+        Teacher-এর জন্য teacher_id প্রয়োজন।
+        ===================================================
+        */
+
+        if (
+          !isAdminRole(userRole) &&
+          !teacherId
+        ) {
+
           setExpenses([]);
 
           setError(
-            "Teacher ID is required."
+            "Login user-এর Teacher ID পাওয়া যায়নি। আবার login করুন।"
           );
 
           setLoading(false);
+
           return;
         }
+
+
+        /*
+        Admin-এর জন্য admin_id-ও না থাকলেও
+        list load করার চেষ্টা করা হবে।
+
+        কারণ মূল filtering হবে role অনুযায়ী।
+        */
 
         const params =
           new URLSearchParams();
 
-        params.append(
-          "teacher_id",
-          teacherId
-        );
+
+        /*
+        ===================================================
+        ROLE
+        ===================================================
+        */
 
         params.append(
           "role",
           userRole
         );
+
+
+        /*
+        ===================================================
+        TEACHER ONLY
+        ===================================================
+
+        শুধুমাত্র Teacher হলে teacher_id পাঠানো হবে।
+        Admin হলে teacher_id একদম পাঠানো হবে না।
+        ===================================================
+        */
+
+        if (
+          !isAdminRole(userRole) &&
+          teacherId
+        ) {
+
+          params.append(
+            "teacher_id",
+            teacherId
+          );
+
+        }
+
+
+        /*
+        ===================================================
+        ADMIN ID
+        ===================================================
+        */
+
+        if (adminId) {
+
+          params.append(
+            "admin_id",
+            adminId
+          );
+
+        }
+
+
+        /*
+        ===================================================
+        CURRENT YEAR
+        ===================================================
+        */
 
         params.append(
           "year",
@@ -196,51 +418,109 @@ export default function ExpenseList() {
           )
         );
 
+
+        /*
+        ===================================================
+        CURRENT MONTH
+        ===================================================
+        */
+
         params.append(
           "month",
           currentDate.month
         );
 
+
+        /*
+        ===================================================
+        SELECTED DAY
+        ===================================================
+        */
+
         if (selectedDay) {
+
           params.append(
             "date",
             `${currentDate.year}-${currentDate.month}-${selectedDay}`
           );
+
         }
+
+
+        /*
+        ===================================================
+        ADMIN FLAG
+
+        Backend-কে পরিষ্কারভাবে জানানো হচ্ছে যে
+        current user Admin হলে ALL branch দেখতে হবে।
+        ===================================================
+        */
+
+        if (
+          isAdminRole(userRole)
+        ) {
+
+          params.append(
+            "scope",
+            "all"
+          );
+
+        } else {
+
+          params.append(
+            "scope",
+            "branch"
+          );
+
+        }
+
 
         const url =
           `${API_BASE_URL}/expense_list.php?${params.toString()}`;
+
 
         console.log(
           "Expense List URL:",
           url
         );
 
+
         const response =
-          await fetch(url, {
-            method: "GET",
-            headers: {
-              Accept:
-                "application/json",
-            },
-          });
+          await fetch(
+            url,
+            {
+              method: "GET",
+
+              headers: {
+                Accept:
+                  "application/json",
+              },
+            }
+          );
+
 
         const text =
           await response.text();
+
 
         console.log(
           "Expense List Raw Response:",
           text
         );
 
+
         let data;
 
+
         try {
+
           data =
             JSON.parse(text);
+
         } catch (jsonError) {
+
           console.error(
-            "Expense List JSON Error:",
+            "Expense JSON Error:",
             jsonError
           );
 
@@ -253,12 +533,9 @@ export default function ExpenseList() {
           return;
         }
 
-        console.log(
-          "Expense List Response:",
-          data
-        );
 
         if (!response.ok) {
+
           setExpenses([]);
 
           setError(
@@ -269,7 +546,9 @@ export default function ExpenseList() {
           return;
         }
 
+
         if (!data.success) {
+
           setExpenses([]);
 
           setError(
@@ -280,43 +559,69 @@ export default function ExpenseList() {
           return;
         }
 
+
         let records = [];
+
 
         if (
           Array.isArray(
             data.data
           )
         ) {
+
           records =
             data.data;
+
         } else if (
           Array.isArray(
             data.expenses
           )
         ) {
+
           records =
             data.expenses;
+
         } else if (
           Array.isArray(
             data.expense
           )
         ) {
+
           records =
             data.expense;
+
         }
 
-        setExpenses(records);
+
+        setExpenses(
+          records
+        );
+
+
+        /*
+        ===================================================
+        USER BRANCH
+
+        শুধু Teacher-এর ক্ষেত্রে branch ব্যবহার করা হবে।
+        Admin-এর ক্ষেত্রে ALL থাকবে।
+        ===================================================
+        */
 
         if (
+          !isAdminRole(userRole) &&
           data.user_branch &&
-          data.user_branch !==
-            "ALL"
+          data.user_branch !== "ALL"
         ) {
+
           setUserBranch(
             data.user_branch
           );
+
         }
+
+
       } catch (error) {
+
         console.error(
           "Expense fetch error:",
           error
@@ -327,17 +632,49 @@ export default function ExpenseList() {
         setError(
           "Expense server-এর সাথে সংযোগ করা যাচ্ছে না।"
         );
+
       } finally {
+
         setLoading(false);
+
       }
     };
 
+
+  /* =====================================================
+     LOAD EXPENSE
+  ===================================================== */
+
   useEffect(() => {
-    if (!teacherId) return;
+
+    /*
+    Admin হলে adminId থাকলেই load হবে।
+
+    Teacher হলে teacherId থাকলেই load হবে।
+    */
+
+    if (
+      isAdminRole(userRole)
+    ) {
+
+      if (!userRole) {
+        return;
+      }
+
+    } else {
+
+      if (!teacherId) {
+        return;
+      }
+
+    }
+
 
     fetchExpenses();
+
   }, [
     teacherId,
+    adminId,
     userRole,
     selectedDay,
   ]);
@@ -349,15 +686,20 @@ export default function ExpenseList() {
 
   const daysInCurrentMonth =
     useMemo(() => {
+
       return new Date(
         currentDate.year,
-        Number(currentDate.month),
+        Number(
+          currentDate.month
+        ),
         0
       ).getDate();
+
     }, [
       currentDate.year,
       currentDate.month,
     ]);
+
 
   const dayOptions =
     Array.from(
@@ -366,8 +708,9 @@ export default function ExpenseList() {
           daysInCurrentMonth,
       },
       (_, index) =>
-        String(index + 1)
-          .padStart(2, "0")
+        String(
+          index + 1
+        ).padStart(2, "0")
     );
 
 
@@ -377,18 +720,23 @@ export default function ExpenseList() {
 
   const filteredExpenses =
     useMemo(() => {
+
       const searchText =
         search
           .trim()
           .toLowerCase();
 
+
       return expenses.filter(
         (item) => {
+
           if (!searchText) {
             return true;
           }
 
+
           return (
+
             String(
               item.expense_type ||
                 ""
@@ -432,10 +780,22 @@ export default function ExpenseList() {
               .toLowerCase()
               .includes(
                 searchText
+              ) ||
+
+            String(
+              item.branch ||
+                ""
+            )
+              .toLowerCase()
+              .includes(
+                searchText
               )
+
           );
+
         }
       );
+
     }, [
       expenses,
       search,
@@ -461,91 +821,147 @@ export default function ExpenseList() {
      DELETE
   ===================================================== */
 
-  const handleDelete = async (
-    id
-  ) => {
-    const confirmDelete =
-      window.confirm(
-        "আপনি কি এই Expense record টি delete করতে চান?"
-      );
+  const handleDelete =
+    async (id) => {
 
-    if (!confirmDelete) {
-      return;
-    }
-
-    try {
-      const response =
-        await fetch(
-          `${API_BASE_URL}/expense_delete.php`,
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json",
-              Accept:
-                "application/json",
-            },
-
-            body: JSON.stringify({
-              id,
-              teacher_id:
-                teacherId,
-              role:
-                userRole,
-            }),
-          }
+      const confirmDelete =
+        window.confirm(
+          "আপনি কি এই Expense record টি delete করতে চান?"
         );
 
-      const data =
-        await response.json();
 
-      if (data.success) {
-        alert(
-          "Expense সফলভাবে delete হয়েছে।"
-        );
-
-        fetchExpenses();
-      } else {
-        alert(
-          data.message ||
-            "Expense delete করা যায়নি।"
-        );
+      if (!confirmDelete) {
+        return;
       }
-    } catch (error) {
-      console.error(
-        "Expense delete error:",
-        error
-      );
 
-      alert(
-        "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
-      );
-    }
-  };
+
+      try {
+
+        /*
+        ===================================================
+        DELETE DATA
+        ===================================================
+        */
+
+        const deleteData = {
+          id,
+          role: userRole,
+        };
+
+
+        /*
+        Admin হলে teacher_id পাঠানো হবে না।
+        Teacher হলে teacher_id পাঠানো হবে।
+        */
+
+        if (
+          !isAdminRole(userRole) &&
+          teacherId
+        ) {
+
+          deleteData.teacher_id =
+            teacherId;
+
+        }
+
+
+        /*
+        Admin ID থাকলে পাঠানো হবে।
+        */
+
+        if (adminId) {
+
+          deleteData.admin_id =
+            adminId;
+
+        }
+
+
+        const response =
+          await fetch(
+            `${API_BASE_URL}/expense_delete.php`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                Accept:
+                  "application/json",
+              },
+
+              body:
+                JSON.stringify(
+                  deleteData
+                ),
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (data.success) {
+
+          alert(
+            "Expense সফলভাবে delete হয়েছে।"
+          );
+
+          fetchExpenses();
+
+        } else {
+
+          alert(
+            data.message ||
+              "Expense delete করা যায়নি।"
+          );
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Expense delete error:",
+          error
+        );
+
+        alert(
+          "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
+        );
+
+      }
+
+    };
 
 
   /* =====================================================
      EDIT
   ===================================================== */
 
-  const handleEdit = (
-    id
-  ) => {
-    navigate(
-      `/admin/expense-edit/${id}`
-    );
-  };
+  const handleEdit =
+    (id) => {
+
+      navigate(
+        `/admin/expense-edit/${id}`
+      );
+
+    };
 
 
   /* =====================================================
      CLEAR
   ===================================================== */
 
-  const clearFilters = () => {
-    setSearch("");
-    setSelectedDay("");
-  };
+  const clearFilters =
+    () => {
+
+      setSearch("");
+
+      setSelectedDay("");
+
+    };
 
 
   /* =====================================================
@@ -553,11 +969,17 @@ export default function ExpenseList() {
   ===================================================== */
 
   return (
+
     <div className="expense-list">
+
+      {/* =================================================
+          HEADER
+      ================================================= */}
 
       <div className="expense-list-header">
 
         <div>
+
           <h1>
             Expense List
           </h1>
@@ -566,18 +988,53 @@ export default function ExpenseList() {
             Current Month Expense
           </p>
 
+
+          {/* =============================================
+              ONLY TEACHER BRANCH
+          ============================================= */}
+
           {!isAdminRole(
             userRole
           ) &&
             userBranch && (
-              <p>
-                Branch:{" "}
-                <strong>
-                  {userBranch}
-                </strong>
-              </p>
-            )}
+
+            <p>
+
+              Branch:{" "}
+
+              <strong>
+                {userBranch}
+              </strong>
+
+            </p>
+
+          )}
+
+
+          {/* =============================================
+              ADMIN LABEL
+          ============================================= */}
+
+          {isAdminRole(
+            userRole
+          ) && (
+
+            <p>
+
+              <strong>
+                All Branches
+              </strong>
+
+            </p>
+
+          )}
+
         </div>
+
+
+        {/* =================================================
+            TOTAL
+        ================================================= */}
 
         <div className="expense-total">
 
@@ -586,17 +1043,26 @@ export default function ExpenseList() {
           </span>
 
           <strong>
+
             ৳{" "}
+
             {totalExpense.toLocaleString(
               "en-BD"
             )}
+
           </strong>
 
         </div>
+
       </div>
 
 
+      {/* =================================================
+          ERROR
+      ================================================= */}
+
       {error && (
+
         <div
           className="expense-message"
           style={{
@@ -604,10 +1070,17 @@ export default function ExpenseList() {
               "15px",
           }}
         >
+
           {error}
+
         </div>
+
       )}
 
+
+      {/* =================================================
+          FILTERS
+      ================================================= */}
 
       <div className="expense-filters">
 
@@ -622,10 +1095,14 @@ export default function ExpenseList() {
           }
         />
 
+
         <div className="expense-current-month">
+
           {currentDate.year}-
           {currentDate.month}
+
         </div>
+
 
         <select
           value={
@@ -637,21 +1114,29 @@ export default function ExpenseList() {
             )
           }
         >
+
           <option value="">
             All Days
           </option>
 
+
           {dayOptions.map(
             (day) => (
+
               <option
                 key={day}
                 value={day}
               >
+
                 Day {Number(day)}
+
               </option>
+
             )
           )}
+
         </select>
+
 
         <button
           type="button"
@@ -660,44 +1145,88 @@ export default function ExpenseList() {
             clearFilters
           }
         >
+
           Clear
+
         </button>
 
       </div>
 
 
+      {/* =================================================
+          TABLE
+      ================================================= */}
+
       <div className="expense-table-wrapper">
 
         {loading ? (
+
           <div className="expense-loading">
+
             Loading...
+
           </div>
-        ) : filteredExpenses.length ===
-          0 ? (
+
+        ) : filteredExpenses.length === 0 ? (
+
           <div className="expense-empty">
+
             No expense records found.
+
           </div>
+
         ) : (
+
           <table className="expense-table">
 
             <thead>
+
               <tr>
+
                 <th>#</th>
-                <th>Date</th>
-                <th>Expense Type</th>
-                <th>Staff</th>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Payment</th>
-                <th>Branch</th>
-                <th>Action</th>
+
+                <th>
+                  Date
+                </th>
+
+                <th>
+                  Expense Type
+                </th>
+
+                <th>
+                  Staff
+                </th>
+
+                <th>
+                  Description
+                </th>
+
+                <th>
+                  Amount
+                </th>
+
+                <th>
+                  Payment
+                </th>
+
+                <th>
+                  Branch
+                </th>
+
+                <th>
+                  Action
+                </th>
+
               </tr>
+
             </thead>
+
 
             <tbody>
 
               {filteredExpenses.map(
                 (item, index) => (
+
                   <tr
                     key={
                       item.id ??
@@ -709,56 +1238,83 @@ export default function ExpenseList() {
                       {index + 1}
                     </td>
 
+
                     <td>
                       {item.expense_date ||
                         "-"}
                     </td>
 
-                    <td>
-                      <span className="expense-type">
-                        {item.expense_type ||
-                          "-"}
-                      </span>
-                    </td>
 
                     <td>
+
+                      <span className="expense-type">
+
+                        {item.expense_type ||
+                          "-"}
+
+                      </span>
+
+                    </td>
+
+
+                    <td>
+
                       <strong>
+
                         {item.staff_id ||
                           "-"}
+
                       </strong>
 
                       <br />
 
                       <small>
+
                         {item.staff_name ||
                           ""}
+
                       </small>
+
                     </td>
+
 
                     <td>
+
                       {item.description ||
                         "-"}
+
                     </td>
 
+
                     <td className="expense-amount">
+
                       ৳{" "}
+
                       {Number(
                         item.amount ||
                           0
                       ).toLocaleString(
                         "en-BD"
                       )}
+
                     </td>
 
+
                     <td>
+
                       {item.payment_method ||
                         "-"}
+
                     </td>
 
+
                     <td>
+
                       {item.branch ||
                         "-"}
+
                     </td>
+
 
                     <td>
 
@@ -773,8 +1329,11 @@ export default function ExpenseList() {
                             )
                           }
                         >
+
                           ✏️
+
                         </button>
+
 
                         <button
                           type="button"
@@ -785,7 +1344,9 @@ export default function ExpenseList() {
                             )
                           }
                         >
+
                           🗑️
+
                         </button>
 
                       </div>
@@ -793,16 +1354,19 @@ export default function ExpenseList() {
                     </td>
 
                   </tr>
+
                 )
               )}
 
             </tbody>
 
           </table>
+
         )}
 
       </div>
 
     </div>
+
   );
 }

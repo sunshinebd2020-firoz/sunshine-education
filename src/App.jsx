@@ -42,6 +42,8 @@ import ExpenseEdit from "./admin/pages/ExpenseEdit";
 
 // ================= INCOME-EXPENSE REPORT =================
 import IncomeExpenseReport from "./admin/pages/IncomeExpenseReport";
+import DueList from "./admin/pages/DueList";
+import IncomeVoucher from "./admin/pages/IncomeVoucher";
 
 
 // ================= NOTICE =================
@@ -356,6 +358,16 @@ export default function App() {
             <Route
               path="income-expense-report"
               element={<IncomeExpenseReport />}
+            />
+
+            <Route
+              path="/admin/due-list"
+              element={<DueList />}
+            />
+
+            <Route
+              path="/admin/income-voucher/:id"
+              element={<IncomeVoucher />}
             />
 
           </Route>

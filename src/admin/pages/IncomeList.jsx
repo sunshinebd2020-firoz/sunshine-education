@@ -5,7 +5,13 @@ import { useNavigate } from "react-router-dom";
 const API_BASE_URL =
   "http://localhost/sunshine-api/api";
 
+
+/* =====================================================
+   LOGIN USER
+===================================================== */
+
 const getLoggedInUser = () => {
+
   const keys = [
     "sunshine_user",
     "admin",
@@ -14,19 +20,28 @@ const getLoggedInUser = () => {
   ];
 
   for (const key of keys) {
-    const value = localStorage.getItem(key);
+
+    const value =
+      localStorage.getItem(key);
 
     if (!value) continue;
 
     try {
-      const user = JSON.parse(value);
 
-      if (user && typeof user === "object") {
+      const user =
+        JSON.parse(value);
+
+      if (
+        user &&
+        typeof user === "object"
+      ) {
         return user;
       }
+
     } catch (error) {
+
       console.error(
-        `Invalid localStorage data: ${key}`,
+        "Invalid user storage:",
         error
       );
     }
@@ -35,49 +50,74 @@ const getLoggedInUser = () => {
   return null;
 };
 
-const getCurrentYearMonth = () => {
-  const now = new Date();
 
-  return {
-    year: now.getFullYear(),
-    month: String(
-      now.getMonth() + 1
-    ).padStart(2, "0"),
-    day: String(
-      now.getDate()
-    ).padStart(2, "0"),
-  };
-};
+/* =====================================================
+   ADMIN
+===================================================== */
 
 const isAdminRole = (role) => {
-  const normalizedRole = String(
-    role || ""
-  )
-    .trim()
-    .toLowerCase();
+
+  const value =
+    String(role || "")
+      .trim()
+      .toLowerCase();
 
   return [
     "admin",
     "administrator",
     "super admin",
     "superadmin",
-  ].includes(normalizedRole);
+  ].includes(value);
 };
 
+
+/* =====================================================
+   DATE
+===================================================== */
+
+const getCurrentDate = () => {
+
+  const now =
+    new Date();
+
+  return {
+    year:
+      now.getFullYear(),
+
+    month:
+      String(
+        now.getMonth() + 1
+      ).padStart(2, "0"),
+  };
+};
+
+
 export default function IncomeList() {
-  const navigate = useNavigate();
+
+  const navigate =
+    useNavigate();
+
 
   const currentDate =
-    getCurrentYearMonth();
+    getCurrentDate();
 
-  const [income, setIncome] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  const [search, setSearch] = useState("");
+  const [income, setIncome] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [search, setSearch] =
+    useState("");
+
   const [selectedDay, setSelectedDay] =
     useState("");
 
   const [teacherId, setTeacherId] =
+    useState("");
+
+  const [adminId, setAdminId] =
     useState("");
 
   const [userRole, setUserRole] =
@@ -86,407 +126,504 @@ export default function IncomeList() {
   const [userBranch, setUserBranch] =
     useState("");
 
-  const [error, setError] = useState("");
+  const [error, setError] =
+    useState("");
+
+  const [totalIncome, setTotalIncome] =
+    useState(0);
+
 
   /* =====================================================
-     LOAD LOGGED USER
+     LOAD USER
   ===================================================== */
 
   useEffect(() => {
-    const user = getLoggedInUser();
 
-    console.log(
-      "Income List Logged User:",
-      user
-    );
+    const user =
+      getLoggedInUser();
+
 
     if (!user) {
+
       setError(
-        "Login user information পাওয়া যায়নি।"
+        "Login user information পাওয়া যায়নি। আবার login করুন।"
       );
+
+      setLoading(false);
+
       return;
     }
 
-    const id = String(
-      user.teacher_id ||
+
+    const id =
+      String(
+        user.teacher_id ||
         user.teacherId ||
         ""
-    ).trim();
+      ).trim();
 
-    const role = String(
-      user.role || ""
-    )
-      .trim()
-      .toLowerCase();
+
+    const aid =
+      String(
+        user.admin_id ||
+        user.adminId ||
+        user.user_id ||
+        user.userId ||
+        user.id ||
+        ""
+      ).trim();
+
+
+    const role =
+      String(
+        user.role || ""
+      )
+        .trim()
+        .toLowerCase();
+
 
     const branch =
-      user.branch ||
-      user.branch_name ||
-      "";
+      String(
+        user.branch ||
+        user.branch_name ||
+        ""
+      ).trim();
+
 
     setTeacherId(id);
+
+    setAdminId(aid);
+
     setUserRole(role);
+
     setUserBranch(branch);
+
   }, []);
 
+
   /* =====================================================
-     FETCH INCOME
+     FETCH
   ===================================================== */
 
-  const fetchIncome = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      if (!teacherId) {
-        setIncome([]);
-
-        setError(
-          "Teacher ID is required."
-        );
-
-        setLoading(false);
-        return;
-      }
-
-      const params =
-        new URLSearchParams();
-
-      params.append(
-        "teacher_id",
-        teacherId
-      );
-
-      params.append(
-        "role",
-        userRole
-      );
-
-      params.append(
-        "year",
-        String(
-          currentDate.year
-        )
-      );
-
-      params.append(
-        "month",
-        currentDate.month
-      );
-
-      if (selectedDay) {
-        params.append(
-          "date",
-          `${currentDate.year}-${currentDate.month}-${selectedDay}`
-        );
-      }
-
-      const url =
-        `${API_BASE_URL}/income_list.php?${params.toString()}`;
-
-      console.log(
-        "Income List URL:",
-        url
-      );
-
-      const response =
-        await fetch(url, {
-          method: "GET",
-          headers: {
-            Accept:
-              "application/json",
-          },
-        });
-
-      const text =
-        await response.text();
-
-      console.log(
-        "Income List Raw Response:",
-        text
-      );
-
-      let data;
+  const fetchIncome =
+    async () => {
 
       try {
-        data = JSON.parse(text);
-      } catch (jsonError) {
-        console.error(
-          "Income List JSON Error:",
-          jsonError
+
+        setLoading(true);
+
+        setError("");
+
+
+        if (
+          !teacherId &&
+          !adminId
+        ) {
+
+          setIncome([]);
+
+          setError(
+            "Login user ID পাওয়া যাচ্ছে না। আবার login করুন।"
+          );
+
+          setLoading(false);
+
+          return;
+        }
+
+
+        const params =
+          new URLSearchParams();
+
+
+        if (teacherId) {
+
+          params.append(
+            "teacher_id",
+            teacherId
+          );
+        }
+
+
+        if (adminId) {
+
+          params.append(
+            "admin_id",
+            adminId
+          );
+        }
+
+
+        params.append(
+          "year",
+          currentDate.year
         );
 
-        setIncome([]);
 
-        setError(
-          "Income API থেকে সঠিক JSON response পাওয়া যায়নি।"
+        params.append(
+          "month",
+          currentDate.month
         );
 
-        return;
-      }
 
-      console.log(
-        "Income List Response:",
-        data
-      );
+        if (selectedDay) {
 
-      if (!response.ok) {
-        setIncome([]);
+          params.append(
+            "date",
+            `${currentDate.year}-${currentDate.month}-${selectedDay}`
+          );
+        }
 
-        setError(
-          data.message ||
-            `Server Error: ${response.status}`
-        );
 
-        return;
-      }
+        const response =
+          await fetch(
+            `${API_BASE_URL}/income_list.php?${params.toString()}`
+          );
 
-      if (!data.success) {
-        setIncome([]);
 
-        setError(
-          data.message ||
+        const text =
+          await response.text();
+
+
+        let data;
+
+
+        try {
+
+          data =
+            JSON.parse(text);
+
+        } catch {
+
+          throw new Error(
+            "Income API থেকে সঠিক JSON পাওয়া যায়নি।"
+          );
+        }
+
+
+        if (!data.success) {
+
+          setIncome([]);
+
+          setError(
+            data.message ||
             "Income data পাওয়া যায়নি।"
+          );
+
+          return;
+        }
+
+
+        const records =
+          Array.isArray(
+            data.data
+          )
+            ? data.data
+            : [];
+
+
+        setIncome(
+          records
         );
 
-        return;
-      }
 
-      let records = [];
-
-      if (Array.isArray(data.data)) {
-        records = data.data;
-      } else if (
-        Array.isArray(data.income)
-      ) {
-        records = data.income;
-      } else if (
-        Array.isArray(data.incomes)
-      ) {
-        records = data.incomes;
-      }
-
-      setIncome(records);
-
-      if (
-        data.user_branch &&
-        data.user_branch !== "ALL"
-      ) {
-        setUserBranch(
-          data.user_branch
+        setTotalIncome(
+          Number(
+            data.total_income || 0
+          )
         );
+
+
+        if (
+          data.user_branch &&
+          data.user_branch !== "ALL"
+        ) {
+
+          setUserBranch(
+            data.user_branch
+          );
+
+        } else if (
+          data.user_branch === "ALL"
+        ) {
+
+          setUserBranch("");
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Income fetch error:",
+          error
+        );
+
+        setIncome([]);
+
+        setError(
+          error.message ||
+          "Income server-এর সাথে সংযোগ করা যাচ্ছে না।"
+        );
+
+      } finally {
+
+        setLoading(false);
       }
-    } catch (error) {
-      console.error(
-        "Income fetch error:",
-        error
-      );
+    };
 
-      setIncome([]);
 
-      setError(
-        "Income server-এর সাথে সংযোগ করা যাচ্ছে না।"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  /* =====================================================
+     LOAD
+  ===================================================== */
 
   useEffect(() => {
-    if (!teacherId) return;
+
+    if (
+      !teacherId &&
+      !adminId
+    ) {
+      return;
+    }
 
     fetchIncome();
+
   }, [
     teacherId,
-    userRole,
+    adminId,
     selectedDay,
   ]);
 
+
   /* =====================================================
-     CURRENT MONTH DAYS
+     DAYS
   ===================================================== */
 
-  const daysInCurrentMonth =
-    useMemo(() => {
-      return new Date(
-        currentDate.year,
-        Number(currentDate.month),
-        0
-      ).getDate();
-    }, [
+  const daysInMonth =
+    new Date(
       currentDate.year,
-      currentDate.month,
-    ]);
+      Number(
+        currentDate.month
+      ),
+      0
+    ).getDate();
+
 
   const dayOptions =
     Array.from(
       {
         length:
-          daysInCurrentMonth,
+          daysInMonth,
       },
       (_, index) =>
-        String(index + 1).padStart(
-          2,
-          "0"
-        )
+        String(
+          index + 1
+        ).padStart(2, "0")
     );
 
+
   /* =====================================================
-     SEARCH FILTER
+     SEARCH
   ===================================================== */
 
   const filteredIncome =
     useMemo(() => {
-      const searchText =
-        search.trim().toLowerCase();
+
+      const text =
+        search
+          .trim()
+          .toLowerCase();
+
+
+      if (!text) {
+        return income;
+      }
+
 
       return income.filter(
         (item) => {
-          if (!searchText) {
-            return true;
-          }
 
           return (
+
             String(
               item.income_type || ""
             )
               .toLowerCase()
-              .includes(searchText) ||
-
-            String(
-              item.description || ""
-            )
-              .toLowerCase()
-              .includes(searchText) ||
-
-            String(
-              item.payment_method || ""
-            )
-              .toLowerCase()
-              .includes(searchText) ||
+              .includes(text) ||
 
             String(
               item.student_id || ""
             )
               .toLowerCase()
-              .includes(searchText) ||
+              .includes(text) ||
 
             String(
               item.student_name || ""
             )
               .toLowerCase()
-              .includes(searchText)
+              .includes(text) ||
+
+            String(
+              item.description || ""
+            )
+              .toLowerCase()
+              .includes(text) ||
+
+            String(
+              item.payment_method || ""
+            )
+              .toLowerCase()
+              .includes(text) ||
+
+            String(
+              item.branch || ""
+            )
+              .toLowerCase()
+              .includes(text) ||
+
+            String(
+              item.entry_by_name || ""
+            )
+              .toLowerCase()
+              .includes(text)
           );
         }
       );
-    }, [income, search]);
 
-  /* =====================================================
-     TOTAL
-  ===================================================== */
+    }, [
+      income,
+      search,
+    ]);
 
-  const totalIncome =
-    filteredIncome.reduce(
-      (total, item) =>
-        total +
-        Number(item.amount || 0),
-      0
-    );
 
   /* =====================================================
      DELETE
   ===================================================== */
 
-  const handleDelete = async (
-    id
-  ) => {
-    const confirmDelete =
-      window.confirm(
-        "আপনি কি এই Income record টি delete করতে চান?"
-      );
+  const handleDelete =
+    async (id) => {
 
-    if (!confirmDelete) {
-      return;
-    }
+      if (
+        !window.confirm(
+          "আপনি কি এই Income record টি delete করতে চান?"
+        )
+      ) {
+        return;
+      }
 
-    try {
-      const response =
-        await fetch(
-          `${API_BASE_URL}/income_delete.php`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json",
-              Accept:
-                "application/json",
-            },
-            body: JSON.stringify({
-              id,
-              teacher_id:
-                teacherId,
-              role:
-                userRole,
-            }),
-          }
-        );
 
-      const data =
-        await response.json();
+      try {
 
-      if (data.success) {
-        alert(
-          "Income সফলভাবে delete হয়েছে।"
-        );
+        const response =
+          await fetch(
+            `${API_BASE_URL}/income_delete.php`,
+            {
+              method: "POST",
 
-        fetchIncome();
-      } else {
-        alert(
-          data.message ||
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                Accept:
+                  "application/json",
+              },
+
+              body:
+                JSON.stringify({
+                  id,
+
+                  teacher_id:
+                    teacherId,
+
+                  admin_id:
+                    adminId,
+
+                  role:
+                    userRole,
+                }),
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (data.success) {
+
+          alert(
+            "Income সফলভাবে delete হয়েছে।"
+          );
+
+          fetchIncome();
+
+        } else {
+
+          alert(
+            data.message ||
             "Income delete করা যায়নি।"
+          );
+        }
+
+      } catch (error) {
+
+        console.error(
+          error
+        );
+
+        alert(
+          "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
         );
       }
-    } catch (error) {
-      console.error(
-        "Income delete error:",
-        error
-      );
+    };
 
-      alert(
-        "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
-      );
-    }
-  };
 
   /* =====================================================
      EDIT
   ===================================================== */
 
-  const handleEdit = (id) => {
-    navigate(
-      `/admin/income-edit/${id}`
-    );
-  };
+  const handleEdit =
+    (id) => {
+
+      navigate(
+        `/admin/income-edit/${id}`
+      );
+    };
+
+
+  /* =====================================================
+     VOUCHER
+  ===================================================== */
+
+  const handleVoucher =
+    (id) => {
+
+      navigate(
+        `/admin/income-voucher/${id}`
+      );
+    };
+
 
   /* =====================================================
      CLEAR
   ===================================================== */
 
-  const clearFilters = () => {
-    setSearch("");
-    setSelectedDay("");
-  };
+  const clearFilters =
+    () => {
 
-  /* =====================================================
-     RENDER
-  ===================================================== */
+      setSearch("");
+
+      setSelectedDay("");
+    };
+
 
   return (
+
     <div className="income-list">
 
       <div className="income-list-header">
 
-        <div>
+        <div className="income-title">
+
           <h1>
             Income List
           </h1>
@@ -495,18 +632,33 @@ export default function IncomeList() {
             Current Month Income
           </p>
 
-          {!isAdminRole(
+
+          {isAdminRole(
             userRole
-          ) &&
+          ) ? (
+
+            <p>
+              Branch:{" "}
+              <strong>
+                All Branches
+              </strong>
+            </p>
+
+          ) : (
+
             userBranch && (
+
               <p>
                 Branch:{" "}
                 <strong>
                   {userBranch}
                 </strong>
               </p>
-            )}
+            )
+          )}
+
         </div>
+
 
         <div className="income-total">
 
@@ -516,31 +668,35 @@ export default function IncomeList() {
 
           <strong>
             ৳{" "}
-            {totalIncome.toLocaleString(
+            {Number(
+              totalIncome
+            ).toLocaleString(
               "en-BD"
             )}
           </strong>
 
         </div>
+
       </div>
 
+
       {error && (
-        <div
-          className="income-message"
-          style={{
-            marginBottom: "15px",
-          }}
-        >
+
+        <div className="income-message">
           {error}
         </div>
+
       )}
+
 
       <div className="income-filters">
 
         <input
           type="text"
           placeholder="Search income..."
-          value={search}
+          value={
+            search
+          }
           onChange={(e) =>
             setSearch(
               e.target.value
@@ -548,34 +704,45 @@ export default function IncomeList() {
           }
         />
 
+
         <div className="income-current-month">
+
           {currentDate.year}-
           {currentDate.month}
+
         </div>
 
+
         <select
-          value={selectedDay}
+          value={
+            selectedDay
+          }
           onChange={(e) =>
             setSelectedDay(
               e.target.value
             )
           }
         >
+
           <option value="">
             All Days
           </option>
 
           {dayOptions.map(
             (day) => (
+
               <option
                 key={day}
                 value={day}
               >
                 Day {Number(day)}
               </option>
+
             )
           )}
+
         </select>
+
 
         <button
           type="button"
@@ -589,41 +756,80 @@ export default function IncomeList() {
 
       </div>
 
+
       <div className="income-table-wrapper">
 
         {loading ? (
+
           <div className="income-loading">
             Loading...
           </div>
-        ) : filteredIncome.length === 0 ? (
+
+        ) : filteredIncome.length ===
+          0 ? (
+
           <div className="income-empty">
             No income records found.
           </div>
+
         ) : (
+
           <table className="income-table">
 
             <thead>
+
               <tr>
+
                 <th>#</th>
+
                 <th>Date</th>
-                <th>Income Type</th>
-                <th>Student</th>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Payment</th>
-                <th>Branch</th>
-                <th>Action</th>
+
+                <th>
+                  Income Type
+                </th>
+
+                <th>
+                  Student
+                </th>
+
+                <th>
+                  Description
+                </th>
+
+                <th>
+                  Amount
+                </th>
+
+                <th>
+                  Payment
+                </th>
+
+                <th>
+                  Branch
+                </th>
+
+                <th>
+                  Entry By
+                </th>
+
+                <th>
+                  Action
+                </th>
+
               </tr>
+
             </thead>
+
 
             <tbody>
 
               {filteredIncome.map(
                 (item, index) => (
+
                   <tr
                     key={
-                      item.id ??
-                      `income-${index}`
+                      item.id ||
+                      index
                     }
                   >
 
@@ -631,63 +837,128 @@ export default function IncomeList() {
                       {index + 1}
                     </td>
 
+
                     <td>
-                      {item.income_date ||
-                        "-"}
+                      {
+                        item.income_date ||
+                        "-"
+                      }
                     </td>
+
 
                     <td>
                       <span className="income-type">
-                        {item.income_type ||
-                          "-"}
+                        {
+                          item.income_type ||
+                          "-"
+                        }
                       </span>
                     </td>
 
-                    <td>
-                      <strong>
-                        {item.student_id ||
-                          "-"}
-                      </strong>
-
-                      <br />
-
-                      <small>
-                        {item.student_name ||
-                          ""}
-                      </small>
-                    </td>
 
                     <td>
-                      {item.description ||
-                        "-"}
+
+                      {item.student_id ? (
+
+                        <>
+                          <strong>
+                            {
+                              item.student_id
+                            }
+                          </strong>
+
+                          <br />
+
+                          <small>
+                            {
+                              item.student_name ||
+                              ""
+                            }
+                          </small>
+                        </>
+
+                      ) : (
+
+                        <span className="non-student">
+                          Non-Student
+                        </span>
+
+                      )}
+
                     </td>
+
+
+                    <td>
+                      {
+                        item.description ||
+                        "-"
+                      }
+                    </td>
+
 
                     <td className="income-amount">
+
                       ৳{" "}
                       {Number(
                         item.amount ||
-                          0
+                        0
                       ).toLocaleString(
                         "en-BD"
                       )}
+
                     </td>
 
-                    <td>
-                      {item.payment_method ||
-                        "-"}
-                    </td>
 
                     <td>
-                      {item.branch ||
-                        "-"}
+                      {
+                        item.payment_method ||
+                        "-"
+                      }
                     </td>
 
+
                     <td>
+                      {
+                        item.branch ||
+                        "-"
+                      }
+                    </td>
+
+
+                    <td>
+
+                      <small>
+                        {
+                          item.entry_by_name ||
+                          "-"
+                        }
+                      </small>
+
+                    </td>
+
+
+                    <td>
+
                       <div className="income-actions">
 
                         <button
                           type="button"
+                          className="voucher-btn"
+                          title="Open Voucher"
+                          onClick={() =>
+                            handleVoucher(
+                              item.id
+                            )
+                          }
+                        >
+                          🧾
+                        </button>
+
+
+                        <button
+                          type="button"
                           className="edit-btn"
+                          title="Edit"
                           onClick={() =>
                             handleEdit(
                               item.id
@@ -697,9 +968,11 @@ export default function IncomeList() {
                           ✏️
                         </button>
 
+
                         <button
                           type="button"
                           className="delete-btn"
+                          title="Delete"
                           onClick={() =>
                             handleDelete(
                               item.id
@@ -710,18 +983,22 @@ export default function IncomeList() {
                         </button>
 
                       </div>
+
                     </td>
 
                   </tr>
+
                 )
               )}
 
             </tbody>
 
           </table>
+
         )}
 
       </div>
+
     </div>
   );
 }

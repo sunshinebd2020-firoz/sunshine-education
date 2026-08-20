@@ -4,6 +4,7 @@
 
 .income-list {
   padding: 30px;
+  box-sizing: border-box;
 }
 
 
@@ -17,16 +18,20 @@
   margin-bottom: 20px;
 }
 
-.income-list-header h1 {
+.income-title h1 {
   margin: 0 0 5px;
   color: #1e293b;
   font-size: 28px;
 }
 
-.income-list-header p {
-  margin: 0;
+.income-title p {
+  margin: 3px 0;
   color: #64748b;
   font-size: 14px;
+}
+
+.income-title strong {
+  color: #334155;
 }
 
 
@@ -39,6 +44,7 @@
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .income-total span {
@@ -48,6 +54,19 @@
 .income-total strong {
   color: #15803d;
   font-size: 16px;
+}
+
+
+/* ================= MESSAGE ================= */
+
+.income-message {
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 14px;
 }
 
 
@@ -78,17 +97,34 @@
 }
 
 .income-filters select {
-  width: 200px;
-}
-
-.income-filters input[type="date"] {
-  width: 160px;
+  width: 150px;
 }
 
 .income-filters input:focus,
 .income-filters select:focus {
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  box-shadow:
+    0 0 0 3px
+    rgba(59, 130, 246, 0.12);
+}
+
+
+/* ================= CURRENT MONTH ================= */
+
+.income-current-month {
+  height: 40px;
+  min-width: 100px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 
@@ -111,19 +147,16 @@
 
 
 /* =====================================================
-   SCROLL BOX
+   TABLE WRAPPER
 ===================================================== */
 
 .income-table-wrapper {
   height: calc(100vh - 300px);
   min-height: 350px;
-
   overflow-y: auto;
   overflow-x: auto;
-
   border: 1px solid #ddd;
   border-radius: 8px;
-
   background: #fff;
 }
 
@@ -137,38 +170,30 @@
 }
 
 
-/* ================= FIXED HEADER ================= */
+/* ================= TABLE HEADER ================= */
 
 .income-table thead th {
   position: sticky;
   top: 0;
   z-index: 10;
-
   background: #f5f5f5;
   color: #334155;
-
   font-size: 13px;
   font-weight: 600;
-
-  padding: 7px 8px;
-
+  padding: 8px;
   border-bottom: 1px solid #e2e8f0;
-
   text-align: left;
   white-space: nowrap;
 }
 
 
-/* ================= CELLS ================= */
+/* ================= TABLE CELLS ================= */
 
 .income-table td {
-  padding: 6px 8px;
-
+  padding: 7px 8px;
   border-bottom: 1px solid #e2e8f0;
-
   text-align: left;
   white-space: nowrap;
-
   color: #475569;
   font-size: 13px;
 }
@@ -182,18 +207,31 @@
 }
 
 
+/* ================= STUDENT ================= */
+
+.income-table td strong {
+  color: #334155;
+}
+
+.income-table td small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.non-student {
+  color: #64748b;
+  font-style: italic;
+}
+
+
 /* ================= INCOME TYPE ================= */
 
 .income-type {
   display: inline-block;
-
   padding: 4px 8px;
-
   border-radius: 5px;
-
   background: #eff6ff;
   color: #1d4ed8;
-
   font-size: 12px;
   font-weight: 600;
 }
@@ -220,20 +258,14 @@
 .income-actions button {
   width: 32px;
   height: 32px;
-
   padding: 0;
-
   border: none;
   border-radius: 6px;
-
   font-size: 14px;
-
   cursor: pointer;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   transition: 0.2s;
 }
 
@@ -265,23 +297,27 @@
 /* ================= LOADING ================= */
 
 .income-loading {
-  padding: 30px;
+  padding: 40px;
   text-align: center;
   color: #64748b;
+  font-size: 14px;
 }
 
 
 /* ================= EMPTY ================= */
 
 .income-empty {
-  padding: 30px;
+  padding: 40px;
   text-align: center;
   color: #64748b;
   background: #fff;
+  font-size: 14px;
 }
 
 
-/* ================= MOBILE ================= */
+/* =====================================================
+   MOBILE
+===================================================== */
 
 @media (max-width: 768px) {
 
@@ -294,7 +330,7 @@
     flex-direction: column;
   }
 
-  .income-list-header h1 {
+  .income-title h1 {
     font-size: 24px;
   }
 
@@ -310,7 +346,7 @@
 
   .income-filters input[type="text"],
   .income-filters select,
-  .income-filters input[type="date"],
+  .income-current-month,
   .clear-filter {
     width: 100%;
   }

@@ -12,12 +12,10 @@ import {
 
 import "./AdminLayout.css";
 
-
 export default function AdminLayout() {
 
   const location = useLocation();
   const navigate = useNavigate();
-
 
   /* =====================================================
      USER
@@ -25,27 +23,20 @@ export default function AdminLayout() {
 
   const [user, setUser] = useState(null);
 
-
   useEffect(() => {
 
     const savedUser =
-      localStorage.getItem(
-        "sunshine_user"
-      );
-
+      localStorage.getItem("sunshine_user");
 
     if (!savedUser) {
 
       navigate(
         "/admin/login",
-        {
-          replace: true,
-        }
+        { replace: true }
       );
 
       return;
     }
-
 
     try {
 
@@ -54,14 +45,12 @@ export default function AdminLayout() {
 
       setUser(loggedInUser);
 
-
     } catch (error) {
 
       console.error(
         "User parse error:",
         error
       );
-
 
       localStorage.removeItem(
         "sunshine_user"
@@ -71,31 +60,60 @@ export default function AdminLayout() {
         "sunshine_logged_in"
       );
 
+      localStorage.removeItem(
+        "teacher_branch"
+      );
+
+      localStorage.removeItem(
+        "is_admin"
+      );
 
       navigate(
         "/admin/login",
-        {
-          replace: true,
-        }
+        { replace: true }
       );
-
     }
 
   }, [navigate]);
 
-
   /* =====================================================
-     ADMIN
+     ROLE
   ===================================================== */
 
-  const isAdmin =
+  const role =
     String(
       user?.role || ""
     )
       .trim()
-      .toLowerCase() ===
-    "admin";
+      .toLowerCase();
 
+  const isAdmin =
+    role === "admin" ||
+    role === "administrator" ||
+    role === "super admin" ||
+    role === "superadmin";
+
+  /*
+    IMPORTANT:
+
+    Admin-এর teacher_id না থাকলেও কোনো সমস্যা নেই।
+
+    Teacher-এর branch user.branch থেকে নেওয়া হবে।
+  */
+
+  const teacherId =
+    user?.teacher_id
+      ? String(
+          user.teacher_id
+        ).trim()
+      : "";
+
+  const userBranch =
+    String(
+      user?.branch ||
+      user?.branch_name ||
+      ""
+    ).trim();
 
   /* =====================================================
      PERMISSIONS
@@ -108,9 +126,8 @@ export default function AdminLayout() {
       ? user.permissions
       : [];
 
-
   /* =====================================================
-     NORMALIZE
+     NORMALIZE PERMISSION
   ===================================================== */
 
   const normalizePermission =
@@ -119,7 +136,6 @@ export default function AdminLayout() {
       if (!value) {
         return "";
       }
-
 
       return String(value)
         .trim()
@@ -132,54 +148,73 @@ export default function AdminLayout() {
           /s$/,
           ""
         );
-
     };
-
 
   /* =====================================================
      HAS PERMISSION
   ===================================================== */
 
-  const hasPermission = (
-    moduleName,
-    action = "can_view"
-  ) => {
+  const hasPermission =
+    (
+      moduleName,
+      action = "can_view"
+    ) => {
 
-    if (isAdmin) {
-      return true;
-    }
+      /*
+        Admin = Full Access
+      */
 
+      if (isAdmin) {
+        return true;
+      }
 
-    const normalizedModule =
-      normalizePermission(
-        moduleName
+      const normalizedModule =
+        normalizePermission(
+          moduleName
+        );
+
+      /*
+        "all" permission থাকলেও full access
+      */
+
+      const allPermission =
+        permissions.find(
+          (item) =>
+            normalizePermission(
+              item?.permission
+            ) === "all"
+        );
+
+      if (allPermission) {
+
+        return (
+          Number(
+            allPermission[action]
+          ) === 1 ||
+          allPermission[action] === true
+        );
+      }
+
+      const permission =
+        permissions.find(
+          (item) =>
+            normalizePermission(
+              item?.permission
+            ) ===
+            normalizedModule
+        );
+
+      if (!permission) {
+        return false;
+      }
+
+      return (
+        Number(
+          permission[action]
+        ) === 1 ||
+        permission[action] === true
       );
-
-
-    const permission =
-      permissions.find(
-        (item) =>
-          normalizePermission(
-            item?.permission
-          ) ===
-          normalizedModule
-      );
-
-
-    if (!permission) {
-      return false;
-    }
-
-
-    return (
-      Number(
-        permission[action]
-      ) === 1 ||
-      permission[action] === true
-    );
-
-  };
-
+    };
 
   /* =====================================================
      MODULE MAP
@@ -206,15 +241,14 @@ export default function AdminLayout() {
     branches: "branch",
 
     settings: "setting",
-
   };
-
 
   /* =====================================================
      ACCOUNT PARENT
   ===================================================== */
 
   const canViewAccounts =
+    isAdmin ||
     hasPermission(
       "income",
       "can_view"
@@ -228,7 +262,6 @@ export default function AdminLayout() {
       "can_view"
     );
 
-
   /* =====================================================
      MENU VIEW
   ===================================================== */
@@ -236,22 +269,15 @@ export default function AdminLayout() {
   const canViewMenu =
     (menu) => {
 
-      if (
-        menu === "accounts"
-      ) {
-
+      if (menu === "accounts") {
         return canViewAccounts;
-
       }
-
 
       return hasPermission(
         permissionMap[menu],
         "can_view"
       );
-
     };
-
 
   /* =====================================================
      ACTIVE MENU
@@ -261,12 +287,9 @@ export default function AdminLayout() {
     (pathname) => {
 
       if (
-        pathname ===
-          "/admin/students" ||
-        pathname ===
-          "/admin/student-list" ||
-        pathname ===
-          "/admin/pending-students" ||
+        pathname === "/admin/students" ||
+        pathname === "/admin/student-list" ||
+        pathname === "/admin/pending-students" ||
         pathname.startsWith(
           "/admin/student-profile/"
         ) ||
@@ -276,36 +299,29 @@ export default function AdminLayout() {
       ) {
 
         return "students";
-
       }
 
-
       if (
-        pathname ===
-          "/admin/courses" ||
-        pathname ===
-          "/admin/AddCourse" ||
-        pathname ===
-          "/admin/course-entry"
+        pathname === "/admin/courses" ||
+        pathname === "/admin/AddCourse" ||
+        pathname === "/admin/course-entry"
       ) {
 
         return "courses";
-
       }
 
-
       if (
-        pathname ===
-          "/admin/income" ||
-        pathname ===
-          "/admin/income-list" ||
+        pathname === "/admin/income" ||
+        pathname === "/admin/income-list" ||
         pathname.startsWith(
           "/admin/income-edit/"
         ) ||
-        pathname ===
-          "/admin/expense" ||
-        pathname ===
-          "/admin/expense-list" ||
+        pathname === "/admin/due-list" ||
+        pathname.startsWith(
+          "/admin/due-edit/"
+        ) ||
+        pathname === "/admin/expense" ||
+        pathname === "/admin/expense-list" ||
         pathname.startsWith(
           "/admin/expense-edit/"
         ) ||
@@ -314,104 +330,72 @@ export default function AdminLayout() {
       ) {
 
         return "accounts";
-
       }
 
-
       if (
-        pathname ===
-          "/admin/teachers" ||
-        pathname ===
-          "/admin/teacher-list"
+        pathname === "/admin/teachers" ||
+        pathname === "/admin/teacher-list"
       ) {
 
         return "teachers";
-
       }
 
-
       if (
-        pathname ===
-          "/admin/notices" ||
-        pathname ===
-          "/admin/notice-entry" ||
+        pathname === "/admin/notices" ||
+        pathname === "/admin/notice-entry" ||
         pathname.startsWith(
           "/admin/notice-edit/"
         )
       ) {
 
         return "notices";
-
       }
 
-
       if (
-        pathname ===
-          "/admin/gallery" ||
-        pathname ===
-          "/admin/gallery-list"
+        pathname === "/admin/gallery" ||
+        pathname === "/admin/gallery-list"
       ) {
 
         return "gallery";
-
       }
 
-
       if (
-        pathname ===
-          "/admin/banner-list" ||
-        pathname ===
-          "/admin/banner-entry"
+        pathname === "/admin/banner-list" ||
+        pathname === "/admin/banner-entry"
       ) {
 
         return "banners";
-
       }
 
-
       if (
-        pathname ===
-          "/admin/downloads" ||
-        pathname ===
-          "/admin/download-entry"
+        pathname === "/admin/downloads" ||
+        pathname === "/admin/download-entry"
       ) {
 
         return "downloads";
-
       }
 
-
       if (
-        pathname ===
-          "/admin/branch-list" ||
-        pathname ===
-          "/admin/branch-entry" ||
+        pathname === "/admin/branch-list" ||
+        pathname === "/admin/branch-entry" ||
         pathname.startsWith(
           "/admin/branch-edit/"
         )
       ) {
 
         return "branches";
-
       }
 
-
       if (
-        pathname ===
-          "/admin/settings" ||
-        pathname ===
-          "/admin/admin-users"
+        pathname === "/admin/settings" ||
+        pathname === "/admin/admin-users"
       ) {
 
         return "settings";
-
       }
 
-
       return "";
-
     };
-
 
   /* =====================================================
      OPEN MENU
@@ -424,7 +408,6 @@ export default function AdminLayout() {
       )
     );
 
-
   useEffect(() => {
 
     const activeMenu =
@@ -432,17 +415,11 @@ export default function AdminLayout() {
         location.pathname
       );
 
-
     if (activeMenu) {
-
-      setOpenMenu(
-        activeMenu
-      );
-
+      setOpenMenu(activeMenu);
     }
 
   }, [location.pathname]);
-
 
   /* =====================================================
      DIRECT URL PROTECTION
@@ -454,39 +431,33 @@ export default function AdminLayout() {
       return;
     }
 
-
     if (
       location.pathname ===
       "/admin/dashboard"
     ) {
-
       return;
-
     }
-
 
     const activeMenu =
       getActiveMenu(
         location.pathname
       );
 
-
     if (!activeMenu) {
       return;
     }
 
-
     /* =================================================
-       ACCOUNT SUB-ROUTE
+       ACCOUNTS
     ================================================= */
 
     if (
-      activeMenu ===
-      "accounts"
+      activeMenu === "accounts"
     ) {
 
       let allowed = false;
 
+      /* Income Entry */
 
       if (
         location.pathname ===
@@ -498,8 +469,11 @@ export default function AdminLayout() {
             "income",
             "can_add"
           );
+      }
 
-      } else if (
+      /* Income List */
+
+      else if (
         location.pathname ===
         "/admin/income-list"
       ) {
@@ -509,8 +483,11 @@ export default function AdminLayout() {
             "income",
             "can_view"
           );
+      }
 
-      } else if (
+      /* Income Edit */
+
+      else if (
         location.pathname.startsWith(
           "/admin/income-edit/"
         )
@@ -521,8 +498,40 @@ export default function AdminLayout() {
             "income",
             "can_edit"
           );
+      }
 
-      } else if (
+      /* Due List */
+
+      else if (
+        location.pathname ===
+        "/admin/due-list"
+      ) {
+
+        allowed =
+          hasPermission(
+            "income",
+            "can_view"
+          );
+      }
+
+      /* Due Edit */
+
+      else if (
+        location.pathname.startsWith(
+          "/admin/due-edit/"
+        )
+      ) {
+
+        allowed =
+          hasPermission(
+            "income",
+            "can_edit"
+          );
+      }
+
+      /* Expense Entry */
+
+      else if (
         location.pathname ===
         "/admin/expense"
       ) {
@@ -532,8 +541,11 @@ export default function AdminLayout() {
             "expense",
             "can_add"
           );
+      }
 
-      } else if (
+      /* Expense List */
+
+      else if (
         location.pathname ===
         "/admin/expense-list"
       ) {
@@ -543,8 +555,11 @@ export default function AdminLayout() {
             "expense",
             "can_view"
           );
+      }
 
-      } else if (
+      /* Expense Edit */
+
+      else if (
         location.pathname.startsWith(
           "/admin/expense-edit/"
         )
@@ -555,8 +570,11 @@ export default function AdminLayout() {
             "expense",
             "can_edit"
           );
+      }
 
-      } else if (
+      /* Report */
+
+      else if (
         location.pathname ===
         "/admin/income-expense-report"
       ) {
@@ -566,26 +584,20 @@ export default function AdminLayout() {
             "report",
             "can_view"
           );
-
       }
-
 
       if (!allowed) {
 
         navigate(
           "/admin/dashboard",
           {
-            replace: true,
+            replace: true
           }
         );
-
       }
 
-
       return;
-
     }
-
 
     /* =================================================
        OTHER MODULES
@@ -600,20 +612,18 @@ export default function AdminLayout() {
       navigate(
         "/admin/dashboard",
         {
-          replace: true,
+          replace: true
         }
       );
-
     }
 
   }, [
     user,
-    location.pathname,
+    location.pathname
   ]);
 
-
   /* =====================================================
-     TOGGLE
+     TOGGLE MENU
   ===================================================== */
 
   const toggleMenu =
@@ -625,9 +635,11 @@ export default function AdminLayout() {
             ? ""
             : menu
       );
-
     };
 
+  /* =====================================================
+     MENU ACTIVE
+  ===================================================== */
 
   const isMenuActive =
     (menu) => {
@@ -637,9 +649,7 @@ export default function AdminLayout() {
           location.pathname
         ) === menu
       );
-
     };
-
 
   /* =====================================================
      LOGOUT
@@ -656,18 +666,43 @@ export default function AdminLayout() {
         "sunshine_logged_in"
       );
 
-      sessionStorage.clear();
+      localStorage.removeItem(
+        "teacher_branch"
+      );
 
+      localStorage.removeItem(
+        "is_admin"
+      );
+
+      localStorage.removeItem(
+        "admin"
+      );
+
+      localStorage.removeItem(
+        "user"
+      );
+
+      localStorage.removeItem(
+        "loggedInUser"
+      );
+
+      localStorage.removeItem(
+        "admin_id"
+      );
+
+      localStorage.removeItem(
+        "user_id"
+      );
+
+      sessionStorage.clear();
 
       navigate(
         "/admin/login",
         {
-          replace: true,
+          replace: true
         }
       );
-
     };
-
 
   /* =====================================================
      USER NAME
@@ -678,7 +713,6 @@ export default function AdminLayout() {
     user?.username ||
     "User";
 
-
   /* =====================================================
      USER ROLE
   ===================================================== */
@@ -686,7 +720,6 @@ export default function AdminLayout() {
   const userRole =
     user?.role ||
     "User";
-
 
   /* =====================================================
      USER PHOTO
@@ -698,39 +731,51 @@ export default function AdminLayout() {
     user?.avatar ||
     "";
 
-
   /* =====================================================
      USER PHOTO URL
-
-     যদি photo already full URL হয়,
-     তাহলে সেটাই ব্যবহার করবে।
-
-     যদি শুধু filename হয়,
-     তাহলে teacher uploads folder ব্যবহার করবে।
   ===================================================== */
 
-  const userPhotoUrl =
-    userPhoto
-      ? (
-          String(userPhoto).startsWith(
-            "http://"
-          ) ||
-          String(userPhoto).startsWith(
-            "https://"
-          ) ||
-          String(userPhoto).startsWith(
-            "data:"
-        )
-        )
-          ? userPhoto
-          : `http://localhost/sunshine-api/uploads/teachers/${String(
-              userPhoto
-            ).replace(
-              /^.*[\\/]/,
-              ""
-            )}`
-      : "";
+  const getUserPhotoUrl =
+    () => {
 
+      if (!userPhoto) {
+        return "";
+      }
+
+      const photo =
+        String(
+          userPhoto
+        ).trim();
+
+      if (
+        photo.startsWith(
+          "http://"
+        ) ||
+        photo.startsWith(
+          "https://"
+        ) ||
+        photo.startsWith(
+          "data:"
+        )
+      ) {
+
+        return photo;
+      }
+
+      const cleanPhoto =
+        photo.replace(
+          /^[/\\]+/,
+          ""
+        );
+
+      return (
+        "http://localhost/sunshine-api/uploads/teachers/" +
+        cleanPhoto
+      );
+    };
+
+  const userPhotoUrl =
+    getUserPhotoUrl();
 
   /* =====================================================
      USER INITIAL
@@ -742,7 +787,6 @@ export default function AdminLayout() {
       .charAt(0)
       .toUpperCase() ||
     "U";
-
 
   /* =====================================================
      WAIT
@@ -758,18 +802,13 @@ export default function AdminLayout() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: "18px",
+          fontSize: "18px"
         }}
       >
-
         Loading...
-
       </div>
-
     );
-
   }
-
 
   /* =====================================================
      RENDER
@@ -779,12 +818,14 @@ export default function AdminLayout() {
 
     <div className="admin-layout-container">
 
+      {/* =================================================
+          SIDEBAR
+      ================================================= */}
 
       <aside className="admin-sidebar">
 
-
         {/* =================================================
-           USER PROFILE
+            USER PROFILE
         ================================================= */}
 
         <div className="sidebar-user-profile">
@@ -805,7 +846,6 @@ export default function AdminLayout() {
                     .classList.add(
                       "photo-fallback"
                     );
-
                 }}
               />
 
@@ -819,35 +859,41 @@ export default function AdminLayout() {
 
           </div>
 
-
           <div className="sidebar-user-info">
 
             <div className="sidebar-user-name">
-
               {userName}
-
             </div>
-
 
             <div className="sidebar-user-role">
-
               {userRole}
-
             </div>
+
+            {/* Teacher-এর branch দেখাবে */}
+            {!isAdmin && userBranch && (
+
+              <div
+                className="sidebar-user-branch"
+                title={userBranch}
+              >
+                {userBranch}
+              </div>
+
+            )}
 
           </div>
 
         </div>
 
-
         {/* =================================================
-           MENU
+            MENU
         ================================================= */}
 
         <nav className="sidebar-menu">
 
-
-          {/* DASHBOARD */}
+          {/* =================================================
+              DASHBOARD
+          ================================================= */}
 
           <NavLink
             to="/admin/dashboard"
@@ -866,9 +912,8 @@ export default function AdminLayout() {
 
           </NavLink>
 
-
           {/* =================================================
-             STUDENTS
+              STUDENTS
           ================================================= */}
 
           {canViewMenu("students") && (
@@ -899,7 +944,6 @@ export default function AdminLayout() {
 
               </button>
 
-
               {openMenu === "students" && (
 
                 <div className="sidebar-submenu">
@@ -922,7 +966,6 @@ export default function AdminLayout() {
 
                   )}
 
-
                   {hasPermission(
                     "student",
                     "can_view"
@@ -940,7 +983,6 @@ export default function AdminLayout() {
                     </NavLink>
 
                   )}
-
 
                   {hasPermission(
                     "student",
@@ -965,12 +1007,10 @@ export default function AdminLayout() {
               )}
 
             </div>
-
           )}
 
-
           {/* =================================================
-             COURSES
+              COURSES
           ================================================= */}
 
           {canViewMenu("courses") && (
@@ -1001,7 +1041,6 @@ export default function AdminLayout() {
 
               </button>
 
-
               {openMenu === "courses" && (
 
                 <div className="sidebar-submenu">
@@ -1023,7 +1062,6 @@ export default function AdminLayout() {
                     </NavLink>
 
                   )}
-
 
                   {hasPermission(
                     "course",
@@ -1048,12 +1086,10 @@ export default function AdminLayout() {
               )}
 
             </div>
-
           )}
 
-
           {/* =================================================
-             ACCOUNTS
+              ACCOUNTS
           ================================================= */}
 
           {canViewAccounts && (
@@ -1084,10 +1120,11 @@ export default function AdminLayout() {
 
               </button>
 
-
               {openMenu === "accounts" && (
 
                 <div className="sidebar-submenu">
+
+                  {/* Income Entry */}
 
                   {hasPermission(
                     "income",
@@ -1107,6 +1144,7 @@ export default function AdminLayout() {
 
                   )}
 
+                  {/* Income List */}
 
                   {hasPermission(
                     "income",
@@ -1126,6 +1164,27 @@ export default function AdminLayout() {
 
                   )}
 
+                  {/* Due List */}
+
+                  {hasPermission(
+                    "income",
+                    "can_view"
+                  ) && (
+
+                    <NavLink
+                      to="/admin/due-list"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "active"
+                          : ""
+                      }
+                    >
+                      💳 Due List
+                    </NavLink>
+
+                  )}
+
+                  {/* Expense Entry */}
 
                   {hasPermission(
                     "expense",
@@ -1145,6 +1204,7 @@ export default function AdminLayout() {
 
                   )}
 
+                  {/* Expense List */}
 
                   {hasPermission(
                     "expense",
@@ -1164,6 +1224,7 @@ export default function AdminLayout() {
 
                   )}
 
+                  {/* Report */}
 
                   {hasPermission(
                     "report",
@@ -1188,12 +1249,10 @@ export default function AdminLayout() {
               )}
 
             </div>
-
           )}
 
-
           {/* =================================================
-             TEACHERS
+              TEACHERS
           ================================================= */}
 
           {canViewMenu("teachers") && (
@@ -1224,7 +1283,6 @@ export default function AdminLayout() {
 
               </button>
 
-
               {openMenu === "teachers" && (
 
                 <div className="sidebar-submenu">
@@ -1246,7 +1304,6 @@ export default function AdminLayout() {
                     </NavLink>
 
                   )}
-
 
                   {hasPermission(
                     "teacher",
@@ -1271,12 +1328,10 @@ export default function AdminLayout() {
               )}
 
             </div>
-
           )}
 
-
           {/* =================================================
-             NOTICES
+              NOTICES
           ================================================= */}
 
           {canViewMenu("notices") && (
@@ -1307,7 +1362,6 @@ export default function AdminLayout() {
 
               </button>
 
-
               {openMenu === "notices" && (
 
                 <div className="sidebar-submenu">
@@ -1329,7 +1383,6 @@ export default function AdminLayout() {
                     </NavLink>
 
                   )}
-
 
                   {hasPermission(
                     "notice",
@@ -1354,12 +1407,10 @@ export default function AdminLayout() {
               )}
 
             </div>
-
           )}
 
-
           {/* =================================================
-             GALLERY
+              GALLERY
           ================================================= */}
 
           {canViewMenu("gallery") && (
@@ -1390,7 +1441,6 @@ export default function AdminLayout() {
 
               </button>
 
-
               {openMenu === "gallery" && (
 
                 <div className="sidebar-submenu">
@@ -1412,7 +1462,6 @@ export default function AdminLayout() {
                     </NavLink>
 
                   )}
-
 
                   {hasPermission(
                     "gallery",
@@ -1437,12 +1486,10 @@ export default function AdminLayout() {
               )}
 
             </div>
-
           )}
 
-
           {/* =================================================
-             BANNERS
+              BANNERS
           ================================================= */}
 
           {canViewMenu("banners") && (
@@ -1473,7 +1520,6 @@ export default function AdminLayout() {
 
               </button>
 
-
               {openMenu === "banners" && (
 
                 <div className="sidebar-submenu">
@@ -1495,7 +1541,6 @@ export default function AdminLayout() {
                     </NavLink>
 
                   )}
-
 
                   {hasPermission(
                     "banner",
@@ -1520,12 +1565,10 @@ export default function AdminLayout() {
               )}
 
             </div>
-
           )}
 
-
           {/* =================================================
-             DOWNLOADS
+              DOWNLOADS
           ================================================= */}
 
           {canViewMenu("downloads") && (
@@ -1556,7 +1599,6 @@ export default function AdminLayout() {
 
               </button>
 
-
               {openMenu === "downloads" && (
 
                 <div className="sidebar-submenu">
@@ -1578,7 +1620,6 @@ export default function AdminLayout() {
                     </NavLink>
 
                   )}
-
 
                   {hasPermission(
                     "download",
@@ -1603,12 +1644,10 @@ export default function AdminLayout() {
               )}
 
             </div>
-
           )}
 
-
           {/* =================================================
-             BRANCHES
+              BRANCHES
           ================================================= */}
 
           {canViewMenu("branches") && (
@@ -1639,7 +1678,6 @@ export default function AdminLayout() {
 
               </button>
 
-
               {openMenu === "branches" && (
 
                 <div className="sidebar-submenu">
@@ -1661,7 +1699,6 @@ export default function AdminLayout() {
                     </NavLink>
 
                   )}
-
 
                   {hasPermission(
                     "branch",
@@ -1686,12 +1723,10 @@ export default function AdminLayout() {
               )}
 
             </div>
-
           )}
 
-
           {/* =================================================
-             SETTINGS
+              SETTINGS
           ================================================= */}
 
           {canViewMenu("settings") && (
@@ -1722,7 +1757,6 @@ export default function AdminLayout() {
 
               </button>
 
-
               {openMenu === "settings" && (
 
                 <div className="sidebar-submenu">
@@ -1744,7 +1778,6 @@ export default function AdminLayout() {
                     </NavLink>
 
                   )}
-
 
                   {hasPermission(
                     "setting",
@@ -1769,14 +1802,12 @@ export default function AdminLayout() {
               )}
 
             </div>
-
           )}
 
         </nav>
 
-
         {/* =================================================
-           LOGOUT
+            LOGOUT
         ================================================= */}
 
         <button
@@ -1789,9 +1820,8 @@ export default function AdminLayout() {
 
       </aside>
 
-
       {/* ===================================================
-         MAIN
+          MAIN
       =================================================== */}
 
       <main className="admin-main">
@@ -1801,7 +1831,5 @@ export default function AdminLayout() {
       </main>
 
     </div>
-
   );
-
 }

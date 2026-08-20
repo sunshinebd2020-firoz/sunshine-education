@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 const API_BASE_URL =
   "http://localhost/sunshine-api/api";
 
+
 const getToday = () => {
+
   const now = new Date();
 
   return `${now.getFullYear()}-${String(
@@ -13,6 +15,7 @@ const getToday = () => {
     now.getDate()
   ).padStart(2, "0")}`;
 };
+
 
 const initialForm = {
   income_date: getToday(),
@@ -26,7 +29,13 @@ const initialForm = {
   note: "",
 };
 
+
+/* =====================================================
+   LOGIN USER
+===================================================== */
+
 const getLoggedInUser = () => {
+
   const keys = [
     "sunshine_user",
     "admin",
@@ -35,17 +44,26 @@ const getLoggedInUser = () => {
   ];
 
   for (const key of keys) {
-    const value = localStorage.getItem(key);
+
+    const value =
+      localStorage.getItem(key);
 
     if (!value) continue;
 
     try {
-      const user = JSON.parse(value);
 
-      if (user && typeof user === "object") {
+      const user =
+        JSON.parse(value);
+
+      if (
+        user &&
+        typeof user === "object"
+      ) {
         return user;
       }
+
     } catch (error) {
+
       console.error(
         `Invalid localStorage data: ${key}`,
         error
@@ -56,10 +74,17 @@ const getLoggedInUser = () => {
   return null;
 };
 
+
+/* =====================================================
+   ADMIN ROLE
+===================================================== */
+
 const isAdminRole = (role) => {
-  const normalized = String(role || "")
-    .trim()
-    .toLowerCase();
+
+  const normalized =
+    String(role || "")
+      .trim()
+      .toLowerCase();
 
   return [
     "admin",
@@ -69,16 +94,26 @@ const isAdminRole = (role) => {
   ].includes(normalized);
 };
 
+
 export default function IncomeEntry() {
-  const [form, setForm] = useState(initialForm);
 
-  const [students, setStudents] = useState([]);
-  const [branches, setBranches] = useState([]);
+  const [form, setForm] =
+    useState(initialForm);
 
-  const [suggestions, setSuggestions] = useState([]);
-  const [activeField, setActiveField] = useState("");
+  const [students, setStudents] =
+    useState([]);
 
-  const [message, setMessage] = useState("");
+  const [branches, setBranches] =
+    useState([]);
+
+  const [suggestions, setSuggestions] =
+    useState([]);
+
+  const [activeField, setActiveField] =
+    useState("");
+
+  const [message, setMessage] =
+    useState("");
 
   const [loadingStudents, setLoadingStudents] =
     useState(true);
@@ -86,457 +121,637 @@ export default function IncomeEntry() {
   const [loadingBranches, setLoadingBranches] =
     useState(true);
 
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] =
+    useState(false);
 
-  const [teacherId, setTeacherId] = useState("");
-  const [userRole, setUserRole] = useState("");
-  const [userBranch, setUserBranch] = useState("");
+  const [teacherId, setTeacherId] =
+    useState("");
+
+  const [adminId, setAdminId] =
+    useState("");
+
+  const [userRole, setUserRole] =
+    useState("");
+
+  const [userBranch, setUserBranch] =
+    useState("");
+
 
   /* =====================================================
-     LOAD USER + BRANCH
+     LOAD USER
   ===================================================== */
 
   useEffect(() => {
+
     const loadUser = async () => {
-      const user = getLoggedInUser();
+
+      const user =
+        getLoggedInUser();
 
       if (!user) {
+
         setMessage(
-          "Login user information পাওয়া যায়নি।"
+          "Login user information পাওয়া যায়নি। আবার login করুন।"
         );
+
         return;
       }
 
-      const currentTeacherId = String(
-        user.teacher_id ||
+
+      const currentTeacherId =
+        String(
+          user.teacher_id ||
           user.teacherId ||
           ""
-      ).trim();
+        ).trim();
 
-      const currentRole = String(
-        user.role || ""
-      )
-        .trim()
-        .toLowerCase();
 
-      setTeacherId(currentTeacherId);
-      setUserRole(currentRole);
+      const currentAdminId =
+        String(
+          user.admin_id ||
+          user.adminId ||
+          user.user_id ||
+          user.userId ||
+          user.id ||
+          ""
+        ).trim();
+
+
+      const currentRole =
+        String(
+          user.role || ""
+        )
+          .trim()
+          .toLowerCase();
+
+
+      const storedBranch =
+        String(
+          user.branch ||
+          user.branch_name ||
+          ""
+        ).trim();
+
+
+      setTeacherId(
+        currentTeacherId
+      );
+
+      setAdminId(
+        currentAdminId
+      );
+
+      setUserRole(
+        currentRole
+      );
+
+      setUserBranch(
+        storedBranch
+      );
+
 
       /*
-       * Login storage-এ branch না থাকলেও
-       * teacher_list.php থেকে branch বের করা হবে।
+       * Teacher/Staff-এর branch
+       * teacher_list থেকে নেওয়া হবে
+       * যদি login storage-এ না থাকে।
        */
-      if (currentTeacherId) {
+
+      if (
+        currentTeacherId &&
+        !isAdminRole(currentRole)
+      ) {
+
         try {
-          const response = await fetch(
-            `${API_BASE_URL}/teacher_list.php`
-          );
 
-          const data = await response.json();
+          const response =
+            await fetch(
+              `${API_BASE_URL}/teacher_list.php`
+            );
 
-          console.log(
-            "Teacher List Response:",
-            data
-          );
+          const data =
+            await response.json();
 
-          const teachers = Array.isArray(
-            data.data
-          )
-            ? data.data
-            : Array.isArray(
-                data.teachers
-              )
-            ? data.teachers
-            : [];
+          const teachers =
+            Array.isArray(
+              data.data
+            )
+              ? data.data
+              : Array.isArray(
+                  data.teachers
+                )
+              ? data.teachers
+              : [];
 
           const currentTeacher =
             teachers.find(
               (teacher) =>
                 String(
                   teacher.teacher_id || ""
-                ).trim() === currentTeacherId
+                ).trim() ===
+                currentTeacherId
             );
+
 
           if (currentTeacher) {
+
             const branch =
-              currentTeacher.branch ||
-              currentTeacher.branch_name ||
-              "";
+              String(
+                currentTeacher.branch ||
+                currentTeacher.branch_name ||
+                ""
+              ).trim();
 
             setUserBranch(
-              String(branch).trim()
+              branch
             );
 
-            if (
-              !isAdminRole(currentRole)
-            ) {
-              setForm((prev) => ({
-                ...prev,
-                branch:
-                  String(branch).trim(),
-              }));
-            }
+            setForm((prev) => ({
+              ...prev,
+              branch,
+            }));
           }
+
         } catch (error) {
+
           console.error(
             "Teacher branch fetch error:",
             error
           );
         }
       }
+
     };
 
     loadUser();
+
   }, []);
+
 
   /* =====================================================
      LOAD STUDENTS
   ===================================================== */
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        setLoadingStudents(true);
 
-        const response = await fetch(
-          `${API_BASE_URL}/students.php`
-        );
+    const fetchStudents =
+      async () => {
 
-        if (!response.ok) {
-          throw new Error(
-            "Student server error"
+        try {
+
+          setLoadingStudents(
+            true
+          );
+
+          const response =
+            await fetch(
+              `${API_BASE_URL}/students.php`
+            );
+
+          const data =
+            await response.json();
+
+          const records =
+            Array.isArray(
+              data.students
+            )
+              ? data.students
+              : Array.isArray(
+                  data.data
+                )
+              ? data.data
+              : [];
+
+          setStudents(
+            records
+          );
+
+        } catch (error) {
+
+          console.error(
+            "Student fetch error:",
+            error
+          );
+
+          setStudents([]);
+
+        } finally {
+
+          setLoadingStudents(
+            false
           );
         }
-
-        const data = await response.json();
-
-        const records = Array.isArray(
-          data.students
-        )
-          ? data.students
-          : Array.isArray(data.data)
-          ? data.data
-          : [];
-
-        setStudents(records);
-      } catch (error) {
-        console.error(
-          "Student fetch error:",
-          error
-        );
-
-        setStudents([]);
-      } finally {
-        setLoadingStudents(false);
-      }
-    };
+      };
 
     fetchStudents();
+
   }, []);
+
 
   /* =====================================================
      LOAD BRANCHES
   ===================================================== */
 
   useEffect(() => {
-    const fetchBranches = async () => {
-      try {
-        setLoadingBranches(true);
 
-        const response = await fetch(
-          `${API_BASE_URL}/branch_list.php`
-        );
+    const fetchBranches =
+      async () => {
 
-        if (!response.ok) {
-          throw new Error(
-            "Branch server error"
+        try {
+
+          setLoadingBranches(
+            true
+          );
+
+          const response =
+            await fetch(
+              `${API_BASE_URL}/branch_list.php`
+            );
+
+          const data =
+            await response.json();
+
+          const records =
+            Array.isArray(
+              data.branches
+            )
+              ? data.branches
+              : Array.isArray(
+                  data.data
+                )
+              ? data.data
+              : [];
+
+          setBranches(
+            records
+          );
+
+        } catch (error) {
+
+          console.error(
+            "Branch fetch error:",
+            error
+          );
+
+          setBranches([]);
+
+        } finally {
+
+          setLoadingBranches(
+            false
           );
         }
-
-        const data = await response.json();
-
-        const records = Array.isArray(
-          data.branches
-        )
-          ? data.branches
-          : Array.isArray(data.data)
-          ? data.data
-          : [];
-
-        setBranches(records);
-      } catch (error) {
-        console.error(
-          "Branch fetch error:",
-          error
-        );
-
-        setBranches([]);
-      } finally {
-        setLoadingBranches(false);
-      }
-    };
+      };
 
     fetchBranches();
+
   }, []);
+
 
   /* =====================================================
      STUDENT NAME
   ===================================================== */
 
-  const getStudentName = (student) => {
-    return (
+  const getStudentName =
+    (student) =>
       student.student_name ||
       student.student_name_bn ||
       student.student_name_en ||
-      ""
-    );
-  };
+      "";
+
 
   /* =====================================================
-     SEARCH STUDENTS
+     SEARCH
   ===================================================== */
 
-  const searchStudents = (value) => {
-    const search = String(value || "")
-      .trim()
-      .toLowerCase();
+  const searchStudents =
+    (value) => {
 
-    if (!search) {
-      setSuggestions([]);
-      return;
-    }
+      const search =
+        String(value || "")
+          .trim()
+          .toLowerCase();
 
-    const filtered = students
-      .filter((student) => {
-        const studentId = String(
-          student.student_id || ""
-        ).toLowerCase();
+      if (!search) {
 
-        const studentName =
-          getStudentName(
-            student
-          ).toLowerCase();
+        setSuggestions([]);
 
-        return (
-          studentId.includes(search) ||
-          studentName.includes(search)
-        );
-      })
-      .slice(0, 8);
+        return;
+      }
 
-    setSuggestions(filtered);
-  };
+      const filtered =
+        students
+          .filter((student) => {
 
-  /* =====================================================
-     STUDENT ID
-  ===================================================== */
+            const id =
+              String(
+                student.student_id || ""
+              ).toLowerCase();
 
-  const handleStudentIdChange = (e) => {
-    const value = e.target.value;
+            const name =
+              getStudentName(
+                student
+              ).toLowerCase();
 
-    setForm((prev) => ({
-      ...prev,
-      student_id: value,
-    }));
+            return (
+              id.includes(search) ||
+              name.includes(search)
+            );
+          })
+          .slice(0, 8);
 
-    setActiveField("id");
-    searchStudents(value);
-  };
+      setSuggestions(
+        filtered
+      );
+    };
 
-  /* =====================================================
-     STUDENT NAME
-  ===================================================== */
 
-  const handleStudentNameChange = (e) => {
-    const value = e.target.value;
+  const handleStudentIdChange =
+    (e) => {
 
-    setForm((prev) => ({
-      ...prev,
-      student_name: value,
-    }));
+      const value =
+        e.target.value;
 
-    setActiveField("name");
-    searchStudents(value);
-  };
+      setForm((prev) => ({
+        ...prev,
+        student_id: value,
+      }));
+
+      setActiveField("id");
+
+      searchStudents(
+        value
+      );
+    };
+
+
+  const handleStudentNameChange =
+    (e) => {
+
+      const value =
+        e.target.value;
+
+      setForm((prev) => ({
+        ...prev,
+        student_name: value,
+      }));
+
+      setActiveField("name");
+
+      searchStudents(
+        value
+      );
+    };
+
 
   /* =====================================================
      SELECT STUDENT
   ===================================================== */
 
-  const selectStudent = (student) => {
-    setForm((prev) => ({
-      ...prev,
-      student_id:
-        student.student_id || "",
-      student_name:
-        getStudentName(student),
-      branch: isAdminRole(userRole)
-        ? student.branch ||
-          prev.branch
-        : userBranch,
-    }));
+  const selectStudent =
+    (student) => {
 
-    setSuggestions([]);
-    setActiveField("");
-  };
+      setForm((prev) => ({
+        ...prev,
 
-  /* =====================================================
-     BLUR
-  ===================================================== */
+        student_id:
+          student.student_id ||
+          "",
+
+        student_name:
+          getStudentName(
+            student
+          ),
+
+        branch:
+          isAdminRole(userRole)
+            ? student.branch ||
+              prev.branch
+            : userBranch,
+      }));
+
+      setSuggestions([]);
+
+      setActiveField("");
+    };
+
 
   const handleBlur = () => {
+
     setTimeout(() => {
+
       setSuggestions([]);
+
       setActiveField("");
+
     }, 200);
   };
+
 
   /* =====================================================
      CHANGE
   ===================================================== */
 
-  const handleChange = (e) => {
-    const {
-      name,
-      value,
-    } = e.target;
+  const handleChange =
+    (e) => {
 
-    if (
-      name === "branch" &&
-      !isAdminRole(userRole)
-    ) {
-      return;
-    }
+      const {
+        name,
+        value,
+      } = e.target;
 
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+      if (
+        name === "branch" &&
+        !isAdminRole(userRole)
+      ) {
+        return;
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    };
+
 
   /* =====================================================
      SUBMIT
   ===================================================== */
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit =
+    async (e) => {
 
-    setMessage("");
+      e.preventDefault();
 
-    if (!teacherId) {
-      setMessage(
-        "Teacher ID পাওয়া যাচ্ছে না। আবার login করুন।"
-      );
-      return;
-    }
+      setMessage("");
 
-    if (
-      !isAdminRole(userRole) &&
-      !userBranch
-    ) {
-      setMessage(
-        "আপনার branch assign করা হয়নি।"
-      );
-      return;
-    }
 
-    if (
-      isAdminRole(userRole) &&
-      !form.branch
-    ) {
-      setMessage(
-        "Branch নির্বাচন করুন।"
-      );
-      return;
-    }
+      if (
+        !teacherId &&
+        !adminId
+      ) {
 
-    try {
-      setSaving(true);
-
-      const payload = {
-        ...form,
-        teacher_id: teacherId,
-        role: userRole,
-        branch: isAdminRole(userRole)
-          ? form.branch
-          : userBranch,
-      };
-
-      console.log(
-        "Income Payload:",
-        payload
-      );
-
-      const response = await fetch(
-        `${API_BASE_URL}/add_income.php`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-            Accept:
-              "application/json",
-          },
-          body: JSON.stringify(
-            payload
-          ),
-        }
-      );
-
-      const text =
-        await response.text();
-
-      console.log(
-        "Income Response:",
-        text
-      );
-
-      const data =
-        JSON.parse(text);
-
-      if (data.success) {
         setMessage(
-          "Income সফলভাবে যোগ হয়েছে!"
+          "Login user ID পাওয়া যাচ্ছে না। আবার login করুন।"
         );
 
-        setForm({
-          ...initialForm,
-          income_date:
-            getToday(),
+        return;
+      }
+
+
+      if (
+        !isAdminRole(userRole) &&
+        !userBranch
+      ) {
+
+        setMessage(
+          "আপনার branch assign করা হয়নি।"
+        );
+
+        return;
+      }
+
+
+      if (
+        isAdminRole(userRole) &&
+        !form.branch
+      ) {
+
+        setMessage(
+          "Branch নির্বাচন করুন।"
+        );
+
+        return;
+      }
+
+
+      try {
+
+        setSaving(true);
+
+
+        const payload = {
+
+          ...form,
+
+          teacher_id:
+            teacherId,
+
+          admin_id:
+            adminId,
+
+          role:
+            userRole,
+
           branch:
             isAdminRole(userRole)
-              ? ""
+              ? form.branch
               : userBranch,
-        });
+        };
 
-        setSuggestions([]);
-        setActiveField("");
-      } else {
-        setMessage(
-          data.message ||
+
+        const response =
+          await fetch(
+            `${API_BASE_URL}/add_income.php`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                Accept:
+                  "application/json",
+              },
+
+              body:
+                JSON.stringify(
+                  payload
+                ),
+            }
+          );
+
+
+        const text =
+          await response.text();
+
+
+        let data;
+
+        try {
+
+          data =
+            JSON.parse(text);
+
+        } catch {
+
+          throw new Error(
+            text
+          );
+        }
+
+
+        if (data.success) {
+
+          setMessage(
+            "Income সফলভাবে যোগ হয়েছে!"
+          );
+
+
+          setForm({
+            ...initialForm,
+
+            income_date:
+              getToday(),
+
+            branch:
+              isAdminRole(userRole)
+                ? ""
+                : userBranch,
+          });
+
+
+          setSuggestions([]);
+
+          setActiveField("");
+
+        } else {
+
+          setMessage(
+            data.message ||
             "Income যোগ করা যায়নি।"
-        );
-      }
-    } catch (error) {
-      console.error(
-        "Income submit error:",
-        error
-      );
+          );
+        }
 
-      setMessage(
-        "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
+      } catch (error) {
+
+        console.error(
+          "Income submit error:",
+          error
+        );
+
+        setMessage(
+          error.message ||
+          "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
+        );
+
+      } finally {
+
+        setSaving(false);
+      }
+    };
+
 
   return (
+
     <div className="income-entry">
 
       <div className="income-entry-header">
+
         <div>
-          <h1>Income Entry</h1>
+
+          <h1>
+            Income Entry
+          </h1>
 
           <p>
             নতুন Income তথ্য যোগ করুন
@@ -544,6 +759,7 @@ export default function IncomeEntry() {
 
           {!isAdminRole(userRole) &&
             userBranch && (
+
               <p>
                 Branch:{" "}
                 <strong>
@@ -551,17 +767,23 @@ export default function IncomeEntry() {
                 </strong>
               </p>
             )}
+
         </div>
+
       </div>
+
 
       <form
         className="income-form"
-        onSubmit={handleSubmit}
+        onSubmit={
+          handleSubmit
+        }
       >
 
         <div className="form-grid">
 
           <div className="form-group">
+
             <label>
               Income Date *
             </label>
@@ -577,9 +799,12 @@ export default function IncomeEntry() {
               }
               required
             />
+
           </div>
 
+
           <div className="form-group">
+
             <label>
               Income Type *
             </label>
@@ -594,16 +819,13 @@ export default function IncomeEntry() {
               }
               required
             >
+
               <option value="">
                 Select Income Type
               </option>
 
               <option value="Course Fee">
                 Course Fee
-              </option>
-
-              <option value="Admission Fee">
-                Admission Fee
               </option>
 
               <option value="Registration Fee">
@@ -613,17 +835,20 @@ export default function IncomeEntry() {
               <option value="Other">
                 Other
               </option>
+
             </select>
+
           </div>
 
+
           <div className="form-group student-autocomplete">
+
             <label>
               Student ID
             </label>
 
             <input
               type="text"
-              name="student_id"
               value={
                 form.student_id
               }
@@ -631,10 +856,15 @@ export default function IncomeEntry() {
                 handleStudentIdChange
               }
               onFocus={() => {
-                setActiveField("id");
+
+                setActiveField(
+                  "id"
+                );
+
                 searchStudents(
                   form.student_id
                 );
+
               }}
               onBlur={
                 handleBlur
@@ -643,59 +873,62 @@ export default function IncomeEntry() {
               autoComplete="off"
             />
 
+
             {activeField ===
               "id" &&
               suggestions.length >
                 0 && (
-                <div className="student-suggestions">
-                  {suggestions.map(
-                    (student) => (
-                      <div
-                        key={
-                          student.id ||
+
+              <div className="student-suggestions">
+
+                {suggestions.map(
+                  (student) => (
+
+                    <div
+                      key={
+                        student.id ||
+                        student.student_id
+                      }
+                      className="student-suggestion"
+                      onMouseDown={() =>
+                        selectStudent(
+                          student
+                        )
+                      }
+                    >
+
+                      <strong>
+                        {
                           student.student_id
                         }
-                        className="student-suggestion"
-                        onMouseDown={() =>
-                          selectStudent(
+                      </strong>
+
+                      <span>
+                        {
+                          getStudentName(
                             student
                           )
                         }
-                      >
-                        <strong>
-                          {
-                            student.student_id
-                          }
-                        </strong>
+                      </span>
 
-                        <span>
-                          {
-                            getStudentName(
-                              student
-                            )
-                          }
-                        </span>
-                      </div>
-                    )
-                  )}
-                </div>
-              )}
+                    </div>
+                  )
+                )}
 
-            <small>
-              {loadingStudents
-                ? "Student data loading..."
-                : "Student ID লিখলে student suggestion দেখাবে"}
-            </small>
+              </div>
+            )}
+
           </div>
 
+
           <div className="form-group student-autocomplete">
+
             <label>
               Student Name
             </label>
 
             <input
               type="text"
-              name="student_name"
               value={
                 form.student_name
               }
@@ -703,6 +936,7 @@ export default function IncomeEntry() {
                 handleStudentNameChange
               }
               onFocus={() => {
+
                 setActiveField(
                   "name"
                 );
@@ -710,6 +944,7 @@ export default function IncomeEntry() {
                 searchStudents(
                   form.student_name
                 );
+
               }}
               onBlur={
                 handleBlur
@@ -718,52 +953,57 @@ export default function IncomeEntry() {
               autoComplete="off"
             />
 
+
             {activeField ===
               "name" &&
               suggestions.length >
                 0 && (
-                <div className="student-suggestions">
-                  {suggestions.map(
-                    (student) => (
-                      <div
-                        key={
-                          student.id ||
+
+              <div className="student-suggestions">
+
+                {suggestions.map(
+                  (student) => (
+
+                    <div
+                      key={
+                        student.id ||
+                        student.student_id
+                      }
+                      className="student-suggestion"
+                      onMouseDown={() =>
+                        selectStudent(
+                          student
+                        )
+                      }
+                    >
+
+                      <strong>
+                        {
                           student.student_id
                         }
-                        className="student-suggestion"
-                        onMouseDown={() =>
-                          selectStudent(
+                      </strong>
+
+                      <span>
+                        {
+                          getStudentName(
                             student
                           )
                         }
-                      >
-                        <strong>
-                          {
-                            student.student_id
-                          }
-                        </strong>
+                      </span>
 
-                        <span>
-                          {
-                            getStudentName(
-                              student
-                            )
-                          }
-                        </span>
-                      </div>
-                    )
-                  )}
-                </div>
-              )}
+                    </div>
 
-            <small>
-              {loadingStudents
-                ? "Student data loading..."
-                : "Student Name লিখলে suggestion দেখাবে"}
-            </small>
+                  )
+                )}
+
+              </div>
+            )}
+
           </div>
 
+
           <div className="form-group">
+
             <label>
               Amount *
             </label>
@@ -782,9 +1022,12 @@ export default function IncomeEntry() {
               step="0.01"
               required
             />
+
           </div>
 
+
           <div className="form-group">
+
             <label>
               Payment Method
             </label>
@@ -798,6 +1041,7 @@ export default function IncomeEntry() {
                 handleChange
               }
             >
+
               <option value="">
                 Select Payment Method
               </option>
@@ -821,15 +1065,21 @@ export default function IncomeEntry() {
               <option value="Rocket">
                 Rocket
               </option>
+
             </select>
+
           </div>
 
+
           <div className="form-group">
+
             <label>
               Branch
             </label>
 
+
             {isAdminRole(userRole) ? (
+
               <select
                 name="branch"
                 value={
@@ -840,6 +1090,7 @@ export default function IncomeEntry() {
                 }
                 required
               >
+
                 <option value="">
                   {loadingBranches
                     ? "Loading Branches..."
@@ -848,6 +1099,7 @@ export default function IncomeEntry() {
 
                 {branches.map(
                   (branchItem) => (
+
                     <option
                       key={
                         branchItem.id
@@ -856,29 +1108,36 @@ export default function IncomeEntry() {
                         branchItem.branch_name
                       }
                     >
+
                       {branchItem.branch_name_bn
                         ? `${branchItem.branch_name} - ${branchItem.branch_name_bn}`
                         : branchItem.branch_name}
+
                     </option>
+
                   )
                 )}
+
               </select>
+
             ) : (
+
               <input
                 type="text"
                 value={
-                  loadingBranches &&
-                  !userBranch
-                    ? "Loading..."
-                    : userBranch ||
-                      "Branch not assigned"
+                  userBranch ||
+                  "Branch not assigned"
                 }
                 readOnly
               />
+
             )}
+
           </div>
 
+
           <div className="form-group full-width">
+
             <label>
               Description
             </label>
@@ -894,9 +1153,12 @@ export default function IncomeEntry() {
               }
               placeholder="Income description"
             />
+
           </div>
 
+
           <div className="form-group full-width">
+
             <label>
               Note
             </label>
@@ -912,28 +1174,40 @@ export default function IncomeEntry() {
               placeholder="Additional note"
               rows="4"
             />
+
           </div>
 
         </div>
 
+
         {message && (
+
           <div className="income-message">
             {message}
           </div>
+
         )}
 
+
         <div className="form-actions">
+
           <button
             type="submit"
-            disabled={saving}
+            disabled={
+              saving
+            }
           >
+
             {saving
               ? "Saving..."
               : "Save Income"}
+
           </button>
+
         </div>
 
       </form>
+
     </div>
   );
 }
