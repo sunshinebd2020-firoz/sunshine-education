@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import "./BannerList.css";
 import API_BASE_URL, { API_ORIGIN } from "../../config/api";
 
@@ -283,9 +284,9 @@ export default function BannerList() {
           </p>
         </div>
 
-        <a href="/admin/banner-entry" className="admin-list-add-button">
+        <NavLink to="/admin/banner-entry" className="admin-list-add-button">
           + Add Banner
-        </a>
+        </NavLink>
 
       </div>
 

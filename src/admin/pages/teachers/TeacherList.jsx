@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./TeacherList.css";
 import PermissionModal from "./PermissionModal";
 import API_BASE_URL, { API_ORIGIN } from "../../../config/api";
@@ -6,6 +7,8 @@ import API_BASE_URL, { API_ORIGIN } from "../../../config/api";
 const IMAGE_BASE_URL = `${API_ORIGIN}/uploads/teachers`;
 
 export default function TeacherList({ onEditTeacher }) {
+
+  const navigate = useNavigate();
 
   const [teachers, setTeachers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
