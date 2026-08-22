@@ -155,7 +155,7 @@ export default function NoticeList() {
 
         <button
           type="button"
-          className="add-notice-button"
+          className="admin-list-add-button"
           onClick={() =>
             navigate("/admin/notice-entry")
           }

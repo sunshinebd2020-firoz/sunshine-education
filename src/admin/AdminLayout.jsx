@@ -947,24 +947,6 @@ export default function AdminLayout() {
 
                   {hasPermission(
                     "student",
-                    "can_add"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/students"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      ➕ Student Entry
-                    </NavLink>
-
-                  )}
-
-                  {hasPermission(
-                    "student",
                     "can_view"
                   ) && (
 
@@ -1060,24 +1042,6 @@ export default function AdminLayout() {
 
                   )}
 
-                  {hasPermission(
-                    "course",
-                    "can_add"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/AddCourse"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      ➕ Course Entry
-                    </NavLink>
-
-                  )}
-
                 </div>
 
               )}
@@ -1121,26 +1085,6 @@ export default function AdminLayout() {
 
                 <div className="sidebar-submenu">
 
-                  {/* Income Entry */}
-
-                  {hasPermission(
-                    "income",
-                    "can_add"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/income"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      ➕ Income Entry
-                    </NavLink>
-
-                  )}
-
                   {/* Income List */}
 
                   {hasPermission(
@@ -1177,26 +1121,6 @@ export default function AdminLayout() {
                       }
                     >
                       💳 Due List
-                    </NavLink>
-
-                  )}
-
-                  {/* Expense Entry */}
-
-                  {hasPermission(
-                    "expense",
-                    "can_add"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/expense"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      ➕ Expense Entry
                     </NavLink>
 
                   )}
@@ -1302,24 +1226,6 @@ export default function AdminLayout() {
 
                   )}
 
-                  {hasPermission(
-                    "teacher",
-                    "can_add"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/teachers"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      ➕ Teacher Entry
-                    </NavLink>
-
-                  )}
-
                 </div>
 
               )}
@@ -1381,24 +1287,6 @@ export default function AdminLayout() {
 
                   )}
 
-                  {hasPermission(
-                    "notice",
-                    "can_add"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/notice-entry"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      ➕ Add Notice
-                    </NavLink>
-
-                  )}
-
                 </div>
 
               )}
@@ -1441,24 +1329,6 @@ export default function AdminLayout() {
               {openMenu === "gallery" && (
 
                 <div className="sidebar-submenu">
-
-                  {hasPermission(
-                    "gallery",
-                    "can_add"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/gallery"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      ➕ Add Photo
-                    </NavLink>
-
-                  )}
 
                   {hasPermission(
                     "gallery",
@@ -1539,24 +1409,6 @@ export default function AdminLayout() {
 
                   )}
 
-                  {hasPermission(
-                    "banner",
-                    "can_add"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/banner-entry"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      ➕ Add Banner
-                    </NavLink>
-
-                  )}
-
                 </div>
 
               )}
@@ -1618,24 +1470,6 @@ export default function AdminLayout() {
 
                   )}
 
-                  {hasPermission(
-                    "download",
-                    "can_add"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/download-entry"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      ➕ Add Download
-                    </NavLink>
-
-                  )}
-
                 </div>
 
               )}
@@ -1693,24 +1527,6 @@ export default function AdminLayout() {
                       }
                     >
                       📋 Branch List
-                    </NavLink>
-
-                  )}
-
-                  {hasPermission(
-                    "branch",
-                    "can_add"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/branch-entry"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      ➕ Branch Entry
                     </NavLink>
 
                   )}

@@ -1570,6 +1570,17 @@ ${err.message}`
         </div>
 
 
+        {canAddTeacher && (
+          <button
+            type="button"
+            className="admin-list-add-button"
+            onClick={() => navigate("/admin/teachers")}
+          >
+            + Add Teacher
+          </button>
+        )}
+
+
         <div className="total-badge">
 
           <span>

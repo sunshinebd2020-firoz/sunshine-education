@@ -251,6 +251,15 @@ export default function BranchList() {
         </div>
 
 
+        <button
+          type="button"
+          className="admin-list-add-button"
+          onClick={() => navigate("/admin/branch-entry")}
+        >
+          + Add Branch
+        </button>
+
+
         <div className="branch-count">
 
           Total: {filteredBranches.length}

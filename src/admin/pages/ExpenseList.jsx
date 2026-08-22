@@ -983,6 +983,15 @@ export default function ExpenseList() {
 
         <div>
 
+
+        <button
+          type="button"
+          className="admin-list-add-button"
+          onClick={() => navigate("/admin/expense")}
+        >
+          + Add Expense
+        </button>
+
           <h1>
             Expense List
           </h1>

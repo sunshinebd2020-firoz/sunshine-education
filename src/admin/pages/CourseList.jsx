@@ -189,6 +189,15 @@ export default function CourseList() {
         </div>
 
 
+        <button
+          type="button"
+          className="admin-list-add-button"
+          onClick={() => navigate("/admin/AddCourse")}
+        >
+          + Add Course
+        </button>
+
+
         <div className="course-total">
 
           Total: {courses.length}
@@ -212,24 +221,6 @@ export default function CourseList() {
             setSearch(e.target.value)
           }
         />
-
-      </div>
-
-
-      {/* =================================================
-         ADD COURSE
-      ================================================= */}
-
-      <div className="course-add">
-
-        <button
-          className="add-course-btn"
-          onClick={() =>
-            navigate("/admin/AddCourse")
-          }
-        >
-          + Add Course
-        </button>
 
       </div>
 

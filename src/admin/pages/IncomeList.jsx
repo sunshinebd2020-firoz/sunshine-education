@@ -671,6 +671,15 @@ export default function IncomeList() {
         </div>
 
 
+        <button
+          type="button"
+          className="admin-list-add-button"
+          onClick={() => navigate("/admin/income")}
+        >
+          + Add Income
+        </button>
+
+
         <div className="income-total">
 
           <span>

@@ -283,10 +283,7 @@ export default function BannerList() {
           </p>
         </div>
 
-        <a
-          href="/admin/banner-entry"
-          className="add-banner-btn"
-        >
+        <a href="/admin/banner-entry" className="admin-list-add-button">
           + Add Banner
         </a>
 

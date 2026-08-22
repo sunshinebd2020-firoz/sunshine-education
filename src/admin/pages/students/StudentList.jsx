@@ -678,6 +678,15 @@ export default function StudentList() {
         </div>
 
 
+        <button
+          type="button"
+          className="admin-list-add-button"
+          onClick={() => navigate("/admin/students")}
+        >
+          + Add Student
+        </button>
+
+
         <div className="student-count">
 
           Total: {filteredStudents.length}

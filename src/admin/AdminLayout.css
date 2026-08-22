@@ -11,6 +11,24 @@ body,
   box-sizing: border-box;
 }
 
+.admin-list-add-button {
+  display: inline-block;
+  border: 0;
+  border-radius: 7px;
+  padding: 10px 16px;
+  background: #2563eb;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.admin-list-add-button:hover {
+  background: #1d4ed8;
+}
+
 /* =========================================================
    ADMIN LAYOUT
 ========================================================= */

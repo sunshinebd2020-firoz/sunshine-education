@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./GalleryList.css";
 import API_BASE_URL, { API_ORIGIN } from "../../config/api";
 
 export default function GalleryList() {
+  const navigate = useNavigate();
   const [gallery, setGallery] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -168,6 +170,14 @@ export default function GalleryList() {
           <h1>Gallery List</h1>
           <p>Manage uploaded gallery images</p>
         </div>
+
+        <button
+          type="button"
+          className="admin-list-add-button"
+          onClick={() => navigate("/admin/gallery")}
+        >
+          + Add Photo
+        </button>
       </div>
 
 
