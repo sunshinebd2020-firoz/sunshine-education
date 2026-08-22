@@ -41,6 +41,7 @@ export default function StudentList() {
   const getCurrentUser = () => {
 
     const possibleKeys = [
+      "sunshine_user",
       "admin",
       "currentAdmin",
       "user",
@@ -164,7 +165,7 @@ export default function StudentList() {
 
 
       const response = await fetch(
-        `${API}/student_list_restricted.php?${params.toString()}`,
+        `${API}/students.php?${params.toString()}`,
         { credentials: "include" }
       );
 

@@ -214,10 +214,11 @@ export default function IncomeList() {
         setError("");
 
 
-        if (
-          !teacherId &&
-          !adminId
-        ) {
+        const requestUserId =
+          teacherId ||
+          (isAdminRole(userRole) ? adminId : "");
+
+        if (!requestUserId) {
 
           setIncome([]);
 
@@ -235,13 +236,12 @@ export default function IncomeList() {
           new URLSearchParams();
 
 
-        if (teacherId) {
-
-          params.append(
-            "teacher_id",
-            teacherId
-          );
-        }
+        // The API requires teacher_id for every request. For an admin it uses
+        // that value as the requesting user's ID when role=admin is supplied.
+        params.append(
+          "teacher_id",
+          requestUserId
+        );
 
 
         if (adminId) {
@@ -249,6 +249,14 @@ export default function IncomeList() {
           params.append(
             "admin_id",
             adminId
+          );
+        }
+
+        if (userRole) {
+
+          params.append(
+            "role",
+            userRole
           );
         }
 

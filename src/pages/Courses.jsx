@@ -21,9 +21,11 @@ export default function Courses() {
         setLoading(true);
         setError("");
 
+        // This is a public endpoint. Sending credentials here makes browsers
+        // reject the API response when the backend allows cross-origin access
+        // with `Access-Control-Allow-Origin: *`.
         const response = await fetch(
-          `${API_BASE_URL}/course_list.php`,
-          { credentials: "include" }
+          `${API_BASE_URL}/course_list.php`
         );
 
         if (!response.ok) {
