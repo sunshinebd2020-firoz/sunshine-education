@@ -91,6 +91,9 @@ export default function PermissionModal({
   const [permissions, setPermissions] =
     useState({});
 
+  const [branchScope, setBranchScope] =
+    useState("own");
+
   const [loading, setLoading] =
     useState(true);
 
@@ -365,6 +368,10 @@ export default function PermissionModal({
 
         const permissionData =
           createEmptyPermissions();
+
+        setBranchScope(
+          data.branch_scope === "all" ? "all" : "own"
+        );
 
 
         if (
@@ -765,7 +772,10 @@ export default function PermissionModal({
                     ),
 
                   permissions:
-                    permissionList
+                    permissionList,
+
+                  branch_scope:
+                    branchScope
 
                 })
             }
@@ -942,6 +952,27 @@ export default function PermissionModal({
             <>
 
               <div className="permission-toolbar">
+
+                <label className="branch-scope-control">
+                  Branch Access
+                  <select
+                    value={branchScope}
+                    onChange={(event) =>
+                      setBranchScope(event.target.value)
+                    }
+                    disabled={
+                      saving ||
+                      isSelfPermissionChange()
+                    }
+                  >
+                    <option value="own">
+                      Own branch only
+                    </option>
+                    <option value="all">
+                      All branches
+                    </option>
+                  </select>
+                </label>
 
                 <button
                   type="button"

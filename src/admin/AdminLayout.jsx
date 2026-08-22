@@ -95,7 +95,6 @@ export default function AdminLayout() {
     role === "super admin" ||
     role === "superadmin";
 
-  const isTeacher = role === "teacher";
 
   /*
     IMPORTANT:
@@ -156,14 +155,6 @@ export default function AdminLayout() {
       moduleName,
       action = "can_view"
     ) => {
-
-      /*
-        Teachers can access every module. Admins are controlled by permissions.
-      */
-
-      if (isTeacher) {
-        return true;
-      }
 
       const normalizedModule =
         normalizePermission(

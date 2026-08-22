@@ -168,9 +168,30 @@
 
 .permission-toolbar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
 
   margin-bottom: 12px;
+}
+
+.branch-scope-control {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.branch-scope-control select {
+  min-width: 190px;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 13px;
 }
 
 .permission-select-all {

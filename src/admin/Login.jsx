@@ -232,6 +232,11 @@ export default function Login() {
         branch_name:
           branch,
 
+          branch_scope:
+            user.branch_scope === "all"
+              ? "all"
+              : "own",
+
         role:
           user.role || "",
 
