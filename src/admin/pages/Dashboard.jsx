@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 
 export default function Dashboard() {
   const [studentCount, setStudentCount] = useState(0);
+  const [courseCount, setCourseCount] = useState(0);
   const [teacherCount, setTeacherCount] = useState(0);
+  const [noticeCount, setNoticeCount] = useState(0);
 
   // Logged-in user
   const [user, setUser] = useState(null);
@@ -85,6 +87,62 @@ export default function Dashboard() {
         );
       });
 
+
+    /* =====================================================
+       COURSE COUNT
+    ===================================================== */
+
+    fetch(
+      `${API_BASE_URL}/course_list.php`
+      , { credentials: "include" }
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Server error");
+        }
+
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          setCourseCount(data.data.length);
+        }
+      })
+      .catch((error) => {
+        console.error(
+          "Course count error:",
+          error
+        );
+      });
+
+
+    /* =====================================================
+       NOTICE COUNT
+    ===================================================== */
+
+    fetch(
+      `${API_BASE_URL}/notices.php`
+      , { credentials: "include" }
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Server error");
+        }
+
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          setNoticeCount(data.data.length);
+        }
+      })
+      .catch((error) => {
+        console.error(
+          "Notice count error:",
+          error
+        );
+      });
+
   }, []);
 
 
@@ -130,7 +188,7 @@ export default function Dashboard() {
 
         {/* STUDENTS */}
 
-        <div className="dashboard-card">
+        <div className="dashboard-card dashboard-card-students">
 
           <h3>
             👨‍🎓 Students
@@ -145,14 +203,14 @@ export default function Dashboard() {
 
         {/* COURSES */}
 
-        <div className="dashboard-card">
+        <div className="dashboard-card dashboard-card-courses">
 
           <h3>
             📚 Courses
           </h3>
 
           <p>
-            3
+            {courseCount}
           </p>
 
         </div>
@@ -160,7 +218,7 @@ export default function Dashboard() {
 
         {/* TEACHERS */}
 
-        <div className="dashboard-card">
+        <div className="dashboard-card dashboard-card-teachers">
 
           <h3>
             👨‍🏫 Teachers
@@ -175,14 +233,14 @@ export default function Dashboard() {
 
         {/* NOTICES */}
 
-        <div className="dashboard-card">
+        <div className="dashboard-card dashboard-card-notices">
 
           <h3>
             📢 Notices
           </h3>
 
           <p>
-            0
+            {noticeCount}
           </p>
 
         </div>

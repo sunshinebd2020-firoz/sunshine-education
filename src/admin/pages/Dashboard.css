@@ -71,6 +71,8 @@
 ===================================================== */
 
 .dashboard-card {
+  position: relative;
+  overflow: hidden;
   background: #ffffff;
 
   border-radius: 12px;
@@ -91,6 +93,30 @@
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
+}
+
+.dashboard-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: #2563eb;
+}
+
+.dashboard-card-students::before {
+  background: #2563eb;
+}
+
+.dashboard-card-courses::before {
+  background: #0891b2;
+}
+
+.dashboard-card-teachers::before {
+  background: #16a34a;
+}
+
+.dashboard-card-notices::before {
+  background: #ea580c;
 }
 
 
