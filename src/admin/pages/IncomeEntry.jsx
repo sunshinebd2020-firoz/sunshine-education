@@ -134,6 +134,9 @@ export default function IncomeEntry() {
   const [userBranch, setUserBranch] =
     useState("");
 
+  const [branchScope, setBranchScope] =
+    useState("own");
+
 
   /* =====================================================
      LOAD USER
@@ -205,6 +208,10 @@ export default function IncomeEntry() {
 
       setUserBranch(
         storedBranch
+      );
+
+      setBranchScope(
+        user.branch_scope === "all" ? "all" : "own"
       );
 
 
@@ -644,7 +651,7 @@ export default function IncomeEntry() {
             userRole,
 
           branch:
-            isAdminRole(userRole)
+            isAdminRole(userRole) || branchScope === "all"
               ? form.branch
               : userBranch,
         };
@@ -1080,7 +1087,7 @@ export default function IncomeEntry() {
             </label>
 
 
-            {isAdminRole(userRole) ? (
+            {isAdminRole(userRole) || branchScope === "all" ? (
 
               <select
                 name="branch"

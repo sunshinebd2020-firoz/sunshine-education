@@ -260,6 +260,11 @@ export default function ExpenseEntry() {
     setUserBranch
   ] = useState("");
 
+  const [
+    branchScope,
+    setBranchScope
+  ] = useState("own");
+
 
   /* =====================================================
      LOAD USER
@@ -340,6 +345,10 @@ export default function ExpenseEntry() {
           );
 
         }
+
+        setBranchScope(
+          user.branch_scope === "all" ? "all" : "own"
+        );
 
 
         console.log(
@@ -1021,9 +1030,7 @@ export default function ExpenseEntry() {
             userRole,
 
           branch:
-            isAdminRole(
-              userRole
-            )
+            isAdminRole(userRole) || branchScope === "all"
               ? form.branch
               : userBranch,
 
@@ -1544,9 +1551,7 @@ export default function ExpenseEntry() {
             </label>
 
 
-            {isAdminRole(
-              userRole
-            ) ? (
+            {isAdminRole(userRole) || branchScope === "all" ? (
 
               <select
                 name="branch"
