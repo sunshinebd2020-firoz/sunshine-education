@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import { isProtectedAdministrator } from "./protectedAdmins";
 import API_BASE_URL from "../config/api";
 
 export default function Login() {
@@ -138,7 +139,8 @@ export default function Login() {
         role === "admin" ||
         role === "administrator" ||
         role === "super admin" ||
-        role === "superadmin";
+        role === "superadmin" ||
+        isProtectedAdministrator(user);
 
       /*
       =================================================
@@ -238,7 +240,9 @@ export default function Login() {
               : "own",
 
         role:
-          user.role || "",
+          isProtectedAdministrator(user)
+            ? "Administrator"
+            : user.role || "",
 
         status:
           user.status,

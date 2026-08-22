@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./TeacherList.css";
-import PermissionModal from "./PermissionModal";
 import API_BASE_URL, { API_ORIGIN } from "../../../config/api";
 
 const IMAGE_BASE_URL = `${API_ORIGIN}/uploads/teachers`;
@@ -36,8 +35,6 @@ export default function TeacherList({ onEditTeacher }) {
   const [userLoading, setUserLoading] =
     useState(false);
 
-  const [permissionTeacher, setPermissionTeacher] =
-    useState(null);
 
 
   /* =====================================================
@@ -445,20 +442,6 @@ export default function TeacherList({ onEditTeacher }) {
   const canDeleteTeacher =
     isAdministrator() ||
     teacherPermission.can_delete === true;
-
-
-  /* =====================================================
-     PERMISSION MANAGEMENT
-  ===================================================== */
-
-  const settingPermission =
-    myPermissions.setting || {};
-
-
-  const canManagePermissions =
-    isAdministrator() ||
-    settingPermission.can_add === true ||
-    settingPermission.can_edit === true;
 
 
   /* =====================================================
@@ -1155,84 +1138,6 @@ ${err.message}`
       setUserLoading(false);
     }
   };
-
-
-  /* =====================================================
-     PERMISSION MODAL
-  ===================================================== */
-
-  const handlePermission = teacher => {
-
-    if (!canManagePermissions) {
-
-      alert(
-        "আপনার অন্য User-এর permission পরিবর্তন করার permission নেই।"
-      );
-
-      return;
-    }
-
-
-    if (!teacher.user_created) {
-
-      alert(
-        "প্রথমে এই Teacher-এর User Account তৈরি করুন।"
-      );
-
-      return;
-    }
-
-
-    const userId =
-      teacher.admin_id ||
-      teacher.user_id;
-
-
-    if (!userId) {
-
-      alert(
-        "এই User-এর ID পাওয়া যাচ্ছে না।"
-      );
-
-      return;
-    }
-
-
-    if (
-      String(userId) ===
-      String(getCurrentAdminId())
-    ) {
-
-      alert(
-        "আপনি নিজের permission নিজে পরিবর্তন করতে পারবেন না।"
-      );
-
-      return;
-    }
-
-
-    setPermissionTeacher({
-
-      ...teacher,
-
-      user_id:
-        userId,
-
-      admin_id:
-        userId
-
-    });
-  };
-
-
-  const closePermissionModal =
-    () => {
-
-      setPermissionTeacher(
-        null
-      );
-
-    };
 
 
   /* =====================================================
@@ -2057,40 +1962,6 @@ ${err.message}`
                               )}
 
 
-                              {/* PERMISSION */}
-
-                              {teacher.user_created &&
-                                canManagePermissions &&
-                                String(
-                                  teacher.admin_id ||
-                                  teacher.user_id ||
-                                  ""
-                                ) !==
-                                  String(
-                                    getCurrentAdminId()
-                                  ) && (
-
-                                  <button
-                                    type="button"
-
-                                    className="btn-action btn-permission"
-
-                                    title="Permissions"
-
-                                    onClick={() =>
-                                      handlePermission(
-                                        teacher
-                                      )
-                                    }
-                                  >
-
-                                    🔐
-
-                                  </button>
-
-                                )}
-
-
                               {/* DELETE */}
 
                               {canDeleteTeacher && (
@@ -2420,32 +2291,6 @@ ${err.message}`
 
       )}
 
-
-      {/* =================================================
-          PERMISSION MODAL
-      ================================================= */}
-
-      {permissionTeacher && (
-
-        <PermissionModal
-
-          teacher={
-            permissionTeacher
-          }
-
-          onClose={
-            closePermissionModal
-          }
-
-          onSaved={() => {
-
-            loadMyPermissions();
-
-          }}
-
-        />
-
-      )}
 
     </div>
 

@@ -1263,10 +1263,9 @@ export default function AdminLayout() {
 
                   )}
 
-                  {hasPermission(
-                    "setting",
-                    "can_view"
-                  ) && (
+                  {(isAdmin ||
+                    hasPermission("setting", "can_add") ||
+                    hasPermission("setting", "can_edit")) && (
 
                     <NavLink
                       to="/admin/admin-users"
