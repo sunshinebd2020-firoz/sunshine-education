@@ -136,34 +136,6 @@ export default function StudentList() {
       );
 
 
-      /*
-      ================================================
-      TEACHER ID
-      ================================================
-      */
-
-      if (!isAdmin) {
-
-        if (!teacherId) {
-
-          setStudents([]);
-
-          setMessage(
-            "আপনার Teacher ID পাওয়া যায়নি। আবার login করুন।"
-          );
-
-          setLoading(false);
-
-          return;
-        }
-
-        params.set(
-          "teacher_id",
-          teacherId
-        );
-      }
-
-
       const response = await fetch(
         `${API}/students.php?${params.toString()}`,
         { credentials: "include" }

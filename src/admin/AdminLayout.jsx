@@ -95,6 +95,8 @@ export default function AdminLayout() {
     role === "super admin" ||
     role === "superadmin";
 
+  const isTeacher = role === "teacher";
+
   /*
     IMPORTANT:
 
@@ -156,10 +158,10 @@ export default function AdminLayout() {
     ) => {
 
       /*
-        Admin = Full Access
+        Teachers can access every module. Admins are controlled by permissions.
       */
 
-      if (isAdmin) {
+      if (isTeacher) {
         return true;
       }
 
@@ -993,60 +995,14 @@ export default function AdminLayout() {
           ================================================= */}
 
           {canViewMenu("courses") && (
-
-            <div className="sidebar-group">
-
-              <button
-                type="button"
-                className={`sidebar-parent ${
-                  isMenuActive("courses")
-                    ? "parent-active"
-                    : ""
-                }`}
-                onClick={() =>
-                  toggleMenu("courses")
-                }
-              >
-
-                <span>
-                  📚 Courses
-                </span>
-
-                <span className="menu-arrow">
-                  {openMenu === "courses"
-                    ? "▲"
-                    : "▼"}
-                </span>
-
-              </button>
-
-              {openMenu === "courses" && (
-
-                <div className="sidebar-submenu">
-
-                  {hasPermission(
-                    "course",
-                    "can_view"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/courses"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      📖 Course List
-                    </NavLink>
-
-                  )}
-
-                </div>
-
-              )}
-
-            </div>
+            <NavLink
+              to="/admin/courses"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
+            >
+              <span>📚 Courses</span>
+            </NavLink>
           )}
 
           {/* =================================================
@@ -1177,60 +1133,14 @@ export default function AdminLayout() {
           ================================================= */}
 
           {canViewMenu("teachers") && (
-
-            <div className="sidebar-group">
-
-              <button
-                type="button"
-                className={`sidebar-parent ${
-                  isMenuActive("teachers")
-                    ? "parent-active"
-                    : ""
-                }`}
-                onClick={() =>
-                  toggleMenu("teachers")
-                }
-              >
-
-                <span>
-                  👨‍🏫 Teachers
-                </span>
-
-                <span className="menu-arrow">
-                  {openMenu === "teachers"
-                    ? "▲"
-                    : "▼"}
-                </span>
-
-              </button>
-
-              {openMenu === "teachers" && (
-
-                <div className="sidebar-submenu">
-
-                  {hasPermission(
-                    "teacher",
-                    "can_view"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/teacher-list"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      📋 Teacher List
-                    </NavLink>
-
-                  )}
-
-                </div>
-
-              )}
-
-            </div>
+            <NavLink
+              to="/admin/teacher-list"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
+            >
+              <span>👨‍🏫 Teachers</span>
+            </NavLink>
           )}
 
           {/* =================================================
@@ -1238,60 +1148,14 @@ export default function AdminLayout() {
           ================================================= */}
 
           {canViewMenu("notices") && (
-
-            <div className="sidebar-group">
-
-              <button
-                type="button"
-                className={`sidebar-parent ${
-                  isMenuActive("notices")
-                    ? "parent-active"
-                    : ""
-                }`}
-                onClick={() =>
-                  toggleMenu("notices")
-                }
-              >
-
-                <span>
-                  📢 Notices
-                </span>
-
-                <span className="menu-arrow">
-                  {openMenu === "notices"
-                    ? "▲"
-                    : "▼"}
-                </span>
-
-              </button>
-
-              {openMenu === "notices" && (
-
-                <div className="sidebar-submenu">
-
-                  {hasPermission(
-                    "notice",
-                    "can_view"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/notices"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      📋 Notice List
-                    </NavLink>
-
-                  )}
-
-                </div>
-
-              )}
-
-            </div>
+            <NavLink
+              to="/admin/notices"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
+            >
+              <span>📢 Notices</span>
+            </NavLink>
           )}
 
           {/* =================================================
@@ -1299,60 +1163,14 @@ export default function AdminLayout() {
           ================================================= */}
 
           {canViewMenu("gallery") && (
-
-            <div className="sidebar-group">
-
-              <button
-                type="button"
-                className={`sidebar-parent ${
-                  isMenuActive("gallery")
-                    ? "parent-active"
-                    : ""
-                }`}
-                onClick={() =>
-                  toggleMenu("gallery")
-                }
-              >
-
-                <span>
-                  🖼️ Gallery
-                </span>
-
-                <span className="menu-arrow">
-                  {openMenu === "gallery"
-                    ? "▲"
-                    : "▼"}
-                </span>
-
-              </button>
-
-              {openMenu === "gallery" && (
-
-                <div className="sidebar-submenu">
-
-                  {hasPermission(
-                    "gallery",
-                    "can_view"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/gallery-list"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      🖼️ Gallery List
-                    </NavLink>
-
-                  )}
-
-                </div>
-
-              )}
-
-            </div>
+            <NavLink
+              to="/admin/gallery-list"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
+            >
+              <span>🖼️ Gallery</span>
+            </NavLink>
           )}
 
           {/* =================================================
@@ -1360,60 +1178,14 @@ export default function AdminLayout() {
           ================================================= */}
 
           {canViewMenu("banners") && (
-
-            <div className="sidebar-group">
-
-              <button
-                type="button"
-                className={`sidebar-parent ${
-                  isMenuActive("banners")
-                    ? "parent-active"
-                    : ""
-                }`}
-                onClick={() =>
-                  toggleMenu("banners")
-                }
-              >
-
-                <span>
-                  🎞️ Banners
-                </span>
-
-                <span className="menu-arrow">
-                  {openMenu === "banners"
-                    ? "▲"
-                    : "▼"}
-                </span>
-
-              </button>
-
-              {openMenu === "banners" && (
-
-                <div className="sidebar-submenu">
-
-                  {hasPermission(
-                    "banner",
-                    "can_view"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/banner-list"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      📋 Banner List
-                    </NavLink>
-
-                  )}
-
-                </div>
-
-              )}
-
-            </div>
+            <NavLink
+              to="/admin/banner-list"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
+            >
+              <span>🎞️ Banners</span>
+            </NavLink>
           )}
 
           {/* =================================================
@@ -1421,60 +1193,14 @@ export default function AdminLayout() {
           ================================================= */}
 
           {canViewMenu("downloads") && (
-
-            <div className="sidebar-group">
-
-              <button
-                type="button"
-                className={`sidebar-parent ${
-                  isMenuActive("downloads")
-                    ? "parent-active"
-                    : ""
-                }`}
-                onClick={() =>
-                  toggleMenu("downloads")
-                }
-              >
-
-                <span>
-                  📥 Downloads
-                </span>
-
-                <span className="menu-arrow">
-                  {openMenu === "downloads"
-                    ? "▲"
-                    : "▼"}
-                </span>
-
-              </button>
-
-              {openMenu === "downloads" && (
-
-                <div className="sidebar-submenu">
-
-                  {hasPermission(
-                    "download",
-                    "can_view"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/downloads"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      📥 Download List
-                    </NavLink>
-
-                  )}
-
-                </div>
-
-              )}
-
-            </div>
+            <NavLink
+              to="/admin/downloads"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
+            >
+              <span>📥 Downloads</span>
+            </NavLink>
           )}
 
           {/* =================================================
@@ -1482,60 +1208,14 @@ export default function AdminLayout() {
           ================================================= */}
 
           {canViewMenu("branches") && (
-
-            <div className="sidebar-group">
-
-              <button
-                type="button"
-                className={`sidebar-parent ${
-                  isMenuActive("branches")
-                    ? "parent-active"
-                    : ""
-                }`}
-                onClick={() =>
-                  toggleMenu("branches")
-                }
-              >
-
-                <span>
-                  🏢 Branches
-                </span>
-
-                <span className="menu-arrow">
-                  {openMenu === "branches"
-                    ? "▲"
-                    : "▼"}
-                </span>
-
-              </button>
-
-              {openMenu === "branches" && (
-
-                <div className="sidebar-submenu">
-
-                  {hasPermission(
-                    "branch",
-                    "can_view"
-                  ) && (
-
-                    <NavLink
-                      to="/admin/branch-list"
-                      className={({ isActive }) =>
-                        isActive
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      📋 Branch List
-                    </NavLink>
-
-                  )}
-
-                </div>
-
-              )}
-
-            </div>
+            <NavLink
+              to="/admin/branch-list"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
+            >
+              <span>🏢 Branches</span>
+            </NavLink>
           )}
 
           {/* =================================================
