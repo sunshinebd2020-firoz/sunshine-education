@@ -22,6 +22,10 @@ const PendingStudentList = lazy(() => import("./admin/pages/PendingStudentList")
 // ================= TEACHERS =================
 const TeacherEntry = lazy(() => import("./admin/pages/teachers/TeacherEntry"));
 const TeacherList = lazy(() => import("./admin/pages/teachers/TeacherList"));
+const TeacherProfile = lazy(() => import("./admin/pages/teachers/TeacherProfile"));
+const TeacherEdit = lazy(() => import("./admin/pages/teachers/TeacherEdit"));
+const DownloadList = lazy(() => import("./admin/pages/DownloadList"));
+const DownloadEntry = lazy(() => import("./admin/pages/DownloadEntry"));
 
 // ================= GALLERY =================
 const GalleryEntry = lazy(() => import("./admin/pages/GalleryEntry"));
@@ -230,6 +234,12 @@ export default function App() {
               path="teacher-list"
               element={<TeacherList />}
             />
+
+            <Route path="teacher-profile/:id" element={<TeacherProfile />} />
+            <Route path="teacher-edit/:id" element={<TeacherEdit />} />
+
+            <Route path="downloads" element={<DownloadList />} />
+            <Route path="download-entry" element={<DownloadEntry />} />
 
 
             {/* =================================================

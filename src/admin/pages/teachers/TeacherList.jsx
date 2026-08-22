@@ -800,21 +800,11 @@ export default function TeacherList({ onEditTeacher }) {
 
 
     if (onEditTeacher) {
-
-      onEditTeacher(
-        teacher
-      );
-
-    } else {
-
-      alert(
-        `Edit: ${
-          teacher.name_en ||
-          teacher.name_bn ||
-          teacher.teacher_id
-        }`
-      );
+      onEditTeacher(teacher);
+      return;
     }
+
+    navigate(`/admin/teacher-edit/${teacher.id}`);
   };
 
 
@@ -834,41 +824,7 @@ export default function TeacherList({ onEditTeacher }) {
     }
 
 
-    alert(
-      `Teacher Details
-
-ID:
-${teacher.teacher_id || "N/A"}
-
-Name:
-${
-  teacher.name_en ||
-  teacher.name_bn ||
-  "N/A"
-}
-
-Course:
-${teacher.course || "N/A"}
-
-Designation:
-${teacher.designation || "N/A"}
-
-Branch:
-${teacher.branch || "N/A"}
-
-Mobile:
-${teacher.mobile || "N/A"}
-
-User:
-${
-  teacher.user_created
-    ? teacher.username
-    : "Not Created"
-}
-
-Role:
-${teacher.role || "N/A"}`
-    );
+    navigate(`/admin/teacher-profile/${teacher.id}`);
   };
 
 
