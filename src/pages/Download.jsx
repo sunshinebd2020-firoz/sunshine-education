@@ -1,6 +1,21 @@
+import { useEffect, useState } from "react";
+import API_BASE_URL, { API_ORIGIN } from "../config/api";
 import "./Download.css";
 
 export default function Download() {
+  const [downloads, setDownloads] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/download_public.php`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) setDownloads(data.data || []);
+      })
+      .catch((error) => console.error("Download fetch error:", error))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div className="download">
 
@@ -13,29 +28,30 @@ export default function Download() {
 
 
       <section className="download-list">
+        {loading ? (
+          <p>লোড হচ্ছে...</p>
+        ) : downloads.length ? (
+          downloads.map((download) => {
+            const target = download.file_url;
+            const href = target?.startsWith("/")
+              ? `${API_ORIGIN}${target}`
+              : target;
 
-        <div className="download-card">
-          <h2>ভর্তি ফরম</h2>
-          <p>Language Course Admission Form</p>
-          <button>Download PDF</button>
-        </div>
-
-
-        <div className="download-card">
-          <h2>কোর্স সিলেবাস</h2>
-          <p>
-            Japanese, German ও Korean Language Course Syllabus
-          </p>
-          <button>Download PDF</button>
-        </div>
-
-
-        <div className="download-card">
-          <h2>নোটিশ</h2>
-          <p>প্রতিষ্ঠানের গুরুত্বপূর্ণ নোটিশসমূহ</p>
-          <button>Download</button>
-        </div>
-
+            return (
+              <div className="download-card" key={download.id}>
+                <h2>{download.title}</h2>
+                <p>{download.description || "Download resource"}</p>
+                {href && (
+                  <a href={href} rel="noreferrer" download>
+                    Download
+                  </a>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <p>কোনো download পাওয়া যায়নি।</p>
+        )}
       </section>
 
     </div>
