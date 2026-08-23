@@ -911,7 +911,7 @@ export default function AdminLayout() {
                 `sidebar-link ${isActive ? "active" : ""}`
               }
             >
-              <span>My Classroom</span>
+              <span>📚 My Classroom</span>
             </NavLink>
           )}
 
