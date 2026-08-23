@@ -7,6 +7,30 @@ export default function Download() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [activeLanguage, setActiveLanguage] = useState("Japanese");
+
+  /* =====================================================
+     LANGUAGE LIST
+  ===================================================== */
+
+  const languages = [
+    {
+      name: "Japanese",
+      label: "Japanese",
+      flag: "🇯🇵",
+    },
+    {
+      name: "German",
+      label: "German",
+      flag: "🇩🇪",
+    },
+    {
+      name: "Korean",
+      label: "Korean",
+      flag: "🇰🇷",
+    },
+  ];
+
   /* =====================================================
      LOAD DOWNLOADS
   ===================================================== */
@@ -31,17 +55,21 @@ export default function Download() {
 
         if (!data.success) {
           throw new Error(
-            data.message || "Download data could not be loaded."
+            data.message ||
+              "Download data could not be loaded."
           );
         }
 
-        if (Array.isArray(data.data)) {
-          setDownloads(data.data);
-        } else {
-          setDownloads([]);
-        }
+        setDownloads(
+          Array.isArray(data.data)
+            ? data.data
+            : []
+        );
       } catch (err) {
-        console.error("Download fetch error:", err);
+        console.error(
+          "Download fetch error:",
+          err
+        );
 
         setError(
           "ডাউনলোডের তথ্য লোড করা যাচ্ছে না।"
@@ -53,6 +81,52 @@ export default function Download() {
 
     loadDownloads();
   }, []);
+
+  /* =====================================================
+     NORMALIZE LANGUAGE
+  ===================================================== */
+
+  const getLanguageName = (download) => {
+    const value = String(
+      download?.language ||
+        download?.language_name ||
+        download?.languageName ||
+        ""
+    )
+      .trim()
+      .toLowerCase();
+
+    if (
+      value.includes("japanese") ||
+      value.includes("japan") ||
+      value.includes("জাপানি") ||
+      value.includes("জাপান")
+    ) {
+      return "Japanese";
+    }
+
+    if (
+      value.includes("german") ||
+      value.includes("germany") ||
+      value.includes("জার্মান") ||
+      value.includes("জার্মানি")
+    ) {
+      return "German";
+    }
+
+    if (
+      value.includes("korean") ||
+      value.includes("korea") ||
+      value.includes("কোরিয়ান") ||
+      value.includes("কোরিয়ান") ||
+      value.includes("কোরিয়া") ||
+      value.includes("কোরিয়া")
+    ) {
+      return "Korean";
+    }
+
+    return "Other";
+  };
 
   /* =====================================================
      GET COURSE NAME
@@ -68,11 +142,6 @@ export default function Download() {
     if (courseName) {
       return String(courseName).trim();
     }
-
-    /*
-      যদি API থেকে course_id আসে কিন্তু course_name না আসে,
-      তাহলে আপাতত course_id অনুযায়ী category হবে।
-    */
 
     if (
       download?.course_id !== undefined &&
@@ -111,14 +180,27 @@ export default function Download() {
   };
 
   /* =====================================================
-     GROUP DOWNLOADS BY COURSE
+     FILTER BY LANGUAGE
+  ===================================================== */
+
+  const languageDownloads = useMemo(() => {
+    return downloads.filter(
+      (download) =>
+        getLanguageName(download) ===
+        activeLanguage
+    );
+  }, [downloads, activeLanguage]);
+
+  /* =====================================================
+     GROUP BY COURSE
   ===================================================== */
 
   const groupedDownloads = useMemo(() => {
     const groups = {};
 
-    downloads.forEach((download) => {
-      const courseName = getCourseName(download);
+    languageDownloads.forEach((download) => {
+      const courseName =
+        getCourseName(download);
 
       if (!groups[courseName]) {
         groups[courseName] = [];
@@ -128,13 +210,24 @@ export default function Download() {
     });
 
     return groups;
-  }, [downloads]);
+  }, [languageDownloads]);
 
   /* =====================================================
      CATEGORY LIST
   ===================================================== */
 
-  const categories = Object.keys(groupedDownloads);
+  const categories =
+    Object.keys(groupedDownloads);
+
+  /* =====================================================
+     ACTIVE LANGUAGE DATA
+  ===================================================== */
+
+  const activeLanguageData =
+    languages.find(
+      (language) =>
+        language.name === activeLanguage
+    ) || languages[0];
 
   /* =====================================================
      RENDER
@@ -154,11 +247,50 @@ export default function Download() {
         </h1>
 
         <p>
-          প্রয়োজনীয় ফরম, নোটিশ ও শিক্ষামূলক উপকরণ
-          এখান থেকে ডাউনলোড করুন।
+          প্রয়োজনীয় ফরম, নোটিশ ও শিক্ষামূলক
+          উপকরণ এখান থেকে ডাউনলোড করুন।
         </p>
 
       </section>
+
+
+      {/* =================================================
+          LANGUAGE TABS
+      ================================================= */}
+
+      <div className="download-language-tabs">
+
+        {languages.map((language) => (
+
+          <button
+            type="button"
+            key={language.name}
+            className={
+              activeLanguage ===
+              language.name
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setActiveLanguage(
+                language.name
+              )
+            }
+          >
+
+            <span className="download-tab-flag">
+              {language.flag}
+            </span>
+
+            <span>
+              {language.label}
+            </span>
+
+          </button>
+
+        ))}
+
+      </div>
 
 
       {/* =================================================
@@ -172,7 +304,9 @@ export default function Download() {
         ================================================= */}
 
         {loading && (
+
           <div className="download-message">
+
             <span className="download-loading-icon">
               ⏳
             </span>
@@ -180,7 +314,9 @@ export default function Download() {
             <p>
               ডাউনলোড লোড হচ্ছে...
             </p>
+
           </div>
+
         )}
 
 
@@ -189,6 +325,7 @@ export default function Download() {
         ================================================= */}
 
         {!loading && error && (
+
           <div className="download-message error">
 
             <span>
@@ -200,16 +337,50 @@ export default function Download() {
             </p>
 
           </div>
+
         )}
 
 
         {/* =================================================
-            EMPTY
+            LANGUAGE HEADER
+        ================================================= */}
+
+        {!loading &&
+          !error && (
+
+            <div className="download-selected-language">
+
+              <div className="download-selected-language-icon">
+                {activeLanguageData.flag}
+              </div>
+
+              <div>
+
+                <h2>
+                  {activeLanguageData.label}
+                  {" "}
+                  Downloads
+                </h2>
+
+                <p>
+                  {languageDownloads.length}টি
+                  resource পাওয়া গেছে
+                </p>
+
+              </div>
+
+            </div>
+
+          )}
+
+
+        {/* =================================================
+            NO DOWNLOAD
         ================================================= */}
 
         {!loading &&
           !error &&
-          downloads.length === 0 && (
+          languageDownloads.length === 0 && (
 
             <div className="download-message">
 
@@ -218,7 +389,8 @@ export default function Download() {
               </span>
 
               <p>
-                কোনো download পাওয়া যায়নি।
+                এই ভাষার কোনো download
+                বর্তমানে পাওয়া যায়নি।
               </p>
 
             </div>
@@ -227,7 +399,7 @@ export default function Download() {
 
 
         {/* =================================================
-            CATEGORY WISE DOWNLOAD
+            COURSE CATEGORIES
         ================================================= */}
 
         {!loading &&
@@ -236,133 +408,147 @@ export default function Download() {
 
             <div className="download-categories">
 
-              {categories.map((category) => {
+              {categories.map(
+                (category) => {
 
-                const categoryDownloads =
-                  groupedDownloads[category];
+                  const categoryDownloads =
+                    groupedDownloads[
+                      category
+                    ];
 
-                return (
+                  return (
 
-                  <section
-                    className="download-category"
-                    key={category}
-                  >
+                    <section
+                      className="download-category"
+                      key={category}
+                    >
 
-                    {/* =====================================
-                        CATEGORY HEADER
-                    ===================================== */}
+                      {/* ================================
+                          CATEGORY HEADER
+                      ================================= */}
 
-                    <div className="download-category-header">
+                      <div className="download-category-header">
 
-                      <div className="download-category-icon">
-                        📚
+                        <div className="download-category-icon">
+                          📚
+                        </div>
+
+                        <div className="download-category-title">
+
+                          <h2>
+                            {category}
+                          </h2>
+
+                          <p>
+                            {
+                              categoryDownloads.length
+                            }
+                            টি download
+                          </p>
+
+                        </div>
+
                       </div>
 
-                      <div className="download-category-title">
 
-                        <h2>
-                          {category}
-                        </h2>
+                      {/* ================================
+                          DOWNLOAD ITEMS
+                      ================================= */}
 
-                        <p>
-                          {categoryDownloads.length}টি
-                          resource
-                        </p>
+                      <div className="download-category-list">
 
-                      </div>
+                        {categoryDownloads.map(
+                          (download) => {
 
-                    </div>
+                            const href =
+                              getFileUrl(
+                                download
+                              );
 
+                            return (
 
-                    {/* =====================================
-                        DOWNLOAD LIST
-                    ===================================== */}
+                              <article
+                                className="download-card"
+                                key={download.id}
+                              >
 
-                    <div className="download-category-list">
+                                {/* ==========================
+                                    FILE ICON
+                                =========================== */}
 
-                      {categoryDownloads.map(
-                        (download) => {
-
-                          const href =
-                            getFileUrl(download);
-
-                          return (
-
-                            <article
-                              className="download-card"
-                              key={download.id}
-                            >
-
-                              {/* =========================
-                                  FILE ICON
-                              ========================= */}
-
-                              <div className="download-card-icon">
-                                📄
-                              </div>
+                                <div className="download-card-icon">
+                                  📄
+                                </div>
 
 
-                              {/* =========================
-                                  CONTENT
-                              ========================= */}
+                                {/* ==========================
+                                    CONTENT
+                                =========================== */}
 
-                              <div className="download-card-content">
+                                <div className="download-card-content">
 
-                                <h2>
-                                  {download.title}
-                                </h2>
+                                  <h2>
+                                    {
+                                      download.title
+                                    }
+                                  </h2>
 
-                                <p>
-                                  {download.description ||
-                                    "Download resource"}
-                                </p>
+                                  <p>
+                                    {
+                                      download.description ||
+                                      "Download resource"
+                                    }
+                                  </p>
 
-                                {download.file_name && (
-                                  <small>
-                                    {download.file_name}
-                                  </small>
+                                  {download.file_name && (
+                                    <small>
+                                      {
+                                        download.file_name
+                                      }
+                                    </small>
+                                  )}
+
+                                </div>
+
+
+                                {/* ==========================
+                                    DOWNLOAD BUTTON
+                                =========================== */}
+
+                                {href && (
+
+                                  <a
+                                    href={href}
+                                    className="download-button"
+                                    rel="noreferrer"
+                                    download
+                                  >
+
+                                    <span>
+                                      Download
+                                    </span>
+
+                                    <span className="download-button-icon">
+                                      ↓
+                                    </span>
+
+                                  </a>
+
                                 )}
 
-                              </div>
+                              </article>
 
+                            );
+                          }
+                        )}
 
-                              {/* =========================
-                                  DOWNLOAD BUTTON
-                              ========================= */}
+                      </div>
 
-                              {href && (
+                    </section>
 
-                                <a
-                                  href={href}
-                                  className="download-button"
-                                  rel="noreferrer"
-                                  download
-                                >
-
-                                  <span>
-                                    Download
-                                  </span>
-
-                                  <span className="download-button-icon">
-                                    ↓
-                                  </span>
-
-                                </a>
-
-                              )}
-
-                            </article>
-
-                          );
-                        }
-                      )}
-
-                    </div>
-
-                  </section>
-
-                );
-              })}
+                  );
+                }
+              )}
 
             </div>
 
