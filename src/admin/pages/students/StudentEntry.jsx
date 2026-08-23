@@ -18,6 +18,7 @@ export default function StudentEntry() {
     branch: "",
     course: "",
     level: "",
+    teacherId: "",
 
     studentNameBn: "",
     studentNameEn: "",
@@ -97,6 +98,8 @@ export default function StudentEntry() {
   const [branchLoading, setBranchLoading] =
     useState(true);
 
+  const [teachers, setTeachers] = useState([]);
+  const [teacherLoading, setTeacherLoading] = useState(true);
   const [showHsc, setShowHsc] =
     useState(false);
 
@@ -385,6 +388,31 @@ export default function StudentEntry() {
     fetchBranches();
   }, []);
 
+
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        setTeacherLoading(true);
+        const response = await fetch(`${API_BASE_URL}/teacher_list.php`, {
+          credentials: "include",
+        });
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setTeachers((data.teachers || []).filter((teacher) => {
+            const status = String(teacher.status ?? "").toLowerCase();
+            return status === "active" || status === "1";
+          }));
+        }
+      } catch (error) {
+        console.error("Teacher loading error:", error);
+      } finally {
+        setTeacherLoading(false);
+      }
+    };
+
+    fetchTeachers();
+  }, []);
   /* =========================================
      SUBMIT
   ========================================= */
@@ -679,7 +707,25 @@ export default function StudentEntry() {
               )}
             </select>
           </div>
-
+          <div className="form-group">
+            <label>Assigned Teacher *</label>
+            <select
+              name="teacherId"
+              value={form.teacherId}
+              onChange={handleChange}
+              required
+              disabled={teacherLoading}
+            >
+              <option value="">
+                {teacherLoading ? "Loading teachers..." : "Select Teacher"}
+              </option>
+              {teachers.map((teacher) => (
+                <option key={teacher.id} value={teacher.teacher_id}>
+                  {teacher.name_en || teacher.name_bn} ({teacher.teacher_id})
+                </option>
+              ))}
+            </select>
+          </div>
           {/* PHOTO */}
 
           <div className="student-photo-section">

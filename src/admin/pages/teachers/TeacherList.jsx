@@ -812,43 +812,6 @@ export default function TeacherList({ onEditTeacher }) {
 
 
   /* =====================================================
-     ADD USER
-  ===================================================== */
-
-  const openAddUserModal = teacher => {
-
-    if (!canAddTeacher) {
-
-      alert(
-        "আপনার Teacher-এর User Account তৈরি করার permission নেই।"
-      );
-
-      return;
-    }
-
-
-    setSelectedTeacher(
-      teacher
-    );
-
-
-    setUsername(
-      teacher.teacher_id
-        ? String(
-            teacher.teacher_id
-          ).toLowerCase()
-        : ""
-    );
-
-
-    setPassword("");
-    setRole("Teacher");
-
-    setShowUserModal(true);
-  };
-
-
-  /* =====================================================
      CLOSE USER MODAL
   ===================================================== */
 
@@ -1622,12 +1585,10 @@ ${err.message}`
                       <th>Photo</th>
                       <th>ID No</th>
                       <th>Name</th>
-                      <th>Course</th>
                       <th>Designation</th>
                       <th>Branch</th>
                       <th>Mobile</th>
                       <th>Status</th>
-                      <th>User</th>
                       <th>Action</th>
 
                     </tr>
@@ -1728,18 +1689,6 @@ ${err.message}`
                           </td>
 
 
-                          {/* COURSE */}
-
-                          <td>
-
-                            {
-                              teacher.course ||
-                              "N/A"
-                            }
-
-                          </td>
-
-
                           {/* DESIGNATION */}
 
                           <td>
@@ -1799,78 +1748,6 @@ ${err.message}`
                               }
 
                             </span>
-
-                          </td>
-
-
-                          {/* USER */}
-
-                          <td>
-
-                            {teacher.user_created ? (
-
-                              <div className="user-status-wrapper">
-
-                                <span className="user-active-badge">
-
-                                  ✓ Active
-
-                                </span>
-
-
-                                <small>
-
-                                  {
-                                    teacher.username ||
-                                    "User"
-                                  }
-
-                                </small>
-
-
-                                {teacher.role && (
-
-                                  <small>
-
-                                    Role:{" "}
-
-                                    {
-                                      teacher.role
-                                    }
-
-                                  </small>
-
-                                )}
-
-                              </div>
-
-                            ) : canAddTeacher ? (
-
-                              <button
-                                type="button"
-
-                                className="btn-add-user"
-
-                                title="Create User Account"
-
-                                onClick={() =>
-                                  openAddUserModal(
-                                    teacher
-                                  )
-                                }
-                              >
-
-                                👤 Add User
-
-                              </button>
-
-                            ) : (
-
-                              <span>
-                                No User
-                              </span>
-
-                            )}
 
                           </td>
 

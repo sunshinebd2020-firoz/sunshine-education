@@ -3,84 +3,21 @@ import API_BASE_URL from "../../config/api";
 import PermissionModal from "./teachers/PermissionModal";
 import { isProtectedAdministrator } from "../protectedAdmins";
 import "./AdminUsers.css";
-
-const getCurrentUser = () => {
-  try {
-    return JSON.parse(localStorage.getItem("sunshine_user") || "null");
-  } catch {
-    return null;
-  }
-};
-
+const getCurrentUser = () => { try { return JSON.parse(localStorage.getItem("sunshine_user") || "null"); } catch { return null; } };
 const getUserId = (user) => String(user?.id || user?.admin_id || user?.user_id || "").trim();
-
-const isAdministrator = (user) => ["admin", "administrator", "super admin", "superadmin"].includes(
-  String(user?.role || user?.user_role || "").trim().toLowerCase(),
-);
-
-const canManageUsers = (user) => {
-  if (isAdministrator(user)) return true;
-  const settingPermission = (user?.permissions || []).find(
-    (item) => String(item?.permission || item?.module || "").trim().toLowerCase() === "setting",
-  );
-  return Boolean(settingPermission?.can_add || settingPermission?.can_edit);
-};
-
+const isAdministrator = (user) => ["admin", "administrator", "super admin", "superadmin"].includes(String(user?.role || user?.user_role || "").trim().toLowerCase());
+const settingPermission = (user) => (user?.permissions || []).find((item) => String(item?.permission || item?.module || "").trim().toLowerCase() === "setting");
+const canManageUsers = (user) => isAdministrator(user) || Boolean(settingPermission(user)?.can_add || settingPermission(user)?.can_edit);
+const canAddUsers = (user) => isAdministrator(user) || Boolean(settingPermission(user)?.can_add);
 export default function AdminUsers() {
-  const currentUser = useMemo(() => getCurrentUser(), []);
-  const currentUserId = getUserId(currentUser);
-  const hasAccess = canManageUsers(currentUser);
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(hasAccess);
-
-  const loadUsers = useCallback(async () => {
-    if (!hasAccess) return;
-    try {
-      setLoading(true);
-      setMessage("");
-      const response = await fetch(`${API_BASE_URL}/teacher_list.php`, { credentials: "include" });
-      const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.message || "Users could not be loaded.");
-      setUsers((data.teachers || []).filter((user) => user.user_created));
-    } catch (error) {
-      setUsers([]);
-      setMessage(error.message || "Users could not be loaded.");
-    } finally {
-      setLoading(false);
-    }
-  }, [hasAccess]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadUsers();
-  }, [loadUsers]);
-
-  if (!hasAccess) return <div className="admin-users-page"><div className="admin-users-notice" role="alert">আপনার User Access Management করার অনুমতি নেই।</div></div>;
-
-  return (
-    <div className="admin-users-page">
-      <div className="admin-users-header">
-        <div><h1>User Access Management</h1><p>Manage user permissions and branch access separately from the teacher list.</p></div>
-        <button type="button" className="admin-users-refresh" onClick={loadUsers} disabled={loading}>{loading ? "Loading..." : "Refresh"}</button>
-      </div>
-      {message && <p className="admin-users-error">{message}</p>}
-      <div className="admin-users-table-wrap">
-        <table className="admin-users-table">
-          <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Branch</th><th>Access</th></tr></thead>
-          <tbody>
-            {users.map((user) => {
-              const userId = String(user.admin_id || user.user_id || "");
-              const isCurrentUser = userId && userId === currentUserId;
-              const isProtectedAdmin = isProtectedAdministrator(user);
-              return <tr key={userId || user.teacher_id}><td>{user.name_en || user.name_bn || "N/A"}</td><td>{user.username || "N/A"}</td><td>{isProtectedAdmin ? "Administrator" : user.role || user.user_role || "Teacher"}</td><td>{user.branch || "N/A"}</td><td>{isProtectedAdmin ? <span className="admin-users-protected">Protected administrator</span> : isCurrentUser ? <span className="admin-users-self">Current user</span> : <button type="button" onClick={() => setSelectedUser({ ...user, admin_id: userId, user_id: userId })} disabled={!userId}>Manage access</button>}</td></tr>;
-            })}
-          </tbody>
-        </table>
-        {!loading && !users.length && <p className="admin-users-empty">No user accounts found.</p>}
-      </div>
-      {selectedUser && <PermissionModal teacher={selectedUser} onClose={() => setSelectedUser(null)} onSaved={() => setSelectedUser(null)} />}
-    </div>
-  );
+ const currentUser = useMemo(() => getCurrentUser(), []), currentUserId = getUserId(currentUser), hasAccess = canManageUsers(currentUser), canAddUser = canAddUsers(currentUser);
+ const [users,setUsers]=useState([]),[teachers,setTeachers]=useState([]),[selectedUser,setSelectedUser]=useState(null),[message,setMessage]=useState(""),[loading,setLoading]=useState(hasAccess),[showCreateModal,setShowCreateModal]=useState(false),[teacherId,setTeacherId]=useState(""),[username,setUsername]=useState(""),[password,setPassword]=useState(""),[role,setRole]=useState("Teacher"),[creating,setCreating]=useState(false),[createError,setCreateError]=useState("");
+ const loadUsers=useCallback(async()=>{if(!hasAccess)return;try{setLoading(true);setMessage("");const response=await fetch(`${API_BASE_URL}/teacher_list.php`,{credentials:"include"});const data=await response.json();if(!response.ok||!data.success)throw new Error(data.message||"Users could not be loaded.");const teacherList=data.teachers||[];setTeachers(teacherList);setUsers(teacherList.filter((user)=>user.user_created));}catch(error){setUsers([]);setMessage(error.message||"Users could not be loaded.");}finally{setLoading(false);}},[hasAccess]);
+ useEffect(()=>{const timer=window.setTimeout(loadUsers,0);return()=>window.clearTimeout(timer);},[loadUsers]);
+ const availableTeachers=teachers.filter((teacher)=>!teacher.user_created), selectedTeacher=availableTeachers.find((teacher)=>String(teacher.teacher_id)===teacherId);
+ const openCreateModal=()=>{setTeacherId("");setUsername("");setPassword("");setRole("Teacher");setCreateError("");setShowCreateModal(true);};
+ const selectTeacher=(value)=>{setTeacherId(value);const teacher=availableTeachers.find((item)=>String(item.teacher_id)===value);setUsername(teacher?.teacher_id?String(teacher.teacher_id).toLowerCase():"");};
+ const createUser=async(event)=>{event.preventDefault();if(!selectedTeacher)return setCreateError("Please select a teacher.");if(!username.trim())return setCreateError("Please enter a username.");if(password.length<6)return setCreateError("Password must be at least 6 characters.");try{setCreating(true);setCreateError("");const response=await fetch(`${API_BASE_URL}/user_create.php`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({teacher_id:String(selectedTeacher.teacher_id),username:username.trim(),password,full_name:selectedTeacher.name_en||selectedTeacher.name_bn||String(selectedTeacher.teacher_id),role,status:"1"})});const result=await response.json();if(!response.ok||!result.success)throw new Error(result.message||"User account could not be created.");setShowCreateModal(false);loadUsers();}catch(error){setCreateError(error.message||"User account could not be created.");}finally{setCreating(false);}};
+ if(!hasAccess)return <div className="admin-users-page"><div className="admin-users-notice" role="alert">You do not have permission to manage user access.</div></div>;
+ return <div className="admin-users-page"><div className="admin-users-header"><div><h1>User Access Management</h1><p>Manage user permissions and branch access separately from the teacher list.</p></div><div className="admin-users-header-actions">{canAddUser&&<button type="button" className="admin-users-add" onClick={openCreateModal}>+ Add User</button>}<button type="button" className="admin-users-refresh" onClick={loadUsers} disabled={loading}>{loading?"Loading...":"Refresh"}</button></div></div>{message&&<p className="admin-users-error">{message}</p>}<div className="admin-users-table-wrap"><table className="admin-users-table"><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Branch</th><th>Access</th></tr></thead><tbody>{users.map((user)=>{const userId=String(user.admin_id||user.user_id||""),isCurrentUser=userId&&userId===currentUserId,isProtectedAdmin=isProtectedAdministrator(user);return <tr key={userId||user.teacher_id}><td>{user.name_en||user.name_bn||"N/A"}</td><td>{user.username||"N/A"}</td><td>{isProtectedAdmin?"Administrator":user.role||user.user_role||"Teacher"}</td><td>{user.branch||"N/A"}</td><td>{isProtectedAdmin?<span className="admin-users-protected">Protected administrator</span>:isCurrentUser?<span className="admin-users-self">Current user</span>:<button type="button" onClick={()=>setSelectedUser({...user,admin_id:userId,user_id:userId})} disabled={!userId}>Manage access</button>}</td></tr>;})}</tbody></table>{!loading&&!users.length&&<p className="admin-users-empty">No user accounts found.</p>}</div>{selectedUser&&<PermissionModal teacher={selectedUser} onClose={()=>setSelectedUser(null)} onSaved={()=>setSelectedUser(null)}/>} {showCreateModal&&<div className="admin-users-modal-overlay" onMouseDown={()=>!creating&&setShowCreateModal(false)}><div className="admin-users-modal" role="dialog" aria-modal="true" onMouseDown={(event)=>event.stopPropagation()}><h2>Add User</h2><form onSubmit={createUser}><label>Teacher<select value={teacherId} onChange={(event)=>selectTeacher(event.target.value)} disabled={creating}><option value="">Select a teacher</option>{availableTeachers.map((teacher)=><option key={teacher.id||teacher.teacher_id} value={String(teacher.teacher_id)}>{teacher.name_en||teacher.name_bn||teacher.teacher_id} ({teacher.teacher_id})</option>)}</select></label><label>Username<input value={username} onChange={(event)=>setUsername(event.target.value)} disabled={creating}/></label><label>Password<input type="password" value={password} onChange={(event)=>setPassword(event.target.value)} disabled={creating}/></label><label>Role<select value={role} onChange={(event)=>setRole(event.target.value)} disabled={creating}>{["Teacher","Accountant","Manager","Viewer"].map((item)=><option key={item}>{item}</option>)}</select></label>{createError&&<p className="admin-users-create-error">{createError}</p>}<div className="admin-users-modal-actions"><button type="button" onClick={()=>setShowCreateModal(false)} disabled={creating}>Cancel</button><button type="submit" disabled={creating}>{creating?"Creating...":"Create User"}</button></div></form></div></div>}</div>;
 }

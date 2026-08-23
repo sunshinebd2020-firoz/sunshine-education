@@ -3,6 +3,7 @@ import "./IncomeExpenseReport.css";
 import API_BASE_URL from "../../config/api";
 
 const API_URL = `${API_BASE_URL}/income_expense_report.php`;
+const DUE_API_URL = `${API_BASE_URL}/due_list.php`;
 
 
 const formatAmount = (amount) => {
@@ -17,6 +18,83 @@ const formatNumber = (number) => {
   return Number(number || 0).toLocaleString("en-US");
 };
 
+
+const getCurrentUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem("sunshine_user") || "null");
+  } catch {
+    return null;
+  }
+};
+
+
+
+function MonthlyLineChart({ items, branch, year }) {
+  const values = items.flatMap((item) => [
+    Number(item.income || 0),
+    Number(item.expense || 0),
+    Number(item.balance || 0),
+  ]);
+  const minValue = Math.min(0, ...values);
+  const maxValue = Math.max(1, ...values);
+  const range = maxValue - minValue || 1;
+  const width = 1000;
+  const height = 360;
+  const padding = { top: 28, right: 28, bottom: 52, left: 66 };
+  const plotWidth = width - padding.left - padding.right;
+  const plotHeight = height - padding.top - padding.bottom;
+  const pointFor = (value, index) => {
+    const x = items.length > 1
+      ? padding.left + (index * plotWidth) / (items.length - 1)
+      : padding.left + plotWidth / 2;
+    const y = padding.top + ((maxValue - Number(value || 0)) / range) * plotHeight;
+    return [x, y];
+  };
+  const pointString = (field) => items.map((item, index) => pointFor(item[field], index).join(",")).join(" ");
+  const series = [
+    { field: "income", className: "line-income", label: "Income" },
+    { field: "expense", className: "line-expense", label: "Expense" },
+    { field: "balance", className: "line-balance", label: "Net Balance" },
+  ];
+
+  return (
+    <section className="report-section">
+      <div className="section-title">
+        <div>
+          <h2>Monthly Income, Expense & Net Balance</h2>
+          <p>{branch === "all" ? "All branches" : branch + " branch"} · {year === "all" ? "All Years" : "Year " + year}</p>
+        </div>
+      </div>
+      {items.length > 0 ? (
+        <div className="monthly-line-chart-wrap">
+          <svg className="monthly-line-chart" viewBox={"0 0 " + width + " " + height} role="img" aria-label="Monthly income, expense and net balance line chart">
+            {[0, 0.25, 0.5, 0.75, 1].map((step) => {
+              const y = padding.top + step * plotHeight;
+              const value = maxValue - step * range;
+              return <g key={step}><line className="line-chart-grid" x1={padding.left} x2={width - padding.right} y1={y} y2={y} /><text className="line-chart-value" x="4" y={y + 4}>Tk {formatAmount(value)}</text></g>;
+            })}
+            {minValue < 0 && <line className="line-chart-zero" x1={padding.left} x2={width - padding.right} y1={padding.top + ((maxValue / range) * plotHeight)} y2={padding.top + ((maxValue / range) * plotHeight)} />}
+            {series.map((line) => <polyline key={line.field} className={"line-series " + line.className} points={pointString(line.field)} />)}
+            {items.map((item, index) => (
+              <g key={item.month}>
+                {series.map((line) => {
+                  const [x, y] = pointFor(item[line.field], index);
+                  return <circle key={line.field} className={"line-point " + line.className + "-point"} cx={x} cy={y} r="4"><title>{item.month_name + " " + line.label + ": Tk " + formatAmount(item[line.field])}</title></circle>;
+                })}
+                <text className="line-chart-month" x={pointFor(0, index)[0]} y={height - 16}>{item.month_name.substring(0, 3)}</text>
+              </g>
+            ))}
+          </svg>
+        </div>
+      ) : <div className="empty-report">No monthly data found.</div>}
+      <div className="chart-legend line-chart-legend">
+        <span><i className="legend-income"></i>Income</span>
+        <span><i className="legend-expense"></i>Expense</span>
+        <span><i className="legend-balance"></i>Net Balance</span>
+      </div>
+    </section>
+  );
+}
 
 export default function IncomeExpenseReport() {
 
@@ -66,11 +144,16 @@ export default function IncomeExpenseReport() {
       params.append("branch", branch);
 
 
-      const response =
-        await fetch(
-          `${API_URL}?${params.toString()}`,
-          { credentials: "include" }
-        );
+      const user = getCurrentUser();
+      const dueParams = new URLSearchParams();
+      const role = String(user?.role || "admin").trim().toLowerCase();
+      dueParams.append("role", role);
+      if (user?.teacher_id || user?.teacherId) dueParams.append("teacher_id", user.teacher_id || user.teacherId);
+      if (branch !== "all") dueParams.append("branch", branch);
+      const [response, dueResponse] = await Promise.all([
+        fetch(`${API_URL}?${params.toString()}`, { credentials: "include" }),
+        fetch(`${DUE_API_URL}?${dueParams.toString()}`, { credentials: "include" }).catch(() => null),
+      ]);
 
 
       if (!response.ok) {
@@ -93,7 +176,14 @@ export default function IncomeExpenseReport() {
       }
 
 
-      setReport(data);
+      let dueAmount = Number(data?.summary?.total_due || 0);
+      if (dueResponse?.ok) {
+        try {
+          const dueData = await dueResponse.json();
+          if (dueData?.success) dueAmount = Number(dueData.total_due || 0);
+        } catch { /* Keep the report available if this secondary request fails. */ }
+      }
+      setReport({ ...data, summary: { ...data.summary, total_due: dueAmount } });
 
     } catch (err) {
 
@@ -585,6 +675,16 @@ export default function IncomeExpenseReport() {
         </div>
 
 
+
+
+        <div className="summary-card due-card">
+          <div className="summary-icon">⏳</div>
+          <div>
+            <span>Due Amount</span>
+            <strong>৳ {formatAmount(summary.total_due)}</strong>
+            <small>Outstanding student fees</small>
+          </div>
+        </div>
       </section>
 
 
@@ -712,6 +812,14 @@ export default function IncomeExpenseReport() {
 
       </section>
 
+
+
+
+      <MonthlyLineChart
+        items={report?.monthly || []}
+        branch={branch}
+        year={year}
+      />
 
       {/* =====================================================
           BRANCH ANALYSIS

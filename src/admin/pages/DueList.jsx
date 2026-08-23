@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./DueList.css";
-import API_BASE_URL from "../../config/api";
+import API_BASE_URL, { API_ORIGIN } from "../../config/api";
 
 
 /* =====================================================
@@ -79,17 +79,25 @@ const getPhotoUrl = (photo) => {
     return "";
   }
 
+  const photoPath = String(photo).trim();
+
   if (
-    String(photo).startsWith("http://") ||
-    String(photo).startsWith("https://")
+    photoPath.startsWith("http://") ||
+    photoPath.startsWith("https://") ||
+    photoPath.startsWith("data:")
   ) {
-    return photo;
+    return photoPath;
   }
 
-  return `${API_BASE_URL.replace(
-    "/api",
-    ""
-  )}/uploads/students/${photo}`;
+  // The API can return either a filename or an uploads/students path.
+  const relativePhotoPath = photoPath
+    .replace(/^\/?(?:sunshine-api\/)?uploads\/students\//i, "")
+    .replace(/^\/+/, "")
+    .split("/")
+    .map((part) => encodeURIComponent(part))
+    .join("/");
+
+  return `${API_ORIGIN}/uploads/students/${relativePhotoPath}`;
 
 };
 
@@ -161,13 +169,12 @@ export default function DueList() {
         !admin &&
         currentTeacherId
       ) {
-
         params.append(
           "teacher_id",
           currentTeacherId
         );
-
       }
+
 
 
       params.append(
@@ -347,6 +354,8 @@ export default function DueList() {
         user.teacherId ||
         ""
       ).trim();
+
+
 
 
     const admin =
@@ -743,6 +752,8 @@ export default function DueList() {
 
                         {student.student_photo ? (
 
+                          <>
+
                           <img
                             src={getPhotoUrl(
                               student.student_photo
@@ -752,7 +763,20 @@ export default function DueList() {
                               "Student"
                             }
                             className="due-student-photo"
+                            onError={(event) => {
+                              event.currentTarget.style.display = "none";
+                              event.currentTarget.nextElementSibling.style.display = "inline";
+                            }}
                           />
+
+                          <span
+                            className="due-no-photo"
+                            style={{ display: "none" }}
+                          >
+                            No Photo
+                          </span>
+
+                          </>
 
                         ) : (
 

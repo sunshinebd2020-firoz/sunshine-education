@@ -94,6 +94,9 @@ export default function AdminLayout() {
     role === "administrator" ||
     role === "super admin" ||
     role === "superadmin";
+  const isTeacher =
+    !isAdmin &&
+    Boolean(String(user?.teacher_id || "").trim());
 
 
   /*
@@ -901,6 +904,16 @@ export default function AdminLayout() {
             </span>
 
           </NavLink>
+          {isTeacher && (
+            <NavLink
+              to="/admin/my-classroom"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
+            >
+              <span>My Classroom</span>
+            </NavLink>
+          )}
 
           {/* =================================================
               STUDENTS

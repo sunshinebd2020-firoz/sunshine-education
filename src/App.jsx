@@ -50,6 +50,7 @@ const ExpenseEdit = lazy(() => import("./admin/pages/ExpenseEdit"));
 const IncomeExpenseReport = lazy(() => import("./admin/pages/IncomeExpenseReport"));
 const DueList = lazy(() => import("./admin/pages/DueList"));
 const IncomeVoucher = lazy(() => import("./admin/pages/IncomeVoucher"));
+const TeacherClassroom = lazy(() => import("./admin/pages/TeacherClassroom"));
 
 
 // ================= NOTICE =================
@@ -189,6 +190,12 @@ export default function App() {
             <Route
               path="dashboard"
               element={<Dashboard />}
+            />
+
+            {/* Teacher workspace: assigned students, batches and class records */}
+            <Route
+              path="my-classroom"
+              element={<TeacherClassroom />}
             />
 
 

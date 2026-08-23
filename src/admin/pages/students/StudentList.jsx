@@ -97,14 +97,6 @@ export default function StudentList() {
   ).trim();
 
 
-  const teacherId = String(
-    currentUser?.teacher_id ||
-    currentUser?.teacherId ||
-    currentUser?.user_teacher_id ||
-    ""
-  ).trim();
-
-
   const isAdmin =
     userRole.toLowerCase() === "admin" ||
     userRole.toLowerCase() === "super admin" ||
