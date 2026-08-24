@@ -7,6 +7,7 @@
   max-width: 100%;
   padding: 15px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 
@@ -15,11 +16,13 @@
 ===================================================== */
 
 .pending-list-header {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
+  box-sizing: border-box;
 }
 
 .pending-list-header h1 {
@@ -50,10 +53,12 @@
 ===================================================== */
 
 .pending-search {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
+  box-sizing: border-box;
 }
 
 .pending-search input {
@@ -108,12 +113,19 @@
   background: #dbeafe;
 }
 
+.pending-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 
 /* =====================================================
    MESSAGE
 ===================================================== */
 
 .pending-message {
+  width: 100%;
+
   padding: 9px 12px;
   margin: 10px 0;
 
@@ -133,6 +145,8 @@
 ===================================================== */
 
 .pending-loading {
+  width: 100%;
+
   padding: 25px;
 
   text-align: center;
@@ -143,6 +157,38 @@
 
   border: 1px solid #e2e8f0;
   border-radius: 8px;
+
+  box-sizing: border-box;
+}
+
+.pending-loading p {
+  margin: 10px 0 0;
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   LOADING SPINNER
+===================================================== */
+
+.pending-spinner {
+  width: 28px;
+  height: 28px;
+
+  margin: 0 auto;
+
+  border: 3px solid #e2e8f0;
+  border-top-color: #2563eb;
+
+  border-radius: 50%;
+
+  animation: pendingSpin 0.8s linear infinite;
+}
+
+@keyframes pendingSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 
@@ -166,6 +212,9 @@
   background: #fff;
 
   box-sizing: border-box;
+
+  /* Prevent container itself from moving outside screen */
+  position: relative;
 }
 
 
@@ -174,11 +223,19 @@
 ===================================================== */
 
 .pending-table-container table {
-  width: 100%;
+  width: auto;
 
-  min-width: 1100px;
+  /*
+    Table will only use the required width.
+    It will not stretch unnecessary space between
+    Application Date and Action.
+  */
+  min-width: 100%;
 
   border-collapse: collapse;
+  border-spacing: 0;
+
+  table-layout: auto;
 }
 
 
@@ -193,13 +250,12 @@
   z-index: 10;
 
   background: #f5f5f5;
-
   color: #334155;
 
   font-size: 12px;
   font-weight: 600;
 
-  padding: 5px 7px;
+  padding: 5px 6px;
 
   border-bottom: 1px solid #e2e8f0;
 
@@ -222,6 +278,8 @@
   text-align: left;
 
   white-space: nowrap;
+
+  box-sizing: border-box;
 }
 
 .pending-table-container td {
@@ -240,6 +298,113 @@
 
 .pending-table-container tbody tr:last-child td {
   border-bottom: none;
+}
+
+
+/* =====================================================
+   PHOTO COLUMN
+===================================================== */
+
+.pending-table-container th:nth-child(1),
+.pending-table-container td:nth-child(1) {
+  width: 50px;
+  padding-left: 6px;
+  padding-right: 4px;
+}
+
+
+/* =====================================================
+   ID COLUMN
+===================================================== */
+
+.pending-table-container th:nth-child(2),
+.pending-table-container td:nth-child(2) {
+  width: 90px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+
+/* =====================================================
+   NAME COLUMN
+===================================================== */
+
+.pending-table-container th:nth-child(3),
+.pending-table-container td:nth-child(3) {
+  padding-left: 5px;
+  padding-right: 6px;
+}
+
+
+/* =====================================================
+   LANGUAGE COLUMN
+===================================================== */
+
+.pending-table-container th:nth-child(4),
+.pending-table-container td:nth-child(4) {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+
+/* =====================================================
+   LEVEL COLUMN
+===================================================== */
+
+.pending-table-container th:nth-child(5),
+.pending-table-container td:nth-child(5) {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+
+/* =====================================================
+   BRANCH COLUMN
+===================================================== */
+
+.pending-table-container th:nth-child(6),
+.pending-table-container td:nth-child(6) {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+
+/* =====================================================
+   MOBILE COLUMN
+===================================================== */
+
+.pending-table-container th:nth-child(7),
+.pending-table-container td:nth-child(7) {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+
+/* =====================================================
+   APPLICATION DATE
+===================================================== */
+
+.pending-table-container th:nth-child(8),
+.pending-table-container td:nth-child(8) {
+  width: 105px;
+
+  padding-left: 5px;
+  padding-right: 2px;
+}
+
+
+/* =====================================================
+   ACTION COLUMN
+===================================================== */
+
+.pending-table-container th:nth-child(9),
+.pending-table-container td:nth-child(9) {
+  width: 65px;
+
+  padding-left: 2px;
+  padding-right: 4px;
+
+  text-align: left;
 }
 
 
@@ -308,23 +473,26 @@
   display: flex;
 
   align-items: center;
-  justify-content: center;
 
-  gap: 4px;
+  justify-content: flex-start;
+
+  gap: 3px;
 
   flex-wrap: nowrap;
 }
 
 .pending-actions button {
-  width: 28px;
-  height: 28px;
+  width: 27px;
+  height: 27px;
+
+  flex: 0 0 27px;
 
   padding: 0;
 
   border: none;
   border-radius: 6px;
 
-  font-size: 14px;
+  font-size: 13px;
   font-weight: bold;
 
   cursor: pointer;
@@ -333,7 +501,20 @@
   align-items: center;
   justify-content: center;
 
-  transition: 0.2s;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.pending-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.pending-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
 }
 
 
@@ -366,6 +547,23 @@
 
 
 /* =====================================================
+   EMPTY CELL
+===================================================== */
+
+.pending-empty-cell {
+  padding: 25px 15px !important;
+
+  text-align: center !important;
+
+  color: #64748b !important;
+
+  font-size: 13px !important;
+
+  background: #fff;
+}
+
+
+/* =====================================================
    EMPTY
 ===================================================== */
 
@@ -382,6 +580,29 @@
 
 
 /* =====================================================
+   SCROLLBAR
+===================================================== */
+
+.pending-table-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.pending-table-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.pending-table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.pending-table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+
+/* =====================================================
    MOBILE
 ===================================================== */
 
@@ -389,23 +610,43 @@
 
   .pending-student-list {
     padding: 15px 10px;
+
+    width: 100%;
+    max-width: 100%;
+
+    box-sizing: border-box;
   }
+
+
+  /* HEADER */
 
   .pending-list-header {
     align-items: flex-start;
     flex-direction: column;
+
+    width: 100%;
   }
 
   .pending-list-header h1 {
     font-size: 22px;
   }
 
+  .pending-list-header p {
+    font-size: 12px;
+  }
+
+
+  /* SEARCH */
+
   .pending-search {
     align-items: stretch;
     flex-direction: column;
+
+    width: 100%;
   }
 
   .pending-search input {
+    width: 100%;
     max-width: 100%;
   }
 
@@ -413,24 +654,104 @@
     width: fit-content;
   }
 
+
+  /* TABLE */
+
   .pending-table-container {
+    width: 100%;
+    max-width: 100%;
+
     height: calc(100vh - 300px);
     min-height: 280px;
 
     border-radius: 7px;
   }
 
+
+  .pending-table-container table {
+    min-width: 1050px;
+    width: auto;
+  }
+
+
   .pending-table-container thead th {
     padding: 5px 6px;
   }
+
 
   .pending-table-container th,
   .pending-table-container td {
     padding: 3px 5px;
   }
 
+
+  /* DATE */
+
+  .pending-table-container th:nth-child(8),
+  .pending-table-container td:nth-child(8) {
+    width: 100px;
+
+    padding-left: 4px;
+    padding-right: 2px;
+  }
+
+
+  /* ACTION */
+
+  .pending-table-container th:nth-child(9),
+  .pending-table-container td:nth-child(9) {
+    width: 62px;
+
+    padding-left: 2px;
+    padding-right: 3px;
+  }
+
+
   .pending-student-photo {
     width: 34px;
     height: 34px;
+  }
+
+
+  .pending-actions {
+    gap: 3px;
+  }
+
+  .pending-actions button {
+    width: 26px;
+    height: 26px;
+
+    flex-basis: 26px;
+
+    font-size: 13px;
+  }
+}
+
+
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+
+@media (max-width: 480px) {
+
+  .pending-student-list {
+    padding: 12px 8px;
+  }
+
+  .pending-list-header h1 {
+    font-size: 20px;
+  }
+
+  .pending-count {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .pending-search input {
+    font-size: 12px;
+  }
+
+  .pending-table-container {
+    height: calc(100vh - 290px);
   }
 }

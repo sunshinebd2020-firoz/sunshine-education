@@ -31,6 +31,28 @@ export default function StudentList() {
   const [selectedTeacher, setSelectedTeacher] =
     useState("");
 
+  const getStudentIdentifier = (student) => {
+    if (!student) return "";
+
+    return (
+      student.student_id ??
+      student.studentId ??
+      student.id ??
+      ""
+    );
+  };
+
+  const getTeacherIdentifier = (teacher) => {
+    if (!teacher) return "";
+
+    return (
+      teacher.teacher_id ??
+      teacher.teacherId ??
+      teacher.id ??
+      ""
+    );
+  };
+
 
   /*
   =====================================================
@@ -305,6 +327,20 @@ export default function StudentList() {
       return;
     }
 
+    const studentIdentifier =
+      getStudentIdentifier(
+        selectedStudent
+      );
+
+    if (!studentIdentifier) {
+
+      setMessage(
+        "Student ID পাওয়া যায়নি।"
+      );
+
+      return;
+    }
+
 
     if (!selectedTeacher) {
 
@@ -320,6 +356,14 @@ export default function StudentList() {
 
       setMessage("");
 
+      const payload = {
+        student_id: String(studentIdentifier),
+        teacher_id: String(selectedTeacher),
+      };
+
+      if (selectedStudent.id && selectedStudent.id !== studentIdentifier) {
+        payload.id = String(selectedStudent.id);
+      }
 
       const response = await fetch(
         `${API}/student_teacher_assign.php`,
@@ -332,13 +376,7 @@ export default function StudentList() {
               "application/json",
           },
 
-          body: JSON.stringify({
-            student_id:
-              selectedStudent.id,
-
-            teacher_id:
-              selectedTeacher,
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -1146,24 +1184,34 @@ export default function StudentList() {
 
 
                   {teachers.map(
-                    (teacher) => (
+                    (teacher) => {
+                      const teacherKey =
+                        getTeacherIdentifier(
+                          teacher
+                        );
 
-                      <option
-                        key={teacher.id}
-                        value={teacher.teacher_id}
-                      >
+                      if (!teacherKey) {
+                        return null;
+                      }
 
-                        {teacher.name_en ||
-                          teacher.name_bn ||
-                          teacher.teacher_id}
+                      return (
+                        <option
+                          key={teacherKey}
+                          value={teacherKey}
+                        >
 
-                        {" — "}
+                          {teacher.name_en ||
+                            teacher.name_bn ||
+                            teacher.teacher_id ||
+                            teacher.id}
 
-                        {teacher.designation || ""}
+                          {" — "}
 
-                      </option>
+                          {teacher.designation || ""}
 
-                    )
+                        </option>
+                      );
+                    }
                   )}
 
                 </select>

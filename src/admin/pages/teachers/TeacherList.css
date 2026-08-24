@@ -5,7 +5,7 @@
 .teacher-container {
   width: 100%;
   max-width: 100%;
-  padding: 18px;
+  padding: 10px 12px;
   box-sizing: border-box;
   background: #f8fafc;
 }
@@ -19,8 +19,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 7px;
 }
 
 .header-text {
@@ -30,57 +30,100 @@
 .header-text h1 {
   margin: 0;
   color: #1f2937;
-  font-size: 25px;
+  font-size: 21px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .header-text p {
-  margin: 3px 0 0;
+  margin: 2px 0 0;
   color: #6b7280;
-  font-size: 13px;
-  line-height: 1.3;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.teacher-current-info {
+  font-size: 10px !important;
+  color: #64748b !important;
 }
 
 .total-badge {
   flex-shrink: 0;
-  padding: 6px 12px;
-  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 9px;
+  border-radius: 5px;
   background: #eef2ff;
   color: #3730a3;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
 }
 
+.total-badge strong {
+  font-size: 15px;
+  line-height: 1;
+}
+
 
 /* =========================================================
-   SEARCH SECTION
+   ADD TEACHER BUTTON
 ========================================================= */
 
-.search-section {
+.admin-list-add-button {
+  height: 30px;
+  padding: 0 11px;
+  border: 1px solid #2563eb;
+  border-radius: 5px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.admin-list-add-button:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.admin-list-add-button:active {
+  transform: translateY(1px);
+}
+
+
+/* =========================================================
+   SEARCH + FILTER SECTION
+   JSX uses .teacher-filters
+========================================================= */
+
+.teacher-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   width: 100%;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
+  box-sizing: border-box;
 }
 
 .search-input {
-  width: 100%;
-  height: 35px;
-  padding: 0 11px;
+  flex: 1;
+  min-width: 180px;
+  height: 31px;
+  padding: 0 9px;
   box-sizing: border-box;
-
   border: 1px solid #d1d5db;
-  border-radius: 6px;
-
+  border-radius: 5px;
   background: #ffffff;
   color: #1f2937;
-
-  font-size: 13px;
+  font-size: 11px;
   outline: none;
-
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .search-input::placeholder {
@@ -89,23 +132,7 @@
 
 .search-input:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
-}
-
-
-/* =========================================================
-   FILTER SECTION
-========================================================= */
-
-.teacher-filter-section {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-
-  width: 100%;
-  margin-bottom: 10px;
-
-  flex-wrap: nowrap;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.07);
 }
 
 
@@ -113,66 +140,54 @@
    FILTER SELECT
 ========================================================= */
 
-.teacher-filter-section select {
-  height: 32px;
-  min-width: 175px;
-
-  padding: 0 28px 0 9px;
-
+.teacher-filters select {
+  width: 150px;
+  min-width: 150px;
+  height: 31px;
+  padding: 0 25px 0 8px;
   border: 1px solid #d1d5db;
   border-radius: 5px;
-
-  background-color: #ffffff;
+  background: #ffffff;
   color: #374151;
-
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
-
   outline: none;
   cursor: pointer;
-
   box-sizing: border-box;
-
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-.teacher-filter-section select:hover {
+.teacher-filters select:hover {
   border-color: #9ca3af;
 }
 
-.teacher-filter-section select:focus {
+.teacher-filters select:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.07);
 }
 
 
 /* =========================================================
-   CLEAR FILTER BUTTON
+   CLEAR FILTER
 ========================================================= */
 
 .teacher-clear-filter {
-  height: 32px;
-
-  padding: 0 13px;
-
+  height: 31px;
+  padding: 0 10px;
   border: 1px solid #d1d5db;
   border-radius: 5px;
-
   background: #ffffff;
   color: #374151;
-
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-
   white-space: nowrap;
   cursor: pointer;
-
   transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .teacher-clear-filter:hover {
@@ -186,30 +201,31 @@
 
 
 /* =========================================================
-   OPTIONAL OLD FILTER CLASS SUPPORT
+   OLD FILTER CLASS SUPPORT
 ========================================================= */
 
-.teacher-filters {
+.teacher-filter-section {
   display: flex;
   align-items: center;
-  gap: 7px;
-  margin-bottom: 10px;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 7px;
   flex-wrap: nowrap;
 }
 
-.teacher-filters select {
-  height: 32px;
-  min-width: 175px;
-  padding: 0 28px 0 9px;
-
+.teacher-filter-section select {
+  height: 31px;
+  min-width: 150px;
+  padding: 0 25px 0 8px;
   border: 1px solid #d1d5db;
   border-radius: 5px;
-
-  background: #fff;
+  background-color: #ffffff;
   color: #374151;
-
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 500;
   outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
 }
 
 
@@ -219,18 +235,14 @@
 
 .teacher-message {
   width: 100%;
-  padding: 18px;
-  margin: 10px 0;
-
-  border-radius: 7px;
-
+  padding: 12px;
+  margin: 7px 0;
+  border-radius: 6px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
-
   color: #4b5563;
-  font-size: 14px;
+  font-size: 12px;
   text-align: center;
-
   box-sizing: border-box;
 }
 
@@ -247,16 +259,11 @@
 
 .table-card {
   width: 100%;
-
   background: #ffffff;
-
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-
+  border-radius: 6px;
   overflow: hidden;
-
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 
@@ -277,11 +284,9 @@
 
 .teacher-table {
   width: 100%;
-  min-width: 1150px;
-
+  min-width: 950px;
   border-collapse: collapse;
-
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .teacher-table thead {
@@ -289,32 +294,28 @@
 }
 
 .teacher-table th {
-  padding: 10px 8px;
-
+  padding: 7px 7px;
   color: #374151;
-
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-
   text-align: left;
-
   border-bottom: 1px solid #e5e7eb;
-
   white-space: nowrap;
+  height: 28px;
+  box-sizing: border-box;
 }
 
 .teacher-table td {
-  padding: 8px;
-
+  padding: 5px 7px;
   color: #4b5563;
-
   border-bottom: 1px solid #f1f5f9;
-
   vertical-align: middle;
+  height: 48px;
+  box-sizing: border-box;
 }
 
 .teacher-table tbody tr {
-  transition: background 0.15s ease;
+  transition: background 0.12s ease;
 }
 
 .teacher-table tbody tr:hover {
@@ -331,42 +332,32 @@
 ========================================================= */
 
 .teacher-photo {
-  width: 42px;
-  height: 42px;
-
-  border-radius: 6px;
-
+  width: 34px;
+  height: 34px;
+  border-radius: 5px;
   overflow: hidden;
-
   background: #f3f4f6;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border: 1px solid #e5e7eb;
 }
 
 .teacher-photo img {
   width: 100%;
   height: 100%;
-
   object-fit: cover;
-
   display: block;
 }
 
 .no-photo {
   width: 100%;
   height: 100%;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   color: #9ca3af;
-
-  font-size: 9px;
+  font-size: 8px;
   text-align: center;
 }
 
@@ -389,21 +380,21 @@
 .name-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-
-  min-width: 130px;
+  gap: 1px;
+  min-width: 120px;
 }
 
 .name-en {
   color: #111827;
   font-weight: 600;
-  line-height: 1.25;
+  font-size: 11px;
+  line-height: 1.2;
 }
 
 .name-bn {
   color: #6b7280;
-  font-size: 10px;
-  line-height: 1.25;
+  font-size: 9px;
+  line-height: 1.2;
 }
 
 
@@ -415,16 +406,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  min-width: 55px;
-
-  padding: 3px 7px;
-
-  border-radius: 20px;
-
-  font-size: 10px;
+  min-width: 48px;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 9px;
   font-weight: 600;
-
   white-space: nowrap;
 }
 
@@ -446,29 +432,24 @@
 .user-status-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .user-active-badge {
   display: inline-flex;
   align-items: center;
-
   width: fit-content;
-
-  padding: 3px 6px;
-
+  padding: 2px 5px;
   border-radius: 4px;
-
   background: #dcfce7;
   color: #15803d;
-
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
 }
 
 .user-status-wrapper small {
   color: #6b7280;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 
@@ -477,24 +458,17 @@
 ========================================================= */
 
 .btn-add-user {
-  height: 28px;
-
-  padding: 0 8px;
-
+  height: 25px;
+  padding: 0 7px;
   border: 1px solid #bfdbfe;
-  border-radius: 5px;
-
+  border-radius: 4px;
   background: #eff6ff;
   color: #1d4ed8;
-
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
-
   cursor: pointer;
-
   white-space: nowrap;
-
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .btn-add-user:hover {
@@ -510,35 +484,30 @@
 .action-buttons {
   display: flex;
   align-items: center;
-  gap: 4px;
-
+  gap: 3px;
   white-space: nowrap;
 }
 
 .btn-action {
-  width: 28px;
-  height: 28px;
-
+  width: 25px;
+  height: 25px;
   padding: 0;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   border: 1px solid #e5e7eb;
-  border-radius: 5px;
-
+  border-radius: 4px;
   background: #ffffff;
-
   cursor: pointer;
-
   transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .btn-action svg {
+  width: 13px;
+  height: 13px;
   display: block;
 }
 
@@ -585,19 +554,13 @@
 
 .user-modal-overlay {
   position: fixed;
-
   inset: 0;
-
   z-index: 9999;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  padding: 20px;
-
+  padding: 15px;
   background: rgba(15, 23, 42, 0.55);
-
   box-sizing: border-box;
 }
 
@@ -608,19 +571,12 @@
 
 .user-modal {
   width: 100%;
-  max-width: 470px;
-
+  max-width: 430px;
   max-height: 90vh;
-
   overflow-y: auto;
-
   background: #ffffff;
-
-  border-radius: 10px;
-
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.2);
-
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
   animation: teacherModalIn 0.2s ease;
 }
 
@@ -645,46 +601,34 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
-  gap: 15px;
-
-  padding: 16px 18px;
-
+  gap: 10px;
+  padding: 12px 14px;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .user-modal-header h2 {
   margin: 0;
-
   color: #111827;
-
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
 }
 
 .user-modal-header p {
-  margin: 3px 0 0;
-
+  margin: 2px 0 0;
   color: #6b7280;
-
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .user-modal-close {
-  width: 30px;
-  height: 30px;
-
+  width: 27px;
+  height: 27px;
   flex-shrink: 0;
-
   border: none;
   border-radius: 5px;
-
   background: #f3f4f6;
   color: #4b5563;
-
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
-
   cursor: pointer;
 }
 
@@ -698,51 +642,39 @@
 ========================================================= */
 
 .user-form {
-  padding: 18px;
+  padding: 14px;
 }
 
 .form-group {
-  margin-bottom: 13px;
+  margin-bottom: 10px;
 }
 
 .form-group label {
   display: block;
-
-  margin-bottom: 5px;
-
+  margin-bottom: 4px;
   color: #374151;
-
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  height: 36px;
-
-  padding: 0 10px;
-
+  height: 33px;
+  padding: 0 9px;
   box-sizing: border-box;
-
   border: 1px solid #d1d5db;
-  border-radius: 6px;
-
+  border-radius: 5px;
   background: #ffffff;
-
   color: #111827;
-
-  font-size: 13px;
-
+  font-size: 12px;
   outline: none;
 }
 
 .form-group input:focus,
 .form-group select:focus {
   border-color: #2563eb;
-
-  box-shadow:
-    0 0 0 2px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
 }
 
 .form-group input:disabled,
@@ -759,64 +691,48 @@
 .user-teacher-info {
   display: flex;
   align-items: center;
-
-  gap: 12px;
-
-  padding: 10px;
-
-  margin-bottom: 15px;
-
+  gap: 9px;
+  padding: 8px;
+  margin-bottom: 11px;
   border: 1px solid #e5e7eb;
-  border-radius: 7px;
-
+  border-radius: 6px;
   background: #f8fafc;
 }
 
 .user-teacher-photo {
-  width: 48px;
-  height: 48px;
-
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
-
   overflow: hidden;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  border-radius: 6px;
-
+  border-radius: 5px;
   background: #e5e7eb;
-
   color: #9ca3af;
-
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .user-teacher-photo img {
   width: 100%;
   height: 100%;
-
   object-fit: cover;
 }
 
 .user-teacher-info > div:last-child {
   display: flex;
   flex-direction: column;
-
-  gap: 2px;
+  gap: 1px;
 }
 
 .user-teacher-info strong {
   color: #111827;
-
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .user-teacher-info span {
   color: #6b7280;
-
-  font-size: 10px;
+  font-size: 9px;
 }
 
 
@@ -827,29 +743,22 @@
 .user-form-actions {
   display: flex;
   justify-content: flex-end;
-
-  gap: 7px;
-
-  margin-top: 18px;
+  gap: 6px;
+  margin-top: 13px;
 }
 
 .user-cancel-btn,
 .user-create-btn {
-  height: 34px;
-
-  padding: 0 14px;
-
-  border-radius: 6px;
-
-  font-size: 12px;
+  height: 31px;
+  padding: 0 12px;
+  border-radius: 5px;
+  font-size: 11px;
   font-weight: 600;
-
   cursor: pointer;
 }
 
 .user-cancel-btn {
   border: 1px solid #d1d5db;
-
   background: #ffffff;
   color: #374151;
 }
@@ -860,7 +769,6 @@
 
 .user-create-btn {
   border: 1px solid #2563eb;
-
   background: #2563eb;
   color: #ffffff;
 }
@@ -882,7 +790,7 @@
 ========================================================= */
 
 .table-responsive::-webkit-scrollbar {
-  height: 7px;
+  height: 6px;
 }
 
 .table-responsive::-webkit-scrollbar-track {
@@ -906,21 +814,26 @@
 @media (max-width: 900px) {
 
   .teacher-container {
-    padding: 14px;
+    padding: 9px;
   }
 
   .teacher-header {
     align-items: flex-start;
   }
 
-  .teacher-filter-section {
-    flex-wrap: nowrap;
+  .teacher-filters {
+    flex-wrap: wrap;
   }
 
-  .teacher-filter-section select {
-    min-width: 160px;
+  .search-input {
+    flex: 1 1 100%;
+    min-width: 100%;
   }
 
+  .teacher-filters select {
+    flex: 1;
+    min-width: 130px;
+  }
 }
 
 
@@ -931,33 +844,49 @@
 @media (max-width: 650px) {
 
   .teacher-container {
-    padding: 10px;
+    padding: 8px;
   }
 
   .teacher-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 7px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .header-text {
+    width: 100%;
+  }
+
+  .admin-list-add-button {
+    height: 29px;
   }
 
   .total-badge {
-    align-self: flex-start;
+    margin-left: auto;
   }
 
-  .teacher-filter-section {
-    width: 100%;
-    flex-wrap: nowrap;
+  .teacher-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 5px;
   }
 
-  .teacher-filter-section select {
+  .search-input {
+    grid-column: 1 / -1;
     min-width: 0;
-    flex: 1;
+  }
+
+  .teacher-filters select {
+    width: 100%;
+    min-width: 0;
   }
 
   .teacher-clear-filter {
-    flex-shrink: 0;
+    width: auto;
   }
 
+  .teacher-table {
+    min-width: 900px;
+  }
 }
 
 
@@ -967,45 +896,63 @@
 
 @media (max-width: 450px) {
 
+  .teacher-container {
+    padding: 6px;
+  }
+
   .header-text h1 {
-    font-size: 21px;
+    font-size: 19px;
   }
 
   .header-text p {
-    font-size: 11px;
+    font-size: 10px;
+  }
+
+  .teacher-current-info {
+    font-size: 9px !important;
+  }
+
+  .total-badge {
+    padding: 4px 7px;
+    font-size: 10px;
+  }
+
+  .total-badge strong {
+    font-size: 14px;
+  }
+
+  .admin-list-add-button {
+    height: 28px;
+    padding: 0 9px;
+    font-size: 10px;
+  }
+
+  .teacher-filters {
+    grid-template-columns: 1fr 1fr;
   }
 
   .search-input {
-    height: 34px;
-    font-size: 12px;
-  }
-
-  .teacher-filter-section {
-    gap: 5px;
-  }
-
-  .teacher-filter-section select {
-    min-width: 0;
-    height: 31px;
-    padding-left: 7px;
-    padding-right: 22px;
+    height: 30px;
     font-size: 11px;
+  }
+
+  .teacher-filters select {
+    height: 30px;
+    font-size: 10px;
   }
 
   .teacher-clear-filter {
-    height: 31px;
-    padding: 0 10px;
-    font-size: 11px;
+    height: 30px;
+    font-size: 10px;
   }
 
   .user-modal-overlay {
-    padding: 10px;
+    padding: 8px;
   }
 
   .user-modal {
     max-height: 95vh;
   }
-
 }
 
 
@@ -1021,9 +968,11 @@
   }
 
   .search-section,
+  .teacher-filters,
   .teacher-filter-section,
   .action-buttons,
-  .btn-add-user {
+  .btn-add-user,
+  .admin-list-add-button {
     display: none;
   }
 
