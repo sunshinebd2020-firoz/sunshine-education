@@ -103,6 +103,36 @@ const normalizeData = (payload = {}) => ({
   transfer_requests: asArray(payload.transfer_requests).map(normalizeTransferRequest),
 });
 
+const parseJsonResponse = async (response, fallbackMessage) => {
+  const text = await response.text();
+
+  if (!text.trim()) {
+    throw new Error(fallbackMessage || "Server response is empty.");
+  }
+
+  const trimmed = text.trim();
+  const contentType = (response.headers.get("content-type") || "").toLowerCase();
+
+  if (
+    !contentType.includes("application/json") &&
+    !trimmed.startsWith("{") &&
+    !trimmed.startsWith("[")
+  ) {
+    throw new Error(
+      "Backend API is not responding with JSON. Please check the PHP API URL and make sure the server is running."
+    );
+  }
+
+  try {
+    return JSON.parse(trimmed);
+  } catch (error) {
+    console.error("Invalid JSON response:", trimmed);
+    throw new Error(
+      fallbackMessage || "Server returned an invalid response format. Please check the API configuration."
+    );
+  }
+};
+
 export default function TeacherClassroom() {
   const [data, setData] = useState({
     students: [],
@@ -128,12 +158,20 @@ export default function TeacherClassroom() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [activeSection, setActiveSection] = useState("students");
+
+  const sectionTabs = [
+    { key: "students", label: "Students" },
+    { key: "batches", label: "Batches" },
+    { key: "attendance", label: "Attendance" },
+    { key: "records", label: "Class Records" },
+  ];
 
   const load = async () => {
     try {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/teacher_classroom.php`, { credentials: "include" });
-      const result = await response.json();
+      const result = await parseJsonResponse(response, "Could not load classroom.");
 
       if (!response.ok || !result?.success) {
         throw new Error(result?.message || "Could not load classroom.");
@@ -191,7 +229,7 @@ export default function TeacherClassroom() {
         body: JSON.stringify(payload),
       });
 
-      const result = await response.json();
+      const result = await parseJsonResponse(response, "Request failed.");
       if (!response.ok || !result?.success) {
         throw new Error(result?.message || "Request failed.");
       }
@@ -305,8 +343,8 @@ export default function TeacherClassroom() {
     <div className="classroom-page">
       <header className="classroom-header">
         <div>
-          <h1>My Classroom</h1>
-          <p>শিক্ষার্থী, ব্যাচ, attendance ও ক্লাস record এক জায়গায়।</p>
+          <h1>My Batch</h1>
+          <p>শিক্ষার্থী, ব্যাচ, attendance ও class record একসাথে পরিচালনা করুন।</p>
         </div>
         <button type="button" className="secondary-button" onClick={load} disabled={loading}>
           রিফ্রেশ
@@ -338,153 +376,211 @@ export default function TeacherClassroom() {
             </div>
           </section>
 
-          <section className="classroom-card">
-            <div className="card-heading">
-              <div>
-                <h2>Assigned Students</h2>
-                <p>আপনার কাছে assigned থাকা শিক্ষার্থীর তালিকা।</p>
-              </div>
-            </div>
-
-            {asArray(data.students).length ? (
-              <div className="table-wrap">
-                <table className="classroom-table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>নাম</th>
-                      <th>Student ID</th>
-                      <th>Course / Level</th>
-                      <th>Mobile</th>
-                      <th>Request</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {asArray(data.students).map((student, index) => (
-                      <tr key={getId(student.id ?? student.student_id)}>
-                        <td>{index + 1}</td>
-                        <td>{studentName(student)}</td>
-                        <td>{student.student_id}</td>
-                        <td>
-                          {student.course || "—"}
-                          {student.language_level ? ` / ${student.language_level}` : ""}
-                        </td>
-                        <td>{student.student_mobile || "—"}</td>
-                        <td>
-                          <button
-                            type="button"
-                            className="icon-button"
-                            title="অন্য teacher-এর কাছে transfer request পাঠান"
-                            onClick={() => openTransfer(student)}
-                          >
-                            ↗
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className="empty-state">এখনও কোনো শিক্ষার্থী assign করা হয়নি।</p>
-            )}
-          </section>
-
-          <div className="classroom-columns">
-            <section className="classroom-card">
-              <div className="card-heading">
-                <div>
-                  <h2>নতুন Batch তৈরি করুন</h2>
-                  <p>রুটিন দিয়ে batch তৈরি করুন।</p>
-                </div>
-              </div>
-
-              <form className="classroom-form" onSubmit={createBatch}>
-                <input
-                  required
-                  placeholder="Batch name (যেমন: IELTS Evening A)"
-                  value={batch.name}
-                  onChange={(e) => setBatch({ ...batch, name: e.target.value })}
-                />
-                <div className="form-row">
-                  <input
-                    placeholder="Course"
-                    value={batch.course}
-                    onChange={(e) => setBatch({ ...batch, course: e.target.value })}
-                  />
-                  <input
-                    placeholder="Level"
-                    value={batch.language_level}
-                    onChange={(e) => setBatch({ ...batch, language_level: e.target.value })}
-                  />
-                </div>
-                <input
-                  placeholder="Class days (যেমন: Sun, Tue, Thu)"
-                  value={batch.schedule_days}
-                  onChange={(e) => setBatch({ ...batch, schedule_days: e.target.value })}
-                />
-                <div className="form-row">
-                  <input
-                    aria-label="Start time"
-                    type="time"
-                    value={batch.start_time}
-                    onChange={(e) => setBatch({ ...batch, start_time: e.target.value })}
-                  />
-                  <input
-                    aria-label="End time"
-                    type="time"
-                    value={batch.end_time}
-                    onChange={(e) => setBatch({ ...batch, end_time: e.target.value })}
-                  />
-                </div>
-                <input
-                  placeholder="Room / online link"
-                  value={batch.room}
-                  onChange={(e) => setBatch({ ...batch, room: e.target.value })}
-                />
-                <button disabled={saving}>Batch তৈরি করুন</button>
-              </form>
-            </section>
-
-            <section className="classroom-card">
-              <div className="card-heading">
-                <div>
-                  <h2>আমার Batches</h2>
-                  <p>একটি batch নির্বাচন করুন।</p>
-                </div>
-              </div>
-
-              <div className="batch-list">
-                {asArray(data.batches).map((item) => (
-                  <button
-                    className={`batch-item ${getId(selectedBatch) === getId(item.id) ? "selected" : ""}`}
-                    key={getId(item.id)}
-                    type="button"
-                    onClick={() => setSelectedBatch(getId(item.id))}
-                  >
-                    <strong>{item.name}</strong>
-                    <span>
-                      {item.schedule_days || "রুটিন দেওয়া হয়নি"} · {item.start_time || "সময় নেই"}
-                      {item.room ? ` · ${item.room}` : ""}
-                    </span>
-                    <small>{item.student_count || 0} জন শিক্ষার্থী</small>
-                  </button>
-                ))}
-              </div>
-
-              {!asArray(data.batches).length && <p className="empty-state">শুরু করতে একটি batch তৈরি করুন।</p>}
-            </section>
+          <div className="classroom-submenu" aria-label="My Batch submenu">
+            {sectionTabs.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                className={activeSection === tab.key ? "submenu-button active" : "submenu-button"}
+                onClick={() => setActiveSection(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
-          {selectedBatchData && (
+          {activeSection === "students" && (
+            <>
+              <section className="classroom-card">
+                <div className="card-heading">
+                  <div>
+                    <h2>Assigned Students</h2>
+                    <p>আপনার কাছে assigned থাকা শিক্ষার্থীর তালিকা।</p>
+                  </div>
+                </div>
+
+                {asArray(data.students).length ? (
+                  <div className="table-wrap">
+                    <table className="classroom-table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>নাম</th>
+                          <th>Student ID</th>
+                          <th>Course / Level</th>
+                          <th>Mobile</th>
+                          <th>Request</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {asArray(data.students).map((student, index) => (
+                          <tr key={getId(student.id ?? student.student_id)}>
+                            <td>{index + 1}</td>
+                            <td>{studentName(student)}</td>
+                            <td>{student.student_id}</td>
+                            <td>
+                              {student.course || "—"}
+                              {student.language_level ? ` / ${student.language_level}` : ""}
+                            </td>
+                            <td>{student.student_mobile || "—"}</td>
+                            <td>
+                              <button
+                                type="button"
+                                className="icon-button"
+                                title="অন্য teacher-এর কাছে transfer request পাঠান"
+                                onClick={() => openTransfer(student)}
+                              >
+                                ↗
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="empty-state">এখনও কোনো শিক্ষার্থী assign করা হয়নি।</p>
+                )}
+              </section>
+
+              {asArray(data.transfer_requests).length > 0 && (
+                <section className="classroom-card transfer-history">
+                  <h2>আমার Transfer Requests</h2>
+
+                  <div className="table-wrap">
+                    <table className="classroom-table">
+                      <thead>
+                        <tr>
+                          <th>শিক্ষার্থী</th>
+                          <th>নতুন Teacher</th>
+                          <th>তারিখ</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {asArray(data.transfer_requests).map((request) => (
+                          <tr key={getId(request.id)}>
+                            <td>
+                              {studentName(request)} ({request.student_code || request.student_id || "—"})
+                            </td>
+                            <td>
+                              {request.to_teacher_name_en ||
+                                request.to_teacher_name_bn ||
+                                request.to_teacher_id ||
+                                "—"}
+                            </td>
+                            <td>{String(request.created_at || "").slice(0, 10)}</td>
+                            <td>
+                              <span className="attendance-status absent">
+                                {request.status || "pending"}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              )}
+            </>
+          )}
+
+          {activeSection === "batches" && (
+            <div className="classroom-columns">
+              <section className="classroom-card">
+                <div className="card-heading">
+                  <div>
+                    <h2>নতুন Batch তৈরি করুন</h2>
+                    <p>রুটিন দিয়ে batch তৈরি করুন।</p>
+                  </div>
+                </div>
+
+                <form className="classroom-form" onSubmit={createBatch}>
+                  <input
+                    required
+                    placeholder="Batch name (যেমন: IELTS Evening A)"
+                    value={batch.name}
+                    onChange={(e) => setBatch({ ...batch, name: e.target.value })}
+                  />
+                  <div className="form-row">
+                    <input
+                      placeholder="Course"
+                      value={batch.course}
+                      onChange={(e) => setBatch({ ...batch, course: e.target.value })}
+                    />
+                    <input
+                      placeholder="Level"
+                      value={batch.language_level}
+                      onChange={(e) => setBatch({ ...batch, language_level: e.target.value })}
+                    />
+                  </div>
+                  <input
+                    placeholder="Class days (যেমন: Sun, Tue, Thu)"
+                    value={batch.schedule_days}
+                    onChange={(e) => setBatch({ ...batch, schedule_days: e.target.value })}
+                  />
+                  <div className="form-row">
+                    <input
+                      aria-label="Start time"
+                      type="time"
+                      value={batch.start_time}
+                      onChange={(e) => setBatch({ ...batch, start_time: e.target.value })}
+                    />
+                    <input
+                      aria-label="End time"
+                      type="time"
+                      value={batch.end_time}
+                      onChange={(e) => setBatch({ ...batch, end_time: e.target.value })}
+                    />
+                  </div>
+                  <input
+                    placeholder="Room / online link"
+                    value={batch.room}
+                    onChange={(e) => setBatch({ ...batch, room: e.target.value })}
+                  />
+                  <button disabled={saving}>Batch তৈরি করুন</button>
+                </form>
+              </section>
+
+              <section className="classroom-card">
+                <div className="card-heading">
+                  <div>
+                    <h2>আমার Batches</h2>
+                    <p>একটি batch নির্বাচন করুন।</p>
+                  </div>
+                </div>
+
+                <div className="batch-list">
+                  {asArray(data.batches).map((item) => (
+                    <button
+                      className={`batch-item ${getId(selectedBatch) === getId(item.id) ? "selected" : ""}`}
+                      key={getId(item.id)}
+                      type="button"
+                      onClick={() => setSelectedBatch(getId(item.id))}
+                    >
+                      <strong>{item.name}</strong>
+                      <span>
+                        {item.schedule_days || "রুটিন দেওয়া হয়নি"} · {item.start_time || "সময় নেই"}
+                        {item.room ? ` · ${item.room}` : ""}
+                      </span>
+                      <small>{item.student_count || 0} জন শিক্ষার্থী</small>
+                    </button>
+                  ))}
+                </div>
+
+                {!asArray(data.batches).length && <p className="empty-state">শুরু করতে একটি batch তৈরি করুন।</p>}
+              </section>
+            </div>
+          )}
+
+          {activeSection === "attendance" && selectedBatchData && (
             <section className="selected-batch-section">
               <div className="selected-batch-title">
                 <div>
                   <span>Selected batch</span>
                   <h2>{selectedBatchData.name}</h2>
                   <p>
-                    {selectedBatchData.schedule_days || "রুটিন নেই"} ·{" "}
-                    {selectedBatchData.start_time || "সময় নেই"}
+                    {selectedBatchData.schedule_days || "রুটিন নেই"} · {selectedBatchData.start_time || "সময় নেই"}
                     {selectedBatchData.end_time ? `–${selectedBatchData.end_time}` : ""}
                   </p>
                 </div>
@@ -687,99 +783,101 @@ export default function TeacherClassroom() {
             </section>
           )}
 
-          <section className="classroom-card">
-            <div className="card-heading">
-              <div>
-                <h2>সর্বশেষ সংরক্ষিত ক্লাসগুলো</h2>
-                <p>প্রতিটি record খুলে class details ও attendance দেখুন।</p>
+          {activeSection === "records" && (
+            <section className="classroom-card">
+              <div className="card-heading">
+                <div>
+                  <h2>সর্বশেষ সংরক্ষিত ক্লাসগুলো</h2>
+                  <p>প্রতিটি record খুলে class details ও attendance দেখুন।</p>
+                </div>
               </div>
-            </div>
 
-            <div className="session-list">
-              {asArray(data.sessions).map((item) => {
-                const isOpen = String(openSessionId) === String(item.id);
-                const attendance = asArray(data.attendance).filter(
-                  (row) => String(row.class_session_id) === String(item.id)
-                );
-                const presentCount = attendance.filter(
-                  (row) => String(row.attendance_status).toLowerCase() === "present"
-                ).length;
+              <div className="session-list">
+                {asArray(data.sessions).map((item) => {
+                  const isOpen = String(openSessionId) === String(item.id);
+                  const attendance = asArray(data.attendance).filter(
+                    (row) => String(row.class_session_id) === String(item.id)
+                  );
+                  const presentCount = attendance.filter(
+                    (row) => String(row.attendance_status).toLowerCase() === "present"
+                  ).length;
 
-                return (
-                  <div className="session-item" key={getId(item.id)}>
-                    <button
-                      type="button"
-                      className="session-toggle"
-                      onClick={() => setOpenSessionId(isOpen ? "" : String(item.id))}
-                    >
-                      <span>
-                        <strong>{item.class_date} · {item.batch_name}</strong>
-                        <small>{item.topic}</small>
-                      </span>
-                      <span>
-                        {attendance.length ? `${presentCount}/${attendance.length} উপস্থিত` : "Details খুলুন"}{" "}
-                        {isOpen ? "▲" : "▼"}
-                      </span>
-                    </button>
+                  return (
+                    <div className="session-item" key={getId(item.id)}>
+                      <button
+                        type="button"
+                        className="session-toggle"
+                        onClick={() => setOpenSessionId(isOpen ? "" : String(item.id))}
+                      >
+                        <span>
+                          <strong>{item.class_date} · {item.batch_name}</strong>
+                          <small>{item.topic}</small>
+                        </span>
+                        <span>
+                          {attendance.length ? `${presentCount}/${attendance.length} উপস্থিত` : "Details খুলুন"}{" "}
+                          {isOpen ? "▲" : "▼"}
+                        </span>
+                      </button>
 
-                    {isOpen && (
-                      <div className="session-details">
-                        <p>
-                          <strong>Topic:</strong> {item.topic}
-                        </p>
-                        {item.notes && (
+                      {isOpen && (
+                        <div className="session-details">
                           <p>
-                            <strong>Notes:</strong> {item.notes}
+                            <strong>Topic:</strong> {item.topic}
                           </p>
-                        )}
+                          {item.notes && (
+                            <p>
+                              <strong>Notes:</strong> {item.notes}
+                            </p>
+                          )}
 
-                        {attendance.length ? (
-                          <div className="table-wrap">
-                            <table className="classroom-table">
-                              <thead>
-                                <tr>
-                                  <th>শিক্ষার্থী</th>
-                                  <th>Student ID</th>
-                                  <th>Attendance</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {attendance.map((row) => (
-                                  <tr key={getId(row.id ?? row.student_id)}>
-                                    <td>{studentName(row)}</td>
-                                    <td>{row.student_code || row.student_id || "—"}</td>
-                                    <td>
-                                      <span
-                                        className={`attendance-status ${
-                                          String(row.attendance_status).toLowerCase() === "present"
-                                            ? "present"
-                                            : "absent"
-                                        }`}
-                                      >
-                                        {String(row.attendance_status).toLowerCase() === "present"
-                                          ? "উপস্থিত"
-                                          : "অনুপস্থিত"}
-                                      </span>
-                                    </td>
+                          {attendance.length ? (
+                            <div className="table-wrap">
+                              <table className="classroom-table">
+                                <thead>
+                                  <tr>
+                                    <th>শিক্ষার্থী</th>
+                                    <th>Student ID</th>
+                                    <th>Attendance</th>
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        ) : (
-                          <p className="empty-state">
-                            এই পুরোনো class record-এ attendance সংরক্ষিত হয়নি।
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                                </thead>
+                                <tbody>
+                                  {attendance.map((row) => (
+                                    <tr key={getId(row.id ?? row.student_id)}>
+                                      <td>{studentName(row)}</td>
+                                      <td>{row.student_code || row.student_id || "—"}</td>
+                                      <td>
+                                        <span
+                                          className={`attendance-status ${
+                                            String(row.attendance_status).toLowerCase() === "present"
+                                              ? "present"
+                                              : "absent"
+                                          }`}
+                                        >
+                                          {String(row.attendance_status).toLowerCase() === "present"
+                                            ? "উপস্থিত"
+                                            : "অনুপস্থিত"}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          ) : (
+                            <p className="empty-state">
+                              এই পুরোনো class record-এ attendance সংরক্ষিত হয়নি।
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
 
-              {!asArray(data.sessions).length && <p className="empty-state">এখনও কোনো class record নেই।</p>}
-            </div>
-          </section>
+                {!asArray(data.sessions).length && <p className="empty-state">এখনও কোনো class record নেই।</p>}
+              </div>
+            </section>
+          )}
 
           {transferStudent && (
             <div
@@ -835,46 +933,6 @@ export default function TeacherClassroom() {
                 </form>
               </div>
             </div>
-          )}
-
-          {asArray(data.transfer_requests).length > 0 && (
-            <section className="classroom-card transfer-history">
-              <h2>আমার Transfer Requests</h2>
-
-              <div className="table-wrap">
-                <table className="classroom-table">
-                  <thead>
-                    <tr>
-                      <th>শিক্ষার্থী</th>
-                      <th>নতুন Teacher</th>
-                      <th>তারিখ</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {asArray(data.transfer_requests).map((request) => (
-                      <tr key={getId(request.id)}>
-                        <td>
-                          {studentName(request)} ({request.student_code || request.student_id || "—"})
-                        </td>
-                        <td>
-                          {request.to_teacher_name_en ||
-                            request.to_teacher_name_bn ||
-                            request.to_teacher_id ||
-                            "—"}
-                        </td>
-                        <td>{String(request.created_at || "").slice(0, 10)}</td>
-                        <td>
-                          <span className="attendance-status absent">
-                            {request.status || "pending"}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
           )}
         </>
       )}

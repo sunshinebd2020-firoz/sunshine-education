@@ -12,6 +12,7 @@ import {
 
 import "./AdminLayout.css";
 import { API_ORIGIN } from "../config/api";
+import { clearAuthStorage, readStoredUser } from "./authStorage";
 
 export default function AdminLayout() {
 
@@ -25,57 +26,16 @@ export default function AdminLayout() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-
-    const savedUser =
-      localStorage.getItem("sunshine_user");
+    const savedUser = readStoredUser();
 
     if (!savedUser) {
-
-      navigate(
-        "/admin/login",
-        { replace: true }
-      );
-
+      clearAuthStorage();
+      navigate("/admin/login", { replace: true });
       return;
     }
 
-    try {
-
-      const loggedInUser =
-        JSON.parse(savedUser);
-
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUser(loggedInUser);
-
-    } catch (error) {
-
-      console.error(
-        "User parse error:",
-        error
-      );
-
-      localStorage.removeItem(
-        "sunshine_user"
-      );
-
-      localStorage.removeItem(
-        "sunshine_logged_in"
-      );
-
-      localStorage.removeItem(
-        "teacher_branch"
-      );
-
-      localStorage.removeItem(
-        "is_admin"
-      );
-
-      navigate(
-        "/admin/login",
-        { replace: true }
-      );
-    }
-
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setUser(savedUser);
   }, [navigate]);
 
   /* =====================================================
@@ -651,42 +611,7 @@ export default function AdminLayout() {
   const handleLogout =
     () => {
 
-      localStorage.removeItem(
-        "sunshine_user"
-      );
-
-      localStorage.removeItem(
-        "sunshine_logged_in"
-      );
-
-      localStorage.removeItem(
-        "teacher_branch"
-      );
-
-      localStorage.removeItem(
-        "is_admin"
-      );
-
-      localStorage.removeItem(
-        "admin"
-      );
-
-      localStorage.removeItem(
-        "user"
-      );
-
-      localStorage.removeItem(
-        "loggedInUser"
-      );
-
-      localStorage.removeItem(
-        "admin_id"
-      );
-
-      localStorage.removeItem(
-        "user_id"
-      );
-
+      clearAuthStorage();
       sessionStorage.clear();
 
       navigate(
@@ -911,7 +836,7 @@ export default function AdminLayout() {
                 `sidebar-link ${isActive ? "active" : ""}`
               }
             >
-              <span>📚 My Classroom</span>
+              <span>📚 My Batch</span>
             </NavLink>
           )}
 

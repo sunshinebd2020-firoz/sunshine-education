@@ -6,6 +6,34 @@ import API_BASE_URL, { API_ORIGIN } from "../../../config/api";
 const API = API_BASE_URL;
 const IMAGE_URL = API_ORIGIN;
 
+const parseJsonResponse = async (response, fallbackMessage) => {
+  const text = await response.text();
+
+  if (!text.trim()) {
+    throw new Error(fallbackMessage || "Server response is empty.");
+  }
+
+  const trimmed = text.trim();
+  const contentType = (response.headers.get("content-type") || "").toLowerCase();
+
+  if (
+    !contentType.includes("application/json") &&
+    !trimmed.startsWith("{") &&
+    !trimmed.startsWith("[")
+  ) {
+    throw new Error(
+      "Backend API is not responding with JSON. Check if the PHP API URL is correct and the server is running."
+    );
+  }
+
+  try {
+    return JSON.parse(trimmed);
+  } catch (error) {
+    console.error("Invalid JSON response:", trimmed);
+    throw new Error(fallbackMessage || "Server returned an invalid response format.");
+  }
+};
+
 export default function StudentList() {
 
   const navigate = useNavigate();
@@ -155,9 +183,7 @@ export default function StudentList() {
         { credentials: "include" }
       );
 
-
-      const data =
-        await response.json();
+      const data = await parseJsonResponse(response, "Student data পাওয়া যায়নি।");
 
 
       if (data.success) {
@@ -218,9 +244,7 @@ export default function StudentList() {
         { credentials: "include" }
       );
 
-
-      const data =
-        await response.json();
+      const data = await parseJsonResponse(response, "Teacher list পাওয়া যায়নি।");
 
 
       if (data.success) {
@@ -358,11 +382,18 @@ export default function StudentList() {
 
       const payload = {
         student_id: String(studentIdentifier),
+        studentId: String(studentIdentifier),
         teacher_id: String(selectedTeacher),
+        teacherId: String(selectedTeacher),
+        student_code: selectedStudent.student_code || selectedStudent.student_id || studentIdentifier,
       };
 
       if (selectedStudent.id && selectedStudent.id !== studentIdentifier) {
         payload.id = String(selectedStudent.id);
+      }
+
+      if (selectedStudent.student_id && selectedStudent.student_id !== studentIdentifier) {
+        payload.student_id = String(selectedStudent.student_id);
       }
 
       const response = await fetch(

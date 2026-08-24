@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import { isProtectedAdministrator } from "./protectedAdmins";
 import API_BASE_URL from "../config/api";
+import { clearAuthStorage } from "./authStorage";
 
 export default function Login() {
 
@@ -263,47 +264,26 @@ export default function Login() {
       =================================================
       */
 
-      localStorage.setItem(
-        "sunshine_user",
-        JSON.stringify(
-          loggedInUser
-        )
-      );
+      const authState = {
+        sunshine_user: loggedInUser,
+        admin: loggedInUser,
+        user: loggedInUser,
+        loggedInUser,
+        admin_id: String(loggedInUser.admin_id || loggedInUser.user_id || ""),
+        user_id: String(loggedInUser.user_id || loggedInUser.admin_id || ""),
+      };
 
-      localStorage.setItem(
-        "admin",
-        JSON.stringify(
-          loggedInUser
-        )
-      );
+      Object.entries(authState).forEach(([key, value]) => {
+        if (value === null || value === undefined || value === "") {
+          localStorage.removeItem(key);
+          return;
+        }
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(
-          loggedInUser
-        )
-      );
-
-      localStorage.setItem(
-        "loggedInUser",
-        JSON.stringify(
-          loggedInUser
-        )
-      );
-
-      localStorage.setItem(
-        "admin_id",
-        String(
-          loggedInUser.admin_id
-        )
-      );
-
-      localStorage.setItem(
-        "user_id",
-        String(
-          loggedInUser.user_id
-        )
-      );
+        localStorage.setItem(
+          key,
+          typeof value === "string" ? value : JSON.stringify(value)
+        );
+      });
 
       /*
       =================================================
@@ -324,6 +304,11 @@ export default function Login() {
           "teacher_branch"
         );
       }
+
+      localStorage.setItem(
+        "sunshine_logged_in",
+        "1"
+      );
 
       /*
       =================================================
@@ -352,6 +337,8 @@ export default function Login() {
       );
 
     } catch (err) {
+
+      clearAuthStorage();
 
       console.error(
         "Login Error:",

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import Header from "./components/Header/Header";
 import Navbar from "./components/Navbar/Navbar";
@@ -184,6 +184,10 @@ export default function App() {
             path="/admin"
             element={<AdminLayout />}
           >
+            <Route
+              index
+              element={<Navigate to="dashboard" replace />}
+            />
 
             {/* ================= DASHBOARD ================= */}
 
@@ -386,12 +390,12 @@ export default function App() {
             />
 
             <Route
-              path="/admin/due-list"
+              path="due-list"
               element={<DueList />}
             />
 
             <Route
-              path="/admin/income-voucher/:id"
+              path="income-voucher/:id"
               element={<IncomeVoucher />}
             />
 
