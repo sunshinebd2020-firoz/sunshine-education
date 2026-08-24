@@ -510,6 +510,53 @@ export default function DueList() {
   };
 
 
+  const normalizeWhatsAppNumber = (phone) => {
+    if (!phone) return "";
+
+    const digits = String(phone).replace(/\D/g, "");
+
+    if (!digits) return "";
+
+    if (digits.startsWith("88")) {
+      return `+${digits}`;
+    }
+
+    if (digits.startsWith("0")) {
+      return `+88${digits.substring(1)}`;
+    }
+
+    if (digits.length === 11) {
+      return `+88${digits}`;
+    }
+
+    return `+${digits}`;
+  };
+
+  const handleWhatsAppPayment = (student) => {
+    const phone = normalizeWhatsAppNumber(
+      student?.student_mobile || student?.mobile || ""
+    );
+
+    if (!phone) {
+      setMessage("Student mobile number available नाही। WhatsApp payment শুরু করা যাবে না।");
+      return;
+    }
+
+    const studentName =
+      student?.student_name_en ||
+      student?.student_name_bn ||
+      "Student";
+
+    const amount = Number(student?.due_amount || student?.due || 0);
+
+    const message = `Assalamu Alaikum ${studentName}.\n\nYour due payment is BDT ${formatMoney(amount)}.\nPlease confirm the payment and send the payment confirmation.\n\nStudent ID: ${student?.student_id || student?.id || "N/A"}`;
+
+    const url = `https://wa.me/${phone.replace(/\+/g, "")}?text=${encodeURIComponent(message)}`;
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+
   /* =====================================================
      RENDER
 ===================================================== */
@@ -729,6 +776,10 @@ export default function DueList() {
                     Due
                   </th>
 
+                  <th>
+                    Action
+                  </th>
+
                 </tr>
 
               </thead>
@@ -907,6 +958,23 @@ export default function DueList() {
                           )}
 
                         </strong>
+
+                      </td>
+
+                      {/* ACTION */}
+
+                      <td>
+
+                        <button
+                          type="button"
+                          className="due-whatsapp-button"
+                          onClick={() =>
+                            handleWhatsAppPayment(student)
+                          }
+                          title="Send WhatsApp payment message"
+                        >
+                          WhatsApp Pay
+                        </button>
 
                       </td>
 

@@ -185,7 +185,7 @@
      ছোট screen-এ horizontal scroll থাকবে,
      তবে অপ্রয়োজনীয়ভাবে বেশি width হবে না।
   */
-  min-width: 950px;
+  min-width: 1050px;
 
   border-collapse: collapse;
   table-layout: auto;
@@ -237,6 +237,26 @@
   white-space: nowrap;
 
   line-height: 1.25;
+}
+
+.due-whatsapp-button {
+  border: none;
+  background: #25d366;
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.due-whatsapp-button:hover {
+  background: #1ebe5b;
+}
+
+.due-whatsapp-button:active {
+  transform: translateY(1px);
 }
 
 .due-table-container tbody tr:hover {
