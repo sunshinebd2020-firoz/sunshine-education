@@ -48,9 +48,35 @@ export default function Admission() {
 
               {[...students, ...students].map((student, index) => {
 
-                const photoUrl = student.student_photo
-                  ? `${API_ORIGIN}/uploads/students/${student.student_photo}`
-                  : "/default-student.png";
+                const photoUrl = (() => {
+                  const rawPhoto = student.student_photo || student.photo || student.profile_photo || "";
+
+                  if (!rawPhoto) return "/default-student.png";
+
+                  const cleanPhoto = String(rawPhoto).trim();
+
+                  if (
+                    cleanPhoto.startsWith("http://") ||
+                    cleanPhoto.startsWith("https://") ||
+                    cleanPhoto.startsWith("data:")
+                  ) {
+                    return cleanPhoto;
+                  }
+
+                  const relativePath = cleanPhoto
+                    .replace(/^https?:\/\/[^/]+/i, "")
+                    .replace(/^\/+/g, "")
+                    .replace(/^uploads\/students\//i, "")
+                    .replace(/^uploads\//i, "")
+                    .replace(/^students\//i, "")
+                    .replace(/^.*?uploads\//i, "")
+                    .split(/[\\/]+/)
+                    .filter(Boolean)
+                    .map((part) => encodeURIComponent(part))
+                    .join("/");
+
+                  return relativePath ? `${API_ORIGIN}/uploads/students/${relativePath}` : "/default-student.png";
+                })();
 
                 return (
                   <div

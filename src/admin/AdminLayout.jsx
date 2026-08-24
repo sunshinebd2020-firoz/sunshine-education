@@ -681,15 +681,21 @@ export default function AdminLayout() {
       }
 
       const cleanPhoto =
-        photo.replace(
-          /^[/\\]+/,
-          ""
-        );
+        photo
+          .replace(/^https?:\/\/[^/]+/i, "")
+          .replace(/^[/\\]+/, "")
+          .replace(/^uploads\/teachers\//i, "")
+          .replace(/^uploads\//i, "")
+          .replace(/^teachers\//i, "")
+          .replace(/^.*?uploads\//i, "")
+          .split(/[\\/]+/)
+          .filter(Boolean)
+          .map((part) => encodeURIComponent(part))
+          .join("/");
 
-      return (
-        `${API_ORIGIN}/uploads/teachers/` +
-        cleanPhoto
-      );
+      return cleanPhoto
+        ? `${API_ORIGIN}/uploads/teachers/${cleanPhoto}`
+        : "";
     };
 
   const userPhotoUrl =

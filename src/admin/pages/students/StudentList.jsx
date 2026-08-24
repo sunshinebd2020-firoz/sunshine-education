@@ -383,14 +383,11 @@ export default function StudentList() {
       const payload = {
         student_id: String(studentIdentifier),
         studentId: String(studentIdentifier),
+        id: selectedStudent.id ? String(selectedStudent.id) : String(studentIdentifier),
         teacher_id: String(selectedTeacher),
         teacherId: String(selectedTeacher),
         student_code: selectedStudent.student_code || selectedStudent.student_id || studentIdentifier,
       };
-
-      if (selectedStudent.id && selectedStudent.id !== studentIdentifier) {
-        payload.id = String(selectedStudent.id);
-      }
 
       if (selectedStudent.student_id && selectedStudent.student_id !== studentIdentifier) {
         payload.student_id = String(selectedStudent.student_id);
@@ -401,22 +398,17 @@ export default function StudentList() {
         {
           method: "POST",
           credentials: "include",
-
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
+            Accept: "application/json",
           },
-
           body: JSON.stringify(payload),
         }
       );
 
+      const data = await parseJsonResponse(response, "Teacher assignment failed.");
 
-      const data =
-        await response.json();
-
-
-      if (data.success) {
+      if (response.ok && data.success) {
 
         setMessage(
           data.message ||
@@ -424,6 +416,7 @@ export default function StudentList() {
         );
 
         closeAssignModal();
+        loadStudents();
 
       } else {
 
@@ -669,15 +662,52 @@ export default function StudentList() {
   =====================================================
   */
 
+  const getPhotoValue = (student) => {
+    if (!student) return "";
+
+    return (
+      student.student_photo ||
+      student.photo ||
+      student.profile_photo ||
+      student.image ||
+      student.studentImage ||
+      student.image_url ||
+      ""
+    );
+  };
+
   const getPhotoUrl = (photo) => {
-
     if (!photo) {
-
       return "";
     }
 
+    const photoPath = String(photo).trim();
 
-    return `${IMAGE_URL}/uploads/students/${photo}`;
+    if (
+      photoPath.startsWith("http://") ||
+      photoPath.startsWith("https://") ||
+      photoPath.startsWith("data:")
+    ) {
+      return photoPath;
+    }
+
+    const cleanPath = photoPath
+      .replace(/^https?:\/\/[^/]+/i, "")
+      .replace(/^\/+/g, "")
+      .replace(/^uploads\/students\//i, "")
+      .replace(/^uploads\//i, "")
+      .replace(/^students\//i, "")
+      .replace(/^.*?uploads\//i, "")
+      .split(/[\\/]+/)
+      .filter(Boolean)
+      .map((part) => encodeURIComponent(part))
+      .join("/");
+
+    if (!cleanPath) {
+      return "";
+    }
+
+    return `${IMAGE_URL}/uploads/students/${cleanPath}`;
   };
 
 
@@ -835,11 +865,11 @@ export default function StudentList() {
 
                       <td>
 
-                        {student.student_photo ? (
+                        {getPhotoValue(student) ? (
 
                           <img
                             src={getPhotoUrl(
-                              student.student_photo
+                              getPhotoValue(student)
                             )}
                             alt={
                               student.student_name_en ||

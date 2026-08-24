@@ -60,9 +60,35 @@ export default function StudentProfile() {
     );
   }
 
-  const photoUrl = student.student_photo
-    ? `${API_ORIGIN}/uploads/students/${student.student_photo}`
-    : null;
+  const photoUrl = (() => {
+    const photo = student.student_photo || student.photo || student.profile_photo || "";
+
+    if (!photo) return null;
+
+    const cleanPhoto = String(photo).trim();
+
+    if (
+      cleanPhoto.startsWith("http://") ||
+      cleanPhoto.startsWith("https://") ||
+      cleanPhoto.startsWith("data:")
+    ) {
+      return cleanPhoto;
+    }
+
+    const relativePath = cleanPhoto
+      .replace(/^https?:\/\/[^/]+/i, "")
+      .replace(/^\/+/g, "")
+      .replace(/^uploads\/students\//i, "")
+      .replace(/^uploads\//i, "")
+      .replace(/^students\//i, "")
+      .replace(/^.*?uploads\//i, "")
+      .split(/[\\/]+/)
+      .filter(Boolean)
+      .map((part) => encodeURIComponent(part))
+      .join("/");
+
+    return relativePath ? `${API_ORIGIN}/uploads/students/${relativePath}` : null;
+  })();
 
   return (
     <div className="student-profile">

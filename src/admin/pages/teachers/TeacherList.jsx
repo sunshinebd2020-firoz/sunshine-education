@@ -5,6 +5,52 @@ import API_BASE_URL, { API_ORIGIN } from "../../../config/api";
 
 const IMAGE_BASE_URL = `${API_ORIGIN}/uploads/teachers`;
 
+const getTeacherPhotoValue = (teacher) => {
+  if (!teacher) return "";
+
+  return (
+    teacher.photo ||
+    teacher.profile_photo ||
+    teacher.teacher_photo ||
+    teacher.image ||
+    teacher.image_url ||
+    teacher.photo_url ||
+    ""
+  );
+};
+
+const getTeacherPhotoUrl = (photo) => {
+  if (!photo) return "";
+
+  const photoPath = String(photo).trim();
+
+  if (
+    photoPath.startsWith("http://") ||
+    photoPath.startsWith("https://") ||
+    photoPath.startsWith("data:")
+  ) {
+    return photoPath;
+  }
+
+  const cleanPath = photoPath
+    .replace(/^https?:\/\/[^/]+/i, "")
+    .replace(/^\/+/g, "")
+    .replace(/^uploads\/teachers\//i, "")
+    .replace(/^uploads\//i, "")
+    .replace(/^teachers\//i, "")
+    .replace(/^.*?uploads\//i, "")
+    .split(/[\\/]+/)
+    .filter(Boolean)
+    .map((part) => encodeURIComponent(part))
+    .join("/");
+
+  if (!cleanPath) {
+    return "";
+  }
+
+  return `${IMAGE_BASE_URL}/${cleanPath}`;
+};
+
 export default function TeacherList({ onEditTeacher }) {
 
   const navigate = useNavigate();
@@ -1615,10 +1661,12 @@ ${err.message}`
 
                             <div className="teacher-photo">
 
-                              {teacher.photo ? (
+                              {getTeacherPhotoValue(teacher) ? (
 
                                 <img
-                                  src={`${IMAGE_BASE_URL}/${teacher.photo}`}
+                                  src={getTeacherPhotoUrl(
+                                    getTeacherPhotoValue(teacher)
+                                  )}
 
                                   alt={
                                     teacher.name_en ||

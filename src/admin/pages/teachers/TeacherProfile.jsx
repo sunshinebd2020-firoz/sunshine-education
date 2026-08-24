@@ -44,7 +44,26 @@ export default function TeacherProfile() {
         </div>
       </div>
       <div className="profile-card">
-        {teacher.photo && <img className="profile-photo" src={`${API_BASE_URL.replace("/api", "")}/uploads/teachers/${teacher.photo}`} alt={teacher.name_en || "Teacher"} />}
+        {teacher.photo && (() => {
+          const rawPhoto = String(teacher.photo).trim();
+          const cleanPhoto = rawPhoto
+            .replace(/^https?:\/\/[^/]+/i, "")
+            .replace(/^\/+/g, "")
+            .replace(/^uploads\/teachers\//i, "")
+            .replace(/^uploads\//i, "")
+            .replace(/^teachers\//i, "")
+            .replace(/^.*?uploads\//i, "")
+            .split(/[\\/]+/)
+            .filter(Boolean)
+            .map((part) => encodeURIComponent(part))
+            .join("/");
+
+          const photoSrc = cleanPhoto
+            ? `${API_BASE_URL.replace("/api", "")}/uploads/teachers/${cleanPhoto}`
+            : "";
+
+          return photoSrc ? <img className="profile-photo" src={photoSrc} alt={teacher.name_en || "Teacher"} /> : null;
+        })()}
         <div className="profile-grid">
           {fields.map(([label, value]) => <div className="profile-field" key={label}><span>{label}</span><strong>{value || "N/A"}</strong></div>)}
         </div>

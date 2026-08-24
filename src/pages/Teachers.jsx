@@ -71,16 +71,34 @@ const exTeachers = teachers
       {/* Teacher Photo */}
       <div className="teacher-image">
 
-        {teacher.photo ? (
-          <img
-            src={`${API_ORIGIN}/uploads/teachers/${teacher.photo}`}
-            alt={
-              teacher.name_en ||
-              teacher.name_bn ||
-              "Teacher"
-            }
-          />
-        ) : (
+        {teacher.photo ? (() => {
+          const rawPhoto = teacher.photo || teacher.profile_photo || teacher.image || "";
+          const cleanPhoto = String(rawPhoto).trim();
+
+          if (!cleanPhoto) return null;
+
+          if (
+            cleanPhoto.startsWith("http://") ||
+            cleanPhoto.startsWith("https://") ||
+            cleanPhoto.startsWith("data:")
+          ) {
+            return <img src={cleanPhoto} alt={teacher.name_en || teacher.name_bn || "Teacher"} />;
+          }
+
+          const relativePath = cleanPhoto
+            .replace(/^https?:\/\/[^/]+/i, "")
+            .replace(/^\/+/g, "")
+            .replace(/^uploads\/teachers\//i, "")
+            .replace(/^uploads\//i, "")
+            .replace(/^teachers\//i, "")
+            .replace(/^.*?uploads\//i, "")
+            .split(/[\\/]+/)
+            .filter(Boolean)
+            .map((part) => encodeURIComponent(part))
+            .join("/");
+
+          return relativePath ? <img src={`${API_ORIGIN}/uploads/teachers/${relativePath}`} alt={teacher.name_en || teacher.name_bn || "Teacher"} /> : null;
+        })() : (
           <div className="no-photo">
             No Photo
           </div>
