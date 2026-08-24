@@ -81,6 +81,26 @@ export default function StudentList() {
     );
   };
 
+  const isPendingApplication = (student) => {
+    if (!student || typeof student !== "object") return false;
+
+    const applicationStatus = String(
+      student.application_status ||
+      student.applicationStatus ||
+      student.status ||
+      ""
+    ).trim().toLowerCase();
+
+    return (
+      applicationStatus === "pending" ||
+      applicationStatus === "new" ||
+      applicationStatus === "draft" ||
+      applicationStatus === "submitted" ||
+      applicationStatus === "approval pending" ||
+      applicationStatus === "waiting for approval"
+    );
+  };
+
 
   /*
   =====================================================
@@ -146,11 +166,18 @@ export default function StudentList() {
     ""
   ).trim();
 
+  const normalizedRole = userRole
+    .toLowerCase()
+    .replace(/[_-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
   const isAdmin =
-    userRole.toLowerCase() === "admin" ||
-    userRole.toLowerCase() === "super admin" ||
-    userRole.toLowerCase() === "superadmin";
+    normalizedRole === "admin" ||
+    normalizedRole === "administrator" ||
+    normalizedRole === "super admin" ||
+    normalizedRole === "superadmin" ||
+    normalizedRole.includes("admin");
 
 
   /*
@@ -188,11 +215,11 @@ export default function StudentList() {
 
       if (data.success) {
 
-        setStudents(
-          Array.isArray(data.students)
-            ? data.students
-            : []
-        );
+        const approvedStudents = Array.isArray(data.students)
+          ? data.students.filter((student) => !isPendingApplication(student))
+          : [];
+
+        setStudents(approvedStudents);
 
         setMessage("");
 
