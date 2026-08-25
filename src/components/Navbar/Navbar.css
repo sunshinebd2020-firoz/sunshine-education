@@ -1,34 +1,508 @@
+/* =====================================================
+   NAVBAR
+===================================================== */
+
 .navbar {
-  background: #0b5d3b;
-  padding: 12px 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  width: 100%;
+  min-height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 28px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f8fbff 100%
+    );
+
+  border-bottom: 1px solid
+    rgba(37, 99, 235, 0.1);
+
+  box-shadow:
+    0 4px 18px
+    rgba(15, 23, 42, 0.06);
+
+  position: relative;
+
+  z-index: 1000;
+
+  box-sizing: border-box;
 }
 
-.navbar ul {
-  list-style: none;
+
+/* =====================================================
+   MENU WRAPPER
+===================================================== */
+
+.navbar-menu-wrapper {
+  width: 100%;
+
   display: flex;
+
+  align-items: center;
   justify-content: center;
-  gap: 25px;
+}
+
+
+/* =====================================================
+   MENU
+===================================================== */
+
+.navbar-menu {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  list-style: none;
+
   margin: 0;
   padding: 0;
 }
 
-.navbar a {
-  color: white;
+
+/* =====================================================
+   MENU ITEM
+===================================================== */
+
+.navbar-item {
+  margin: 0;
+  padding: 0;
+}
+
+
+/* =====================================================
+   NAV LINK
+===================================================== */
+
+.navbar-link {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+
+  padding: 0 15px;
+
+  border-radius: 10px;
+
+  color: #475569;
+
   text-decoration: none;
-  font-size: 17px;
+
+  font-size: 14px;
+
   font-weight: 600;
-  padding: 8px 12px;
-  border-radius: 5px;
-  transition: 0.3s;
+
+  white-space: nowrap;
+
+  transition:
+    color 0.25s ease,
+    background 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
-.navbar a:hover {
-  background: white;
-  color: #0b5d3b;
+
+/* =====================================================
+   HOVER
+===================================================== */
+
+.navbar-link:hover {
+  color: #2563eb;
+
+  background:
+    rgba(37, 99, 235, 0.07);
+
+  transform:
+    translateY(-1px);
 }
 
-.navbar a.active {
-  background: #ffd700;
-  color: #000;
+
+/* =====================================================
+   ACTIVE
+===================================================== */
+
+.navbar-link.active {
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #4f46e5
+    );
+
+  box-shadow:
+    0 6px 16px
+    rgba(37, 99, 235, 0.2);
+}
+
+
+.navbar-link.active:hover {
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #1d4ed8,
+      #4338ca
+    );
+}
+
+
+/* =====================================================
+   MOBILE TOGGLE
+===================================================== */
+
+.navbar-toggle {
+  display: none;
+
+  width: 44px;
+  height: 44px;
+
+  padding: 0;
+
+  border: none;
+
+  background:
+    rgba(37, 99, 235, 0.08);
+
+  border-radius: 11px;
+
+  cursor: pointer;
+
+  position: absolute;
+
+  right: 15px;
+
+  top: 50%;
+
+  transform:
+    translateY(-50%);
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  z-index: 1200;
+
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+
+.navbar-toggle:hover {
+  background:
+    rgba(37, 99, 235, 0.14);
+}
+
+
+.navbar-toggle:active {
+  transform:
+    translateY(-50%)
+    scale(0.96);
+}
+
+
+.navbar-toggle span {
+  display: block;
+
+  width: 24px;
+  height: 2.5px;
+
+  border-radius: 4px;
+
+  background: #1e3a8a;
+
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+
+/* =====================================================
+   ACTIVE HAMBURGER
+===================================================== */
+
+.navbar-toggle.active span:nth-child(1) {
+  transform:
+    translateY(7.5px)
+    rotate(45deg);
+}
+
+
+.navbar-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+
+.navbar-toggle.active span:nth-child(3) {
+  transform:
+    translateY(-7.5px)
+    rotate(-45deg);
+}
+
+
+/* =====================================================
+   OVERLAY
+===================================================== */
+
+.navbar-overlay {
+  display: none;
+
+  position: fixed;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  border: none;
+
+  background:
+    rgba(15, 23, 42, 0.25);
+
+  backdrop-filter:
+    blur(2px);
+
+  z-index: 1000;
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 1100px) {
+
+  .navbar {
+    padding: 0 18px;
+  }
+
+  .navbar-menu {
+    gap: 2px;
+  }
+
+  .navbar-link {
+    padding:
+      0 10px;
+
+    font-size: 13px;
+  }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .navbar {
+    min-height: 62px;
+
+    justify-content: flex-end;
+
+    padding:
+      0 15px;
+  }
+
+
+  /* ---------------------------------------------
+     MOBILE BUTTON
+  --------------------------------------------- */
+
+  .navbar-toggle {
+    display: flex;
+  }
+
+
+  /* ---------------------------------------------
+     MOBILE MENU
+  --------------------------------------------- */
+
+  .navbar-menu-wrapper {
+    position: fixed;
+
+    top: 62px;
+
+    right: -100%;
+
+    width:
+      min(
+        300px,
+        88vw
+      );
+
+    height:
+      calc(
+        100vh - 62px
+      );
+
+    display: block;
+
+    padding: 16px;
+
+    background:
+      linear-gradient(
+        180deg,
+        #ffffff 0%,
+        #f8fbff 100%
+      );
+
+    box-shadow:
+      -12px 0 35px
+      rgba(15, 23, 42, 0.12);
+
+    overflow-y: auto;
+
+    transition:
+      right 0.3s ease;
+
+    z-index: 1100;
+
+    box-sizing: border-box;
+  }
+
+
+  .navbar-menu-wrapper.open {
+    right: 0;
+  }
+
+
+  /* ---------------------------------------------
+     MENU
+  --------------------------------------------- */
+
+  .navbar-menu {
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+    justify-content: flex-start;
+
+    gap: 6px;
+  }
+
+
+  .navbar-item {
+    width: 100%;
+  }
+
+
+  .navbar-link {
+    width: 100%;
+
+    min-height: 48px;
+
+    justify-content: flex-start;
+
+    padding:
+      0 16px;
+
+    font-size: 15px;
+
+    border-radius: 11px;
+
+    box-sizing: border-box;
+  }
+
+
+  .navbar-link:hover {
+    transform: none;
+  }
+
+
+  /* ---------------------------------------------
+     OVERLAY
+  --------------------------------------------- */
+
+  .navbar-overlay {
+    display: block;
+  }
+
+}
+
+
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+
+@media (max-width: 480px) {
+
+  .navbar {
+    min-height: 60px;
+  }
+
+
+  .navbar-toggle {
+    width: 42px;
+    height: 42px;
+  }
+
+
+  .navbar-menu-wrapper {
+    top: 60px;
+
+    height:
+      calc(
+        100vh - 60px
+      );
+
+    width:
+      min(
+        285px,
+        90vw
+      );
+
+    padding:
+      14px;
+  }
+
+
+  .navbar-link {
+    min-height: 46px;
+
+    padding:
+      0 14px;
+
+    font-size: 14px;
+  }
+
+}
+
+
+/* =====================================================
+   VERY SMALL MOBILE
+===================================================== */
+
+@media (max-width: 360px) {
+
+  .navbar-link {
+    font-size: 13px;
+  }
+
+  .navbar-toggle {
+    width: 40px;
+    height: 40px;
+  }
+
 }

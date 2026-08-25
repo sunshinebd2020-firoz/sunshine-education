@@ -5,10 +5,18 @@
 .student-profile {
   width: 100%;
   min-height: 100vh;
+
   padding: 22px;
+
   box-sizing: border-box;
+
   background: #f1f5f9;
-  font-family: Arial, Helvetica, sans-serif;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
   color: #1e293b;
 }
 
@@ -19,10 +27,13 @@
 
 .profile-header {
   max-width: 980px;
+
   margin: 0 auto 16px;
 
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
 
   gap: 15px;
@@ -30,35 +41,51 @@
 
 .profile-header h1 {
   margin: 0;
+
   font-size: 25px;
+
   color: #0f172a;
 }
 
 .profile-header p {
   margin: 4px 0 0;
+
   color: #64748b;
+
   font-size: 13px;
 }
 
 .profile-buttons {
   display: flex;
+
   gap: 8px;
 }
 
 .profile-buttons button {
   border: none;
+
   border-radius: 6px;
 
   padding: 8px 14px;
 
   font-size: 12px;
+
   font-weight: 600;
 
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.profile-buttons button:hover {
+  transform: translateY(-1px);
 }
 
 .back-button {
   background: #e2e8f0;
+
   color: #334155;
 }
 
@@ -68,6 +95,7 @@
 
 .print-button {
   background: #2563eb;
+
   color: #fff;
 }
 
@@ -82,6 +110,7 @@
 
 .profile-card {
   width: 210mm;
+
   min-height: 297mm;
 
   margin: 0 auto;
@@ -95,7 +124,8 @@
   border-radius: 5px;
 
   box-shadow:
-    0 6px 22px rgba(15, 23, 42, 0.10);
+    0 6px 22px
+    rgba(15, 23, 42, 0.10);
 }
 
 
@@ -105,6 +135,7 @@
 
 .profile-top {
   display: flex;
+
   align-items: center;
 
   gap: 18px;
@@ -121,11 +152,13 @@
 
 .profile-photo-box {
   width: 82px;
+
   height: 100px;
 
   flex-shrink: 0;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -134,11 +167,13 @@
   background: #f8fafc;
 
   border: 1px solid #cbd5e1;
+
   border-radius: 5px;
 }
 
 .profile-photo-box img {
   width: 100%;
+
   height: 100%;
 
   object-fit: cover;
@@ -146,6 +181,7 @@
 
 .profile-no-photo {
   color: #94a3b8;
+
   font-size: 11px;
 }
 
@@ -156,12 +192,15 @@
 
 .profile-basic {
   flex: 1;
+
+  min-width: 0;
 }
 
 .profile-basic h2 {
   margin: 0 0 2px;
 
   font-size: 22px;
+
   line-height: 1.2;
 
   color: #0f172a;
@@ -171,16 +210,19 @@
   margin: 0 0 5px;
 
   font-size: 14px;
+
   color: #475569;
 }
 
 .profile-id {
   display: flex;
+
   gap: 5px;
 
   margin-bottom: 6px;
 
   font-size: 11px;
+
   color: #64748b;
 }
 
@@ -195,7 +237,9 @@
 
 .profile-tags {
   display: flex;
+
   flex-wrap: wrap;
+
   gap: 5px;
 }
 
@@ -245,7 +289,6 @@
 
 /* =====================================================
    PERSONAL INFORMATION
-   SINGLE COLUMN
 ===================================================== */
 
 .single-info-table {
@@ -274,6 +317,7 @@
 
 .single-info-label {
   display: flex;
+
   align-items: center;
 
   padding: 4px 7px;
@@ -283,11 +327,13 @@
   color: #64748b;
 
   font-size: 9px;
+
   font-weight: 600;
 }
 
 .single-info-value {
   display: flex;
+
   align-items: center;
 
   padding: 4px 8px;
@@ -295,6 +341,7 @@
   color: #1e293b;
 
   font-size: 10px;
+
   font-weight: 600;
 
   overflow-wrap: anywhere;
@@ -414,6 +461,7 @@
 
 .address-header > div {
   padding-top: 5px;
+
   padding-bottom: 5px;
 }
 
@@ -423,6 +471,77 @@
   color: #2563eb;
 
   background: #f8fafc;
+}
+
+
+/* =====================================================
+   PASSPORT INFORMATION
+   ONE ROW
+===================================================== */
+
+.passport-info-row {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    1.3fr
+    1fr
+    1fr;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 3px;
+
+  overflow: hidden;
+
+  background: #fff;
+}
+
+.passport-info-item {
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-columns: 110px 1fr;
+
+  align-items: center;
+
+  border-right: 1px solid #e2e8f0;
+}
+
+.passport-info-item:last-child {
+  border-right: none;
+}
+
+.passport-label {
+  min-width: 0;
+
+  padding: 6px 7px;
+
+  background: #f8fafc;
+
+  color: #64748b;
+
+  font-size: 8.5px;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+.passport-value {
+  min-width: 0;
+
+  padding: 6px 8px;
+
+  color: #1e293b;
+
+  font-size: 9.5px;
+
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
 }
 
 
@@ -543,7 +662,8 @@
   border-radius: 6px;
 
   box-shadow:
-    0 5px 20px rgba(0, 0, 0, 0.08);
+    0 5px 20px
+    rgba(0, 0, 0, 0.08);
 }
 
 .profile-error {
@@ -563,13 +683,15 @@
 
   .profile-card {
     width: 100%;
+
     min-height: auto;
 
     padding: 18px;
   }
 
   .contact-table {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns:
+      repeat(2, 1fr);
   }
 
   .contact-item:nth-child(2) {
@@ -577,11 +699,13 @@
   }
 
   .contact-item:nth-child(-n + 2) {
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom:
+      1px solid #e2e8f0;
   }
 
   .address-table,
-  .education-table {
+  .education-table,
+  .passport-info-row {
     overflow-x: auto;
   }
 
@@ -589,13 +713,22 @@
   .education-row {
     min-width: 750px;
   }
+
+  .passport-info-row {
+    min-width: 620px;
+  }
 }
 
+
+/* =====================================================
+   MOBILE
+===================================================== */
 
 @media (max-width: 600px) {
 
   .profile-header {
     flex-direction: column;
+
     align-items: flex-start;
   }
 
@@ -613,6 +746,7 @@
 
   .profile-photo-box {
     width: 70px;
+
     height: 88px;
   }
 
@@ -621,7 +755,8 @@
   }
 
   .single-info-row {
-    grid-template-columns: 115px 1fr;
+    grid-template-columns:
+      115px 1fr;
   }
 
   .contact-table {
@@ -630,11 +765,106 @@
 
   .contact-item {
     border-right: none;
-    border-bottom: 1px solid #e2e8f0;
+
+    border-bottom:
+      1px solid #e2e8f0;
   }
 
   .contact-item:last-child {
     border-bottom: none;
+  }
+
+  .passport-info-row {
+    min-width: 0;
+
+    display: grid;
+
+    grid-template-columns: 1fr;
+  }
+
+  .passport-info-item {
+    grid-template-columns:
+      120px 1fr;
+
+    border-right: none;
+
+    border-bottom:
+      1px solid #e2e8f0;
+  }
+
+  .passport-info-item:last-child {
+    border-bottom: none;
+  }
+}
+
+
+/* =====================================================
+   VERY SMALL MOBILE
+===================================================== */
+
+@media (max-width: 400px) {
+
+  .student-profile {
+    padding: 8px;
+  }
+
+  .profile-card {
+    padding: 12px;
+  }
+
+  .profile-top {
+    gap: 10px;
+  }
+
+  .profile-photo-box {
+    width: 60px;
+
+    height: 76px;
+  }
+
+  .profile-basic h2 {
+    font-size: 16px;
+  }
+
+  .bangla-name {
+    font-size: 12px;
+  }
+
+  .profile-id {
+    font-size: 9px;
+  }
+
+  .profile-tags span {
+    font-size: 8px;
+
+    padding:
+      3px 6px;
+  }
+
+  .single-info-row {
+    grid-template-columns:
+      105px 1fr;
+  }
+
+  .single-info-label,
+  .single-info-value {
+    padding:
+      4px 6px;
+
+    font-size: 8px;
+  }
+
+  .passport-info-item {
+    grid-template-columns:
+      105px 1fr;
+  }
+
+  .passport-label {
+    font-size: 8px;
+  }
+
+  .passport-value {
+    font-size: 8.5px;
   }
 }
 
@@ -647,13 +877,16 @@
 
   @page {
     size: A4 portrait;
+
     margin: 5mm;
   }
 
   html,
   body {
     width: 210mm;
+
     margin: 0 !important;
+
     padding: 0 !important;
 
     background: #fff !important;
@@ -661,10 +894,15 @@
 
   body {
     -webkit-print-color-adjust: exact;
+
     print-color-adjust: exact;
   }
 
-  /* Hide admin layout */
+
+  /* ---------------------------------------------
+     HIDE ADMIN LAYOUT
+  --------------------------------------------- */
+
   .admin-sidebar,
   .admin-header,
   .admin-navbar,
@@ -676,10 +914,19 @@
     display: none !important;
   }
 
-  /* Hide buttons/header */
+
+  /* ---------------------------------------------
+     HIDE BUTTONS / HEADER
+  --------------------------------------------- */
+
   .no-print {
     display: none !important;
   }
+
+
+  /* ---------------------------------------------
+     ADMIN CONTAINER
+  --------------------------------------------- */
 
   .admin-layout-container,
   .admin-layout,
@@ -689,9 +936,11 @@
     width: 100% !important;
 
     min-width: 0 !important;
+
     min-height: 0 !important;
 
     margin: 0 !important;
+
     padding: 0 !important;
 
     background: #fff !important;
@@ -699,12 +948,18 @@
     overflow: visible !important;
   }
 
+
+  /* ---------------------------------------------
+     PROFILE
+  --------------------------------------------- */
+
   .student-profile {
     width: 100% !important;
 
     min-height: 0 !important;
 
     margin: 0 !important;
+
     padding: 0 !important;
 
     background: #fff !important;
@@ -716,6 +971,7 @@
     min-height: 0 !important;
 
     margin: 0 !important;
+
     padding: 0 !important;
 
     border-radius: 0 !important;
@@ -725,13 +981,20 @@
     background: #fff !important;
   }
 
+
+  /* ---------------------------------------------
+     KEEP SECTIONS TOGETHER
+  --------------------------------------------- */
+
   .profile-section {
     page-break-inside: avoid;
   }
 
   .single-info-table,
   .address-table,
-  .education-table {
+  .education-table,
+  .passport-info-row,
+  .contact-table {
     page-break-inside: avoid;
   }
 
@@ -743,25 +1006,34 @@
     page-break-inside: avoid;
   }
 
-  .contact-table {
+  .education-row,
+  .address-row,
+  .single-info-row,
+  .passport-info-item {
     page-break-inside: avoid;
   }
 
-  .education-row,
-  .address-row,
-  .single-info-row {
-    page-break-inside: avoid;
-  }
+
+  /* ---------------------------------------------
+     TABLE WIDTH
+  --------------------------------------------- */
 
   .education-table,
   .address-table,
   .single-info-table,
-  .contact-table {
+  .contact-table,
+  .passport-info-row {
     width: 100% !important;
   }
 
+
+  /* ---------------------------------------------
+     PROFILE TOP
+  --------------------------------------------- */
+
   .profile-photo-box {
     width: 72px;
+
     height: 88px;
   }
 
@@ -769,15 +1041,28 @@
     font-size: 19px;
   }
 
+
+  /* ---------------------------------------------
+     SECTIONS
+  --------------------------------------------- */
+
   .profile-section {
     margin-top: 7px;
   }
 
   .profile-section h3 {
-    padding: 4px 7px;
+    padding:
+      4px 7px;
+
     margin-bottom: 4px;
+
     font-size: 10px;
   }
+
+
+  /* ---------------------------------------------
+     PERSONAL
+  --------------------------------------------- */
 
   .single-info-row {
     min-height: 21px;
@@ -785,12 +1070,20 @@
 
   .single-info-label,
   .single-info-value {
-    padding: 3px 6px;
+    padding:
+      3px 6px;
+
     font-size: 8px;
   }
 
+
+  /* ---------------------------------------------
+     CONTACT
+  --------------------------------------------- */
+
   .contact-item {
-    padding: 4px 6px;
+    padding:
+      4px 6px;
   }
 
   .contact-item label {
@@ -801,8 +1094,15 @@
     font-size: 8px;
   }
 
+
+  /* ---------------------------------------------
+     ADDRESS
+  --------------------------------------------- */
+
   .address-row > div {
-    padding: 4px 5px;
+    padding:
+      4px 5px;
+
     font-size: 7.5px;
   }
 
@@ -810,8 +1110,65 @@
     font-size: 7px;
   }
 
+
+  /* ---------------------------------------------
+     PASSPORT
+  --------------------------------------------- */
+
+  .passport-info-row {
+    display: grid;
+
+    grid-template-columns:
+      1.3fr
+      1fr
+      1fr;
+
+    min-width: 0 !important;
+
+    overflow: hidden !important;
+  }
+
+  .passport-info-item {
+    min-width: 0;
+
+    display: grid;
+
+    grid-template-columns:
+      82px 1fr;
+
+    border-right:
+      1px solid #e2e8f0;
+
+    border-bottom: none;
+  }
+
+  .passport-info-item:last-child {
+    border-right: none;
+  }
+
+  .passport-label {
+    padding:
+      4px 5px;
+
+    font-size: 7px;
+  }
+
+  .passport-value {
+    padding:
+      4px 5px;
+
+    font-size: 7.5px;
+  }
+
+
+  /* ---------------------------------------------
+     EDUCATION
+  --------------------------------------------- */
+
   .education-row > div {
-    padding: 4px 4px;
+    padding:
+      4px 4px;
+
     font-size: 7px;
   }
 
@@ -819,9 +1176,17 @@
     font-size: 6.5px;
   }
 
+
+  /* ---------------------------------------------
+     FOOTER
+  --------------------------------------------- */
+
   .profile-footer {
     margin-top: 6px;
+
     padding-top: 4px;
+
     font-size: 7px;
   }
+
 }
