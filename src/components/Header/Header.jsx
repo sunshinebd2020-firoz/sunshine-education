@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import "./Header.css";
 import logo from "../../assets/logo/logo.png";
 
@@ -5,9 +6,29 @@ import {
   FaWhatsapp,
   FaFacebookF,
   FaYoutube,
+  FaPhoneAlt,
 } from "react-icons/fa";
 
 export default function Header() {
+  const [hotline, setHotline] = useState("");
+
+  useEffect(() => {
+    fetch("http://localhost/sunshine-api/api/get_hotline.php")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Hotline API Response:", data); // কন্সোলে রেসপন্স চেক করার জন্য
+        if (data && data.hotline && data.hotline.trim() !== "") {
+          setHotline(data.hotline.trim());
+        }
+      })
+      .catch((err) => console.error("Error fetching hotline:", err));
+  }, []);
+
   return (
     <header className="header">
       <div className="header-container">
@@ -34,8 +55,20 @@ export default function Header() {
           </p>
         </div>
 
-        {/* Social Icons */}
+        {/* Social Links & Hotline */}
         <div className="social-links">
+
+          {/* Hotline Button (যদি হটলাইন নম্বরে ডেটা থাকে) */}
+          {hotline && (
+            <a
+              href={`tel:${hotline}`}
+              className="hotline-btn"
+              title="Call Hotline"
+            >
+              <FaPhoneAlt className="hotline-icon" />
+              <span className="hotline-number">{hotline}</span>
+            </a>
+          )}
 
           {/* WhatsApp */}
           <a

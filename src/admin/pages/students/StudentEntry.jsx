@@ -100,6 +100,7 @@ export default function StudentEntry() {
 
   const [teachers, setTeachers] = useState([]);
   const [teacherLoading, setTeacherLoading] = useState(true);
+  const [teacherError, setTeacherError] = useState("");
   const [showHsc, setShowHsc] =
     useState(false);
 
@@ -108,6 +109,46 @@ export default function StudentEntry() {
 
   const [showMasters, setShowMasters] =
     useState(false);
+
+  const [showPassportModal, setShowPassportModal] =
+    useState(false);
+
+  const [passportInfo, setPassportInfo] =
+    useState({
+      passportNo: "",
+      issueDate: "",
+      expiryDate: "",
+    });
+
+  const [passportScanFile, setPassportScanFile] =
+    useState(null);
+
+  const [passportScanName, setPassportScanName] =
+    useState("");
+
+  const parseJsonResponse = async (response, fallbackMessage) => {
+    const text = await response.text();
+
+    if (!text.trim()) {
+      throw new Error(fallbackMessage || "Server response is empty.");
+    }
+
+    try {
+      const data = JSON.parse(text);
+
+      if (!response.ok && data && data.message) {
+        throw new Error(data.message);
+      }
+
+      return data;
+    } catch (error) {
+      if (error instanceof Error && error.message) {
+        throw error;
+      }
+
+      throw new Error(fallbackMessage || "Server response was invalid.");
+    }
+  };
 
   /* =========================================
      INPUT CHANGE
@@ -186,6 +227,41 @@ export default function StudentEntry() {
     }
   };
 
+  const handlePassportChange = (e) => {
+    const { name, value } = e.target;
+
+    setPassportInfo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handlePassportFileChange = (e) => {
+    const file = e.target.files?.[0] || null;
+
+    setPassportScanFile(file);
+    setPassportScanName(file ? file.name : "");
+  };
+
+  const clearPassportInfo = () => {
+    setPassportInfo({
+      passportNo: "",
+      issueDate: "",
+      expiryDate: "",
+    });
+
+    setPassportScanFile(null);
+    setPassportScanName("");
+    setShowPassportModal(false);
+  };
+
+  const passportInfoProvided = Boolean(
+    passportInfo.passportNo ||
+      passportInfo.issueDate ||
+      passportInfo.expiryDate ||
+      passportScanFile
+  );
+
   /* =========================================
      KEEP PERMANENT ADDRESS UPDATED
      WHEN CHECKED
@@ -233,6 +309,17 @@ export default function StudentEntry() {
     }));
   };
 
+  const getEffectiveCoursePrice = (courseItem) => {
+    const mainPrice = Number(courseItem?.course_fee ?? 0);
+    const offerPrice = Number(courseItem?.offer_price ?? 0);
+
+    if (Number.isFinite(offerPrice) && offerPrice > 0 && offerPrice < mainPrice) {
+      return offerPrice;
+    }
+
+    return mainPrice;
+  };
+
   /* =========================================
      LEVEL CHANGE
   ========================================= */
@@ -250,7 +337,7 @@ export default function StudentEntry() {
       ...prev,
       level,
       courseFee:
-        selectedCourse?.course_fee ||
+        getEffectiveCoursePrice(selectedCourse) ||
         prev.courseFee ||
         "",
     }));
@@ -330,7 +417,7 @@ export default function StudentEntry() {
                 selectedCourse.course_name,
 
               courseFee:
-                selectedCourse.course_fee ||
+                getEffectiveCoursePrice(selectedCourse) ||
                 "",
             }));
           }
@@ -391,21 +478,58 @@ export default function StudentEntry() {
 
   useEffect(() => {
     const fetchTeachers = async () => {
+      setTeacherLoading(true);
+      setTeacherError("");
+
       try {
-        setTeacherLoading(true);
         const response = await fetch(`${API_BASE_URL}/teacher_list.php`, {
           credentials: "include",
         });
+
         const data = await response.json();
 
-        if (response.ok && data.success) {
-          setTeachers((data.teachers || []).filter((teacher) => {
-            const status = String(teacher.status ?? "").toLowerCase();
-            return status === "active" || status === "1";
-          }));
+        if (!response.ok || (data && data.success === false)) {
+          throw new Error(data?.message || "Teacher list could not be loaded.");
         }
+
+        const teacherList = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.teachers)
+            ? data.teachers
+            : Array.isArray(data?.data)
+              ? data.data
+              : [];
+
+        const activeTeachers = teacherList.filter((teacher) => {
+          const status = String(
+            teacher?.status ?? teacher?.teacher_status ?? ""
+          )
+            .trim()
+            .toLowerCase();
+
+          const role = String(
+            teacher?.role ??
+              teacher?.user_role ??
+              teacher?.teacher_role ??
+              ""
+          )
+            .trim()
+            .toLowerCase();
+
+          return (
+            status === "active" ||
+            status === "present" ||
+            status === "1" ||
+            status === "" ||
+            role === "teacher"
+          );
+        });
+
+        setTeachers(activeTeachers);
       } catch (error) {
         console.error("Teacher loading error:", error);
+        setTeachers([]);
+        setTeacherError(error.message || "Teacher list could not be loaded.");
       } finally {
         setTeacherLoading(false);
       }
@@ -422,6 +546,68 @@ export default function StudentEntry() {
 
     setMessage("");
 
+    const hasPassportData = Boolean(
+      passportInfo.passportNo ||
+        passportInfo.issueDate ||
+        passportInfo.expiryDate ||
+        passportScanFile
+    );
+
+    if (hasPassportData) {
+      if (!passportInfo.passportNo.trim()) {
+        setMessage("Passport number is required when passport information is added.");
+        return;
+      }
+
+      if (!passportInfo.issueDate) {
+        setMessage("Passport issue date is required when passport information is added.");
+        return;
+      }
+
+      if (!passportInfo.expiryDate) {
+        setMessage("Passport expiry date is required when passport information is added.");
+        return;
+      }
+
+      const issueDate = new Date(passportInfo.issueDate);
+      const expiryDate = new Date(passportInfo.expiryDate);
+
+      if (Number.isNaN(issueDate.getTime()) || Number.isNaN(expiryDate.getTime())) {
+        setMessage("Passport issue date and expiry date must be valid dates.");
+        return;
+      }
+
+      if (expiryDate < issueDate) {
+        setMessage("Passport expiry date cannot be earlier than the issue date.");
+        return;
+      }
+
+      if (passportScanFile) {
+        const allowedExtensions = ["jpg", "jpeg", "png", "pdf"];
+        const extension = (passportScanFile.name.split(".").pop() || "").toLowerCase();
+        const mimeType = (passportScanFile.type || "").toLowerCase();
+
+        if (!allowedExtensions.includes(extension)) {
+          setMessage("Passport scan must be JPG, JPEG, PNG, or PDF.");
+          return;
+        }
+
+        if (passportScanFile.size > 5 * 1024 * 1024) {
+          setMessage("Passport scan file size must be 5 MB or smaller.");
+          return;
+        }
+
+        const validMime =
+          mimeType.startsWith("image/") ||
+          mimeType === "application/pdf";
+
+        if (!validMime) {
+          setMessage("Passport scan file type is not supported.");
+          return;
+        }
+      }
+    }
+
     const formData = new FormData();
 
     Object.entries(form).forEach(
@@ -432,6 +618,22 @@ export default function StudentEntry() {
         );
       }
     );
+
+    if (passportInfo.passportNo) {
+      formData.append("passportNo", passportInfo.passportNo.trim());
+    }
+
+    if (passportInfo.issueDate) {
+      formData.append("passportIssueDate", passportInfo.issueDate);
+    }
+
+    if (passportInfo.expiryDate) {
+      formData.append("passportExpiryDate", passportInfo.expiryDate);
+    }
+
+    if (passportScanFile) {
+      formData.append("passportScan", passportScanFile, passportScanFile.name);
+    }
 
     if (studentPhoto) {
       formData.append(
@@ -450,7 +652,10 @@ export default function StudentEntry() {
         }
       );
 
-      const data = await response.json();
+      const data = await parseJsonResponse(
+        response,
+        "Student save request failed."
+      );
 
       if (data.success) {
         setMessage(
@@ -472,6 +677,7 @@ export default function StudentEntry() {
         setShowHsc(false);
         setShowHonours(false);
         setShowMasters(false);
+        clearPassportInfo();
 
         const photoInput =
           document.getElementById(
@@ -480,6 +686,15 @@ export default function StudentEntry() {
 
         if (photoInput) {
           photoInput.value = "";
+        }
+
+        const passportInput =
+          document.getElementById(
+            "passportScan"
+          );
+
+        if (passportInput) {
+          passportInput.value = "";
         }
       } else {
         setMessage(
@@ -494,7 +709,8 @@ export default function StudentEntry() {
       );
 
       setMessage(
-        "Server connection failed."
+        error?.message ||
+          "Server connection failed."
       );
     }
   };
@@ -719,11 +935,30 @@ export default function StudentEntry() {
               <option value="">
                 {teacherLoading ? "Loading teachers..." : "Select Teacher"}
               </option>
-              {teachers.map((teacher) => (
-                <option key={teacher.id} value={teacher.teacher_id}>
-                  {teacher.name_en || teacher.name_bn} ({teacher.teacher_id})
+
+              {!teacherLoading && teachers.length === 0 && (
+                <option value="" disabled>
+                  {teacherError || "No teachers available"}
                 </option>
-              ))}
+              )}
+
+              {teachers.map((teacher) => {
+                const teacherId =
+                  teacher.teacher_id ?? teacher.teacherId ?? teacher.id ?? "";
+                const teacherName =
+                  teacher.name_en ||
+                  teacher.name_bn ||
+                  teacher.name ||
+                  teacher.full_name ||
+                  "Unknown Teacher";
+
+                return (
+                  <option key={teacherId || teacherName} value={teacherId}>
+                    {teacherName}
+                    {teacherId ? ` (${teacherId})` : ""}
+                  </option>
+                );
+              })}
             </select>
           </div>
           {/* PHOTO */}
@@ -1716,6 +1951,112 @@ export default function StudentEntry() {
                 />
               </div>
 
+            </div>
+          </div>
+        )}
+
+        {/* =================================
+            PASSPORT INFORMATION
+        ================================= */}
+
+        <div className="passport-section">
+          <div className="passport-header">
+            <h2>Passport Information</h2>
+
+            <button
+              type="button"
+              className="passport-toggle-button"
+              onClick={() => setShowPassportModal(true)}
+            >
+              {passportInfoProvided ? "Edit Passport" : "Add Passport"}
+            </button>
+          </div>
+
+          {passportInfoProvided && (
+            <div className="passport-summary">
+              Passport added: {passportInfo.passportNo || passportScanName || "details available"}
+            </div>
+          )}
+        </div>
+
+        {showPassportModal && (
+          <div className="passport-modal-overlay" onClick={() => setShowPassportModal(false)}>
+            <div className="passport-modal" onClick={(event) => event.stopPropagation()}>
+              <div className="passport-modal-header">
+                <div>
+                  <h3>Passport Information</h3>
+                  <p>Add passport details and upload the scan copy.</p>
+                </div>
+
+                <button
+                  type="button"
+                  className="passport-close-button"
+                  onClick={() => setShowPassportModal(false)}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="passport-form-grid">
+                <div className="form-group">
+                  <label>Passport No.</label>
+                  <input
+                    type="text"
+                    name="passportNo"
+                    value={passportInfo.passportNo}
+                    onChange={handlePassportChange}
+                    placeholder="Enter passport number"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Issue Date</label>
+                  <input
+                    type="date"
+                    name="issueDate"
+                    value={passportInfo.issueDate}
+                    onChange={handlePassportChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Expiry Date</label>
+                  <input
+                    type="date"
+                    name="expiryDate"
+                    value={passportInfo.expiryDate}
+                    onChange={handlePassportChange}
+                  />
+                </div>
+
+                <div className="form-group full-width">
+                  <label>Passport Scan Copy</label>
+                  <input
+                    id="passportScan"
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                    onChange={handlePassportFileChange}
+                  />
+
+                  {passportScanName && (
+                    <small className="file-name">Selected file: {passportScanName}</small>
+                  )}
+                </div>
+              </div>
+
+              <div className="passport-modal-actions">
+                <button type="button" className="secondary-button" onClick={() => setShowPassportModal(false)}>
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  className="primary-button"
+                  onClick={() => setShowPassportModal(false)}
+                >
+                  Save Passport
+                </button>
+              </div>
             </div>
           </div>
         )}

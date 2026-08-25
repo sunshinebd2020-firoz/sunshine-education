@@ -11,6 +11,9 @@ export default function Home() {
   const [previousSlide, setPreviousSlide] = useState(null);
   const [loadingBanners, setLoadingBanners] = useState(true);
 
+  // Dynamic Languages / Courses State
+  const [languages, setLanguages] = useState([]);
+
   /*
   =========================================================
   ANIMATION DIRECTION
@@ -76,6 +79,65 @@ export default function Home() {
 
     fetchBanners();
   }, []);
+
+
+  /* ======================================================
+     FETCH LANGUAGES / COURSES (DYNAMIC DATO LOAD)
+  ====================================================== */
+
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      try {
+        const response = await fetch(`${API}/language_list.php`, {
+          credentials: "include",
+        });
+        const result = await response.json();
+
+        let list = [];
+        if (result.success && Array.isArray(result.data)) {
+          list = result.data;
+        } else if (Array.isArray(result)) {
+          list = result;
+        }
+
+        // Filter active languages
+        const activeLangs = list.filter((lang) => {
+          const status = String(lang.status ?? "").trim().toLowerCase();
+          return status === "active" || status === "1";
+        });
+
+        if (activeLangs.length > 0) {
+          setLanguages(activeLangs);
+        } else {
+          setLanguages(defaultLanguages);
+        }
+      } catch (error) {
+        console.error("Language load error:", error);
+        setLanguages(defaultLanguages);
+      }
+    };
+
+    fetchLanguages();
+  }, []);
+
+  // API কাজ না করলে ব্যাকআপ ডাটা (আপনার অরিজিনাল ডাটা)
+  const defaultLanguages = [
+    { id: 1, name: "Japanese Language", desc: "N5, N4, N3 এবং JFT প্রস্তুতি কোর্স।" },
+    { id: 2, name: "German Language", desc: "Basic ও Skill Test প্রস্তুতি কোর্স।" },
+    { id: 3, name: "Korean Language", desc: "Basic ও Skill Test প্রস্তুতি কোর্স।" },
+  ];
+
+  // ভাষার ওপর নির্ভর করে ফ্ল্যাগ নির্ধারণ
+  const getLanguageIcon = (name) => {
+    const lang = String(name || "").toLowerCase();
+    if (lang.includes("japan")) return "🇯🇵";
+    if (lang.includes("german") || lang.includes("germany")) return "🇩🇪";
+    if (lang.includes("korean") || lang.includes("korea")) return "🇰🇷";
+    if (lang.includes("english")) return "🇬🇧";
+    if (lang.includes("french")) return "🇫🇷";
+    if (lang.includes("chinese")) return "🇨🇳";
+    return "🌐";
+  };
 
 
   /* ======================================================
@@ -374,13 +436,13 @@ export default function Home() {
             <p>
               আধুনিক ও মানসম্মত শিক্ষার মাধ্যমে
               শিক্ষার্থীদের জ্ঞান, দক্ষতা ও ভবিষ্যৎ
-              ক্যারিয়ার গড়ে তোলাই আমাদের লক্ষ্য।
+              ক্যারিয়ার গড়ে তোলাই আমাদের লক্ষ্য।
             </p>
 
           </section>
 
 
-          {/* COURSES */}
+          {/* COURSES (অরিজিনাল HTML ডিজাইন অপরিবর্তিত রেখে DYNAMIC LOOP) */}
 
           <section className="home-section">
 
@@ -390,55 +452,23 @@ export default function Home() {
 
             <div className="course-cards">
 
-              <div className="home-card">
+              {languages.map((lang) => (
+                <div className="home-card" key={lang.id || lang.name}>
 
-                <div className="card-icon">
-                  🇯🇵
+                  <div className="card-icon">
+                    {getLanguageIcon(lang.name)}
+                  </div>
+
+                  <h3>
+                    {lang.name}
+                  </h3>
+
+                  <p>
+                    {lang.desc || `${lang.name} প্রস্তুতি কোর্স।`}
+                  </p>
+
                 </div>
-
-                <h3>
-                  Japanese Language
-                </h3>
-
-                <p>
-                  N5, N4, N3 এবং JFT প্রস্তুতি কোর্স।
-                </p>
-
-              </div>
-
-
-              <div className="home-card">
-
-                <div className="card-icon">
-                  🇩🇪
-                </div>
-
-                <h3>
-                  German Language
-                </h3>
-
-                <p>
-                  Basic ও Skill Test প্রস্তুতি কোর্স।
-                </p>
-
-              </div>
-
-
-              <div className="home-card">
-
-                <div className="card-icon">
-                  🇰🇷
-                </div>
-
-                <h3>
-                  Korean Language
-                </h3>
-
-                <p>
-                  Basic ও Skill Test প্রস্তুতি কোর্স।
-                </p>
-
-              </div>
+              ))}
 
             </div>
 
@@ -462,7 +492,7 @@ export default function Home() {
                 </span>
 
                 <p>
-                  নতুন ব্যাচে ভর্তি কার্যক্রম শুরু হয়েছে।
+                  নতুন ব্যাচে ভর্তি কার্যক্রম শুরু হয়েছে।
                 </p>
 
               </div>
@@ -476,7 +506,7 @@ export default function Home() {
 
                 <p>
                   Japanese Language নতুন ক্লাসের
-                  সময়সূচি প্রকাশ করা হয়েছে।
+                  সময়সূচি প্রকাশ করা হয়েছে।
                 </p>
 
               </div>
@@ -489,8 +519,8 @@ export default function Home() {
                 </span>
 
                 <p>
-                  শিক্ষার্থীদের প্রয়োজনীয় কাগজপত্র
-                  অফিসে জমা দেওয়ার জন্য অনুরোধ করা হলো।
+                  শিক্ষার্থীদের প্রয়োজনীয় কাগজপত্র
+                  অফিসে জমা দেওয়ার জন্য অনুরোধ করা হলো।
                 </p>
 
               </div>
@@ -628,7 +658,7 @@ export default function Home() {
           Learning Center। Japanese, German এবং
           Korean ভাষা শিক্ষার পাশাপাশি শিক্ষার্থীদের
           আন্তর্জাতিক শিক্ষা ও কর্মসংস্থানের
-          প্রস্তুতিতে সহায়তা করাই আমাদের অন্যতম লক্ষ্য।
+          প্রস্তুতিতে সহায়তা করাই আমাদের অন্যতম লক্ষ্য।
         </p>
 
       </section>

@@ -236,6 +236,17 @@ export default function StudentEntry() {
     }));
   };
 
+  const getEffectiveCoursePrice = (courseItem) => {
+    const mainPrice = Number(courseItem?.course_fee ?? 0);
+    const offerPrice = Number(courseItem?.offer_price ?? 0);
+
+    if (Number.isFinite(offerPrice) && offerPrice > 0 && offerPrice < mainPrice) {
+      return offerPrice;
+    }
+
+    return mainPrice;
+  };
+
   /* =========================================
      LEVEL CHANGE
   ========================================= */
@@ -255,7 +266,7 @@ export default function StudentEntry() {
       ...prev,
       level,
       courseFee:
-        selectedCourse?.course_fee ||
+        getEffectiveCoursePrice(selectedCourse) ||
         prev.courseFee ||
         "",
     }));
@@ -334,7 +345,7 @@ export default function StudentEntry() {
                 selectedCourse.course_name,
 
               courseFee:
-                selectedCourse.course_fee ||
+                getEffectiveCoursePrice(selectedCourse) ||
                 "",
             }));
           }

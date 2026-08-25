@@ -373,6 +373,151 @@
 
 
 /* =========================================
+   PASSPORT
+========================================= */
+
+.passport-section {
+  margin-top: 18px;
+}
+
+.passport-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.passport-header h2 {
+  margin: 0;
+  flex: 1;
+}
+
+.passport-toggle-button,
+.primary-button,
+.secondary-button,
+.passport-close-button {
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.passport-toggle-button,
+.primary-button {
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  padding: 9px 14px;
+}
+
+.passport-toggle-button:hover,
+.primary-button:hover {
+  background: #1d4ed8;
+}
+
+.passport-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.passport-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.passport-modal {
+  width: min(620px, 100%);
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 20px 20px;
+  box-shadow: 0 18px 55px rgba(15, 23, 42, 0.18);
+}
+
+.passport-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.passport-modal-header h3 {
+  margin: 0;
+  font-size: 22px;
+  color: #111827;
+}
+
+.passport-modal-header p {
+  margin: 5px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.passport-close-button {
+  width: 34px;
+  height: 34px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.passport-close-button:hover {
+  background: #e5e7eb;
+}
+
+.passport-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.file-name {
+  display: block;
+  margin-top: 6px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.passport-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.secondary-button {
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 600;
+  padding: 9px 14px;
+}
+
+.secondary-button:hover {
+  background: #e5e7eb;
+}
+
+
+/* =========================================
    RESPONSIVE
 ========================================= */
 

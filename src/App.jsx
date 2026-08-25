@@ -13,6 +13,7 @@ const Dashboard = lazy(() => import("./admin/pages/Dashboard"));
 // ================= STUDENTS =================
 const StudentEntry = lazy(() => import("./admin/pages/students/StudentEntry"));
 const StudentList = lazy(() => import("./admin/pages/students/StudentList"));
+const AssignStudent = lazy(() => import("./admin/pages/students/AssignStudent"));
 const StudentEdit = lazy(() => import("./admin/pages/students/StudentEdit"));
 const StudentProfile = lazy(() => import("./admin/pages/students/StudentProfile"));
 
@@ -215,6 +216,11 @@ export default function App() {
             <Route
               path="student-list"
               element={<StudentList />}
+            />
+
+            <Route
+              path="assign-student"
+              element={<AssignStudent />}
             />
 
             <Route

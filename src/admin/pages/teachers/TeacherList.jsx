@@ -81,6 +81,21 @@ export default function TeacherList({ onEditTeacher }) {
   const [userLoading, setUserLoading] =
     useState(false);
 
+  const [resetPasswordTarget, setResetPasswordTarget] =
+    useState(null);
+
+  const [resetPassword, setResetPassword] =
+    useState("");
+
+  const [resetConfirmPassword, setResetConfirmPassword] =
+    useState("");
+
+  const [resetPasswordLoading, setResetPasswordLoading] =
+    useState(false);
+
+  const [resetPasswordError, setResetPasswordError] =
+    useState("");
+
 
 
   /* =====================================================
@@ -489,6 +504,17 @@ export default function TeacherList({ onEditTeacher }) {
     isAdministrator() ||
     teacherPermission.can_delete === true;
 
+  const canResetTeacherPassword =
+    isAdministrator() ||
+    Boolean(
+      myPermissions.setting &&
+      (
+        myPermissions.setting.can_edit === true ||
+        myPermissions.setting.can_add === true ||
+        myPermissions.setting.can_delete === true
+      )
+    );
+
 
   /* =====================================================
      FETCH TEACHERS
@@ -854,6 +880,107 @@ export default function TeacherList({ onEditTeacher }) {
 
 
     navigate(`/admin/teacher-profile/${teacher.id}`);
+  };
+
+
+  /* =====================================================
+     RESET PASSWORD
+  ===================================================== */
+
+  const openResetPasswordModal = teacher => {
+
+    if (!canResetTeacherPassword) {
+      alert("আপনার password reset করার permission নেই।");
+      return;
+    }
+
+    if (!teacher?.user_created || !teacher?.user_id) {
+      alert("এই teacher-এর login account নেই, তাই password reset করা যাবে না।");
+      return;
+    }
+
+    setResetPasswordTarget({
+      ...teacher,
+      admin_id: teacher.user_id,
+      user_id: teacher.user_id,
+      username: teacher.username || teacher.teacher_id || "",
+      teacher_id: teacher.teacher_id || "",
+    });
+    setResetPassword("");
+    setResetConfirmPassword("");
+    setResetPasswordError("");
+  };
+
+  const submitResetPassword = async event => {
+    event.preventDefault();
+
+    if (!resetPasswordTarget) return;
+
+    if (!resetPassword.trim()) {
+      setResetPasswordError("নতুন password দিন।");
+      return;
+    }
+
+    if (resetPassword.length < 6) {
+      setResetPasswordError("Password কমপক্ষে 6 characters হতে হবে।");
+      return;
+    }
+
+    if (resetPassword !== resetConfirmPassword) {
+      setResetPasswordError("Password match হচ্ছে না।");
+      return;
+    }
+
+    try {
+      setResetPasswordLoading(true);
+      setResetPasswordError("");
+
+      const response = await fetch(
+        `${API_BASE_URL}/reset_user_password.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            admin_id: String(resetPasswordTarget.admin_id || resetPasswordTarget.user_id || ""),
+            user_id: String(resetPasswordTarget.user_id || resetPasswordTarget.admin_id || ""),
+            username: String(resetPasswordTarget.username || ""),
+            teacher_id: String(resetPasswordTarget.teacher_id || ""),
+            new_password: resetPassword,
+            confirm_password: resetConfirmPassword,
+          }),
+        }
+      );
+
+      const responseText = await response.text();
+
+      let result;
+
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        throw new Error("Server থেকে invalid response এসেছে।");
+      }
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Password reset failed.");
+      }
+
+      alert(`Password reset successful for ${result.user?.username || resetPasswordTarget.username || "selected user"}.`);
+      setResetPasswordTarget(null);
+      setResetPassword("");
+      setResetConfirmPassword("");
+      setResetPasswordError("");
+      fetchTeachers(new AbortController().signal);
+    } catch (err) {
+      console.error("Reset password error:", err);
+      setResetPasswordError(err.message || "Password reset failed.");
+    } finally {
+      setResetPasswordLoading(false);
+    }
   };
 
 
@@ -1887,6 +2014,39 @@ ${err.message}`
                               )}
 
 
+                              {/* RESET PASSWORD */}
+
+                              {canResetTeacherPassword && teacher.user_created && teacher.user_id && (
+
+                                <button
+                                  type="button"
+
+                                  className="btn-action btn-edit"
+
+                                  title="Reset Password"
+
+                                  onClick={() => openResetPasswordModal(teacher)}
+                                >
+
+                                  <svg
+                                    width="15"
+                                    height="15"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                  >
+
+                                    <rect x="5" y="11" width="14" height="10" rx="2" />
+                                    <path d="M8 11V7a4 4 0 1 1 8 0v4" />
+
+                                  </svg>
+
+                                </button>
+
+                              )}
+
+
                               {/* DELETE */}
 
                               {canDeleteTeacher && (
@@ -1949,6 +2109,160 @@ ${err.message}`
       {/* =================================================
           CREATE USER MODAL
       ================================================= */}
+
+      {resetPasswordTarget && (
+
+        <div
+          className="user-modal-overlay"
+
+          onClick={() => !resetPasswordLoading && setResetPasswordTarget(null)}
+        >
+
+          <div
+            className="user-modal"
+
+            onClick={e =>
+              e.stopPropagation()
+            }
+          >
+
+            <div className="user-modal-header">
+
+              <div>
+
+                <h2>
+                  Reset Password
+                </h2>
+
+                <p>
+                  {resetPasswordTarget.username || resetPasswordTarget.teacher_id || "Selected user"}
+                </p>
+
+              </div>
+
+
+              <button
+                type="button"
+
+                className="user-modal-close"
+
+                onClick={() => setResetPasswordTarget(null)}
+
+                disabled={resetPasswordLoading}
+              >
+
+                ×
+
+              </button>
+
+            </div>
+
+
+            <form
+              onSubmit={submitResetPassword}
+
+              className="user-form"
+            >
+
+              <div className="form-group">
+
+                <label>
+                  New Password
+                </label>
+
+                <input
+                  type="password"
+
+                  value={resetPassword}
+
+                  onChange={e =>
+                    setResetPassword(
+                      e.target.value
+                    )
+                  }
+
+                  placeholder="Minimum 6 characters"
+
+                  autoComplete="new-password"
+
+                  disabled={resetPasswordLoading}
+                />
+
+              </div>
+
+
+              <div className="form-group">
+
+                <label>
+                  Confirm Password
+                </label>
+
+                <input
+                  type="password"
+
+                  value={resetConfirmPassword}
+
+                  onChange={e =>
+                    setResetConfirmPassword(
+                      e.target.value
+                    )
+                  }
+
+                  placeholder="Confirm password"
+
+                  autoComplete="new-password"
+
+                  disabled={resetPasswordLoading}
+                />
+
+              </div>
+
+              {resetPasswordError && (
+                <div className="teacher-message error">
+                  {resetPasswordError}
+                </div>
+              )}
+
+              <div className="user-form-actions">
+
+                <button
+                  type="button"
+
+                  className="user-cancel-btn"
+
+                  onClick={() => setResetPasswordTarget(null)}
+
+                  disabled={resetPasswordLoading}
+                >
+
+                  Cancel
+
+                </button>
+
+
+                <button
+                  type="submit"
+
+                  className="user-create-btn"
+
+                  disabled={resetPasswordLoading}
+                >
+
+                  {resetPasswordLoading
+                    ? "Saving..."
+                    : "Save Password"}
+
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      )}
 
       {showUserModal && (
 

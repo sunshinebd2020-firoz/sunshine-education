@@ -138,10 +138,45 @@ export default function DueList() {
   const [totalDue, setTotalDue] =
     useState(0);
 
+  const [hotline, setHotline] =
+    useState("");
+
+
+  /* =====================================================
+     LOAD HOTLINE NUMBER
+  ===================================================== */
+
+  const fetchHotline = async () => {
+
+    try {
+
+      const response =
+        await fetch(`${API_BASE_URL}/get_hotline.php`);
+
+      const data =
+        await response.json();
+
+      if (data && data.hotline) {
+
+        setHotline(data.hotline);
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Failed to fetch hotline number:",
+        error
+      );
+
+    }
+
+  };
+
 
   /* =====================================================
      LOAD DUE LIST
-===================================================== */
+  ===================================================== */
 
   const loadDueList = async (
     currentTeacherId,
@@ -163,7 +198,7 @@ export default function DueList() {
 
 
       /*
-       * Admin-এর Teacher ID প্রয়োজন নেই।
+       * Admin-এর Teacher ID প্রয়োজন নেই।
        */
       if (
         !admin &&
@@ -206,7 +241,7 @@ export default function DueList() {
       if (!text.trim()) {
 
         throw new Error(
-          "Server থেকে কোনো response পাওয়া যায়নি।"
+          "Server থেকে কোনো response পাওয়া যায়নি।"
         );
 
       }
@@ -227,7 +262,7 @@ export default function DueList() {
         );
 
         throw new Error(
-          "Server থেকে সঠিক JSON response পাওয়া যায়নি।",
+          "Server থেকে সঠিক JSON response পাওয়া যায়নি।",
           { cause: error }
         );
 
@@ -241,7 +276,7 @@ export default function DueList() {
 
         throw new Error(
           data.message ||
-          "Due data পাওয়া যায়নি।"
+          "Due data পাওয়া যায়নি।"
         );
 
       }
@@ -318,9 +353,11 @@ export default function DueList() {
 
   /* =====================================================
      INITIAL LOAD
-===================================================== */
+  ===================================================== */
 
   useEffect(() => {
+
+    fetchHotline();
 
     const user =
       getLoggedInUser();
@@ -328,9 +365,8 @@ export default function DueList() {
 
     if (!user) {
 
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMessage(
-        "Login user information পাওয়া যায়নি। আবার login করুন।"
+        "Login user information পাওয়া যায়নি। আবার login করুন।"
       );
 
       setLoading(false);
@@ -354,8 +390,6 @@ export default function DueList() {
         user.teacherId ||
         ""
       ).trim();
-
-
 
 
     const admin =
@@ -392,13 +426,13 @@ export default function DueList() {
 
     /*
      * Teacher-এর নিজের branch বের করার
-     * জন্য Teacher ID প্রয়োজন।
+     * জন্য Teacher ID প্রয়োজন।
      */
 
     if (!currentTeacherId) {
 
       setMessage(
-        "Teacher ID পাওয়া যাচ্ছে না। আবার login করুন।"
+        "Teacher ID পাওয়া যাচ্ছে না। আবার login করুন।"
       );
 
       setLoading(false);
@@ -418,7 +452,7 @@ export default function DueList() {
 
   /* =====================================================
      SEARCH
-===================================================== */
+  ===================================================== */
 
   const filteredStudents =
     students.filter(
@@ -492,8 +526,8 @@ export default function DueList() {
 
 
   /* =====================================================
-     FORMAT MONEY
-===================================================== */
+     FORMAT MONEY & WHATSAPP
+  ===================================================== */
 
   const formatMoney = (amount) => {
 
@@ -511,35 +545,50 @@ export default function DueList() {
 
 
   const normalizeWhatsAppNumber = (phone) => {
+
     if (!phone) return "";
 
-    const digits = String(phone).replace(/\D/g, "");
+    // শুধু ডিজিটগুলো রেখে বাকি সব ক্যারেক্টার বাদ দিচ্ছি
+    let digits = String(phone).replace(/\D/g, "");
 
     if (!digits) return "";
 
+    // যদি নম্বরটির শুরুতে ৮৮ থাকে (যেমন 88017...)
     if (digits.startsWith("88")) {
-      return `+${digits}`;
+      return digits;
     }
 
+    // যদি নম্বরটির শুরুতে ০ থাকে (যেমন 017...)
     if (digits.startsWith("0")) {
-      return `+88${digits.substring(1)}`;
+      return `88${digits}`;
     }
 
+    // যদি ১০ ডিজিট হয় (যেমন 1712345678 - অর্থাৎ শুরুর ০ বাদ পড়েছে)
+    if (digits.length === 10) {
+      return `880${digits}`;
+    }
+
+    // যদি ১১ ডিজিট হয় (যেমন 01712345678)
     if (digits.length === 11) {
-      return `+88${digits}`;
+      return `88${digits}`;
     }
 
-    return `+${digits}`;
+    return digits;
+
   };
 
+
   const handleWhatsAppPayment = (student) => {
-    const phone = normalizeWhatsAppNumber(
-      student?.student_mobile || student?.mobile || ""
-    );
+
+    const rawPhone = student?.student_mobile || student?.mobile || "";
+    const phone = normalizeWhatsAppNumber(rawPhone);
 
     if (!phone) {
-      setMessage("Student mobile number available नाही। WhatsApp payment শুরু করা যাবে না।");
+
+      setMessage("Student mobile number available নেই। WhatsApp payment শুরু করা যাবে না।");
+
       return;
+
     }
 
     const studentName =
@@ -549,17 +598,22 @@ export default function DueList() {
 
     const amount = Number(student?.due_amount || student?.due || 0);
 
-    const message = `Assalamu Alaikum ${studentName}.\n\nYour due payment is BDT ${formatMoney(amount)}.\nPlease confirm the payment and send the payment confirmation.\n\nStudent ID: ${student?.student_id || student?.id || "N/A"}`;
+    let messageText = `Assalamu Alaikum ${studentName}.\n\nYour due payment is BDT ${formatMoney(amount)}.\nPlease confirm the payment and send the payment confirmation.\n\nStudent ID: ${student?.student_id || student?.id || "N/A"}`;
 
-    const url = `https://wa.me/${phone.replace(/\+/g, "")}?text=${encodeURIComponent(message)}`;
+    if (hotline) {
+      messageText += `\n\nFor any query, contact Hotline: ${hotline}`;
+    }
+
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(messageText)}`;
 
     window.open(url, "_blank", "noopener,noreferrer");
+
   };
 
 
   /* =====================================================
      RENDER
-===================================================== */
+  ===================================================== */
 
   return (
 
@@ -992,7 +1046,7 @@ export default function DueList() {
 
               <p className="no-due">
 
-                কোনো Due পাওয়া যায়নি।
+                কোনো Due পাওয়া যায়নি।
 
               </p>
 

@@ -21,6 +21,134 @@ export default function Login() {
   const [error, setError] =
     useState("");
 
+  const [showForgotModal, setShowForgotModal] =
+    useState(false);
+
+  const [forgotUsername, setForgotUsername] =
+    useState("");
+
+  const [forgotTeacherId, setForgotTeacherId] =
+    useState("");
+
+  const [forgotNewPassword, setForgotNewPassword] =
+    useState("");
+
+  const [forgotConfirmPassword, setForgotConfirmPassword] =
+    useState("");
+
+  const [forgotLoading, setForgotLoading] =
+    useState(false);
+
+  const [forgotError, setForgotError] =
+    useState("");
+
+  const [forgotSuccess, setForgotSuccess] =
+    useState("");
+
+  const resetForgotForm = () => {
+    setForgotUsername("");
+    setForgotTeacherId("");
+    setForgotNewPassword("");
+    setForgotConfirmPassword("");
+    setForgotError("");
+  };
+
+  const openForgotPassword = () => {
+    setForgotError("");
+    setForgotSuccess("");
+    resetForgotForm();
+    setShowForgotModal(true);
+  };
+
+  const closeForgotPassword = () => {
+    if (forgotLoading) return;
+
+    setShowForgotModal(false);
+    setForgotError("");
+    setForgotSuccess("");
+    resetForgotForm();
+  };
+
+  const handleForgotPasswordSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!forgotUsername.trim()) {
+      setForgotError("Username is required.");
+      return;
+    }
+
+    if (!forgotTeacherId.trim()) {
+      setForgotError("Teacher ID is required.");
+      return;
+    }
+
+    if (!forgotNewPassword) {
+      setForgotError("Please enter a new password.");
+      return;
+    }
+
+    if (forgotNewPassword.length < 6) {
+      setForgotError("Password must be at least 6 characters long.");
+      return;
+    }
+
+    if (forgotNewPassword !== forgotConfirmPassword) {
+      setForgotError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      setForgotLoading(true);
+      setForgotError("");
+      setForgotSuccess("");
+
+      const response =
+        await fetch(
+          `${API_BASE_URL}/reset_user_password.php`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json"
+            },
+            body: JSON.stringify({
+              mode: "forgot",
+              username: forgotUsername.trim(),
+              teacher_id: forgotTeacherId.trim(),
+              new_password: forgotNewPassword,
+              confirm_password: forgotConfirmPassword
+            })
+          }
+        );
+
+      const text = await response.text();
+      let data = null;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error("Server response was invalid.");
+      }
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Password reset failed.");
+      }
+
+      setForgotSuccess("Password reset successfully. You can now log in with your new password.");
+      resetForgotForm();
+
+      window.setTimeout(() => {
+        setShowForgotModal(false);
+        setForgotSuccess("");
+      }, 1500);
+    } catch (err) {
+      setForgotError(err.message || "Password reset failed.");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   /*
   =====================================================
   LOGIN
@@ -142,6 +270,10 @@ export default function Login() {
         role === "super admin" ||
         role === "superadmin" ||
         isProtectedAdministrator(user);
+
+      const isTeacherAccount =
+        role === "teacher" &&
+        Boolean(String(user.teacher_id || "").trim());
 
       /*
       =================================================
@@ -330,7 +462,9 @@ export default function Login() {
       */
 
       navigate(
-        "/admin/dashboard",
+        isTeacherAccount
+          ? "/admin/my-classroom"
+          : "/admin/dashboard",
         {
           replace: true
         }
@@ -392,6 +526,7 @@ export default function Login() {
           onSubmit={
             handleLogin
           }
+          className="login-form"
         >
 
           <div className="form-group">
@@ -436,6 +571,17 @@ export default function Login() {
 
           </div>
 
+          <div className="login-options">
+            <button
+              type="button"
+              className="login-forgot-link"
+              onClick={openForgotPassword}
+              disabled={loading}
+            >
+              Forgot Password?
+            </button>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -451,6 +597,117 @@ export default function Login() {
         </form>
 
       </div>
+
+      {showForgotModal && (
+        <div
+          className="login-modal-overlay"
+          onClick={() => closeForgotPassword()}
+        >
+          <div
+            className="login-modal"
+            role="dialog"
+            aria-modal="true"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="login-modal-header">
+              <div>
+                <h2>Reset Password</h2>
+                <p>Use your username and teacher ID to confirm your account.</p>
+              </div>
+
+              <button
+                type="button"
+                className="login-modal-close"
+                onClick={closeForgotPassword}
+                disabled={forgotLoading}
+              >
+                ×
+              </button>
+            </div>
+
+            {forgotError && (
+              <div className="login-error">
+                {forgotError}
+              </div>
+            )}
+
+            {forgotSuccess && (
+              <div className="login-success">
+                {forgotSuccess}
+              </div>
+            )}
+
+            <form onSubmit={handleForgotPasswordSubmit} className="login-form">
+              <div className="form-group">
+                <label>Username</label>
+                <input
+                  type="text"
+                  value={forgotUsername}
+                  onChange={(event) => setForgotUsername(event.target.value)}
+                  placeholder="Enter your username"
+                  autoComplete="username"
+                  disabled={forgotLoading}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Teacher ID</label>
+                <input
+                  type="text"
+                  value={forgotTeacherId}
+                  onChange={(event) => setForgotTeacherId(event.target.value)}
+                  placeholder="Enter your teacher ID"
+                  autoComplete="off"
+                  disabled={forgotLoading}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>New Password</label>
+                <input
+                  type="password"
+                  value={forgotNewPassword}
+                  onChange={(event) => setForgotNewPassword(event.target.value)}
+                  placeholder="Minimum 6 characters"
+                  autoComplete="new-password"
+                  disabled={forgotLoading}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Confirm Password</label>
+                <input
+                  type="password"
+                  value={forgotConfirmPassword}
+                  onChange={(event) => setForgotConfirmPassword(event.target.value)}
+                  placeholder="Confirm new password"
+                  autoComplete="new-password"
+                  disabled={forgotLoading}
+                />
+              </div>
+
+              <div className="login-modal-actions">
+                <button
+                  type="button"
+                  className="login-secondary-button"
+                  onClick={closeForgotPassword}
+                  disabled={forgotLoading}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="login-button"
+                  disabled={forgotLoading}
+                >
+                  {forgotLoading ? "Resetting..." : "Reset Password"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -5,9 +5,10 @@ import { useNavigate } from "react-router-dom";
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
+  const [languages, setLanguages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeLanguage, setActiveLanguage] = useState("Japanese");
+  const [activeLanguage, setActiveLanguage] = useState("");
 
   const navigate = useNavigate();
 
@@ -21,9 +22,7 @@ export default function Courses() {
         setLoading(true);
         setError("");
 
-        // This is a public endpoint. Sending credentials here makes browsers
-        // reject the API response when the backend allows cross-origin access
-        // with `Access-Control-Allow-Origin: *`.
+        // Fetching active course list
         const response = await fetch(
           `${API_BASE_URL}/course_list.php`
         );
@@ -65,6 +64,29 @@ export default function Courses() {
         });
 
         setCourses(activeCourses);
+
+        /* =================================================
+           EXTRACT DYNAMIC LANGUAGES FROM DB DATA
+        ================================================= */
+
+        const uniqueLanguages = [];
+
+        activeCourses.forEach((course) => {
+          const rawLang = String(course.language || "").trim();
+          if (rawLang) {
+            const normalized = getLanguageName(rawLang);
+            if (!uniqueLanguages.includes(normalized)) {
+              uniqueLanguages.push(normalized);
+            }
+          }
+        });
+
+        setLanguages(uniqueLanguages);
+
+        // Set the first language as default active language if available
+        if (uniqueLanguages.length > 0) {
+          setActiveLanguage(uniqueLanguages[0]);
+        }
 
       } catch (err) {
         console.error(
@@ -114,10 +136,14 @@ export default function Courses() {
     if (
       value.includes("korean") ||
       value.includes("korea") ||
-      value.includes("কোরিয়ান") ||
       value.includes("কোরিয়ান")
     ) {
       return "Korean";
+    }
+
+    // capitalize first letter if it's another language from database
+    if (value.length > 0) {
+      return value.charAt(0).toUpperCase() + value.slice(1);
     }
 
     return "Other";
@@ -129,16 +155,34 @@ export default function Courses() {
   ===================================================== */
 
   const getLanguageIcon = (language) => {
-    if (language === "Japanese") {
+    const lang = String(language).toLowerCase();
+
+    if (lang.includes("japanese") || lang.includes("japan")) {
       return "🇯🇵";
     }
 
-    if (language === "German") {
+    if (lang.includes("german") || lang.includes("germany")) {
       return "🇩🇪";
     }
 
-    if (language === "Korean") {
+    if (lang.includes("korean") || lang.includes("korea")) {
       return "🇰🇷";
+    }
+
+    if (lang.includes("english") || lang.includes("uk") || lang.includes("usa")) {
+      return "🇬🇧";
+    }
+
+    if (lang.includes("french") || lang.includes("france")) {
+      return "🇫🇷";
+    }
+
+    if (lang.includes("chinese") || lang.includes("china")) {
+      return "🇨🇳";
+    }
+
+    if (lang.includes("arabic")) {
+      return "🇸🇦";
     }
 
     return "🌐";
@@ -150,31 +194,33 @@ export default function Courses() {
   ===================================================== */
 
   const getDescription = (language) => {
-    if (language === "Japanese") {
+    const lang = String(language).toLowerCase();
+
+    if (lang.includes("japanese")) {
       return (
         "জাপানি ভাষা শেখার জন্য বিভিন্ন Level-এর কোর্স। " +
         "উচ্চশিক্ষা, চাকরি ও বিভিন্ন পরীক্ষার প্রস্তুতির জন্য " +
-        "বিশেষ সহযোগিতা প্রদান করা হয়।"
+        "বিশেষ সহযোগিতা প্রদান করা হয়।"
       );
     }
 
-    if (language === "German") {
+    if (lang.includes("german")) {
       return (
         "জার্মানিতে উচ্চশিক্ষা, চাকরি ও দৈনন্দিন যোগাযোগের জন্য " +
-        "প্রয়োজনীয় জার্মান ভাষা শিক্ষা।"
+        "প্রয়োজনীয় জার্মান ভাষা শিক্ষা।"
       );
     }
 
-    if (language === "Korean") {
+    if (lang.includes("korean")) {
       return (
-        "কোরিয়ান ভাষা শেখার মাধ্যমে EPS-TOPIK, TOPIK ও " +
-        "অন্যান্য প্রয়োজনীয় পরীক্ষার প্রস্তুতি গ্রহণ করুন।"
+        "কোরিয়ান ভাষা শেখার মাধ্যমে EPS-TOPIK, TOPIK ও " +
+        "অন্যান্য প্রয়োজনীয় পরীক্ষার প্রস্তুতি গ্রহণ করুন।"
       );
     }
 
     return (
-      "আন্তর্জাতিক ভাষা শিক্ষার মাধ্যমে আপনার " +
-      "ভাষাগত দক্ষতা বৃদ্ধি করুন।"
+      `${language} ভাষা শিক্ষার মাধ্যমে আপনার ` +
+      "আন্তর্জাতিক যোগাযোগের দক্ষতা বৃদ্ধি করুন এবং ক্যারিয়ার সমৃদ্ধ করুন।"
     );
   };
 
@@ -184,6 +230,12 @@ export default function Courses() {
   ===================================================== */
 
   const handleApply = (course) => {
+    const effectiveFee = Number(
+      course?.offer_price && Number(course.offer_price) > 0 && Number(course.offer_price) < Number(course.course_fee || 0)
+        ? course.offer_price
+        : course.course_fee || 0
+    );
+
     navigate(
       `/student-entry?course=${encodeURIComponent(
         course.course_name || ""
@@ -192,11 +244,10 @@ export default function Courses() {
       )}&duration=${encodeURIComponent(
         course.duration || ""
       )}&course_fee=${encodeURIComponent(
-        course.course_fee || ""
+        String(effectiveFee)
       )}`
     );
   };
-
 
   /* =====================================================
      FORMAT FEE
@@ -218,6 +269,21 @@ export default function Courses() {
     }
 
     return `৳ ${number.toLocaleString()}`;
+  };
+
+  /* =====================================================
+     CALCULATE DISCOUNT PERCENTAGE
+  ===================================================== */
+
+  const getDiscountPercentage = (mainFee, offerFee) => {
+    const main = Number(mainFee);
+    const offer = Number(offerFee);
+
+    if (main > 0 && offer > 0 && offer < main) {
+      const discount = Math.round(((main - offer) / main) * 100);
+      return `${discount}% OFF`;
+    }
+    return null;
   };
 
 
@@ -260,81 +326,36 @@ export default function Courses() {
           আন্তর্জাতিক ভাষা শিক্ষার মাধ্যমে
           শিক্ষার্থীদের বিদেশে উচ্চশিক্ষা,
           চাকরি ও যোগাযোগের দক্ষতা বৃদ্ধিতে
-          আমরা সহায়তা করি।
+          আমরা সহায়তা করি।
         </p>
 
       </section>
 
 
       {/* =================================================
-          LANGUAGE TABS
+          DYNAMIC LANGUAGE TABS
       ================================================= */}
 
-      <div className="course-tabs">
+      {!loading && !error && languages.length > 0 && (
+        <div className="course-tabs">
+          {languages.map((lang) => (
+            <button
+              key={lang}
+              type="button"
+              className={activeLanguage === lang ? "active" : ""}
+              onClick={() => setActiveLanguage(lang)}
+            >
+              <span className="tab-flag">
+                {getLanguageIcon(lang)}
+              </span>
 
-        <button
-          type="button"
-          className={
-            activeLanguage === "Japanese"
-              ? "active"
-              : ""
-          }
-          onClick={() =>
-            setActiveLanguage("Japanese")
-          }
-        >
-          <span className="tab-flag">
-            🇯🇵
-          </span>
-
-          <span>
-            Japanese
-          </span>
-        </button>
-
-
-        <button
-          type="button"
-          className={
-            activeLanguage === "German"
-              ? "active"
-              : ""
-          }
-          onClick={() =>
-            setActiveLanguage("German")
-          }
-        >
-          <span className="tab-flag">
-            🇩🇪
-          </span>
-
-          <span>
-            German
-          </span>
-        </button>
-
-
-        <button
-          type="button"
-          className={
-            activeLanguage === "Korean"
-              ? "active"
-              : ""
-          }
-          onClick={() =>
-            setActiveLanguage("Korean")
-          }
-        >
-          <span className="tab-flag">
-            🇰🇷
-          </span>
-
-          <span>
-            Korean
-          </span>
-        </button>
-
-      </div>
+              <span>
+                {lang}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
 
 
       {/* =================================================
@@ -369,7 +390,7 @@ export default function Courses() {
             COURSE CONTENT
         ================================================= */}
 
-        {!loading && !error && (
+        {!loading && !error && activeLanguage && (
 
           <div className="course-card">
 
@@ -413,118 +434,137 @@ export default function Courses() {
               {filteredCourses.length > 0 ? (
 
                 filteredCourses.map(
-                  (course) => (
+                  (course) => {
+                    const hasOffer = Number(course.offer_price || 0) > 0 && Number(course.offer_price) < Number(course.course_fee || 0);
+                    const discountText = hasOffer ? getDiscountPercentage(course.course_fee, course.offer_price) : null;
 
-                    <div
-                      className="course-item"
-                      key={course.id}
-                    >
-
-                      {/* =================================
-                          COURSE NAME
-                      ================================= */}
-
-                      <div className="course-item-name">
-
-                        <h3>
-                          {course.course_name ||
-                            "Course"}
-                        </h3>
-
-                      </div>
-
-
-                      {/* =================================
-                          COURSE DETAILS
-                      ================================= */}
-
-                      <div className="course-details">
-
-                        {/* DURATION */}
-
-                        <div className="course-detail">
-
-                          <span className="detail-icon">
-                            ⏱
-                          </span>
-
-                          <div>
-
-                            <small>
-                              Duration
-                            </small>
-
-                            <strong>
-                              {course.duration ||
-                                "N/A"}
-                            </strong>
-
-                          </div>
-
-                        </div>
-
-
-                        {/* COURSE FEE */}
-
-                        <div className="course-detail">
-
-                          <span className="detail-icon">
-                            ৳
-                          </span>
-
-                          <div>
-
-                            <small>
-                              Course Fee
-                            </small>
-
-                            <strong>
-                              {formatFee(
-                                course.course_fee
-                              )}
-                            </strong>
-
-                          </div>
-
-                        </div>
-
-                      </div>
-
-
-                      {/* =================================
-                          APPLY BUTTON
-                      ================================= */}
-
-                      <button
-                        type="button"
-                        className="apply-course-btn"
-                        onClick={() =>
-                          handleApply(
-                            course
-                          )
-                        }
+                    return (
+                      <div
+                        className={`course-item ${hasOffer ? "has-offer" : ""}`}
+                        key={course.id}
+                        style={{ position: "relative" }}
                       >
 
-                        <span>
-                          Apply Now
-                        </span>
+                        {/* OFFER BADGE */}
+                        {hasOffer && (
+                          <div className="offer-badge" style={badgeStyle}>
+                            🏷️ {discountText || "OFFER"}
+                          </div>
+                        )}
 
-                        <span>
-                          →
-                        </span>
+                        {/* =================================
+                            COURSE NAME
+                        ================================= */}
 
-                      </button>
+                        <div className="course-item-name">
 
-                    </div>
+                          <h3>
+                            {course.course_name ||
+                              "Course"}
+                          </h3>
 
-                  )
+                        </div>
+
+
+                        {/* =================================
+                            COURSE DETAILS
+                        ================================= */}
+
+                        <div className="course-details">
+
+                          {/* DURATION */}
+
+                          <div className="course-detail">
+
+                            <span className="detail-icon">
+                              ⏱
+                            </span>
+
+                            <div>
+
+                              <small>
+                                Duration
+                              </small>
+
+                              <strong>
+                                {course.duration ||
+                                  "N/A"}
+                              </strong>
+
+                            </div>
+
+                          </div>
+
+
+                          {/* COURSE FEE */}
+
+                          <div className="course-detail">
+
+                            <span className="detail-icon">
+                              ৳
+                            </span>
+
+                            <div>
+
+                              <small>
+                                Course Fee
+                              </small>
+
+                              <strong>
+                                {hasOffer ? (
+                                  <>
+                                    <span style={{ textDecoration: "line-through", opacity: 0.7, marginRight: 8 }}>
+                                      {formatFee(course.course_fee)}
+                                    </span>
+                                    {formatFee(course.offer_price)}
+                                  </>
+                                ) : (
+                                  formatFee(course.course_fee)
+                                )}
+                              </strong>
+
+                            </div>
+
+                          </div>
+
+                        </div>
+
+
+                        {/* =================================
+                            APPLY BUTTON
+                        ================================= */}
+
+                        <button
+                          type="button"
+                          className="apply-course-btn"
+                          onClick={() =>
+                            handleApply(
+                              course
+                            )
+                          }
+                        >
+
+                          <span>
+                            Apply Now
+                          </span>
+
+                          <span>
+                            →
+                          </span>
+
+                        </button>
+
+                      </div>
+
+                    );
+                  }
                 )
 
               ) : (
 
                 <div className="course-message">
                   এই ভাষার কোনো Active course
-                  বর্তমানে পাওয়া যায়নি।
+                  বর্তমানে পাওয়া যায়নি।
                 </div>
 
               )}
@@ -552,7 +592,7 @@ export default function Courses() {
           ✔ অভিজ্ঞ প্রশিক্ষক দ্বারা পাঠদান
           <br />
 
-          ✔ নিয়মিত Speaking Practice
+          ✔ নিয়মিত Speaking Practice
           <br />
 
           ✔ আধুনিক শিক্ষা পদ্ধতি
@@ -566,3 +606,20 @@ export default function Courses() {
     </div>
   );
 }
+
+/* =====================================================
+   INLINE STYLES FOR OFFER BADGE (or add to Courses.css)
+===================================================== */
+const badgeStyle = {
+  position: "absolute",
+  top: "-10px",
+  right: "12px",
+  backgroundColor: "#e63946",
+  color: "#ffffff",
+  fontSize: "12px",
+  fontWeight: "bold",
+  padding: "4px 10px",
+  borderRadius: "12px",
+  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+  zIndex: 2,
+};

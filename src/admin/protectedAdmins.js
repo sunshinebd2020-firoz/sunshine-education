@@ -1,5 +1,5 @@
 const PROTECTED_ADMIN_NAMES = new Set([
-  "firozmahmud",
+  //"firozmahmud",
   "abdulmuhaimine",
 ]);
 

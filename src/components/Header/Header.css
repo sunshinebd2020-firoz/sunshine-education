@@ -199,7 +199,7 @@
 
 
 /* =========================================================
-   SOCIAL LINKS
+   SOCIAL LINKS & HOTLINE
 ========================================================= */
 
 .social-links {
@@ -210,6 +210,56 @@
   gap: 10px;
 
   flex-shrink: 0;
+}
+
+
+/* =========================================================
+   HOTLINE BUTTON
+========================================================= */
+
+.hotline-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background: linear-gradient(
+    135deg,
+    #0066cc,
+    #0088dd
+  );
+
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 30px;
+
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.25);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+.hotline-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 18px rgba(0, 102, 204, 0.35);
+  filter: brightness(1.08);
+}
+
+.hotline-btn:active {
+  transform: scale(0.96);
+}
+
+.hotline-icon {
+  font-size: 14px;
+  animation: phonePulse 2s infinite;
+}
+
+@keyframes phonePulse {
+  0%, 100% { transform: rotate(0deg); }
+  10%, 30% { transform: rotate(-12deg); }
+  20%, 40% { transform: rotate(12deg); }
+  50% { transform: rotate(0deg); }
 }
 
 
@@ -339,6 +389,11 @@
     font-size: 16px;
   }
 
+  .hotline-btn {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+
 }
 
 
@@ -403,6 +458,12 @@
     font-size: 14px;
   }
 
+  .hotline-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+    gap: 5px;
+  }
+
 }
 
 
@@ -454,6 +515,16 @@
     font-size: 12px;
   }
 
+  .hotline-btn {
+    padding: 5px 8px;
+    border-radius: 50%; /* মোবাইলে ছোট করার জন্য সার্কেল করা হয়েছে */
+  }
+
+  /* খুব ছোট ডিসপ্লেতে শুধু ফোন আইকন দেখাবে, লেখা হাইড থাকবে */
+  .hotline-number {
+    display: none;
+  }
+
 }
 
 
@@ -489,6 +560,13 @@
     height: 25px;
 
     font-size: 11px;
+  }
+
+  .hotline-btn {
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    justify-content: center;
   }
 
 }

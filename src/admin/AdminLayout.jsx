@@ -56,6 +56,7 @@ export default function AdminLayout() {
     role === "superadmin";
   const isTeacher =
     !isAdmin &&
+    String(user?.role || "").trim().toLowerCase() === "teacher" &&
     Boolean(String(user?.teacher_id || "").trim());
 
 
@@ -118,6 +119,10 @@ export default function AdminLayout() {
       moduleName,
       action = "can_view"
     ) => {
+
+      if (isAdmin) {
+        return true;
+      }
 
       const normalizedModule =
         normalizePermission(
@@ -220,6 +225,14 @@ export default function AdminLayout() {
   const canViewMenu =
     (menu) => {
 
+      if (isAdmin) {
+        return true;
+      }
+
+      if (isTeacher) {
+        return false;
+      }
+
       if (menu === "accounts") {
         return canViewAccounts;
       }
@@ -240,6 +253,7 @@ export default function AdminLayout() {
       if (
         pathname === "/admin/students" ||
         pathname === "/admin/student-list" ||
+        pathname === "/admin/assign-student" ||
         pathname === "/admin/pending-students" ||
         pathname.startsWith(
           "/admin/student-profile/"
@@ -359,6 +373,9 @@ export default function AdminLayout() {
       )
     );
 
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
+
   useEffect(() => {
 
     const activeMenu =
@@ -371,6 +388,8 @@ export default function AdminLayout() {
       setOpenMenu(activeMenu);
     }
 
+    setMobileMenuOpen(false);
+
   }, [location.pathname]);
 
   /* =====================================================
@@ -380,6 +399,19 @@ export default function AdminLayout() {
   useEffect(() => {
 
     if (!user) {
+      return;
+    }
+
+    if (isTeacher) {
+      if (
+        location.pathname === "/admin" ||
+        location.pathname === "/admin/dashboard" ||
+        location.pathname.startsWith("/admin/") &&
+        location.pathname !== "/admin/my-classroom"
+      ) {
+        navigate("/admin/my-classroom", { replace: true });
+        return;
+      }
       return;
     }
 
@@ -590,6 +622,14 @@ export default function AdminLayout() {
       );
     };
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen((current) => !current);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   /* =====================================================
      MENU ACTIVE
   ===================================================== */
@@ -742,11 +782,16 @@ export default function AdminLayout() {
 
     <div className="admin-layout-container">
 
+      <div
+        className={`admin-sidebar-backdrop ${mobileMenuOpen ? "visible" : ""}`}
+        onClick={closeMobileMenu}
+      />
+
       {/* =================================================
           SIDEBAR
       ================================================= */}
 
-      <aside className="admin-sidebar">
+      <aside className={`admin-sidebar ${mobileMenuOpen ? "mobile-open" : ""}`}>
 
         {/* =================================================
             USER PROFILE
@@ -819,22 +864,24 @@ export default function AdminLayout() {
               DASHBOARD
           ================================================= */}
 
-          <NavLink
-            to="/admin/dashboard"
-            className={({ isActive }) =>
-              `sidebar-link ${
-                isActive
-                  ? "active"
-                  : ""
-              }`
-            }
-          >
+          {!isTeacher && (
+            <NavLink
+              to="/admin/dashboard"
+              className={({ isActive }) =>
+                `sidebar-link ${
+                  isActive
+                    ? "active"
+                    : ""
+                }`
+              }
+            >
 
-            <span>
-              🏠 Dashboard
-            </span>
+              <span>
+                🏠 Dashboard
+              </span>
 
-          </NavLink>
+            </NavLink>
+          )}
           {isTeacher && (
             <NavLink
               to="/admin/my-classroom"
@@ -896,6 +943,24 @@ export default function AdminLayout() {
                       }
                     >
                       📋 Student List
+                    </NavLink>
+
+                  )}
+
+                  {hasPermission(
+                    "student",
+                    "can_view"
+                  ) && (
+
+                    <NavLink
+                      to="/admin/assign-student"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "active"
+                          : ""
+                      }
+                    >
+                      👤 Assign Student
                     </NavLink>
 
                   )}
@@ -1252,6 +1317,17 @@ export default function AdminLayout() {
       =================================================== */}
 
       <main className="admin-main">
+
+        <div className="mobile-toolbar">
+          <button
+            type="button"
+            className="mobile-menu-toggle"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle menu"
+          >
+            ☰
+          </button>
+        </div>
 
         <Outlet />
 

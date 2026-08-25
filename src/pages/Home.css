@@ -495,13 +495,34 @@ NEW ← LEFT
    COURSE CARDS
 ========================================================= */
 
+/* Home.css এ যুক্ত বা আপডেট করুন */
+/* Home.css এ আপডেট করুন */
 .course-cards {
-  display: grid;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  gap: 12px !important;
+  padding-bottom: 8px !important;
+}
 
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+.course-cards .home-card {
+  flex: 0 0 190px !important; /* কার্ডের সাইজ ছোট করে ১৯০px করা হয়েছে */
+  min-width: 190px !important;
+  padding: 12px !important;     /* ভেতরের ফাঁকা জায়গা ছোট করা হয়েছে */
+}
 
-  gap: 20px;
+.course-cards .home-card .card-icon {
+  font-size: 28px !important;  /* আইকন সাইজ ছোট করা হয়েছে */
+  margin-bottom: 6px !important;
+}
+
+.course-cards .home-card h3 {
+  font-size: 15px !important;  /* টাইটেল ফন্ট ছোট করা হয়েছে */
+  margin-bottom: 4px !important;
+}
+
+.course-cards .home-card p {
+  font-size: 12px !important;  /* বিবরণ ফন্ট ছোট করা হয়েছে */
 }
 
 
