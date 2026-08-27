@@ -1,338 +1,1088 @@
-.student-portal-page {
-  padding: 40px 24px 60px;
-  background: linear-gradient(180deg, #f8fafc 0%, #eef6ff 100%);
-  min-height: calc(100vh - 140px);
+/* =====================================================
+   STUDENT PORTAL
+===================================================== */
+
+.student-portal {
+  width: 100%;
+
+  min-height: 100vh;
+
+  padding: 22px;
+
+  box-sizing: border-box;
+
+  background: #f1f5f9;
+
+  color: #1e293b;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
 }
 
-.student-portal-shell {
-  max-width: 1100px;
-  margin: 0 auto;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 22px;
-  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.08);
-  padding: 28px;
-}
+
+/* =====================================================
+   HEADER
+===================================================== */
 
 .student-portal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  padding-bottom: 22px;
-  border-bottom: 1px solid #e2e8f0;
-}
+  max-width: 980px;
 
-.student-portal-kicker {
-  margin: 0 0 8px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #2563eb;
+  margin:
+    0 auto 16px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
 }
 
 .student-portal-header h1 {
   margin: 0;
+
   color: #0f172a;
-  font-size: clamp(28px, 2.8vw, 38px);
+
+  font-size: 25px;
+
+  font-weight: 700;
 }
+
+.student-portal-header p {
+  margin: 4px 0 0;
+
+  color: #64748b;
+
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
 
 .student-portal-logout {
   border: none;
-  border-radius: 10px;
-  padding: 10px 14px;
+
+  border-radius: 6px;
+
+  padding: 8px 15px;
+
   background: #fee2e2;
-  color: #991b1b;
-  font-size: 14px;
+
+  color: #b91c1c;
+
+  font-size: 12px;
+
   font-weight: 700;
+
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
 }
 
-.student-portal-grid {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 24px;
-  margin-top: 26px;
+.student-portal-logout:hover {
+  background: #fecaca;
 }
+
+.student-portal-logout:active {
+  transform: translateY(1px);
+}
+
+
+/* =====================================================
+   MAIN CARD
+===================================================== */
 
 .student-portal-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 22px;
+  width: 210mm;
+
+  min-height: 297mm;
+
+  margin: 0 auto;
+
+  padding: 10mm;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border-radius: 5px;
+
+  box-shadow:
+    0 6px 22px
+    rgba(15, 23, 42, 0.10);
 }
 
-.student-portal-card h2 {
-  margin: 0 0 18px;
-  color: #0f172a;
-  font-size: 22px;
-}
 
-.student-portal-row {
+/* =====================================================
+   PROFILE TOP
+===================================================== */
+
+.student-profile-top {
   display: flex;
-  justify-content: space-between;
+
   align-items: center;
+
   gap: 18px;
-  padding: 12px 0;
-  border-bottom: 1px solid #e2e8f0;
-  color: #334155;
+
+  padding-bottom: 11px;
+
+  border-bottom:
+    2px solid #2563eb;
 }
 
-.student-portal-row:last-child {
+
+/* =====================================================
+   PHOTO
+===================================================== */
+
+.student-profile-photo-box {
+  width: 82px;
+
+  height: 100px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  overflow: hidden;
+
+  background: #f8fafc;
+
+  border:
+    1px solid #cbd5e1;
+
+  border-radius: 5px;
+}
+
+.student-profile-photo-box img {
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.student-profile-no-photo {
+  color: #94a3b8;
+
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   BASIC
+===================================================== */
+
+.student-profile-basic {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.student-profile-basic h2 {
+  margin:
+    0 0 2px;
+
+  color: #0f172a;
+
+  font-size: 22px;
+
+  line-height: 1.2;
+}
+
+.student-bangla-name {
+  margin:
+    0 0 5px;
+
+  color: #475569;
+
+  font-size: 14px;
+}
+
+.student-profile-id {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  margin-bottom: 6px;
+
+  color: #64748b;
+
+  font-size: 11px;
+}
+
+.student-profile-id strong {
+  color: #0f172a;
+}
+
+
+/* =====================================================
+   TAGS
+===================================================== */
+
+.student-profile-tags {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 5px;
+}
+
+.student-profile-tags span {
+  padding:
+    4px 8px;
+
+  border-radius: 12px;
+
+  background: #eff6ff;
+
+  border:
+    1px solid #bfdbfe;
+
+  color: #1d4ed8;
+
+  font-size: 10px;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+.student-profile-section {
+  margin-top: 10px;
+
+  page-break-inside: avoid;
+}
+
+.student-profile-section h3 {
+  margin:
+    0 0 5px;
+
+  padding:
+    5px 8px;
+
+  background: #eff6ff;
+
+  border-left:
+    3px solid #2563eb;
+
+  color: #0f172a;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   INFO TABLE
+===================================================== */
+
+.student-info-table {
+  width: 100%;
+
+  border:
+    1px solid #dbe3ec;
+
+  border-radius: 3px;
+
+  overflow: hidden;
+}
+
+.student-info-row {
+  display: grid;
+
+  grid-template-columns:
+    145px 1fr;
+
+  min-height: 24px;
+
+  border-bottom:
+    1px solid #e2e8f0;
+}
+
+.student-info-row:last-child {
   border-bottom: none;
 }
 
-.student-portal-row span {
+.student-info-label {
+  display: flex;
+
+  align-items: center;
+
+  padding:
+    4px 7px;
+
+  background: #f8fafc;
+
+  color: #64748b;
+
+  font-size: 9px;
+
   font-weight: 600;
 }
 
-.student-portal-row strong {
-  color: #0f172a;
-  text-align: right;
-}
-
-.student-portal-profile-header {
+.student-info-value {
   display: flex;
+
   align-items: center;
-  gap: 20px;
-  margin-top: 8px;
-}
 
-.student-portal-photo-box {
-  width: 120px;
-  height: 120px;
-  border-radius: 18px;
-  overflow: hidden;
-  background: linear-gradient(135deg, #dbeafe, #eff6ff);
-  border: 1px solid #bfdbfe;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  padding:
+    4px 8px;
 
-.student-portal-photo-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+  color: #1e293b;
 
-.student-portal-no-photo {
-  color: #475569;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
+  font-size: 10px;
 
-.student-portal-basic-info {
-  flex: 1;
-}
-
-.student-portal-basic-info h3 {
-  margin: 0 0 8px;
-  font-size: 26px;
-  color: #0f172a;
-}
-
-.student-portal-basic-info p {
-  margin: 0 0 12px;
-  color: #475569;
   font-weight: 600;
+
+  overflow-wrap: anywhere;
 }
 
-.student-portal-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
 
-.student-portal-tags span {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
-  padding: 7px 10px;
-  background: #dbeafe;
-  color: #1d4ed8;
-  font-size: 12px;
-  font-weight: 700;
-}
+/* =====================================================
+   CONTACT
+===================================================== */
 
-.student-portal-error {
-  border-color: #fecaca;
-  background: #fff1f2;
-  color: #9f1239;
-}
-
-.student-portal-actions {
-  margin: 0;
-  padding-left: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  color: #334155;
-  line-height: 1.7;
-}
-
-.student-portal-document-section {
-  margin-top: 26px;
-}
-
-.student-portal-doc-grid {
+.student-contact-table {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
-}
 
-.student-portal-doc-card {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 18px;
-  border-radius: 16px;
-  background: #ffffff;
-  border: 1px solid #dbeafe;
-  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.05);
-}
+  grid-template-columns:
+    repeat(4, 1fr);
 
-.student-portal-doc-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
+  border:
+    1px solid #dbe3ec;
 
-.student-portal-doc-label {
-  margin: 0 0 8px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #475569;
-}
+  border-radius: 3px;
 
-.student-portal-doc-header strong {
-  display: block;
-  color: #0f172a;
-  font-size: 15px;
-}
-
-.student-portal-doc-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 8px;
-  border-radius: 999px;
-  background: #dbeafe;
-  color: #1d4ed8;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.student-portal-doc-preview {
-  min-height: 170px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
   overflow: hidden;
-  background: linear-gradient(135deg, #f8fafc, #eff6ff);
-  border: 1px solid #dbeafe;
 }
 
-.student-portal-doc-preview img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.student-contact-item {
+  padding:
+    6px 8px;
+
+  border-right:
+    1px solid #e2e8f0;
 }
 
-.student-portal-doc-placeholder,
-.student-portal-doc-pdf {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  min-height: 170px;
-  color: #475569;
-  font-weight: 700;
-  text-align: center;
-  background: rgba(148, 163, 184, 0.08);
+.student-contact-item:last-child {
+  border-right: none;
 }
 
-.student-portal-doc-pdf {
-  color: #b45309;
-  background: rgba(251, 191, 36, 0.12);
+.student-contact-item label {
+  display: block;
+
+  margin-bottom: 2px;
+
+  color: #64748b;
+
+  font-size: 8px;
+
+  text-transform: uppercase;
 }
 
-.student-portal-upload-btn {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 700;
-  transition: transform 0.2s ease;
-}
+.student-contact-item p {
+  margin: 0;
 
-.student-portal-upload-btn:hover {
-  transform: translateY(-1px);
-}
+  color: #1e293b;
 
-.student-portal-doc-link {
-  color: #1d4ed8;
-  text-decoration: none;
-  font-weight: 700;
-}
+  font-size: 10px;
 
-.student-portal-message {
-  margin-bottom: 18px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  font-size: 14px;
   font-weight: 600;
+
+  overflow-wrap: anywhere;
 }
 
-.student-portal-message.success {
-  background: #ecfdf5;
-  border: 1px solid #bbf7d0;
+
+/* =====================================================
+   ADDRESS
+===================================================== */
+
+.student-address-table {
+  width: 100%;
+
+  border:
+    1px solid #cbd5e1;
+
+  border-radius: 3px;
+
+  overflow: hidden;
+}
+
+.student-address-row {
+  display: grid;
+
+  grid-template-columns:
+    80px
+    1.4fr
+    1fr
+    1fr
+    1fr;
+
+  border-bottom:
+    1px solid #e2e8f0;
+}
+
+.student-address-row:last-child {
+  border-bottom: none;
+}
+
+.student-address-row > div {
+  min-width: 0;
+
+  padding:
+    6px 7px;
+
+  border-right:
+    1px solid #e2e8f0;
+
+  font-size: 9px;
+
+  overflow-wrap: anywhere;
+}
+
+.student-address-row > div:last-child {
+  border-right: none;
+}
+
+.student-address-header {
+  background: #f1f5f9;
+
+  color: #475569;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.student-address-type {
+  color: #2563eb;
+
+  font-weight: 700;
+
+  background: #f8fafc;
+}
+
+
+/* =====================================================
+   EDUCATION
+===================================================== */
+
+.student-education-table {
+  width: 100%;
+
+  border:
+    1px solid #cbd5e1;
+
+  border-radius: 3px;
+
+  overflow: hidden;
+}
+
+.student-education-row {
+  display: grid;
+
+  grid-template-columns:
+    55px
+    1.7fr
+    65px
+    65px
+    85px
+    1fr
+    55px
+    55px;
+
+  border-bottom:
+    1px solid #e2e8f0;
+}
+
+.student-education-row:last-child {
+  border-bottom: none;
+}
+
+.student-education-row > div {
+  min-width: 0;
+
+  padding:
+    5px 5px;
+
+  border-right:
+    1px solid #e2e8f0;
+
+  color: #1e293b;
+
+  font-size: 8.5px;
+
+  line-height: 1.25;
+
+  overflow-wrap: anywhere;
+}
+
+.student-education-row > div:last-child {
+  border-right: none;
+}
+
+.student-education-header {
+  background: #f1f5f9;
+}
+
+.student-education-header > div {
+  color: #475569;
+
+  font-size: 7.5px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.student-education-exam {
+  background: #f8fafc;
+
+  color: #2563eb !important;
+
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   PASSPORT
+===================================================== */
+
+.student-passport-row {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  border:
+    1px solid #dbe3ec;
+
+  border-radius: 3px;
+
+  overflow: hidden;
+}
+
+.student-passport-item {
+  padding:
+    7px 9px;
+
+  border-right:
+    1px solid #e2e8f0;
+}
+
+.student-passport-item:last-child {
+  border-right: none;
+}
+
+.student-passport-label {
+  margin-bottom: 3px;
+
+  color: #64748b;
+
+  font-size: 8px;
+
+  font-weight: 600;
+
+  text-transform: uppercase;
+}
+
+.student-passport-value {
+  color: #1e293b;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =====================================================
+   DOCUMENT UPDATE
+===================================================== */
+
+.student-document-message {
+  margin-bottom: 10px;
+
+  padding:
+    8px 10px;
+
+  border-radius: 6px;
+
+  font-size: 10px;
+
+  line-height: 1.4;
+}
+
+.student-document-message.success {
+  background: #dcfce7;
+
+  border:
+    1px solid #bbf7d0;
+
   color: #166534;
 }
 
-.student-portal-message.error {
-  background: #fff1f2;
-  border: 1px solid #fecdd3;
-  color: #9f1239;
+.student-document-message.error {
+  background: #fee2e2;
+
+  border:
+    1px solid #fecaca;
+
+  color: #b91c1c;
 }
 
-@media (max-width: 768px) {
-  .student-portal-shell {
-    padding: 20px 16px;
+.student-document-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 8px;
+}
+
+.student-document-card {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding:
+    9px;
+
+  border:
+    1px solid #dbe3ec;
+
+  border-radius: 6px;
+
+  background: #f8fafc;
+}
+
+.student-document-icon {
+  width: 30px;
+
+  height: 30px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 6px;
+
+  background: #eff6ff;
+
+  font-size: 15px;
+}
+
+.student-document-content {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.student-document-content h4 {
+  margin:
+    0 0 2px;
+
+  color: #1e293b;
+
+  font-size: 9px;
+
+  font-weight: 700;
+}
+
+.student-document-content p {
+  margin:
+    0 0 6px;
+
+  color: #64748b;
+
+  font-size: 8px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.student-document-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-width: 54px;
+
+  padding:
+    4px 7px;
+
+  border-radius: 5px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.student-document-button:hover {
+  background: #1d4ed8;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.student-profile-footer {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-top: 10px;
+
+  padding-top: 6px;
+
+  border-top:
+    1px solid #cbd5e1;
+
+  color: #64748b;
+
+  font-size: 8px;
+}
+
+
+/* =====================================================
+   LOADING / ERROR
+===================================================== */
+
+.student-portal-message-card,
+.student-portal-error-card {
+  max-width: 500px;
+
+  margin: 70px auto;
+
+  padding: 20px;
+
+  text-align: center;
+
+  background: #ffffff;
+
+  border-radius: 6px;
+
+  box-shadow:
+    0 5px 20px
+    rgba(0, 0, 0, 0.08);
+
+  font-size: 13px;
+}
+
+.student-portal-error-card {
+  color: #dc2626;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 900px) {
+
+  .student-portal {
+    padding: 12px;
+  }
+
+  .student-portal-card {
+    width: 100%;
+
+    min-height: auto;
+
+    padding: 18px;
+  }
+
+  .student-contact-table {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .student-contact-item:nth-child(2) {
+    border-right: none;
+  }
+
+  .student-contact-item:nth-child(-n + 2) {
+    border-bottom:
+      1px solid #e2e8f0;
+  }
+
+  .student-address-table,
+  .student-education-table {
+    overflow-x: auto;
+  }
+
+  .student-address-row,
+  .student-education-row {
+    min-width: 750px;
+  }
+
+  .student-document-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+  .student-portal {
+    padding: 10px;
   }
 
   .student-portal-header {
     flex-direction: column;
-    align-items: stretch;
-  }
 
-  .student-portal-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .student-portal-row {
-    flex-direction: column;
     align-items: flex-start;
   }
 
-  .student-portal-row strong {
-    text-align: left;
+  .student-portal-logout {
+    width: 100%;
   }
 
-  .student-portal-doc-grid {
+  .student-profile-top {
+    align-items: flex-start;
+  }
+
+  .student-profile-photo-box {
+    width: 70px;
+
+    height: 88px;
+  }
+
+  .student-profile-basic h2 {
+    font-size: 18px;
+  }
+
+  .student-info-row {
+    grid-template-columns:
+      115px 1fr;
+  }
+
+  .student-contact-table {
     grid-template-columns: 1fr;
   }
+
+  .student-contact-item {
+    border-right: none;
+
+    border-bottom:
+      1px solid #e2e8f0;
+  }
+
+  .student-contact-item:last-child {
+    border-bottom: none;
+  }
+
+  .student-passport-row {
+    grid-template-columns: 1fr;
+  }
+
+  .student-passport-item {
+    border-right: none;
+
+    border-bottom:
+      1px solid #e2e8f0;
+  }
+
+  .student-passport-item:last-child {
+    border-bottom: none;
+  }
+
+  .student-document-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/* =====================================================
+   PRINT
+===================================================== */
+
+@media print {
+
+  @page {
+    size: A4 portrait;
+
+    margin: 5mm;
+  }
+
+  html,
+  body {
+    width: 210mm;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    background: #ffffff !important;
+  }
+
+  body {
+    -webkit-print-color-adjust:
+      exact;
+
+    print-color-adjust:
+      exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .student-portal {
+    width: 100%;
+
+    min-height: 0;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    background: #ffffff;
+  }
+
+  .student-portal-card {
+    width: 100% !important;
+
+    min-height: 0;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    border-radius: 0;
+
+    box-shadow: none;
+  }
+
+  .student-profile-section {
+    page-break-inside: avoid;
+  }
+
+  .student-info-table,
+  .student-contact-table,
+  .student-address-table,
+  .student-education-table,
+  .student-passport-row {
+    page-break-inside: avoid;
+  }
+
+  .student-profile-top {
+    page-break-inside: avoid;
+  }
+
+  .student-profile-footer {
+    page-break-inside: avoid;
+  }
+
+  .student-profile-section h3 {
+    font-size: 10px;
+
+    padding:
+      4px 7px;
+  }
+
+  .student-info-row {
+    min-height: 21px;
+  }
+
+  .student-info-label,
+  .student-info-value {
+    padding:
+      3px 6px;
+
+    font-size: 8px;
+  }
+
+  .student-contact-item {
+    padding:
+      4px 6px;
+  }
+
+  .student-contact-item label {
+    font-size: 7px;
+  }
+
+  .student-contact-item p {
+    font-size: 8px;
+  }
+
+  .student-address-row > div {
+    padding:
+      4px 5px;
+
+    font-size: 7.5px;
+  }
+
+  .student-education-row > div {
+    padding:
+      4px;
+
+    font-size: 7px;
+  }
+
+  .student-education-header > div {
+    font-size: 6.5px;
+  }
+
+  .student-passport-item {
+    padding:
+      4px 5px;
+  }
+
+  .student-passport-label {
+    font-size: 7px;
+  }
+
+  .student-passport-value {
+    font-size: 8px;
+  }
+
 }

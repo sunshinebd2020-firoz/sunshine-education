@@ -37,11 +37,15 @@ export default function PendingStudentList() {
       const data = await response.json();
 
       if (data.success) {
-        setStudents(
-          Array.isArray(data.data)
-            ? data.data
-            : []
-        );
+        const pendingStudents = Array.isArray(data.data)
+          ? data.data
+          : Array.isArray(data.students)
+            ? data.students
+            : Array.isArray(data.pending_students)
+              ? data.pending_students
+              : [];
+
+        setStudents(pendingStudents);
       } else {
         setStudents([]);
         setMessage(

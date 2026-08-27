@@ -12,7 +12,9 @@ const parseJsonResponse = async (response, fallbackMessage) => {
   }
 
   const trimmed = text.trim();
-  const contentType = (response.headers.get("content-type") || "").toLowerCase();
+  const contentType = (
+    response.headers.get("content-type") || ""
+  ).toLowerCase();
 
   if (
     !contentType.includes("application/json") &&
@@ -28,7 +30,9 @@ const parseJsonResponse = async (response, fallbackMessage) => {
     return JSON.parse(trimmed);
   } catch (error) {
     console.error("Invalid JSON response:", trimmed);
-    throw new Error(fallbackMessage || "Server returned an invalid response format.");
+    throw new Error(
+      fallbackMessage || "Server returned an invalid response format."
+    );
   }
 };
 
@@ -70,19 +74,6 @@ const getStudentId = (student) => {
       student.id ??
       ""
   ).trim();
-};
-
-const getStudentNumericId = (student) => {
-  if (!student) return "";
-
-  const rawId = student.id ?? student.studentId ?? student.student_id ?? "";
-  const idValue = String(rawId).trim();
-
-  if (!/^\d+$/.test(idValue)) {
-    return "";
-  }
-
-  return idValue;
 };
 
 const getTeacherId = (teacher) => {
@@ -132,39 +123,47 @@ const isPendingApplication = (student) => {
     .trim()
     .toLowerCase();
 
-  return (
-    applicationStatus === "pending" ||
-    applicationStatus === "new" ||
-    applicationStatus === "draft" ||
-    applicationStatus === "submitted" ||
-    applicationStatus === "approval pending" ||
-    applicationStatus === "waiting for approval"
-  );
+  return [
+    "pending",
+    "new",
+    "draft",
+    "submitted",
+    "approval pending",
+    "waiting for approval",
+  ].includes(applicationStatus);
 };
 
 export default function AssignStudent() {
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
+
   const [selectedTeacherId, setSelectedTeacherId] = useState("");
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
+
   const [search, setSearch] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedLevel, setSelectedLevel] = useState("");
+
   const [availableCourses, setAvailableCourses] = useState([]);
   const [availableLevels, setAvailableLevels] = useState([]);
+
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("info");
+
   const [loadingTeachers, setLoadingTeachers] = useState(true);
   const [loadingStudents, setLoadingStudents] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   const currentUser = getCurrentUser();
+
   const userRole = String(
     currentUser?.role ||
       currentUser?.user_role ||
       currentUser?.admin_role ||
       ""
-  ).trim();
+  )
+    .trim()
+    .toLowerCase();
 
   const loadTeachers = async () => {
     try {
@@ -174,10 +173,15 @@ export default function AssignStudent() {
         credentials: "include",
       });
 
-      const data = await parseJsonResponse(response, "Teacher list unavailable.");
+      const data = await parseJsonResponse(
+        response,
+        "Teacher list unavailable."
+      );
 
       if (data.success) {
-        const teacherRows = Array.isArray(data.teachers) ? data.teachers : [];
+        const teacherRows = Array.isArray(data.teachers)
+          ? data.teachers
+          : [];
 
         const activeTeachers = teacherRows.filter((teacher) => {
           const status = String(
@@ -209,6 +213,7 @@ export default function AssignStudent() {
       }
     } catch (error) {
       console.error("Teacher loading error:", error);
+
       setTeachers([]);
       setMessage("Teacher server connection failed.");
       setMessageType("error");
@@ -228,15 +233,23 @@ export default function AssignStudent() {
         params.set("role", userRole);
       }
 
-      const response = await fetch(`${API}/students.php?${params.toString()}`, {
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${API}/students.php?${params.toString()}`,
+        {
+          credentials: "include",
+        }
+      );
 
-      const data = await parseJsonResponse(response, "Student data unavailable.");
+      const data = await parseJsonResponse(
+        response,
+        "Student data unavailable."
+      );
 
       if (data.success) {
         const approvedStudents = Array.isArray(data.students)
-          ? data.students.filter((student) => !isPendingApplication(student))
+          ? data.students.filter(
+              (student) => !isPendingApplication(student)
+            )
           : [];
 
         setStudents(approvedStudents);
@@ -247,6 +260,7 @@ export default function AssignStudent() {
       }
     } catch (error) {
       console.error("Student loading error:", error);
+
       setStudents([]);
       setMessage("Server connection failed.");
       setMessageType("error");
@@ -258,6 +272,7 @@ export default function AssignStudent() {
   useEffect(() => {
     loadTeachers();
     loadStudents();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userRole]);
 
@@ -273,7 +288,11 @@ export default function AssignStudent() {
     const levels = Array.from(
       new Set(
         students
-          .map((student) => String(student.language_level || student.level || "").trim())
+          .map((student) =>
+            String(
+              student.language_level || student.level || ""
+            ).trim()
+          )
           .filter(Boolean)
       )
     ).sort((a, b) => a.localeCompare(b));
@@ -292,7 +311,7 @@ export default function AssignStudent() {
 
   useEffect(() => {
     setSelectedStudentIds([]);
-  }, [selectedTeacherId, selectedCourse, selectedLevel]);
+  }, [selectedTeacherId]);
 
   const clearFilters = () => {
     setSearch("");
@@ -303,51 +322,69 @@ export default function AssignStudent() {
   const filteredStudents = students.filter((student) => {
     const query = search.trim().toLowerCase();
 
-    const studentId = getStudentId(student);
+    const studentId = getStudentId(student).toLowerCase();
     const name = getStudentName(student).toLowerCase();
-    const mobile = String(student.student_mobile || student.mobile || "").toLowerCase();
+
+    const mobile = String(
+      student.student_mobile || student.mobile || ""
+    ).toLowerCase();
+
     const course = String(student.course || "").trim();
-    const level = String(student.language_level || student.level || "").trim();
+    const level = String(
+      student.language_level || student.level || ""
+    ).trim();
 
     const matchesSearch =
       !query ||
-      [studentId, name, mobile, course.toLowerCase(), level.toLowerCase()].some((value) =>
-        value.includes(query)
-      );
+      [
+        studentId,
+        name,
+        mobile,
+        course.toLowerCase(),
+        level.toLowerCase(),
+      ].some((value) => value.includes(query));
 
-    const matchesCourse = !selectedCourse || course === selectedCourse;
-    const matchesLevel = !selectedLevel || level === selectedLevel;
+    const matchesCourse =
+      !selectedCourse || course === selectedCourse;
 
-    return matchesSearch && matchesCourse && matchesLevel;
+    const matchesLevel =
+      !selectedLevel || level === selectedLevel;
+
+    return (
+      matchesSearch &&
+      matchesCourse &&
+      matchesLevel
+    );
   });
 
   const allVisibleSelected =
     filteredStudents.length > 0 &&
     filteredStudents.every((student) =>
-      selectedStudentIds.includes(getStudentNumericId(student))
+      selectedStudentIds.includes(getStudentId(student))
     );
 
   const handleSelectAll = () => {
     const visibleIds = filteredStudents
-      .map((student) => getStudentNumericId(student))
+      .map((student) => getStudentId(student))
       .filter(Boolean);
 
     if (allVisibleSelected) {
       setSelectedStudentIds((prev) =>
         prev.filter((id) => !visibleIds.includes(String(id)))
       );
+
       return;
     }
 
-    setSelectedStudentIds((prev) => Array.from(new Set([...prev, ...visibleIds])));
+    setSelectedStudentIds((prev) =>
+      Array.from(new Set([...prev, ...visibleIds]))
+    );
   };
 
   const toggleStudentSelection = (studentId) => {
     const nextId = String(studentId).trim();
 
-    if (!nextId) {
-      return;
-    }
+    if (!nextId) return;
 
     setSelectedStudentIds((prev) => {
       if (prev.includes(nextId)) {
@@ -361,17 +398,10 @@ export default function AssignStudent() {
   const handleAssign = async (event) => {
     event.preventDefault();
 
-    if (!selectedCourse) {
-      setMessage("Please select a Course first.");
-      setMessageType("error");
-      return;
-    }
-
-    if (!selectedLevel) {
-      setMessage("Please select a Level first.");
-      setMessageType("error");
-      return;
-    }
+    /*
+     * ONLY Teacher + at least one Student are required.
+     * Course and Level are filters only.
+     */
 
     if (!selectedTeacherId) {
       setMessage("Please select a teacher before assigning students.");
@@ -390,7 +420,9 @@ export default function AssignStudent() {
     setMessageType("info");
 
     try {
-      const normalizedTeacherId = String(selectedTeacherId).trim();
+      const normalizedTeacherId =
+        String(selectedTeacherId).trim();
+
       const selectedValues = selectedStudentIds
         .map((value) => String(value).trim())
         .filter(Boolean);
@@ -410,30 +442,39 @@ export default function AssignStudent() {
       let successfulAssignments = 0;
 
       for (const selectedValue of selectedValues) {
-        const numericStudentId = Number.parseInt(selectedValue, 10);
         const payload = {
           teacher_id: normalizedTeacherId,
-          student_id: Number.isInteger(numericStudentId) && numericStudentId > 0
-            ? numericStudentId
-            : selectedValue,
+          student_id: selectedValue,
         };
 
-        console.log("Sending Payload:", JSON.stringify(payload));
+        console.log(
+          "Sending Payload:",
+          JSON.stringify(payload)
+        );
 
-        const response = await fetch(`${API}/student_teacher_assign.php`, {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
+        const response = await fetch(
+          `${API}/student_teacher_assign.php`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
 
-        const data = await parseJsonResponse(response, "Teacher assignment failed.");
+        const data = await parseJsonResponse(
+          response,
+          "Teacher assignment failed."
+        );
 
         if (!response.ok || !data.success) {
-          throw new Error(data.message || `Failed to assign student ${selectedValue}.`);
+          throw new Error(
+            data.message ||
+              `Failed to assign student ${selectedValue}.`
+          );
         }
 
         successfulAssignments += 1;
@@ -444,13 +485,20 @@ export default function AssignStudent() {
           ? `${successfulAssignments} students assigned successfully.`
           : "Selected student assigned successfully."
       );
+
       setMessageType("success");
+
       setSelectedTeacherId("");
       setSelectedStudentIds([]);
+
       await loadStudents();
     } catch (error) {
       console.error("Assign students error:", error);
-      setMessage(error.message || "Server connection failed.");
+
+      setMessage(
+        error.message || "Server connection failed."
+      );
+
       setMessageType("error");
     } finally {
       setSubmitting(false);
@@ -488,12 +536,19 @@ export default function AssignStudent() {
             fontWeight: 600,
           };
 
+  const assignDisabled =
+    submitting ||
+    !selectedTeacherId ||
+    selectedStudentIds.length === 0;
+
   return (
     <div className="student-list">
       <div className="student-list-header">
         <div>
           <h1>Assign Students</h1>
-          <p>Select a teacher and assign students in bulk.</p>
+          <p>
+            Select a teacher and assign students in bulk.
+          </p>
         </div>
       </div>
 
@@ -502,17 +557,28 @@ export default function AssignStudent() {
           className="student-search"
           style={{
             display: "grid",
-            gridTemplateColumns: "minmax(220px, 280px) minmax(180px, 220px) minmax(180px, 220px) minmax(180px, 220px) auto",
+            gridTemplateColumns:
+              "minmax(220px, 280px) minmax(180px, 220px) minmax(180px, 220px) minmax(180px, 220px) auto",
             gap: "1rem",
             alignItems: "end",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={{ fontWeight: 600 }}>Course</label>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
+            <label style={{ fontWeight: 600 }}>
+              Course
+            </label>
 
             <select
               value={selectedCourse}
-              onChange={(event) => setSelectedCourse(event.target.value)}
+              onChange={(event) =>
+                setSelectedCourse(event.target.value)
+              }
               style={{
                 width: "100%",
                 padding: "0.7rem 0.75rem",
@@ -531,12 +597,22 @@ export default function AssignStudent() {
             </select>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={{ fontWeight: 600 }}>Level</label>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
+            <label style={{ fontWeight: 600 }}>
+              Level
+            </label>
 
             <select
               value={selectedLevel}
-              onChange={(event) => setSelectedLevel(event.target.value)}
+              onChange={(event) =>
+                setSelectedLevel(event.target.value)
+              }
               style={{
                 width: "100%",
                 padding: "0.7rem 0.75rem",
@@ -555,12 +631,22 @@ export default function AssignStudent() {
             </select>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={{ fontWeight: 600 }}>Teacher</label>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
+            <label style={{ fontWeight: 600 }}>
+              Teacher
+            </label>
 
             <select
               value={selectedTeacherId}
-              onChange={(event) => setSelectedTeacherId(event.target.value)}
+              onChange={(event) =>
+                setSelectedTeacherId(event.target.value)
+              }
               disabled={loadingTeachers}
               style={{
                 width: "100%",
@@ -571,34 +657,55 @@ export default function AssignStudent() {
               }}
             >
               <option value="">
-                {loadingTeachers ? "Loading teachers..." : "Select Teacher"}
+                {loadingTeachers
+                  ? "Loading teachers..."
+                  : "Select Teacher"}
               </option>
 
               {teachers.map((teacher) => {
-                const teacherId = getTeacherId(teacher);
-                const teacherName = getTeacherName(teacher);
+                const teacherId =
+                  getTeacherId(teacher);
+
+                const teacherName =
+                  getTeacherName(teacher);
 
                 return (
                   <option
-                    key={teacherId || teacher.id || teacherName}
+                    key={
+                      teacherId ||
+                      teacher.id ||
+                      teacherName
+                    }
                     value={teacherId}
                   >
                     {teacherName}
-                    {teacherId ? ` (${teacherId})` : ""}
+                    {teacherId
+                      ? ` (${teacherId})`
+                      : ""}
                   </option>
                 );
               })}
             </select>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={{ fontWeight: 600 }}>Search Students</label>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
+            <label style={{ fontWeight: 600 }}>
+              Search Students
+            </label>
 
             <input
               type="text"
               placeholder="Search by ID, name, mobile, course or level..."
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) =>
+                setSearch(event.target.value)
+              }
               style={{
                 width: "100%",
                 padding: "0.7rem 0.75rem",
@@ -621,7 +728,9 @@ export default function AssignStudent() {
           </button>
         </div>
 
-        {message && <p style={alertStyle}>{message}</p>}
+        {message && (
+          <p style={alertStyle}>{message}</p>
+        )}
 
         <div
           style={{
@@ -632,13 +741,20 @@ export default function AssignStudent() {
             margin: "0.75rem 0 0.5rem",
           }}
         >
-          <strong>{filteredStudents.length} Students</strong>
-          <strong>{selectedStudentIds.length} Selected</strong>
+          <strong>
+            {filteredStudents.length} Students
+          </strong>
+
+          <strong>
+            {selectedStudentIds.length} Selected
+          </strong>
         </div>
 
         <div className="table-container">
           {loadingStudents ? (
-            <p className="no-student">Loading students...</p>
+            <p className="no-student">
+              Loading students...
+            </p>
           ) : (
             <>
               <table>
@@ -652,6 +768,7 @@ export default function AssignStudent() {
                         aria-label="Select all visible students"
                       />
                     </th>
+
                     <th>ID</th>
                     <th>Name</th>
                     <th>Course</th>
@@ -663,49 +780,87 @@ export default function AssignStudent() {
 
                 <tbody>
                   {filteredStudents.map((student) => {
-                    const studentId = getStudentNumericId(student) || getStudentId(student);
-                    const checked = selectedStudentIds.includes(getStudentNumericId(student));
+                    const studentId =
+                      getStudentId(student);
+
+                    const checked =
+                      selectedStudentIds.includes(
+                        studentId
+                      );
 
                     return (
-                      <tr key={studentId || `${student.id}-row`}>
+                      <tr
+                        key={
+                          studentId ||
+                          `${student.id}-row`
+                        }
+                      >
                         <td>
                           <input
                             type="checkbox"
                             checked={checked}
-                            onChange={() => toggleStudentSelection(getStudentNumericId(student) || studentId)}
-                            aria-label={`Select ${getStudentName(student) || "student"}`}
+                            onChange={() =>
+                              toggleStudentSelection(
+                                studentId
+                              )
+                            }
+                            aria-label={`Select ${
+                              getStudentName(student) ||
+                              "student"
+                            }`}
                           />
                         </td>
 
                         <td>
                           <strong className="student-id">
-                            {studentId || `#${student.id}`}
+                            {studentId ||
+                              `#${student.id}`}
                           </strong>
                         </td>
 
                         <td>
                           <div className="student-name">
                             <strong>
-                              {getStudentName(student) || "-"}
+                              {getStudentName(student) ||
+                                "-"}
                             </strong>
 
                             {student.student_name_bn && (
-                              <span>{student.student_name_bn}</span>
+                              <span>
+                                {student.student_name_bn}
+                              </span>
                             )}
                           </div>
                         </td>
 
-                        <td>{student.course || "-"}</td>
-
-                        <td>{student.language_level || student.level || "-"}</td>
-
-                        <td>{student.student_mobile || student.mobile || "-"}</td>
+                        <td>
+                          {student.course || "-"}
+                        </td>
 
                         <td>
-                          {String(student.status || "").toLowerCase() === "active" ? (
-                            <span className="status-active">Active</span>
+                          {student.language_level ||
+                            student.level ||
+                            "-"}
+                        </td>
+
+                        <td>
+                          {student.student_mobile ||
+                            student.mobile ||
+                            "-"}
+                        </td>
+
+                        <td>
+                          {String(
+                            student.status || ""
+                          ).toLowerCase() ===
+                          "active" ? (
+                            <span className="status-active">
+                              Active
+                            </span>
                           ) : (
-                            <span className="status-inactive">Inactive</span>
+                            <span className="status-inactive">
+                              Inactive
+                            </span>
                           )}
                         </td>
                       </tr>
@@ -715,7 +870,9 @@ export default function AssignStudent() {
               </table>
 
               {filteredStudents.length === 0 && (
-                <p className="no-student">No students found for this search.</p>
+                <p className="no-student">
+                  No students found for this search.
+                </p>
               )}
             </>
           )}
@@ -731,33 +888,17 @@ export default function AssignStudent() {
           <button
             type="submit"
             className="admin-list-add-button"
-            disabled={
-              submitting ||
-              !selectedCourse ||
-              !selectedLevel ||
-              !selectedTeacherId ||
-              selectedStudentIds.length === 0
-            }
+            disabled={assignDisabled}
             style={{
-              opacity:
-                submitting ||
-                !selectedCourse ||
-                !selectedLevel ||
-                !selectedTeacherId ||
-                selectedStudentIds.length === 0
-                  ? 0.7
-                  : 1,
-              cursor:
-                submitting ||
-                !selectedCourse ||
-                !selectedLevel ||
-                !selectedTeacherId ||
-                selectedStudentIds.length === 0
-                  ? "not-allowed"
-                  : "pointer",
+              opacity: assignDisabled ? 0.7 : 1,
+              cursor: assignDisabled
+                ? "not-allowed"
+                : "pointer",
             }}
           >
-            {submitting ? "Assigning..." : "Assign Selected Students"}
+            {submitting
+              ? "Assigning..."
+              : "Assign Selected Students"}
           </button>
         </div>
       </form>

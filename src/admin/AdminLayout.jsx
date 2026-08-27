@@ -4,18 +4,18 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-
 import {
   useEffect,
   useState,
 } from "react";
-
 import "./AdminLayout.css";
 import { API_ORIGIN } from "../config/api";
-import { clearAuthStorage, readStoredUser } from "./authStorage";
+import {
+  clearAuthStorage,
+  readStoredUser,
+} from "./authStorage";
 
 export default function AdminLayout() {
-
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -30,7 +30,11 @@ export default function AdminLayout() {
 
     if (!savedUser) {
       clearAuthStorage();
-      navigate("/admin/login", { replace: true });
+
+      navigate("/admin/login", {
+        replace: true,
+      });
+
       return;
     }
 
@@ -42,160 +46,133 @@ export default function AdminLayout() {
      ROLE
   ===================================================== */
 
-  const role =
-    String(
-      user?.role || ""
-    )
-      .trim()
-      .toLowerCase();
+  const role = String(user?.role || "")
+    .trim()
+    .toLowerCase();
 
   const isAdmin =
     role === "admin" ||
     role === "administrator" ||
     role === "super admin" ||
     role === "superadmin";
+
   const isTeacher =
     !isAdmin &&
-    String(user?.role || "").trim().toLowerCase() === "teacher" &&
-    Boolean(String(user?.teacher_id || "").trim());
-
+    String(user?.role || "")
+      .trim()
+      .toLowerCase() === "teacher" &&
+    Boolean(
+      String(user?.teacher_id || "").trim()
+    );
 
   /*
     IMPORTANT:
-
     Admin-এর teacher_id না থাকলেও কোনো সমস্যা নেই।
-
     Teacher-এর branch user.branch থেকে নেওয়া হবে।
   */
 
-  const userBranch =
-    String(
-      user?.branch ||
+  const userBranch = String(
+    user?.branch ||
       user?.branch_name ||
       ""
-    ).trim();
+  ).trim();
 
   /* =====================================================
      PERMISSIONS
   ===================================================== */
 
-  const permissions =
-    Array.isArray(
-      user?.permissions
-    )
-      ? user.permissions
-      : [];
+  const permissions = Array.isArray(
+    user?.permissions
+  )
+    ? user.permissions
+    : [];
 
   /* =====================================================
      NORMALIZE PERMISSION
   ===================================================== */
 
-  const normalizePermission =
-    (value) => {
+  const normalizePermission = (value) => {
+    if (!value) {
+      return "";
+    }
 
-      if (!value) {
-        return "";
-      }
-
-      return String(value)
-        .trim()
-        .toLowerCase()
-        .replace(
-          /[\s_-]+/g,
-          ""
-        )
-        .replace(
-          /s$/,
-          ""
-        );
-    };
+    return String(value)
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, "")
+      .replace(/s$/, "");
+  };
 
   /* =====================================================
      HAS PERMISSION
   ===================================================== */
 
-  const hasPermission =
-    (
-      moduleName,
-      action = "can_view"
-    ) => {
+  const hasPermission = (
+    moduleName,
+    action = "can_view"
+  ) => {
+    if (isAdmin) {
+      return true;
+    }
 
-      if (isAdmin) {
-        return true;
-      }
+    const normalizedModule =
+      normalizePermission(moduleName);
 
-      const normalizedModule =
-        normalizePermission(
-          moduleName
-        );
+    /*
+      "all" permission থাকলেও full access
+    */
 
-      /*
-        "all" permission থাকলেও full access
-      */
+    const allPermission =
+      permissions.find(
+        (item) =>
+          normalizePermission(
+            item?.permission
+          ) === "all"
+      );
 
-      const allPermission =
-        permissions.find(
-          (item) =>
-            normalizePermission(
-              item?.permission
-            ) === "all"
-        );
-
-      if (allPermission) {
-
-        return (
-          Number(
-            allPermission[action]
-          ) === 1 ||
-          allPermission[action] === true
-        );
-      }
-
-      const permission =
-        permissions.find(
-          (item) =>
-            normalizePermission(
-              item?.permission
-            ) ===
-            normalizedModule
-        );
-
-      if (!permission) {
-        return false;
-      }
-
+    if (allPermission) {
       return (
         Number(
-          permission[action]
+          allPermission[action]
         ) === 1 ||
-        permission[action] === true
+        allPermission[action] === true
       );
-    };
+    }
+
+    const permission =
+      permissions.find(
+        (item) =>
+          normalizePermission(
+            item?.permission
+          ) === normalizedModule
+      );
+
+    if (!permission) {
+      return false;
+    }
+
+    return (
+      Number(
+        permission[action]
+      ) === 1 ||
+      permission[action] === true
+    );
+  };
 
   /* =====================================================
      MODULE MAP
   ===================================================== */
 
   const permissionMap = {
-
     students: "student",
-
     courses: "course",
-
     accounts: "account",
-
     teachers: "teacher",
-
     notices: "notice",
-
     gallery: "gallery",
-
     banners: "banner",
-
     downloads: "download",
-
     branches: "branch",
-
     settings: "setting",
   };
 
@@ -222,145 +199,139 @@ export default function AdminLayout() {
      MENU VIEW
   ===================================================== */
 
-  const canViewMenu =
-    (menu) => {
+  const canViewMenu = (menu) => {
+    if (isAdmin) {
+      return true;
+    }
 
-      if (isAdmin) {
-        return true;
-      }
+    if (isTeacher) {
+      return false;
+    }
 
-      if (isTeacher) {
-        return false;
-      }
+    if (menu === "accounts") {
+      return canViewAccounts;
+    }
 
-      if (menu === "accounts") {
-        return canViewAccounts;
-      }
-
-      return hasPermission(
-        permissionMap[menu],
-        "can_view"
-      );
-    };
+    return hasPermission(
+      permissionMap[menu],
+      "can_view"
+    );
+  };
 
   /* =====================================================
      ACTIVE MENU
   ===================================================== */
 
-  const getActiveMenu =
-    (pathname) => {
+  const getActiveMenu = (pathname) => {
+    if (
+      pathname === "/admin/students" ||
+      pathname === "/admin/student-list" ||
+      pathname === "/admin/assign-student" ||
+      pathname === "/admin/pending-students" ||
+      pathname === "/admin/student-documents" ||
+      pathname === "/admin/student-document" ||
+      pathname.startsWith(
+        "/admin/student-profile/"
+      ) ||
+      pathname.startsWith(
+        "/admin/student-edit/"
+      ) ||
+      pathname.startsWith(
+        "/admin/student-document/"
+      ) ||
+      pathname.startsWith(
+        "/admin/student-documents/"
+      )
+    ) {
+      return "students";
+    }
 
-      if (
-        pathname === "/admin/students" ||
-        pathname === "/admin/student-list" ||
-        pathname === "/admin/assign-student" ||
-        pathname === "/admin/pending-students" ||
-        pathname.startsWith(
-          "/admin/student-profile/"
-        ) ||
-        pathname.startsWith(
-          "/admin/student-edit/"
-        )
-      ) {
+    if (
+      pathname === "/admin/courses" ||
+      pathname === "/admin/AddCourse" ||
+      pathname === "/admin/course-entry"
+    ) {
+      return "courses";
+    }
 
-        return "students";
-      }
+    if (
+      pathname === "/admin/income" ||
+      pathname === "/admin/income-list" ||
+      pathname.startsWith(
+        "/admin/income-edit/"
+      ) ||
+      pathname === "/admin/due-list" ||
+      pathname.startsWith(
+        "/admin/due-edit/"
+      ) ||
+      pathname === "/admin/expense" ||
+      pathname === "/admin/expense-list" ||
+      pathname.startsWith(
+        "/admin/expense-edit/"
+      ) ||
+      pathname ===
+        "/admin/income-expense-report"
+    ) {
+      return "accounts";
+    }
 
-      if (
-        pathname === "/admin/courses" ||
-        pathname === "/admin/AddCourse" ||
-        pathname === "/admin/course-entry"
-      ) {
+    if (
+      pathname === "/admin/teachers" ||
+      pathname === "/admin/teacher-list"
+    ) {
+      return "teachers";
+    }
 
-        return "courses";
-      }
+    if (
+      pathname === "/admin/notices" ||
+      pathname === "/admin/notice-entry" ||
+      pathname.startsWith(
+        "/admin/notice-edit/"
+      )
+    ) {
+      return "notices";
+    }
 
-      if (
-        pathname === "/admin/income" ||
-        pathname === "/admin/income-list" ||
-        pathname.startsWith(
-          "/admin/income-edit/"
-        ) ||
-        pathname === "/admin/due-list" ||
-        pathname.startsWith(
-          "/admin/due-edit/"
-        ) ||
-        pathname === "/admin/expense" ||
-        pathname === "/admin/expense-list" ||
-        pathname.startsWith(
-          "/admin/expense-edit/"
-        ) ||
-        pathname ===
-          "/admin/income-expense-report"
-      ) {
+    if (
+      pathname === "/admin/gallery" ||
+      pathname === "/admin/gallery-list"
+    ) {
+      return "gallery";
+    }
 
-        return "accounts";
-      }
+    if (
+      pathname === "/admin/banner-list" ||
+      pathname === "/admin/banner-entry"
+    ) {
+      return "banners";
+    }
 
-      if (
-        pathname === "/admin/teachers" ||
-        pathname === "/admin/teacher-list"
-      ) {
+    if (
+      pathname === "/admin/downloads" ||
+      pathname === "/admin/download-entry"
+    ) {
+      return "downloads";
+    }
 
-        return "teachers";
-      }
+    if (
+      pathname === "/admin/branch-list" ||
+      pathname === "/admin/branch-entry" ||
+      pathname.startsWith(
+        "/admin/branch-edit/"
+      )
+    ) {
+      return "branches";
+    }
 
-      if (
-        pathname === "/admin/notices" ||
-        pathname === "/admin/notice-entry" ||
-        pathname.startsWith(
-          "/admin/notice-edit/"
-        )
-      ) {
+    if (
+      pathname === "/admin/settings" ||
+      pathname === "/admin/admin-users"
+    ) {
+      return "settings";
+    }
 
-        return "notices";
-      }
-
-      if (
-        pathname === "/admin/gallery" ||
-        pathname === "/admin/gallery-list"
-      ) {
-
-        return "gallery";
-      }
-
-      if (
-        pathname === "/admin/banner-list" ||
-        pathname === "/admin/banner-entry"
-      ) {
-
-        return "banners";
-      }
-
-      if (
-        pathname === "/admin/downloads" ||
-        pathname === "/admin/download-entry"
-      ) {
-
-        return "downloads";
-      }
-
-      if (
-        pathname === "/admin/branch-list" ||
-        pathname === "/admin/branch-entry" ||
-        pathname.startsWith(
-          "/admin/branch-edit/"
-        )
-      ) {
-
-        return "branches";
-      }
-
-      if (
-        pathname === "/admin/settings" ||
-        pathname === "/admin/admin-users"
-      ) {
-
-        return "settings";
-      }
-
-      return "";
-    };
+    return "";
+  };
 
   /* =====================================================
      OPEN MENU
@@ -377,7 +348,6 @@ export default function AdminLayout() {
     useState(false);
 
   useEffect(() => {
-
     const activeMenu =
       getActiveMenu(
         location.pathname
@@ -389,7 +359,6 @@ export default function AdminLayout() {
     }
 
     setMobileMenuOpen(false);
-
   }, [location.pathname]);
 
   /* =====================================================
@@ -397,7 +366,6 @@ export default function AdminLayout() {
   ===================================================== */
 
   useEffect(() => {
-
     if (!user) {
       return;
     }
@@ -406,12 +374,21 @@ export default function AdminLayout() {
       if (
         location.pathname === "/admin" ||
         location.pathname === "/admin/dashboard" ||
-        location.pathname.startsWith("/admin/") &&
-        location.pathname !== "/admin/my-classroom"
+        (
+          location.pathname.startsWith("/admin/") &&
+          location.pathname !== "/admin/my-classroom"
+        )
       ) {
-        navigate("/admin/my-classroom", { replace: true });
+        navigate(
+          "/admin/my-classroom",
+          {
+            replace: true,
+          }
+        );
+
         return;
       }
+
       return;
     }
 
@@ -438,7 +415,6 @@ export default function AdminLayout() {
     if (
       activeMenu === "accounts"
     ) {
-
       let allowed = false;
 
       /* Income Entry */
@@ -447,7 +423,6 @@ export default function AdminLayout() {
         location.pathname ===
         "/admin/income"
       ) {
-
         allowed =
           hasPermission(
             "income",
@@ -461,7 +436,6 @@ export default function AdminLayout() {
         location.pathname ===
         "/admin/income-list"
       ) {
-
         allowed =
           hasPermission(
             "income",
@@ -476,7 +450,6 @@ export default function AdminLayout() {
           "/admin/income-edit/"
         )
       ) {
-
         allowed =
           hasPermission(
             "income",
@@ -490,7 +463,6 @@ export default function AdminLayout() {
         location.pathname ===
         "/admin/due-list"
       ) {
-
         allowed =
           hasPermission(
             "income",
@@ -505,7 +477,6 @@ export default function AdminLayout() {
           "/admin/due-edit/"
         )
       ) {
-
         allowed =
           hasPermission(
             "income",
@@ -519,7 +490,6 @@ export default function AdminLayout() {
         location.pathname ===
         "/admin/expense"
       ) {
-
         allowed =
           hasPermission(
             "expense",
@@ -533,7 +503,6 @@ export default function AdminLayout() {
         location.pathname ===
         "/admin/expense-list"
       ) {
-
         allowed =
           hasPermission(
             "expense",
@@ -548,7 +517,6 @@ export default function AdminLayout() {
           "/admin/expense-edit/"
         )
       ) {
-
         allowed =
           hasPermission(
             "expense",
@@ -562,7 +530,6 @@ export default function AdminLayout() {
         location.pathname ===
         "/admin/income-expense-report"
       ) {
-
         allowed =
           hasPermission(
             "report",
@@ -571,11 +538,10 @@ export default function AdminLayout() {
       }
 
       if (!allowed) {
-
         navigate(
           "/admin/dashboard",
           {
-            replace: true
+            replace: true,
           }
         );
       }
@@ -592,38 +558,37 @@ export default function AdminLayout() {
         activeMenu
       )
     ) {
-
       navigate(
         "/admin/dashboard",
         {
-          replace: true
+          replace: true,
         }
       );
     }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     user,
-    location.pathname
+    location.pathname,
   ]);
 
   /* =====================================================
      TOGGLE MENU
   ===================================================== */
 
-  const toggleMenu =
-    (menu) => {
-
-      setOpenMenu(
-        (current) =>
-          current === menu
-            ? ""
-            : menu
-      );
-    };
+  const toggleMenu = (menu) => {
+    setOpenMenu(
+      (current) =>
+        current === menu
+          ? ""
+          : menu
+    );
+  };
 
   const toggleMobileMenu = () => {
-    setMobileMenuOpen((current) => !current);
+    setMobileMenuOpen(
+      (current) => !current
+    );
   };
 
   const closeMobileMenu = () => {
@@ -634,33 +599,29 @@ export default function AdminLayout() {
      MENU ACTIVE
   ===================================================== */
 
-  const isMenuActive =
-    (menu) => {
-
-      return (
-        getActiveMenu(
-          location.pathname
-        ) === menu
-      );
-    };
+  const isMenuActive = (menu) => {
+    return (
+      getActiveMenu(
+        location.pathname
+      ) === menu
+    );
+  };
 
   /* =====================================================
      LOGOUT
   ===================================================== */
 
-  const handleLogout =
-    () => {
+  const handleLogout = () => {
+    clearAuthStorage();
+    sessionStorage.clear();
 
-      clearAuthStorage();
-      sessionStorage.clear();
-
-      navigate(
-        "/admin/login",
-        {
-          replace: true
-        }
-      );
-    };
+    navigate(
+      "/admin/login",
+      {
+        replace: true,
+      }
+    );
+  };
 
   /* =====================================================
      USER NAME
@@ -693,50 +654,55 @@ export default function AdminLayout() {
      USER PHOTO URL
   ===================================================== */
 
-  const getUserPhotoUrl =
-    () => {
+  const getUserPhotoUrl = () => {
+    if (!userPhoto) {
+      return "";
+    }
 
-      if (!userPhoto) {
-        return "";
-      }
+    const photo =
+      String(userPhoto).trim();
 
-      const photo =
-        String(
-          userPhoto
-        ).trim();
+    if (
+      photo.startsWith("http://") ||
+      photo.startsWith("https://") ||
+      photo.startsWith("data:")
+    ) {
+      return photo;
+    }
 
-      if (
-        photo.startsWith(
-          "http://"
-        ) ||
-        photo.startsWith(
-          "https://"
-        ) ||
-        photo.startsWith(
-          "data:"
+    const cleanPhoto =
+      photo
+        .replace(
+          /^https?:\/\/[^/]+/i,
+          ""
         )
-      ) {
+        .replace(
+          /^[\/\\]+/,
+          ""
+        )
+        .replace(
+          /^uploads[\/\\]teachers[\/\\]/i,
+          ""
+        )
+        .replace(
+          /^uploads[\/\\]/i,
+          ""
+        )
+        .replace(
+          /^teachers[\/\\]/i,
+          ""
+        )
+        .split(/[\/\\]+/)
+        .filter(Boolean)
+        .map((part) =>
+          encodeURIComponent(part)
+        )
+        .join("/");
 
-        return photo;
-      }
-
-      const cleanPhoto =
-        photo
-          .replace(/^https?:\/\/[^/]+/i, "")
-          .replace(/^[/\\]+/, "")
-          .replace(/^uploads\/teachers\//i, "")
-          .replace(/^uploads\//i, "")
-          .replace(/^teachers\//i, "")
-          .replace(/^.*?uploads\//i, "")
-          .split(/[\\/]+/)
-          .filter(Boolean)
-          .map((part) => encodeURIComponent(part))
-          .join("/");
-
-      return cleanPhoto
-        ? `${API_ORIGIN}/uploads/teachers/${cleanPhoto}`
-        : "";
-    };
+    return cleanPhoto
+      ? `${API_ORIGIN}/uploads/teachers/${cleanPhoto}`
+      : "";
+  };
 
   const userPhotoUrl =
     getUserPhotoUrl();
@@ -757,16 +723,14 @@ export default function AdminLayout() {
   ===================================================== */
 
   if (!user) {
-
     return (
-
       <div
         style={{
           minHeight: "100vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: "18px"
+          fontSize: "18px",
         }}
       >
         Loading...
@@ -779,11 +743,14 @@ export default function AdminLayout() {
   ===================================================== */
 
   return (
-
     <div className="admin-layout-container">
 
       <div
-        className={`admin-sidebar-backdrop ${mobileMenuOpen ? "visible" : ""}`}
+        className={`admin-sidebar-backdrop ${
+          mobileMenuOpen
+            ? "visible"
+            : ""
+        }`}
         onClick={closeMobileMenu}
       />
 
@@ -791,7 +758,13 @@ export default function AdminLayout() {
           SIDEBAR
       ================================================= */}
 
-      <aside className={`admin-sidebar ${mobileMenuOpen ? "mobile-open" : ""}`}>
+      <aside
+        className={`admin-sidebar ${
+          mobileMenuOpen
+            ? "mobile-open"
+            : ""
+        }`}
+      >
 
         {/* =================================================
             USER PROFILE
@@ -802,28 +775,22 @@ export default function AdminLayout() {
           <div className="sidebar-user-photo">
 
             {userPhotoUrl ? (
-
               <img
                 src={userPhotoUrl}
                 alt={userName}
                 onError={(e) => {
-
                   e.currentTarget.style.display =
                     "none";
 
-                  e.currentTarget.parentElement
-                    .classList.add(
-                      "photo-fallback"
-                    );
+                  e.currentTarget.parentElement.classList.add(
+                    "photo-fallback"
+                  );
                 }}
               />
-
             ) : (
-
               <span>
                 {userInitial}
               </span>
-
             )}
 
           </div>
@@ -839,16 +806,16 @@ export default function AdminLayout() {
             </div>
 
             {/* Teacher-এর branch দেখাবে */}
-            {!isAdmin && userBranch && (
 
-              <div
-                className="sidebar-user-branch"
-                title={userBranch}
-              >
-                {userBranch}
-              </div>
-
-            )}
+            {!isAdmin &&
+              userBranch && (
+                <div
+                  className="sidebar-user-branch"
+                  title={userBranch}
+                >
+                  {userBranch}
+                </div>
+              )}
 
           </div>
 
@@ -875,21 +842,26 @@ export default function AdminLayout() {
                 }`
               }
             >
-
               <span>
                 🏠 Dashboard
               </span>
-
             </NavLink>
           )}
+
           {isTeacher && (
             <NavLink
               to="/admin/my-classroom"
               className={({ isActive }) =>
-                `sidebar-link ${isActive ? "active" : ""}`
+                `sidebar-link ${
+                  isActive
+                    ? "active"
+                    : ""
+                }`
               }
             >
-              <span>📚 My Batch</span>
+              <span>
+                📚 My Batch
+              </span>
             </NavLink>
           )}
 
@@ -898,7 +870,6 @@ export default function AdminLayout() {
           ================================================= */}
 
           {canViewMenu("students") && (
-
             <div className="sidebar-group">
 
               <button
@@ -909,31 +880,33 @@ export default function AdminLayout() {
                     : ""
                 }`}
                 onClick={() =>
-                  toggleMenu("students")
+                  toggleMenu(
+                    "students"
+                  )
                 }
               >
-
                 <span>
                   👨‍🎓 Students
                 </span>
 
                 <span className="menu-arrow">
-                  {openMenu === "students"
+                  {openMenu ===
+                  "students"
                     ? "▲"
                     : "▼"}
                 </span>
-
               </button>
 
-              {openMenu === "students" && (
-
+              {openMenu ===
+                "students" && (
                 <div className="sidebar-submenu">
+
+                  {/* Student List */}
 
                   {hasPermission(
                     "student",
                     "can_view"
                   ) && (
-
                     <NavLink
                       to="/admin/student-list"
                       className={({ isActive }) =>
@@ -944,14 +917,14 @@ export default function AdminLayout() {
                     >
                       📋 Student List
                     </NavLink>
-
                   )}
+
+                  {/* Assign Student */}
 
                   {hasPermission(
                     "student",
                     "can_view"
                   ) && (
-
                     <NavLink
                       to="/admin/assign-student"
                       className={({ isActive }) =>
@@ -962,14 +935,14 @@ export default function AdminLayout() {
                     >
                       👤 Assign Student
                     </NavLink>
-
                   )}
+
+                  {/* Pending Applications */}
 
                   {hasPermission(
                     "student",
                     "can_view"
                   ) && (
-
                     <NavLink
                       to="/admin/pending-students"
                       className={({ isActive }) =>
@@ -980,11 +953,32 @@ export default function AdminLayout() {
                     >
                       🕐 Pending Applications
                     </NavLink>
+                  )}
 
+                  {/* =================================================
+                      Student Documents
+                      IMPORTANT:
+                      এটি Student List নয়।
+                      সরাসরি StudentDocument.jsx route-এ যাবে।
+                  ================================================= */}
+
+                  {hasPermission(
+                    "student",
+                    "can_view"
+                  ) && (
+                    <NavLink
+                      to="/admin/student-documents"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "active"
+                          : ""
+                      }
+                    >
+                      📄 Student Documents
+                    </NavLink>
                   )}
 
                 </div>
-
               )}
 
             </div>
@@ -998,10 +992,16 @@ export default function AdminLayout() {
             <NavLink
               to="/admin/courses"
               className={({ isActive }) =>
-                `sidebar-link ${isActive ? "active" : ""}`
+                `sidebar-link ${
+                  isActive
+                    ? "active"
+                    : ""
+                }`
               }
             >
-              <span>📚 Courses</span>
+              <span>
+                📚 Courses
+              </span>
             </NavLink>
           )}
 
@@ -1010,7 +1010,6 @@ export default function AdminLayout() {
           ================================================= */}
 
           {canViewAccounts && (
-
             <div className="sidebar-group">
 
               <button
@@ -1021,33 +1020,31 @@ export default function AdminLayout() {
                     : ""
                 }`}
                 onClick={() =>
-                  toggleMenu("accounts")
+                  toggleMenu(
+                    "accounts"
+                  )
                 }
               >
-
                 <span>
                   💰 Income & Expense
                 </span>
 
                 <span className="menu-arrow">
-                  {openMenu === "accounts"
+                  {openMenu ===
+                  "accounts"
                     ? "▲"
                     : "▼"}
                 </span>
-
               </button>
 
-              {openMenu === "accounts" && (
-
+              {openMenu ===
+                "accounts" && (
                 <div className="sidebar-submenu">
-
-                  {/* Income List */}
 
                   {hasPermission(
                     "income",
                     "can_view"
                   ) && (
-
                     <NavLink
                       to="/admin/income-list"
                       className={({ isActive }) =>
@@ -1058,16 +1055,12 @@ export default function AdminLayout() {
                     >
                       📋 Income List
                     </NavLink>
-
                   )}
-
-                  {/* Due List */}
 
                   {hasPermission(
                     "income",
                     "can_view"
                   ) && (
-
                     <NavLink
                       to="/admin/due-list"
                       className={({ isActive }) =>
@@ -1078,16 +1071,12 @@ export default function AdminLayout() {
                     >
                       💳 Due List
                     </NavLink>
-
                   )}
-
-                  {/* Expense List */}
 
                   {hasPermission(
                     "expense",
                     "can_view"
                   ) && (
-
                     <NavLink
                       to="/admin/expense-list"
                       className={({ isActive }) =>
@@ -1098,16 +1087,12 @@ export default function AdminLayout() {
                     >
                       📋 Expense List
                     </NavLink>
-
                   )}
-
-                  {/* Report */}
 
                   {hasPermission(
                     "report",
                     "can_view"
                   ) && (
-
                     <NavLink
                       to="/admin/income-expense-report"
                       className={({ isActive }) =>
@@ -1118,11 +1103,9 @@ export default function AdminLayout() {
                     >
                       📊 Income & Expense Report
                     </NavLink>
-
                   )}
 
                 </div>
-
               )}
 
             </div>
@@ -1136,10 +1119,16 @@ export default function AdminLayout() {
             <NavLink
               to="/admin/teacher-list"
               className={({ isActive }) =>
-                `sidebar-link ${isActive ? "active" : ""}`
+                `sidebar-link ${
+                  isActive
+                    ? "active"
+                    : ""
+                }`
               }
             >
-              <span>👨‍🏫 Teachers</span>
+              <span>
+                👨‍🏫 Teachers
+              </span>
             </NavLink>
           )}
 
@@ -1151,10 +1140,16 @@ export default function AdminLayout() {
             <NavLink
               to="/admin/notices"
               className={({ isActive }) =>
-                `sidebar-link ${isActive ? "active" : ""}`
+                `sidebar-link ${
+                  isActive
+                    ? "active"
+                    : ""
+                }`
               }
             >
-              <span>📢 Notices</span>
+              <span>
+                📢 Notices
+              </span>
             </NavLink>
           )}
 
@@ -1166,10 +1161,16 @@ export default function AdminLayout() {
             <NavLink
               to="/admin/gallery-list"
               className={({ isActive }) =>
-                `sidebar-link ${isActive ? "active" : ""}`
+                `sidebar-link ${
+                  isActive
+                    ? "active"
+                    : ""
+                }`
               }
             >
-              <span>🖼️ Gallery</span>
+              <span>
+                🖼️ Gallery
+              </span>
             </NavLink>
           )}
 
@@ -1181,10 +1182,16 @@ export default function AdminLayout() {
             <NavLink
               to="/admin/banner-list"
               className={({ isActive }) =>
-                `sidebar-link ${isActive ? "active" : ""}`
+                `sidebar-link ${
+                  isActive
+                    ? "active"
+                    : ""
+                }`
               }
             >
-              <span>🎞️ Banners</span>
+              <span>
+                🎞️ Banners
+              </span>
             </NavLink>
           )}
 
@@ -1196,10 +1203,16 @@ export default function AdminLayout() {
             <NavLink
               to="/admin/downloads"
               className={({ isActive }) =>
-                `sidebar-link ${isActive ? "active" : ""}`
+                `sidebar-link ${
+                  isActive
+                    ? "active"
+                    : ""
+                }`
               }
             >
-              <span>📥 Downloads</span>
+              <span>
+                📥 Downloads
+              </span>
             </NavLink>
           )}
 
@@ -1211,10 +1224,16 @@ export default function AdminLayout() {
             <NavLink
               to="/admin/branch-list"
               className={({ isActive }) =>
-                `sidebar-link ${isActive ? "active" : ""}`
+                `sidebar-link ${
+                  isActive
+                    ? "active"
+                    : ""
+                }`
               }
             >
-              <span>🏢 Branches</span>
+              <span>
+                🏢 Branches
+              </span>
             </NavLink>
           )}
 
@@ -1223,7 +1242,6 @@ export default function AdminLayout() {
           ================================================= */}
 
           {canViewMenu("settings") && (
-
             <div className="sidebar-group">
 
               <button
@@ -1234,31 +1252,31 @@ export default function AdminLayout() {
                     : ""
                 }`}
                 onClick={() =>
-                  toggleMenu("settings")
+                  toggleMenu(
+                    "settings"
+                  )
                 }
               >
-
                 <span>
                   ⚙️ Settings
                 </span>
 
                 <span className="menu-arrow">
-                  {openMenu === "settings"
+                  {openMenu ===
+                  "settings"
                     ? "▲"
                     : "▼"}
                 </span>
-
               </button>
 
-              {openMenu === "settings" && (
-
+              {openMenu ===
+                "settings" && (
                 <div className="sidebar-submenu">
 
                   {hasPermission(
                     "setting",
                     "can_view"
                   ) && (
-
                     <NavLink
                       to="/admin/settings"
                       className={({ isActive }) =>
@@ -1269,13 +1287,17 @@ export default function AdminLayout() {
                     >
                       ⚙️ General Settings
                     </NavLink>
-
                   )}
 
                   {(isAdmin ||
-                    hasPermission("setting", "can_add") ||
-                    hasPermission("setting", "can_edit")) && (
-
+                    hasPermission(
+                      "setting",
+                      "can_add"
+                    ) ||
+                    hasPermission(
+                      "setting",
+                      "can_edit"
+                    )) && (
                     <NavLink
                       to="/admin/admin-users"
                       className={({ isActive }) =>
@@ -1286,11 +1308,9 @@ export default function AdminLayout() {
                     >
                       👤 Admin Users
                     </NavLink>
-
                   )}
 
                 </div>
-
               )}
 
             </div>
@@ -1319,14 +1339,18 @@ export default function AdminLayout() {
       <main className="admin-main">
 
         <div className="mobile-toolbar">
+
           <button
             type="button"
             className="mobile-menu-toggle"
-            onClick={toggleMobileMenu}
+            onClick={
+              toggleMobileMenu
+            }
             aria-label="Toggle menu"
           >
             ☰
           </button>
+
         </div>
 
         <Outlet />
