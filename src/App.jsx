@@ -83,6 +83,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 // ================= PUBLIC STUDENT ENTRY =================
 const PublicStudentEntry = lazy(() => import("./pages/StudentEntry"));
+const StudentPortal = lazy(() => import("./pages/StudentPortal"));
 
 
 export default function App() {
@@ -164,6 +165,16 @@ export default function App() {
           <Route
             path="/student-entry"
             element={<PublicStudentEntry />}
+          />
+
+          <Route
+            path="/student-portal"
+            element={<StudentPortal />}
+          />
+
+          <Route
+            path="/student"
+            element={<StudentPortal />}
           />
 
 

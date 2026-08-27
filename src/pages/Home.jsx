@@ -1,38 +1,78 @@
 import "./Home.css";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API_BASE_URL, { API_ORIGIN } from "../config/api";
+import {
+  clearStudentAuthStorage,
+  readStudentSession,
+} from "../admin/authStorage";
 
 const API = API_BASE_URL;
 const IMAGE_URL = `${API_ORIGIN}/`;
 
+const STUDENT_STORAGE_KEYS = [
+  "sunshine_student",
+  "sunshine_student_user",
+  "sunshine_student_logged_in",
+  "student_id",
+  "student_username",
+  "student_role",
+  "student_status",
+];
+
 export default function Home() {
+  const navigate = useNavigate();
+
   const [banners, setBanners] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [previousSlide, setPreviousSlide] = useState(null);
   const [loadingBanners, setLoadingBanners] = useState(true);
 
-  // Dynamic Languages / Courses State
+  const [studentDetails, setStudentDetails] = useState(() =>
+    readStudentSession()
+  );
+
+  const [studentUsername, setStudentUsername] =
+    useState("");
+
+  const [studentPassword, setStudentPassword] =
+    useState("");
+
+  const [studentLoginLoading, setStudentLoginLoading] =
+    useState(false);
+
+  const [studentLoginError, setStudentLoginError] =
+    useState("");
+
   const [languages, setLanguages] = useState([]);
 
-  /*
-  =========================================================
-  ANIMATION DIRECTION
+  const [slideDirection, setSlideDirection] =
+    useState("next");
 
-  next     = নতুন slide ডান দিক থেকে আসবে
-  previous = নতুন slide বাম দিক থেকে আসবে
-  =========================================================
-  */
+  const [isAnimating, setIsAnimating] =
+    useState(false);
 
-  const [slideDirection, setSlideDirection] = useState("next");
+  /* ======================================================
+     DEFAULT LANGUAGES
+  ====================================================== */
 
-  /*
-  =========================================================
-  ANIMATION RUNNING
-  =========================================================
-  */
-
-  const [isAnimating, setIsAnimating] = useState(false);
-
+  const defaultLanguages = [
+    {
+      id: 1,
+      name: "Japanese Language",
+      desc: "N5, N4, N3 এবং JFT প্রস্তুতি কোর্স।",
+    },
+    {
+      id: 2,
+      name: "German Language",
+      desc: "Basic ও Skill Test প্রস্তুতি কোর্স।",
+    },
+    {
+      id: 3,
+      name: "Korean Language",
+      desc: "Basic ও Skill Test প্রস্তুতি কোর্স।",
+    },
+  ];
 
   /* ======================================================
      FETCH BANNERS
@@ -43,7 +83,9 @@ export default function Home() {
       try {
         const response = await fetch(
           `${API}/banner_list.php`,
-          { credentials: "include" }
+          {
+            credentials: "include",
+          }
         );
 
         const data = await response.json();
@@ -80,30 +122,44 @@ export default function Home() {
     fetchBanners();
   }, []);
 
-
   /* ======================================================
-     FETCH LANGUAGES / COURSES (DYNAMIC DATO LOAD)
+     FETCH LANGUAGES
   ====================================================== */
 
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
-        const response = await fetch(`${API}/language_list.php`, {
-          credentials: "include",
-        });
+        const response = await fetch(
+          `${API}/language_list.php`,
+          {
+            credentials: "include",
+          }
+        );
+
         const result = await response.json();
 
         let list = [];
-        if (result.success && Array.isArray(result.data)) {
+
+        if (
+          result.success &&
+          Array.isArray(result.data)
+        ) {
           list = result.data;
         } else if (Array.isArray(result)) {
           list = result;
         }
 
-        // Filter active languages
         const activeLangs = list.filter((lang) => {
-          const status = String(lang.status ?? "").trim().toLowerCase();
-          return status === "active" || status === "1";
+          const status = String(
+            lang.status ?? ""
+          )
+            .trim()
+            .toLowerCase();
+
+          return (
+            status === "active" ||
+            status === "1"
+          );
         });
 
         if (activeLangs.length > 0) {
@@ -112,7 +168,11 @@ export default function Home() {
           setLanguages(defaultLanguages);
         }
       } catch (error) {
-        console.error("Language load error:", error);
+        console.error(
+          "Language load error:",
+          error
+        );
+
         setLanguages(defaultLanguages);
       }
     };
@@ -120,31 +180,45 @@ export default function Home() {
     fetchLanguages();
   }, []);
 
-  // API কাজ না করলে ব্যাকআপ ডাটা (আপনার অরিজিনাল ডাটা)
-  const defaultLanguages = [
-    { id: 1, name: "Japanese Language", desc: "N5, N4, N3 এবং JFT প্রস্তুতি কোর্স।" },
-    { id: 2, name: "German Language", desc: "Basic ও Skill Test প্রস্তুতি কোর্স।" },
-    { id: 3, name: "Korean Language", desc: "Basic ও Skill Test প্রস্তুতি কোর্স।" },
-  ];
+  /* ======================================================
+     LANGUAGE ICON
+  ====================================================== */
 
-  // ভাষার ওপর নির্ভর করে ফ্ল্যাগ নির্ধারণ
   const getLanguageIcon = (name) => {
-    const lang = String(name || "").toLowerCase();
+    const lang = String(name || "")
+      .toLowerCase();
+
     if (lang.includes("japan")) return "🇯🇵";
-    if (lang.includes("german") || lang.includes("germany")) return "🇩🇪";
-    if (lang.includes("korean") || lang.includes("korea")) return "🇰🇷";
+
+    if (
+      lang.includes("german") ||
+      lang.includes("germany")
+    ) {
+      return "🇩🇪";
+    }
+
+    if (
+      lang.includes("korean") ||
+      lang.includes("korea")
+    ) {
+      return "🇰🇷";
+    }
+
     if (lang.includes("english")) return "🇬🇧";
     if (lang.includes("french")) return "🇫🇷";
     if (lang.includes("chinese")) return "🇨🇳";
+
     return "🌐";
   };
-
 
   /* ======================================================
      CHANGE SLIDE
   ====================================================== */
 
-  const changeSlide = (newIndex, direction = "next") => {
+  const changeSlide = (
+    newIndex,
+    direction = "next"
+  ) => {
     if (
       banners.length <= 1 ||
       isAnimating ||
@@ -158,20 +232,11 @@ export default function Home() {
     setIsAnimating(true);
     setCurrentSlide(newIndex);
 
-    /*
-      Animation duration:
-      800ms
-
-      Animation শেষ হলে old slide DOM থেকে
-      আর দেখা যাবে না।
-    */
-
     setTimeout(() => {
       setPreviousSlide(null);
       setIsAnimating(false);
     }, 800);
   };
-
 
   /* ======================================================
      NEXT
@@ -185,12 +250,8 @@ export default function Home() {
         ? 0
         : currentSlide + 1;
 
-    changeSlide(
-      nextIndex,
-      "next"
-    );
+    changeSlide(nextIndex, "next");
   };
-
 
   /* ======================================================
      PREVIOUS
@@ -204,12 +265,8 @@ export default function Home() {
         ? banners.length - 1
         : currentSlide - 1;
 
-    changeSlide(
-      previousIndex,
-      "previous"
-    );
+    changeSlide(previousIndex, "previous");
   };
-
 
   /* ======================================================
      AUTO SLIDE
@@ -225,21 +282,18 @@ export default function Home() {
             ? 0
             : currentSlide + 1;
 
-        changeSlide(
-          nextIndex,
-          "next"
-        );
+        changeSlide(nextIndex, "next");
       }
     }, 5000);
 
     return () => clearInterval(interval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     banners.length,
     currentSlide,
-    isAnimating
+    isAnimating,
   ]);
-
 
   /* ======================================================
      GO TO SLIDE
@@ -253,40 +307,259 @@ export default function Home() {
       return;
     }
 
-    /*
-      Dot থেকে কোন দিকে animation হবে
-      সেটা index দেখে নির্ধারণ করছি।
-    */
-
     const direction =
       index > currentSlide
         ? "next"
         : "previous";
 
-    changeSlide(
-      index,
-      direction
-    );
+    changeSlide(index, direction);
   };
 
-
   /* ======================================================
-     CURRENT BANNER
+     CURRENT / OLD BANNER
   ====================================================== */
 
   const currentBanner =
     banners[currentSlide];
-
-
-  /* ======================================================
-     PREVIOUS BANNER
-  ====================================================== */
 
   const oldBanner =
     previousSlide !== null
       ? banners[previousSlide]
       : null;
 
+  /* ======================================================
+     STUDENT LOGIN
+  ====================================================== */
+
+  const handleStudentLogin = async (event) => {
+    event.preventDefault();
+
+    setStudentLoginError("");
+
+    const username =
+      studentUsername.trim();
+
+    const password =
+      studentPassword;
+
+    if (!username) {
+      setStudentLoginError(
+        "Student ID is required."
+      );
+      return;
+    }
+
+    if (!password) {
+      setStudentLoginError(
+        "Password is required."
+      );
+      return;
+    }
+
+    setStudentLoginLoading(true);
+
+    try {
+      const response = await fetch(
+        `${API}/student_login.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type":
+              "application/json",
+            Accept:
+              "application/json",
+          },
+          body: JSON.stringify({
+            username,
+            password,
+          }),
+        }
+      );
+
+      const text =
+        await response.text();
+
+      let data = null;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(
+          "Server response was invalid."
+        );
+      }
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+            "Student login failed."
+        );
+      }
+
+      const studentPayload =
+        data.profile ||
+        data.student ||
+        data.user ||
+        {};
+
+      const normalizedStudent = {
+        ...studentPayload,
+
+        id:
+          studentPayload.id ||
+          studentPayload.student_id ||
+          username,
+
+        student_id:
+          studentPayload.student_id ||
+          studentPayload.username ||
+          username,
+
+        username:
+          studentPayload.username ||
+          studentPayload.student_id ||
+          username,
+
+        full_name:
+          studentPayload.full_name ||
+          studentPayload.name ||
+          studentPayload.student_name_en ||
+          studentPayload.student_name_bn ||
+          studentPayload.student_name ||
+          studentPayload.student_full_name ||
+          "",
+
+        name:
+          studentPayload.full_name ||
+          studentPayload.name ||
+          studentPayload.student_name_en ||
+          studentPayload.student_name_bn ||
+          studentPayload.student_name ||
+          studentPayload.student_full_name ||
+          "",
+
+        phone:
+          studentPayload.phone ||
+          studentPayload.mobile ||
+          studentPayload.student_mobile ||
+          "",
+
+        email:
+          studentPayload.email || "",
+
+        role: "student",
+
+        status:
+          studentPayload.status ||
+          studentPayload.student_status ||
+          "active",
+      };
+
+      const authState = {
+        sunshine_student:
+          normalizedStudent,
+
+        sunshine_student_user:
+          normalizedStudent,
+
+        sunshine_student_logged_in:
+          "1",
+
+        student_id:
+          normalizedStudent.student_id,
+
+        student_username:
+          normalizedStudent.username,
+
+        student_role: "student",
+
+        student_status:
+          normalizedStudent.status,
+      };
+
+      Object.entries(
+        authState
+      ).forEach(
+        ([key, value]) => {
+          if (
+            value === null ||
+            value === undefined ||
+            value === ""
+          ) {
+            localStorage.removeItem(
+              key
+            );
+            return;
+          }
+
+          localStorage.setItem(
+            key,
+            typeof value ===
+              "string"
+              ? value
+              : JSON.stringify(value)
+          );
+        }
+      );
+
+      STUDENT_STORAGE_KEYS.forEach(
+        (key) => {
+          if (!authState[key]) {
+            localStorage.removeItem(
+              key
+            );
+          }
+        }
+      );
+
+      setStudentDetails(
+        normalizedStudent
+      );
+
+      setStudentUsername("");
+      setStudentPassword("");
+
+      navigate(
+        "/student-portal",
+        {
+          replace: true,
+        }
+      );
+    } catch (error) {
+      clearStudentAuthStorage();
+      setStudentDetails(null);
+
+      setStudentLoginError(
+        error.message ||
+          "Student login failed."
+      );
+    } finally {
+      setStudentLoginLoading(
+        false
+      );
+    }
+  };
+
+  /* ======================================================
+     STUDENT LOGOUT
+  ====================================================== */
+
+  const handleStudentLogout = () => {
+    clearStudentAuthStorage();
+
+    setStudentDetails(null);
+    setStudentUsername("");
+    setStudentPassword("");
+    setStudentLoginError("");
+  };
+
+  /* ======================================================
+     RETURN
+  ====================================================== */
 
   return (
     <div className="home-page">
@@ -299,12 +572,7 @@ export default function Home() {
 
         {!loadingBanners &&
           banners.length > 0 && (
-
             <div className="banner-slider">
-
-              {/* ==========================================
-                  OLD SLIDE
-              ========================================== */}
 
               {oldBanner && (
                 <div
@@ -315,15 +583,11 @@ export default function Home() {
                       : "slide-old-right"
                   }`}
                   style={{
-                    backgroundImage: `url("${IMAGE_URL}${oldBanner.banner_image}")`,
+                    backgroundImage:
+                      `url("${IMAGE_URL}${oldBanner.banner_image}")`,
                   }}
                 />
               )}
-
-
-              {/* ==========================================
-                  CURRENT / NEW SLIDE
-              ========================================== */}
 
               {currentBanner && (
                 <div
@@ -336,15 +600,11 @@ export default function Home() {
                       : "slide-new-normal"
                   }`}
                   style={{
-                    backgroundImage: `url("${IMAGE_URL}${currentBanner.banner_image}")`,
+                    backgroundImage:
+                      `url("${IMAGE_URL}${currentBanner.banner_image}")`,
                   }}
                 />
               )}
-
-
-              {/* ==========================================
-                  PREVIOUS BUTTON
-              ========================================== */}
 
               {banners.length > 1 && (
                 <button
@@ -358,11 +618,6 @@ export default function Home() {
                 </button>
               )}
 
-
-              {/* ==========================================
-                  NEXT BUTTON
-              ========================================== */}
-
               {banners.length > 1 && (
                 <button
                   type="button"
@@ -374,11 +629,6 @@ export default function Home() {
                   ❯
                 </button>
               )}
-
-
-              {/* ==========================================
-                  DOTS
-              ========================================== */}
 
               {banners.length > 1 && (
                 <div className="banner-dots">
@@ -412,7 +662,6 @@ export default function Home() {
 
       </section>
 
-
       {/* =================================================
           MAIN TWO COLUMN AREA
       ================================================= */}
@@ -424,8 +673,6 @@ export default function Home() {
         ================================================= */}
 
         <main className="home-main">
-
-          {/* WELCOME */}
 
           <section className="welcome">
 
@@ -441,8 +688,7 @@ export default function Home() {
 
           </section>
 
-
-          {/* COURSES (অরিজিনাল HTML ডিজাইন অপরিবর্তিত রেখে DYNAMIC LOOP) */}
+          {/* COURSES */}
 
           <section className="home-section">
 
@@ -452,28 +698,38 @@ export default function Home() {
 
             <div className="course-cards">
 
-              {languages.map((lang) => (
-                <div className="home-card" key={lang.id || lang.name}>
+              {languages.map(
+                (lang) => (
+                  <div
+                    className="home-card"
+                    key={
+                      lang.id ||
+                      lang.name
+                    }
+                  >
 
-                  <div className="card-icon">
-                    {getLanguageIcon(lang.name)}
+                    <div className="card-icon">
+                      {getLanguageIcon(
+                        lang.name
+                      )}
+                    </div>
+
+                    <h3>
+                      {lang.name}
+                    </h3>
+
+                    <p>
+                      {lang.desc ||
+                        `${lang.name} প্রস্তুতি কোর্স।`}
+                    </p>
+
                   </div>
-
-                  <h3>
-                    {lang.name}
-                  </h3>
-
-                  <p>
-                    {lang.desc || `${lang.name} প্রস্তুতি কোর্স।`}
-                  </p>
-
-                </div>
-              ))}
+                )
+              )}
 
             </div>
 
           </section>
-
 
           {/* NOTICE */}
 
@@ -486,7 +742,6 @@ export default function Home() {
             <div className="notice-box">
 
               <div className="notice-item">
-
                 <span className="notice-date">
                   10 Aug 2026
                 </span>
@@ -494,12 +749,9 @@ export default function Home() {
                 <p>
                   নতুন ব্যাচে ভর্তি কার্যক্রম শুরু হয়েছে।
                 </p>
-
               </div>
 
-
               <div className="notice-item">
-
                 <span className="notice-date">
                   08 Aug 2026
                 </span>
@@ -508,12 +760,9 @@ export default function Home() {
                   Japanese Language নতুন ক্লাসের
                   সময়সূচি প্রকাশ করা হয়েছে।
                 </p>
-
               </div>
 
-
               <div className="notice-item">
-
                 <span className="notice-date">
                   05 Aug 2026
                 </span>
@@ -522,7 +771,6 @@ export default function Home() {
                   শিক্ষার্থীদের প্রয়োজনীয় কাগজপত্র
                   অফিসে জমা দেওয়ার জন্য অনুরোধ করা হলো।
                 </p>
-
               </div>
 
             </div>
@@ -531,39 +779,187 @@ export default function Home() {
 
         </main>
 
-
         {/* =================================================
             RIGHT SIDEBAR
         ================================================= */}
 
         <aside className="home-sidebar">
 
-          {/* FACEBOOK */}
+          {/* STUDENT LOGIN */}
 
           <section className="sidebar-section">
+
+            <div className="student-login-card">
+
+              <div className="student-login-header">
+
+                <h3>
+                  Student Portal
+                </h3>
+
+              </div>
+
+              {studentDetails ? (
+                <div className="student-login-welcome">
+
+                  <p>
+                    Welcome,{" "}
+                    <strong>
+                      {studentDetails.full_name ||
+                        studentDetails.name ||
+                        "Student"}
+                    </strong>
+                  </p>
+
+                  <div className="student-login-meta">
+
+                    <span>
+                      ID:{" "}
+                      {studentDetails.student_id ||
+                        studentDetails.username}
+                    </span>
+
+                    <span>
+                      Status:{" "}
+                      {studentDetails.status ||
+                        "Active"}
+                    </span>
+
+                  </div>
+
+                  <div className="student-login-actions">
+
+                    <button
+                      type="button"
+                      className="student-login-portal-btn"
+                      onClick={() =>
+                        navigate(
+                          "/student-portal"
+                        )
+                      }
+                    >
+                      Open Portal
+                    </button>
+
+                    <button
+                      type="button"
+                      className="student-login-logout"
+                      onClick={
+                        handleStudentLogout
+                      }
+                    >
+                      Logout
+                    </button>
+
+                  </div>
+
+                </div>
+              ) : (
+                <form
+                  className="student-login-form"
+                  onSubmit={
+                    handleStudentLogin
+                  }
+                >
+
+                  <div className="student-login-field">
+
+                    <label htmlFor="student-username">
+                      Student ID
+                    </label>
+
+                    <input
+                      id="student-username"
+                      type="text"
+                      value={studentUsername}
+                      onChange={(event) =>
+                        setStudentUsername(
+                          event.target.value
+                        )
+                      }
+                      placeholder="Enter student ID"
+                      autoComplete="username"
+                      disabled={
+                        studentLoginLoading
+                      }
+                    />
+
+                  </div>
+
+                  <div className="student-login-field">
+
+                    <label htmlFor="student-password">
+                      Password
+                    </label>
+
+                    <input
+                      id="student-password"
+                      type="password"
+                      value={studentPassword}
+                      onChange={(event) =>
+                        setStudentPassword(
+                          event.target.value
+                        )
+                      }
+                      placeholder="Enter password"
+                      autoComplete="current-password"
+                      disabled={
+                        studentLoginLoading
+                      }
+                    />
+
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="student-login-submit"
+                    disabled={
+                      studentLoginLoading
+                    }
+                  >
+                    {studentLoginLoading
+                      ? "Logging in..."
+                      : "Login"}
+                  </button>
+
+                  {studentLoginError && (
+                    <div className="student-login-error">
+                      {
+                        studentLoginError
+                      }
+                    </div>
+                  )}
+
+                </form>
+              )}
+
+            </div>
+
+          </section>
+
+          {/* =================================================
+              FACEBOOK
+          ================================================= */}
+
+          <section className="sidebar-section facebook-section">
 
             <div className="facebook-activity">
 
               <iframe
-                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fsunshine.eduraj%2F&tabs=timeline&width=340&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true"
-                width="100%"
-                height="500"
-                style={{
-                  border: "none",
-                  overflow: "hidden",
-                }}
+                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fsunshine.eduraj%2F&tabs=timeline&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true"
+                title="Sunshine Education Facebook Activity"
                 scrolling="no"
                 frameBorder="0"
-                allowFullScreen={true}
-                title="Sunshine Education Facebook Activity"
+                allowFullScreen
               />
 
             </div>
 
           </section>
 
-
-          {/* YOUTUBE */}
+          {/* =================================================
+              YOUTUBE
+          ================================================= */}
 
           <section className="sidebar-section">
 
@@ -583,7 +979,6 @@ export default function Home() {
         </aside>
 
       </div>
-
 
       {/* =================================================
           FEATURES
@@ -610,7 +1005,6 @@ export default function Home() {
 
           </div>
 
-
           <div className="home-card">
 
             <h2>
@@ -623,7 +1017,6 @@ export default function Home() {
             </p>
 
           </div>
-
 
           <div className="home-card">
 
@@ -641,7 +1034,6 @@ export default function Home() {
         </div>
 
       </section>
-
 
       {/* =================================================
           ABOUT
