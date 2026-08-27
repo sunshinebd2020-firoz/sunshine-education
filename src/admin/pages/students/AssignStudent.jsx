@@ -137,6 +137,12 @@ export default function AssignStudent() {
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
 
+  // Assigned student IDs are kept here.
+  // These students will NOT appear in the assign list.
+  const [assignedStudentIds, setAssignedStudentIds] = useState(
+    new Set()
+  );
+
   const [selectedTeacherId, setSelectedTeacherId] = useState("");
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
 
@@ -222,6 +228,16 @@ export default function AssignStudent() {
     }
   };
 
+  /*
+   * Load students.
+   *
+   * IMPORTANT:
+   * The students API is expected to return an "assigned" or
+   * "is_assigned" field when a student has already been assigned.
+   *
+   * If that field is available, assigned students are removed
+   * from this page automatically.
+   */
   const loadStudents = async () => {
     try {
       setLoadingStudents(true);
@@ -252,6 +268,53 @@ export default function AssignStudent() {
             )
           : [];
 
+        /*
+         * Find already assigned students.
+         *
+         * Supported API fields:
+         * assigned
+         * is_assigned
+         * assigned_to_teacher
+         * teacher_id
+         * assigned_teacher_id
+         */
+        const assignedIds = new Set();
+
+        approvedStudents.forEach((student) => {
+          const studentId = getStudentId(student);
+
+          const assigned =
+            student.assigned === true ||
+            student.assigned === 1 ||
+            student.assigned === "1" ||
+            String(student.assigned || "")
+              .trim()
+              .toLowerCase() === "yes" ||
+            student.is_assigned === true ||
+            student.is_assigned === 1 ||
+            student.is_assigned === "1" ||
+            student.assigned_to_teacher ||
+            student.assigned_teacher_id ||
+            student.teacher_id;
+
+          if (studentId && assigned) {
+            assignedIds.add(studentId);
+          }
+        });
+
+        /*
+         * Keep previously detected assigned IDs as well.
+         * This ensures that immediately after assigning,
+         * the student disappears from the list.
+         */
+        setAssignedStudentIds((previous) => {
+          const merged = new Set(previous);
+
+          assignedIds.forEach((id) => merged.add(id));
+
+          return merged;
+        });
+
         setStudents(approvedStudents);
       } else {
         setStudents([]);
@@ -280,7 +343,13 @@ export default function AssignStudent() {
     const courses = Array.from(
       new Set(
         students
-          .map((student) => String(student.course || "").trim())
+          .filter(
+            (student) =>
+              !assignedStudentIds.has(getStudentId(student))
+          )
+          .map((student) =>
+            String(student.course || "").trim()
+          )
           .filter(Boolean)
       )
     ).sort((a, b) => a.localeCompare(b));
@@ -288,6 +357,10 @@ export default function AssignStudent() {
     const levels = Array.from(
       new Set(
         students
+          .filter(
+            (student) =>
+              !assignedStudentIds.has(getStudentId(student))
+          )
           .map((student) =>
             String(
               student.language_level || student.level || ""
@@ -307,7 +380,12 @@ export default function AssignStudent() {
     if (selectedLevel && !levels.includes(selectedLevel)) {
       setSelectedLevel("");
     }
-  }, [students, selectedCourse, selectedLevel]);
+  }, [
+    students,
+    assignedStudentIds,
+    selectedCourse,
+    selectedLevel,
+  ]);
 
   useEffect(() => {
     setSelectedStudentIds([]);
@@ -319,43 +397,55 @@ export default function AssignStudent() {
     setSelectedLevel("");
   };
 
-  const filteredStudents = students.filter((student) => {
-    const query = search.trim().toLowerCase();
+  /*
+   * CONDITION ADDED HERE:
+   *
+   * A student who has already been assigned to ANY teacher
+   * will NOT appear in this list.
+   */
+  const filteredStudents = students
+    .filter(
+      (student) =>
+        !assignedStudentIds.has(getStudentId(student))
+    )
+    .filter((student) => {
+      const query = search.trim().toLowerCase();
 
-    const studentId = getStudentId(student).toLowerCase();
-    const name = getStudentName(student).toLowerCase();
+      const studentId = getStudentId(student).toLowerCase();
+      const name = getStudentName(student).toLowerCase();
 
-    const mobile = String(
-      student.student_mobile || student.mobile || ""
-    ).toLowerCase();
+      const mobile = String(
+        student.student_mobile || student.mobile || ""
+      ).toLowerCase();
 
-    const course = String(student.course || "").trim();
-    const level = String(
-      student.language_level || student.level || ""
-    ).trim();
+      const course = String(student.course || "").trim();
 
-    const matchesSearch =
-      !query ||
-      [
-        studentId,
-        name,
-        mobile,
-        course.toLowerCase(),
-        level.toLowerCase(),
-      ].some((value) => value.includes(query));
+      const level = String(
+        student.language_level || student.level || ""
+      ).trim();
 
-    const matchesCourse =
-      !selectedCourse || course === selectedCourse;
+      const matchesSearch =
+        !query ||
+        [
+          studentId,
+          name,
+          mobile,
+          course.toLowerCase(),
+          level.toLowerCase(),
+        ].some((value) => value.includes(query));
 
-    const matchesLevel =
-      !selectedLevel || level === selectedLevel;
+      const matchesCourse =
+        !selectedCourse || course === selectedCourse;
 
-    return (
-      matchesSearch &&
-      matchesCourse &&
-      matchesLevel
-    );
-  });
+      const matchesLevel =
+        !selectedLevel || level === selectedLevel;
+
+      return (
+        matchesSearch &&
+        matchesCourse &&
+        matchesLevel
+      );
+    });
 
   const allVisibleSelected =
     filteredStudents.length > 0 &&
@@ -370,7 +460,9 @@ export default function AssignStudent() {
 
     if (allVisibleSelected) {
       setSelectedStudentIds((prev) =>
-        prev.filter((id) => !visibleIds.includes(String(id)))
+        prev.filter(
+          (id) => !visibleIds.includes(String(id))
+        )
       );
 
       return;
@@ -398,19 +490,18 @@ export default function AssignStudent() {
   const handleAssign = async (event) => {
     event.preventDefault();
 
-    /*
-     * ONLY Teacher + at least one Student are required.
-     * Course and Level are filters only.
-     */
-
     if (!selectedTeacherId) {
-      setMessage("Please select a teacher before assigning students.");
+      setMessage(
+        "Please select a teacher before assigning students."
+      );
       setMessageType("error");
       return;
     }
 
     if (!selectedStudentIds.length) {
-      setMessage("Please select at least one student to assign.");
+      setMessage(
+        "Please select at least one student to assign."
+      );
       setMessageType("error");
       return;
     }
@@ -478,6 +569,19 @@ export default function AssignStudent() {
         }
 
         successfulAssignments += 1;
+
+        /*
+         * IMPORTANT CONDITION:
+         *
+         * Immediately mark the student as assigned.
+         * Therefore it disappears from the list without
+         * waiting for a page refresh.
+         */
+        setAssignedStudentIds((previous) => {
+          const next = new Set(previous);
+          next.add(selectedValue);
+          return next;
+        });
       }
 
       setMessage(
@@ -871,7 +975,7 @@ export default function AssignStudent() {
 
               {filteredStudents.length === 0 && (
                 <p className="no-student">
-                  No students found for this search.
+                  No unassigned students found.
                 </p>
               )}
             </>

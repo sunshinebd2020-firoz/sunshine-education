@@ -25,16 +25,35 @@ export default function PendingStudentList() {
         {
           method: "GET",
           credentials: "include",
+          headers: {
+            Accept: "application/json",
+          },
         }
       );
 
-      if (!response.ok) {
+      const text = await response.text();
+
+      if (!text.trim()) {
+        throw new Error("Empty server response.");
+      }
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch (error) {
+        console.error("Invalid JSON:", text);
         throw new Error(
-          `HTTP Error: ${response.status}`
+          "Backend returned an invalid response."
         );
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            `HTTP Error: ${response.status}`
+        );
+      }
 
       if (data.success) {
         const pendingStudents = Array.isArray(data.data)
@@ -61,7 +80,8 @@ export default function PendingStudentList() {
 
       setStudents([]);
       setMessage(
-        "Server connection failed."
+        error.message ||
+          "Server connection failed."
       );
     } finally {
       setLoading(false);
@@ -73,9 +93,9 @@ export default function PendingStudentList() {
   // =====================================================
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadStudents();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // =====================================================
@@ -106,7 +126,7 @@ export default function PendingStudentList() {
 
       formData.append(
         "student_id",
-        studentId
+        String(studentId)
       );
 
       const response = await fetch(
@@ -115,16 +135,41 @@ export default function PendingStudentList() {
           method: "POST",
           credentials: "include",
           body: formData,
+          headers: {
+            Accept: "application/json",
+          },
         }
       );
 
-      if (!response.ok) {
+      const text = await response.text();
+
+      if (!text.trim()) {
         throw new Error(
-          `HTTP Error: ${response.status}`
+          "Approve API returned an empty response."
         );
       }
 
-      const data = await response.json();
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch (error) {
+        console.error(
+          "Approve API invalid response:",
+          text
+        );
+
+        throw new Error(
+          "Approve API returned an invalid response."
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            `HTTP Error: ${response.status}`
+        );
+      }
 
       if (data.success) {
         setMessage(
@@ -151,7 +196,8 @@ export default function PendingStudentList() {
       );
 
       setMessage(
-        "Server connection failed."
+        error.message ||
+          "Server connection failed."
       );
     }
   };
@@ -184,7 +230,7 @@ export default function PendingStudentList() {
 
       formData.append(
         "student_id",
-        studentId
+        String(studentId)
       );
 
       const response = await fetch(
@@ -193,16 +239,41 @@ export default function PendingStudentList() {
           method: "POST",
           credentials: "include",
           body: formData,
+          headers: {
+            Accept: "application/json",
+          },
         }
       );
 
-      if (!response.ok) {
+      const text = await response.text();
+
+      if (!text.trim()) {
         throw new Error(
-          `HTTP Error: ${response.status}`
+          "Reject API returned an empty response."
         );
       }
 
-      const data = await response.json();
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch (error) {
+        console.error(
+          "Reject API invalid response:",
+          text
+        );
+
+        throw new Error(
+          "Reject API returned an invalid response."
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            `HTTP Error: ${response.status}`
+        );
+      }
 
       if (data.success) {
         setMessage(
@@ -229,7 +300,8 @@ export default function PendingStudentList() {
       );
 
       setMessage(
-        "Server connection failed."
+        error.message ||
+          "Server connection failed."
       );
     }
   };
@@ -328,10 +400,6 @@ export default function PendingStudentList() {
   return (
     <div className="pending-student-list">
 
-      {/* =================================================
-          HEADER
-      ================================================= */}
-
       <div className="pending-list-header">
 
         <div>
@@ -350,10 +418,6 @@ export default function PendingStudentList() {
         </div>
 
       </div>
-
-      {/* =================================================
-          SEARCH AREA
-      ================================================= */}
 
       <div className="pending-search">
 
@@ -377,24 +441,17 @@ export default function PendingStudentList() {
 
       </div>
 
-      {/* =================================================
-          MESSAGE
-      ================================================= */}
-
       {message && (
         <div className="pending-message">
           {message}
         </div>
       )}
 
-      {/* =================================================
-          LOADING
-      ================================================= */}
-
       {loading ? (
 
         <div className="pending-loading">
           <div className="pending-spinner"></div>
+
           <p>
             Pending students loading...
           </p>
@@ -479,19 +536,13 @@ export default function PendingStudentList() {
                         }
                       >
 
-                        {/* =========================
-                            PHOTO
-                        ========================= */}
-
                         <td>
 
                           {photo ? (
 
                             <img
                               src={`${UPLOADS}${photo}`}
-                              alt={
-                                studentName
-                              }
+                              alt={studentName}
                               className="pending-student-photo"
                               onError={(e) => {
                                 e.currentTarget.style.display =
@@ -535,10 +586,6 @@ export default function PendingStudentList() {
 
                         </td>
 
-                        {/* =========================
-                            ID
-                        ========================= */}
-
                         <td>
 
                           <strong className="pending-student-id">
@@ -547,10 +594,6 @@ export default function PendingStudentList() {
                           </strong>
 
                         </td>
-
-                        {/* =========================
-                            NAME
-                        ========================= */}
 
                         <td>
 
@@ -572,54 +615,30 @@ export default function PendingStudentList() {
 
                         </td>
 
-                        {/* =========================
-                            LANGUAGE
-                        ========================= */}
-
                         <td>
                           {student.course ||
                             "-"}
                         </td>
-
-                        {/* =========================
-                            LEVEL
-                        ========================= */}
 
                         <td>
                           {student.language_level ||
                             "-"}
                         </td>
 
-                        {/* =========================
-                            BRANCH
-                        ========================= */}
-
                         <td>
                           {student.branch ||
                             "-"}
                         </td>
 
-                        {/* =========================
-                            MOBILE
-                        ========================= */}
-
                         <td>
                           {mobile}
                         </td>
-
-                        {/* =========================
-                            DATE
-                        ========================= */}
 
                         <td>
                           {formatDate(
                             student.admission_date
                           )}
                         </td>
-
-                        {/* =========================
-                            ACTION
-                        ========================= */}
 
                         <td>
 
