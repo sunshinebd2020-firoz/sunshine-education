@@ -1753,4 +1753,4 @@ export default function ExpenseList() {
 
     </div>
   );
-}
+} 
