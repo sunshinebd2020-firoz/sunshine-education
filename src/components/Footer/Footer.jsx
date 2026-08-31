@@ -20,12 +20,12 @@ export default function Footer() {
         const data = await response.json();
 
         if (data.success) {
-          const activeBranches = (data.branches || []).filter(
+          const activeBranch = (data.branch || []).filter(
             (branch) =>
               String(branch.status).toLowerCase() === "active"
           );
 
-          setBranches(activeBranches);
+          setBranches(activeBranch);
         }
       } catch (error) {
         console.error("Branch load error:", error);

@@ -459,7 +459,7 @@ export default function StudentEntry() {
 
         if (data.success) {
           setBranches(
-            data.branches || []
+            data.branch || []
           );
         }
       } catch (error) {

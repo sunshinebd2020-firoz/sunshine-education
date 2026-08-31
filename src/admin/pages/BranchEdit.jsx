@@ -49,9 +49,9 @@ export default function BranchEdit() {
         }
 
         const branchList = Array.isArray(
-          data.branches
+          data.branch
         )
-          ? data.branches
+          ? data.branch
           : [];
 
         const branch = branchList.find(

@@ -651,31 +651,6 @@ export default function StudentList() {
                               ✏️
                             </button>
 
-                            {/* PASSPORT DOWNLOAD */}
-
-                            {passportUrl ? (
-                              <a
-                                href={passportUrl}
-                                download
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="passport-download-button"
-                                title="Download Passport"
-                                onClick={(e) =>
-                                  e.stopPropagation()
-                                }
-                              >
-                                📄
-                              </a>
-                            ) : (
-                              <span
-                                className="no-passport"
-                                title="Passport not available"
-                              >
-                                📄
-                              </span>
-                            )}
-
                             {/* STATUS */}
 
                             {String(

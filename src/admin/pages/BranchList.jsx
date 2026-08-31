@@ -1,6 +1,6 @@
 import "./BranchList.css";
 import API_BASE_URL from "../../config/api";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function BranchList() {
@@ -11,63 +11,121 @@ export default function BranchList() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
-  /* =====================================================
-     LOAD BRANCHES
-  ===================================================== */
+  /*
+  |--------------------------------------------------------------------------
+  | LOAD BRANCHES
+  |--------------------------------------------------------------------------
+  */
 
-  const loadBranches = async () => {
+  const loadBranches = useCallback(async () => {
     try {
       setLoading(true);
+      setMessage("");
 
-      const response = await fetch(
-        `${API_BASE_URL}/branch_list.php`,
-        { credentials: "include" }
-      );
+      const url = `${API_BASE_URL}/branch_list.php`;
 
-      const data = await response.json();
+      console.log("Branch API URL:", url);
 
-      if (data.success) {
-        setBranches(
-          Array.isArray(data.branches)
-            ? data.branches
-            : []
+      const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      const responseText = await response.text();
+
+      console.log("Branch API Response:", responseText);
+
+      let data;
+
+      try {
+        data = JSON.parse(responseText);
+      } catch (error) {
+        console.error("Invalid JSON response:", responseText);
+
+        throw new Error(
+          "Server থেকে valid JSON response পাওয়া যায়নি।"
         );
+      }
 
-        setMessage("");
+      console.log("Branch API Data:", data);
+      console.log("Branch Array:", data.branch);
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            `Server error: ${response.status}`
+        );
+      }
+
+      if (!data.success) {
+        throw new Error(
+          data.message ||
+            "Branch data could not be loaded."
+        );
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | API RESPONSE
+      |
+      | {
+      |   success: true,
+      |   branch: [...]
+      | }
+      |--------------------------------------------------------------------------
+      */
+
+      if (Array.isArray(data.branch)) {
+        setBranches(data.branch);
       } else {
         setBranches([]);
 
-        setMessage(
-          data.message ||
-            "Branch data পাওয়া যায়নি"
+        console.warn(
+          "API returned branch data in unexpected format:",
+          data
         );
       }
+
     } catch (error) {
-      console.error(
-        "Branch loading error:",
-        error
-      );
+      console.error("Branch loading error:", error);
+
+      setBranches([]);
 
       setMessage(
-        "Server connection failed"
+        error.message ||
+          "Branch data load failed."
       );
+
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadBranches();
   }, []);
 
 
-  /* =====================================================
-     ACTIVE / INACTIVE
-  ===================================================== */
+  /*
+  |--------------------------------------------------------------------------
+  | INITIAL LOAD
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+    loadBranches();
+  }, [loadBranches]);
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | STATUS UPDATE
+  |--------------------------------------------------------------------------
+  */
 
   const handleStatus = async (id, status) => {
     try {
+      setMessage("");
+
       const response = await fetch(
         `${API_BASE_URL}/branch_status.php`,
         {
@@ -76,6 +134,7 @@ export default function BranchList() {
 
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
 
           body: JSON.stringify({
@@ -85,21 +144,37 @@ export default function BranchList() {
         }
       );
 
-      const data = await response.json();
+      const responseText = await response.text();
 
-      if (data.success) {
-        setMessage(
-          data.message ||
-            "Status updated successfully"
+      let data;
+
+      try {
+        data = JSON.parse(responseText);
+      } catch (error) {
+        console.error(
+          "Invalid status response:",
+          responseText
         );
 
-        loadBranches();
-      } else {
-        setMessage(
-          data.message ||
-            "Status update failed"
+        throw new Error(
+          "Server থেকে valid JSON response পাওয়া যায়নি।"
         );
       }
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            "Status update failed."
+        );
+      }
+
+      setMessage(
+        data.message ||
+          "Status updated successfully."
+      );
+
+      await loadBranches();
+
     } catch (error) {
       console.error(
         "Status update error:",
@@ -107,27 +182,31 @@ export default function BranchList() {
       );
 
       setMessage(
-        "Server connection failed"
+        error.message ||
+          "Server connection failed."
       );
     }
   };
 
 
-  /* =====================================================
-     DELETE BRANCH
-  ===================================================== */
+  /*
+  |--------------------------------------------------------------------------
+  | DELETE BRANCH
+  |--------------------------------------------------------------------------
+  */
 
   const handleDelete = async (id) => {
-    const confirmDelete =
-      window.confirm(
-        "আপনি কি এই Branch-টি Delete করতে চান?"
-      );
+    const confirmDelete = window.confirm(
+      "আপনি কি এই Branch-টি Delete করতে চান?"
+    );
 
     if (!confirmDelete) {
       return;
     }
 
     try {
+      setMessage("");
+
       const response = await fetch(
         `${API_BASE_URL}/branch_delete.php`,
         {
@@ -136,6 +215,7 @@ export default function BranchList() {
 
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
 
           body: JSON.stringify({
@@ -144,21 +224,37 @@ export default function BranchList() {
         }
       );
 
-      const data = await response.json();
+      const responseText = await response.text();
 
-      if (data.success) {
-        setMessage(
-          data.message ||
-            "Branch deleted successfully"
+      let data;
+
+      try {
+        data = JSON.parse(responseText);
+      } catch (error) {
+        console.error(
+          "Invalid delete response:",
+          responseText
         );
 
-        loadBranches();
-      } else {
-        setMessage(
-          data.message ||
-            "Branch delete failed"
+        throw new Error(
+          "Server থেকে valid JSON response পাওয়া যায়নি।"
         );
       }
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            "Branch delete failed."
+        );
+      }
+
+      setMessage(
+        data.message ||
+          "Branch deleted successfully."
+      );
+
+      await loadBranches();
+
     } catch (error) {
       console.error(
         "Delete error:",
@@ -166,68 +262,61 @@ export default function BranchList() {
       );
 
       setMessage(
-        "Server connection failed"
+        error.message ||
+          "Server connection failed."
       );
     }
   };
 
 
-  /* =====================================================
-     SEARCH
-  ===================================================== */
+  /*
+  |--------------------------------------------------------------------------
+  | SEARCH
+  |--------------------------------------------------------------------------
+  */
 
-  const filteredBranches =
-    branches.filter((branch) => {
-      const searchText =
-        search.trim().toLowerCase();
+  const searchText = search.trim().toLowerCase();
 
+  const filteredBranches = branches.filter(
+    (branch) => {
       if (!searchText) {
         return true;
       }
 
       return (
-        String(
-          branch.title || ""
-        )
+        String(branch.title || "")
           .toLowerCase()
           .includes(searchText) ||
 
-        String(
-          branch.branch_name || ""
-        )
+        String(branch.branch_name || "")
           .toLowerCase()
           .includes(searchText) ||
 
-        String(
-          branch.branch_name_bn || ""
-        )
+        String(branch.branch_name_bn || "")
           .toLowerCase()
           .includes(searchText) ||
 
-        String(
-          branch.address || ""
-        )
+        String(branch.address || "")
           .toLowerCase()
           .includes(searchText) ||
 
-        String(
-          branch.mobile || ""
-        )
+        String(branch.mobile || "")
           .toLowerCase()
           .includes(searchText) ||
 
-        String(
-          branch.email || ""
-        )
+        String(branch.email || "")
           .toLowerCase()
           .includes(searchText)
       );
-    });
+    }
+  );
 
 
-  /* =====================================================
-     RENDER
-  ===================================================== */
+  /*
+  |--------------------------------------------------------------------------
+  | RENDER
+  |--------------------------------------------------------------------------
+  */
 
   return (
     <div className="branch-list-page">
@@ -239,31 +328,27 @@ export default function BranchList() {
       <div className="branch-list-header">
 
         <div>
-
-          <h1>
-            Branch List
-          </h1>
+          <h1>Branch List</h1>
 
           <p>
             নিবন্ধিত শাখাসমূহের তালিকা
           </p>
-
         </div>
 
 
         <button
           type="button"
           className="admin-list-add-button"
-          onClick={() => navigate("/admin/branch-entry")}
+          onClick={() =>
+            navigate("/admin/branch-entry")
+          }
         >
           + Add Branch
         </button>
 
 
         <div className="branch-count">
-
           Total: {filteredBranches.length}
-
         </div>
 
       </div>
@@ -310,257 +395,230 @@ export default function BranchList() {
             Loading branches...
           </p>
 
+        ) : filteredBranches.length === 0 ? (
+
+          <p className="no-branch">
+            কোনো Branch পাওয়া যায়নি।
+          </p>
+
         ) : (
 
-          <>
+          <table>
 
-            <table>
+            <thead>
 
-              <thead>
+              <tr>
 
-                <tr>
+                <th>
+                  Title
+                </th>
 
-                  <th>
-                    Title
-                  </th>
+                <th>
+                  Branch Name
+                </th>
 
-                  <th>
-                    Branch Name
-                  </th>
+                <th>
+                  Address
+                </th>
 
-                  <th>
-                    Address
-                  </th>
+                <th>
+                  Mobile
+                </th>
 
-                  <th>
-                    Mobile
-                  </th>
+                <th>
+                  Email
+                </th>
 
-                  <th>
-                    Email
-                  </th>
+                <th>
+                  Status
+                </th>
 
-                  <th>
-                    Status
-                  </th>
+                <th>
+                  Action
+                </th>
 
-                  <th>
-                    Action
-                  </th>
+              </tr>
 
-                </tr>
-
-              </thead>
+            </thead>
 
 
-              <tbody>
+            <tbody>
 
-                {filteredBranches.map(
-                  (branch) => (
+              {filteredBranches.map(
+                (branch) => (
 
-                    <tr
-                      key={branch.id}
-                    >
+                  <tr
+                    key={branch.id}
+                  >
 
-                      {/* TITLE */}
+                    {/* TITLE */}
 
-                      <td>
+                    <td>
 
-                        <strong className="branch-title">
-                          {branch.title ||
-                            "-"}
+                      <strong className="branch-title">
+                        {branch.title || "-"}
+                      </strong>
 
+                    </td>
+
+
+                    {/* BRANCH NAME */}
+
+                    <td>
+
+                      <div className="branch-name">
+
+                        <strong>
+                          {branch.branch_name || "-"}
                         </strong>
 
-                      </td>
+                        {branch.branch_name_bn && (
+                          <span>
+                            {branch.branch_name_bn}
+                          </span>
+                        )}
+
+                      </div>
+
+                    </td>
 
 
-                      {/* BRANCH NAME */}
+                    {/* ADDRESS */}
 
-                      <td>
+                    <td>
 
-                        <div className="branch-name">
+                      <span className="branch-address">
+                        {branch.address || "-"}
+                      </span>
 
-                          <strong>
-                            {branch.branch_name ||
-                              "-"}
-                          </strong>
-
-                          {branch.branch_name_bn && (
-                            <span>
-                              {
-                                branch.branch_name_bn
-                              }
-                            </span>
-                          )}
-
-                        </div>
-
-                      </td>
+                    </td>
 
 
-                      {/* ADDRESS */}
+                    {/* MOBILE */}
 
-                      <td>
+                    <td>
+                      {branch.mobile || "-"}
+                    </td>
 
-                        <span className="branch-address">
 
-                          {branch.address ||
-                            "-"}
+                    {/* EMAIL */}
 
+                    <td>
+                      {branch.email || "-"}
+                    </td>
+
+
+                    {/* STATUS */}
+
+                    <td>
+
+                      {String(branch.status)
+                        .toLowerCase() ===
+                      "active" ? (
+
+                        <span className="branch-status-active">
+                          Active
                         </span>
 
-                      </td>
+                      ) : (
+
+                        <span className="branch-status-inactive">
+                          Inactive
+                        </span>
+
+                      )}
+
+                    </td>
 
 
-                      {/* MOBILE */}
+                    {/* ACTION */}
 
-                      <td>
+                    <td>
 
-                        {branch.mobile ||
-                          "-"}
+                      <div className="branch-actions">
 
-                      </td>
+                        {/* EDIT */}
+
+                        <button
+                          type="button"
+                          className="branch-edit-button"
+                          title="Edit Branch"
+                          onClick={() =>
+                            navigate(
+                              `/admin/branch-edit/${branch.id}`
+                            )
+                          }
+                        >
+                          ✏️
+                        </button>
 
 
-                      {/* EMAIL */}
+                        {/* ACTIVE / INACTIVE */}
 
-                      <td>
-
-                        {branch.email ||
-                          "-"}
-
-                      </td>
-
-
-                      {/* STATUS */}
-
-                      <td>
-
-                        {String(
-                          branch.status
-                        ).toLowerCase() ===
+                        {String(branch.status)
+                          .toLowerCase() ===
                         "active" ? (
 
-                          <span className="branch-status-active">
-                            Active
-                          </span>
+                          <button
+                            type="button"
+                            className="branch-inactive-button"
+                            title="Make Inactive"
+                            onClick={() =>
+                              handleStatus(
+                                branch.id,
+                                "inactive"
+                              )
+                            }
+                          >
+                            🔴
+                          </button>
 
                         ) : (
 
-                          <span className="branch-status-inactive">
-                            Inactive
-                          </span>
+                          <button
+                            type="button"
+                            className="branch-active-button"
+                            title="Make Active"
+                            onClick={() =>
+                              handleStatus(
+                                branch.id,
+                                "active"
+                              )
+                            }
+                          >
+                            🟢
+                          </button>
 
                         )}
 
-                      </td>
 
+                        {/* DELETE */}
 
-                      {/* ACTION */}
+                        <button
+                          type="button"
+                          className="branch-delete-button"
+                          title="Delete Branch"
+                          onClick={() =>
+                            handleDelete(
+                              branch.id
+                            )
+                          }
+                        >
+                          🗑️
+                        </button>
 
-                      <td>
+                      </div>
 
-                        <div className="branch-actions">
+                    </td>
 
-                          {/* EDIT */}
+                  </tr>
 
-                          <button
-                            type="button"
-                            className="branch-edit-button"
-                            title="Edit Branch"
-                            onClick={() =>
-                              navigate(
-                                `/admin/branch-edit/${branch.id}`
-                              )
-                            }
-                          >
-                            ✏️
-                          </button>
+                )
+              )}
 
+            </tbody>
 
-                          {/* ACTIVE / INACTIVE */}
-
-                          {String(
-                            branch.status
-                          ).toLowerCase() ===
-                          "active" ? (
-
-                            <button
-                              type="button"
-                              className="branch-inactive-button"
-                              title="Make Inactive"
-                              onClick={() =>
-                                handleStatus(
-                                  branch.id,
-                                  "inactive"
-                                )
-                              }
-                            >
-                              🔴
-                            </button>
-
-                          ) : (
-
-                            <button
-                              type="button"
-                              className="branch-active-button"
-                              title="Make Active"
-                              onClick={() =>
-                                handleStatus(
-                                  branch.id,
-                                  "active"
-                                )
-                              }
-                            >
-                              🟢
-                            </button>
-
-                          )}
-
-
-                          {/* DELETE */}
-
-                          <button
-                            type="button"
-                            className="branch-delete-button"
-                            title="Delete Branch"
-                            onClick={() =>
-                              handleDelete(
-                                branch.id
-                              )
-                            }
-                          >
-                            🗑️
-                          </button>
-
-                        </div>
-
-                      </td>
-
-                    </tr>
-
-                  )
-                )}
-
-              </tbody>
-
-            </table>
-
-
-            {/* =================================================
-                NO BRANCH
-            ================================================= */}
-
-            {filteredBranches.length === 0 && (
-
-              <p className="no-branch">
-                কোনো Branch পাওয়া যায়নি।
-              </p>
-
-            )}
-
-          </>
+          </table>
 
         )}
 
