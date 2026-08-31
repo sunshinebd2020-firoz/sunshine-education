@@ -70,13 +70,12 @@ const isAdminRole = (role) => {
 
 
 /* =====================================================
-   DATE
+   CURRENT DATE
 ===================================================== */
 
 const getCurrentDate = () => {
 
-  const now =
-    new Date();
+  const now = new Date();
 
   return {
     year:
@@ -89,6 +88,10 @@ const getCurrentDate = () => {
   };
 };
 
+
+/* =====================================================
+   COMPONENT
+===================================================== */
 
 export default function IncomeList() {
 
@@ -132,6 +135,20 @@ export default function IncomeList() {
 
 
   /* =====================================================
+     ADMIN FILTERS
+  ===================================================== */
+
+  const [selectedYear, setSelectedYear] =
+    useState("");
+
+  const [selectedMonth, setSelectedMonth] =
+    useState("");
+
+  const [selectedBranch, setSelectedBranch] =
+    useState("");
+
+
+  /* =====================================================
      LOAD USER
   ===================================================== */
 
@@ -143,7 +160,6 @@ export default function IncomeList() {
 
     if (!user) {
 
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError(
         "Login user information পাওয়া যায়নি। আবার login করুন।"
       );
@@ -189,7 +205,11 @@ export default function IncomeList() {
       ).trim();
 
 
-    setTeacherId(id);
+    setTeacherId(
+      isAdminRole(role)
+        ? ""
+        : id
+    );
 
     setAdminId(aid);
 
@@ -197,11 +217,110 @@ export default function IncomeList() {
 
     setUserBranch(branch);
 
+
+    /*
+    -----------------------------------------------------
+    Teacher-এর জন্য current month fixed.
+    Admin-এর জন্য filter empty থাকবে,
+    অর্থাৎ সব historical data।
+    -----------------------------------------------------
+    */
+
+    if (!isAdminRole(role)) {
+
+      setSelectedYear(
+        String(currentDate.year)
+      );
+
+      setSelectedMonth(
+        currentDate.month
+      );
+    }
+
   }, []);
 
 
   /* =====================================================
-     FETCH
+     BRANCH OPTIONS
+  ===================================================== */
+
+  const branchOptions =
+    useMemo(() => {
+
+      const branches =
+        income
+          .map(
+            (item) =>
+              String(
+                item.branch || ""
+              ).trim()
+          )
+          .filter(Boolean);
+
+      return [
+        ...new Set(branches)
+      ].sort(
+        (a, b) =>
+          a.localeCompare(
+            b,
+            undefined,
+            {
+              sensitivity: "base"
+            }
+          )
+      );
+
+    }, [income]);
+
+
+  /* =====================================================
+     YEAR OPTIONS
+  ===================================================== */
+
+  const yearOptions =
+    useMemo(() => {
+
+      const years =
+        income
+          .map((item) => {
+
+            const date =
+              String(
+                item.income_date || ""
+              );
+
+            return date.length >= 4
+              ? date.substring(0, 4)
+              : "";
+
+          })
+          .filter(Boolean);
+
+
+      const currentYear =
+        String(
+          currentDate.year
+        );
+
+
+      years.push(
+        currentYear
+      );
+
+
+      return [
+        ...new Set(years)
+      ].sort(
+        (a, b) =>
+          Number(b) -
+          Number(a)
+      );
+
+    }, [income]);
+
+
+  /* =====================================================
+     FETCH INCOME
   ===================================================== */
 
   const fetchIncome =
@@ -210,20 +329,51 @@ export default function IncomeList() {
       try {
 
         setLoading(true);
-
         setError("");
 
 
-        const requestUserId =
-          teacherId ||
-          (isAdminRole(userRole) ? adminId : "");
+        const admin =
+          isAdminRole(userRole);
 
-        if (!requestUserId) {
+
+        /*
+        ---------------------------------------------------
+        TEACHER
+        ---------------------------------------------------
+        */
+
+        if (
+          !admin &&
+          !teacherId
+        ) {
 
           setIncome([]);
 
           setError(
-            "Login user ID পাওয়া যাচ্ছে না। আবার login করুন।"
+            "Login user-এর Teacher ID পাওয়া যায়নি। আবার login করুন।"
+          );
+
+          setLoading(false);
+
+          return;
+        }
+
+
+        /*
+        ---------------------------------------------------
+        ADMIN
+        ---------------------------------------------------
+        */
+
+        if (
+          admin &&
+          !adminId
+        ) {
+
+          setIncome([]);
+
+          setError(
+            "Admin ID পাওয়া যাচ্ছে না। আবার login করুন।"
           );
 
           setLoading(false);
@@ -236,48 +386,96 @@ export default function IncomeList() {
           new URLSearchParams();
 
 
-        // The API requires teacher_id for every request. For an admin it uses
-        // that value as the requesting user's ID when role=admin is supplied.
         params.append(
-          "teacher_id",
-          requestUserId
+          "role",
+          userRole
         );
 
 
-        if (adminId) {
+        params.append(
+          "admin_id",
+          adminId
+        );
+
+
+        /*
+        ---------------------------------------------------
+        TEACHER ONLY
+        ---------------------------------------------------
+        */
+
+        if (
+          !admin &&
+          teacherId
+        ) {
 
           params.append(
-            "admin_id",
-            adminId
+            "teacher_id",
+            teacherId
           );
         }
 
-        if (userRole) {
+
+        /*
+        ---------------------------------------------------
+        ADMIN YEAR / MONTH
+        ---------------------------------------------------
+        */
+
+        if (admin) {
+
+          if (selectedYear) {
+
+            params.append(
+              "year",
+              selectedYear
+            );
+          }
+
+          if (selectedMonth) {
+
+            params.append(
+              "month",
+              selectedMonth
+            );
+          }
+
+        } else {
+
+          /*
+          Teacher-এর জন্য backend-ও current month
+          enforce করবে।
+          */
 
           params.append(
-            "role",
-            userRole
+            "year",
+            String(
+              currentDate.year
+            )
+          );
+
+          params.append(
+            "month",
+            currentDate.month
           );
         }
 
 
-        params.append(
-          "year",
-          currentDate.year
-        );
+        /*
+        ---------------------------------------------------
+        DAY
+        ---------------------------------------------------
+        */
 
-
-        params.append(
-          "month",
-          currentDate.month
-        );
-
-
-        if (selectedDay) {
+        if (
+          selectedDay &&
+          selectedYear &&
+          selectedMonth
+        ) {
 
           params.append(
             "date",
-            `${currentDate.year}-${currentDate.month}-${selectedDay}`
+            `${selectedYear}-${selectedMonth}-${selectedDay}`
           );
         }
 
@@ -285,7 +483,15 @@ export default function IncomeList() {
         const response =
           await fetch(
             `${API_BASE_URL}/income_list.php?${params.toString()}`,
-            { credentials: "include" }
+            {
+              method: "GET",
+              credentials: "include",
+
+              headers: {
+                Accept:
+                  "application/json",
+              },
+            }
           );
 
 
@@ -309,6 +515,15 @@ export default function IncomeList() {
         }
 
 
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            `Server Error: ${response.status}`
+          );
+        }
+
+
         if (!data.success) {
 
           setIncome([]);
@@ -323,26 +538,22 @@ export default function IncomeList() {
 
 
         const records =
-          Array.isArray(
-            data.data
-          )
+          Array.isArray(data.data)
             ? data.data
             : [];
 
 
-        setIncome(
-          records
-        );
+        setIncome(records);
 
 
-        setTotalIncome(
-          Number(
-            data.total_income || 0
-          )
-        );
-
+        /*
+        ---------------------------------------------------
+        Branch
+        ---------------------------------------------------
+        */
 
         if (
+          !admin &&
           data.user_branch &&
           data.user_branch !== "ALL"
         ) {
@@ -350,14 +561,21 @@ export default function IncomeList() {
           setUserBranch(
             data.user_branch
           );
-
-        } else if (
-          data.user_branch === "ALL"
-        ) {
-
-          setUserBranch("");
-
         }
+
+
+        /*
+        ---------------------------------------------------
+        Backend total
+        ---------------------------------------------------
+        */
+
+        setTotalIncome(
+          Number(
+            data.total_income || 0
+          )
+        );
+
 
       } catch (error) {
 
@@ -367,6 +585,8 @@ export default function IncomeList() {
         );
 
         setIncome([]);
+
+        setTotalIncome(0);
 
         setError(
           error.message ||
@@ -386,20 +606,36 @@ export default function IncomeList() {
 
   useEffect(() => {
 
-    if (
-      !teacherId &&
-      !adminId
-    ) {
+    if (!userRole) {
       return;
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
+    if (
+      isAdminRole(userRole)
+    ) {
+
+      if (!adminId) {
+        return;
+      }
+
+    } else {
+
+      if (!teacherId) {
+        return;
+      }
+    }
+
+
     fetchIncome();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     teacherId,
     adminId,
+    userRole,
+    selectedYear,
+    selectedMonth,
     selectedDay,
   ]);
 
@@ -408,21 +644,36 @@ export default function IncomeList() {
      DAYS
   ===================================================== */
 
-  const daysInMonth =
-    new Date(
+  const daysInSelectedMonth =
+    useMemo(() => {
+
+      const year =
+        selectedYear ||
+        currentDate.year;
+
+      const month =
+        selectedMonth ||
+        currentDate.month;
+
+      return new Date(
+        Number(year),
+        Number(month),
+        0
+      ).getDate();
+
+    }, [
+      selectedYear,
+      selectedMonth,
       currentDate.year,
-      Number(
-        currentDate.month
-      ),
-      0
-    ).getDate();
+      currentDate.month,
+    ]);
 
 
   const dayOptions =
     Array.from(
       {
         length:
-          daysInMonth,
+          daysInSelectedMonth,
       },
       (_, index) =>
         String(
@@ -432,7 +683,7 @@ export default function IncomeList() {
 
 
   /* =====================================================
-     SEARCH
+     FILTERED DATA
   ===================================================== */
 
   const filteredIncome =
@@ -444,13 +695,42 @@ export default function IncomeList() {
           .toLowerCase();
 
 
-      if (!text) {
-        return income;
-      }
-
-
       return income.filter(
         (item) => {
+
+          /*
+          -------------------------------------------------
+          ADMIN BRANCH FILTER
+          -------------------------------------------------
+          */
+
+          if (
+            isAdminRole(userRole) &&
+            selectedBranch
+          ) {
+
+            if (
+              String(
+                item.branch || ""
+              ).trim() !==
+              selectedBranch
+            ) {
+
+              return false;
+            }
+          }
+
+
+          /*
+          -------------------------------------------------
+          SEARCH
+          -------------------------------------------------
+          */
+
+          if (!text) {
+            return true;
+          }
+
 
           return (
 
@@ -496,13 +776,31 @@ export default function IncomeList() {
               .toLowerCase()
               .includes(text)
           );
+
         }
       );
 
     }, [
       income,
       search,
+      selectedBranch,
+      userRole,
     ]);
+
+
+  /* =====================================================
+     DISPLAY TOTAL
+  ===================================================== */
+
+  const displayTotalIncome =
+    filteredIncome.reduce(
+      (total, item) =>
+        total +
+        Number(
+          item.amount || 0
+        ),
+      0
+    );
 
 
   /* =====================================================
@@ -540,6 +838,7 @@ export default function IncomeList() {
 
               body:
                 JSON.stringify({
+
                   id,
 
                   teacher_id:
@@ -615,17 +914,50 @@ export default function IncomeList() {
 
 
   /* =====================================================
-     CLEAR
+     CLEAR FILTERS
   ===================================================== */
 
   const clearFilters =
     () => {
 
       setSearch("");
-
       setSelectedDay("");
+      setSelectedBranch("");
+
+      /*
+      Admin-এর ক্ষেত্রে clear করলে
+      year/month empty = ALL historical data.
+      */
+
+      if (
+        isAdminRole(userRole)
+      ) {
+
+        setSelectedYear("");
+        setSelectedMonth("");
+
+      } else {
+
+        /*
+        Teacher-এর current month fixed.
+        */
+
+        setSelectedYear(
+          String(
+            currentDate.year
+          )
+        );
+
+        setSelectedMonth(
+          currentDate.month
+        );
+      }
     };
 
+
+  /* =====================================================
+     RENDER
+  ===================================================== */
 
   return (
 
@@ -639,19 +971,28 @@ export default function IncomeList() {
             Income List
           </h1>
 
-          <p>
-            Current Month Income
-          </p>
+
+          {isAdminRole(userRole) ? (
+
+            <p>
+              All Income Records
+            </p>
+
+          ) : (
+
+            <p>
+              Current Month Income
+            </p>
+          )}
 
 
-          {isAdminRole(
-            userRole
-          ) ? (
+          {isAdminRole(userRole) ? (
 
             <p>
               Branch:{" "}
               <strong>
-                All Branches
+                {selectedBranch ||
+                  "All Branches"}
               </strong>
             </p>
 
@@ -674,7 +1015,9 @@ export default function IncomeList() {
         <button
           type="button"
           className="admin-list-add-button"
-          onClick={() => navigate("/admin/income")}
+          onClick={() =>
+            navigate("/admin/income")
+          }
         >
           + Add Income
         </button>
@@ -688,9 +1031,7 @@ export default function IncomeList() {
 
           <strong>
             ৳{" "}
-            {Number(
-              totalIncome
-            ).toLocaleString(
+            {displayTotalIncome.toLocaleString(
               "en-BD"
             )}
           </strong>
@@ -714,9 +1055,7 @@ export default function IncomeList() {
         <input
           type="text"
           placeholder="Search income..."
-          value={
-            search
-          }
+          value={search}
           onChange={(e) =>
             setSearch(
               e.target.value
@@ -725,17 +1064,177 @@ export default function IncomeList() {
         />
 
 
-        <div className="income-current-month">
+        {/* =================================================
+            ADMIN YEAR
+        ================================================= */}
 
-          {currentDate.year}-
-          {currentDate.month}
+        {isAdminRole(userRole) ? (
 
-        </div>
+          <select
+            value={selectedYear}
+            onChange={(e) => {
 
+              setSelectedYear(
+                e.target.value
+              );
+
+              setSelectedDay("");
+
+            }}
+          >
+
+            <option value="">
+              All Years
+            </option>
+
+            {yearOptions.map(
+              (year) => (
+
+                <option
+                  key={year}
+                  value={year}
+                >
+                  {year}
+                </option>
+
+              )
+            )}
+
+          </select>
+
+        ) : (
+
+          <div className="income-current-month">
+
+            {currentDate.year}-
+            {currentDate.month}
+
+          </div>
+        )}
+
+
+        {/* =================================================
+            ADMIN MONTH
+        ================================================= */}
+
+        {isAdminRole(userRole) ? (
+
+          <select
+            value={selectedMonth}
+            onChange={(e) => {
+
+              setSelectedMonth(
+                e.target.value
+              );
+
+              setSelectedDay("");
+
+            }}
+          >
+
+            <option value="">
+              All Months
+            </option>
+
+            <option value="01">
+              January
+            </option>
+
+            <option value="02">
+              February
+            </option>
+
+            <option value="03">
+              March
+            </option>
+
+            <option value="04">
+              April
+            </option>
+
+            <option value="05">
+              May
+            </option>
+
+            <option value="06">
+              June
+            </option>
+
+            <option value="07">
+              July
+            </option>
+
+            <option value="08">
+              August
+            </option>
+
+            <option value="09">
+              September
+            </option>
+
+            <option value="10">
+              October
+            </option>
+
+            <option value="11">
+              November
+            </option>
+
+            <option value="12">
+              December
+            </option>
+
+          </select>
+
+        ) : null}
+
+
+        {/* =================================================
+            ADMIN BRANCH
+        ================================================= */}
+
+        {isAdminRole(userRole) && (
+
+          <select
+            value={selectedBranch}
+            onChange={(e) =>
+              setSelectedBranch(
+                e.target.value
+              )
+            }
+          >
+
+            <option value="">
+              All Branches
+            </option>
+
+            {branchOptions.map(
+              (branch) => (
+
+                <option
+                  key={branch}
+                  value={branch}
+                >
+                  {branch}
+                </option>
+
+              )
+            )}
+
+          </select>
+
+        )}
+
+
+        {/* =================================================
+            DAY
+        ================================================= */}
 
         <select
-          value={
-            selectedDay
+          value={selectedDay}
+          disabled={
+            !selectedYear ||
+            !selectedMonth
           }
           onChange={(e) =>
             setSelectedDay(
@@ -767,9 +1266,7 @@ export default function IncomeList() {
         <button
           type="button"
           className="clear-filter"
-          onClick={
-            clearFilters
-          }
+          onClick={clearFilters}
         >
           Clear
         </button>
@@ -785,8 +1282,7 @@ export default function IncomeList() {
             Loading...
           </div>
 
-        ) : filteredIncome.length ===
-          0 ? (
+        ) : filteredIncome.length === 0 ? (
 
           <div className="income-empty">
             No income records found.
@@ -802,7 +1298,9 @@ export default function IncomeList() {
 
                 <th>#</th>
 
-                <th>Date</th>
+                <th>
+                  Date
+                </th>
 
                 <th>
                   Income Type
@@ -867,12 +1365,16 @@ export default function IncomeList() {
 
 
                     <td>
+
                       <span className="income-type">
+
                         {
                           item.income_type ||
                           "-"
                         }
+
                       </span>
+
                     </td>
 
 
@@ -881,6 +1383,7 @@ export default function IncomeList() {
                       {item.student_id ? (
 
                         <>
+
                           <strong>
                             {
                               item.student_id
@@ -895,6 +1398,7 @@ export default function IncomeList() {
                               ""
                             }
                           </small>
+
                         </>
 
                       ) : (
@@ -919,6 +1423,7 @@ export default function IncomeList() {
                     <td className="income-amount">
 
                       ৳{" "}
+
                       {Number(
                         item.amount ||
                         0

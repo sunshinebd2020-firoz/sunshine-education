@@ -3,11 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config/api";
 
+
 /* =====================================================
    GET LOGGED IN USER
 ===================================================== */
 
 const getLoggedInUser = () => {
+
   const keys = [
     "sunshine_user",
     "admin",
@@ -16,17 +18,27 @@ const getLoggedInUser = () => {
   ];
 
   for (const key of keys) {
-    const value = localStorage.getItem(key);
+
+    const value =
+      localStorage.getItem(key);
 
     if (!value) continue;
 
     try {
-      const user = JSON.parse(value);
 
-      if (user && typeof user === "object") {
+      const user =
+        JSON.parse(value);
+
+      if (
+        user &&
+        typeof user === "object"
+      ) {
+
         return user;
       }
+
     } catch (error) {
+
       console.error(
         `Invalid localStorage data: ${key}`,
         error
@@ -39,76 +51,98 @@ const getLoggedInUser = () => {
 
 
 /* =====================================================
-   GET CURRENT DATE
+   CURRENT DATE
 ===================================================== */
 
 const getCurrentYearMonth = () => {
-  const now = new Date();
+
+  const now =
+    new Date();
 
   return {
-    year: now.getFullYear(),
 
-    month: String(
-      now.getMonth() + 1
-    ).padStart(2, "0"),
+    year:
+      now.getFullYear(),
 
-    day: String(
-      now.getDate()
-    ).padStart(2, "0"),
+    month:
+      String(
+        now.getMonth() + 1
+      ).padStart(
+        2,
+        "0"
+      ),
+
+    day:
+      String(
+        now.getDate()
+      ).padStart(
+        2,
+        "0"
+      ),
   };
 };
 
 
 /* =====================================================
-   CHECK ADMIN ROLE
+   ADMIN
 ===================================================== */
 
 const isAdminRole = (role) => {
-  const normalizedRole = String(
-    role || ""
-  )
-    .trim()
-    .toLowerCase();
+
+  const normalizedRole =
+    String(
+      role || ""
+    )
+      .trim()
+      .toLowerCase();
 
   return [
     "admin",
     "administrator",
     "super admin",
     "superadmin",
-  ].includes(normalizedRole);
+  ].includes(
+    normalizedRole
+  );
 };
 
 
 /* =====================================================
-   GET ADMIN ID
+   ADMIN ID
 ===================================================== */
 
 const getAdminIdFromUser = (user) => {
-  if (!user) return "";
+
+  if (!user) {
+    return "";
+  }
 
   return String(
     user.admin_id ||
-      user.adminId ||
-      user.id ||
-      user.user_id ||
-      user.userId ||
-      ""
+    user.adminId ||
+    user.id ||
+    user.user_id ||
+    user.userId ||
+    ""
   ).trim();
 };
 
 
 /* =====================================================
-   GET TEACHER ID
+   TEACHER ID
 ===================================================== */
 
 const getTeacherIdFromUser = (user) => {
-  if (!user) return "";
+
+  if (!user) {
+    return "";
+  }
 
   return String(
     user.teacher_id ||
-      user.teacherId ||
-      user.teacherID ||
-      ""
+    user.teacherId ||
+    user.teacherID ||
+    ""
   ).trim();
 };
 
@@ -119,7 +153,9 @@ const getTeacherIdFromUser = (user) => {
 
 export default function ExpenseList() {
 
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
+
 
   const currentDate =
     getCurrentYearMonth();
@@ -180,6 +216,28 @@ export default function ExpenseList() {
 
 
   /* =====================================================
+     ADMIN FILTERS
+  ===================================================== */
+
+  const [
+    selectedYear,
+    setSelectedYear
+  ] = useState("");
+
+
+  const [
+    selectedMonth,
+    setSelectedMonth
+  ] = useState("");
+
+
+  const [
+    selectedBranch,
+    setSelectedBranch
+  ] = useState("");
+
+
+  /* =====================================================
      LOAD USER
   ===================================================== */
 
@@ -187,6 +245,7 @@ export default function ExpenseList() {
 
     const user =
       getLoggedInUser();
+
 
     console.log(
       "Expense List Logged User:",
@@ -196,7 +255,6 @@ export default function ExpenseList() {
 
     if (!user) {
 
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError(
         "Login user information পাওয়া যায়নি। আবার login করুন।"
       );
@@ -208,11 +266,15 @@ export default function ExpenseList() {
 
 
     const currentTeacherId =
-      getTeacherIdFromUser(user);
+      getTeacherIdFromUser(
+        user
+      );
 
 
     const currentAdminId =
-      getAdminIdFromUser(user);
+      getAdminIdFromUser(
+        user
+      );
 
 
     const currentRole =
@@ -226,26 +288,25 @@ export default function ExpenseList() {
     const branch =
       String(
         user.branch ||
-          user.branch_name ||
-          ""
+        user.branch_name ||
+        ""
       ).trim();
 
 
-    /*
-    =====================================================
-    IMPORTANT
+    const admin =
+      isAdminRole(
+        currentRole
+      );
 
-    Admin-এর জন্য teacher_id ব্যবহার করা হবে না।
 
-    Teacher-এর জন্য teacher_id ব্যবহার হবে।
-    =====================================================
-    */
-
-    if (
-      isAdminRole(currentRole)
-    ) {
+    if (admin) {
 
       setTeacherId("");
+
+      /*
+      Admin-এর year/month empty থাকবে।
+      ফলে প্রথমবার সব historical data load হবে।
+      */
 
     } else {
 
@@ -253,6 +314,19 @@ export default function ExpenseList() {
         currentTeacherId
       );
 
+      /*
+      Teacher current month fixed.
+      */
+
+      setSelectedYear(
+        String(
+          currentDate.year
+        )
+      );
+
+      setSelectedMonth(
+        currentDate.month
+      );
     }
 
 
@@ -260,24 +334,18 @@ export default function ExpenseList() {
       currentAdminId
     );
 
-
     setUserRole(
       currentRole
     );
 
-
-    if (branch) {
-
-      setUserBranch(
-        branch
-      );
-
-    }
+    setUserBranch(
+      branch
+    );
 
 
     console.log(
       "Expense User Teacher ID:",
-      isAdminRole(currentRole)
+      admin
         ? "ADMIN - NOT USED"
         : currentTeacherId
     );
@@ -301,6 +369,97 @@ export default function ExpenseList() {
 
 
   /* =====================================================
+     BRANCH OPTIONS
+  ===================================================== */
+
+  const branchOptions =
+    useMemo(() => {
+
+      const branches =
+        expenses
+          .map(
+            (item) =>
+              String(
+                item.branch || ""
+              ).trim()
+          )
+          .filter(Boolean);
+
+
+      return [
+        ...new Set(
+          branches
+        )
+      ].sort(
+        (a, b) =>
+          a.localeCompare(
+            b,
+            undefined,
+            {
+              sensitivity:
+                "base"
+            }
+          )
+      );
+
+    }, [
+      expenses
+    ]);
+
+
+  /* =====================================================
+     YEAR OPTIONS
+  ===================================================== */
+
+  const yearOptions =
+    useMemo(() => {
+
+      const years =
+        expenses
+          .map(
+            (item) => {
+
+              const date =
+                String(
+                  item.expense_date ||
+                  ""
+                );
+
+              return date.length >= 4
+                ? date.substring(
+                    0,
+                    4
+                  )
+                : "";
+            }
+          )
+          .filter(Boolean);
+
+
+      years.push(
+        String(
+          currentDate.year
+        )
+      );
+
+
+      return [
+        ...new Set(
+          years
+        )
+      ].sort(
+        (a, b) =>
+          Number(b) -
+          Number(a)
+      );
+
+    }, [
+      expenses,
+      currentDate.year
+    ]);
+
+
+  /* =====================================================
      FETCH EXPENSE
   ===================================================== */
 
@@ -310,23 +469,23 @@ export default function ExpenseList() {
       try {
 
         setLoading(true);
-
         setError("");
 
 
+        const admin =
+          isAdminRole(
+            userRole
+          );
+
+
         /*
-        ===================================================
-        ADMIN
-        ===================================================
-
-        Admin-এর জন্য teacher_id প্রয়োজন নেই।
-
-        Teacher-এর জন্য teacher_id প্রয়োজন।
-        ===================================================
+        ---------------------------------------------------
+        TEACHER
+        ---------------------------------------------------
         */
 
         if (
-          !isAdminRole(userRole) &&
+          !admin &&
           !teacherId
         ) {
 
@@ -343,21 +502,31 @@ export default function ExpenseList() {
 
 
         /*
-        Admin-এর জন্য admin_id-ও না থাকলেও
-        list load করার চেষ্টা করা হবে।
-
-        কারণ মূল filtering হবে role অনুযায়ী।
+        ---------------------------------------------------
+        ADMIN
+        ---------------------------------------------------
         */
+
+        if (
+          admin &&
+          !adminId
+        ) {
+
+          setExpenses([]);
+
+          setError(
+            "Admin ID পাওয়া যাচ্ছে না। আবার login করুন।"
+          );
+
+          setLoading(false);
+
+          return;
+        }
+
 
         const params =
           new URLSearchParams();
 
-
-        /*
-        ===================================================
-        ROLE
-        ===================================================
-        */
 
         params.append(
           "role",
@@ -365,18 +534,20 @@ export default function ExpenseList() {
         );
 
 
-        /*
-        ===================================================
-        TEACHER ONLY
-        ===================================================
+        params.append(
+          "admin_id",
+          adminId
+        );
 
-        শুধুমাত্র Teacher হলে teacher_id পাঠানো হবে।
-        Admin হলে teacher_id একদম পাঠানো হবে না।
-        ===================================================
+
+        /*
+        ---------------------------------------------------
+        TEACHER ONLY
+        ---------------------------------------------------
         */
 
         if (
-          !isAdminRole(userRole) &&
+          !admin &&
           teacherId
         ) {
 
@@ -384,93 +555,69 @@ export default function ExpenseList() {
             "teacher_id",
             teacherId
           );
-
         }
 
 
         /*
-        ===================================================
-        ADMIN ID
-        ===================================================
+        ---------------------------------------------------
+        ADMIN YEAR / MONTH
+        ---------------------------------------------------
         */
 
-        if (adminId) {
+        if (admin) {
 
-          params.append(
-            "admin_id",
-            adminId
-          );
+          if (selectedYear) {
 
-        }
+            params.append(
+              "year",
+              selectedYear
+            );
+          }
 
+          if (selectedMonth) {
 
-        /*
-        ===================================================
-        CURRENT YEAR
-        ===================================================
-        */
-
-        params.append(
-          "year",
-          String(
-            currentDate.year
-          )
-        );
-
-
-        /*
-        ===================================================
-        CURRENT MONTH
-        ===================================================
-        */
-
-        params.append(
-          "month",
-          currentDate.month
-        );
-
-
-        /*
-        ===================================================
-        SELECTED DAY
-        ===================================================
-        */
-
-        if (selectedDay) {
-
-          params.append(
-            "date",
-            `${currentDate.year}-${currentDate.month}-${selectedDay}`
-          );
-
-        }
-
-
-        /*
-        ===================================================
-        ADMIN FLAG
-
-        Backend-কে পরিষ্কারভাবে জানানো হচ্ছে যে
-        current user Admin হলে ALL branch দেখতে হবে।
-        ===================================================
-        */
-
-        if (
-          isAdminRole(userRole)
-        ) {
-
-          params.append(
-            "scope",
-            "all"
-          );
+            params.append(
+              "month",
+              selectedMonth
+            );
+          }
 
         } else {
 
+          /*
+          Teacher-এর জন্য current month.
+          */
+
           params.append(
-            "scope",
-            "branch"
+            "year",
+            String(
+              currentDate.year
+            )
           );
 
+          params.append(
+            "month",
+            currentDate.month
+          );
+        }
+
+
+        /*
+        ---------------------------------------------------
+        DAY
+        ---------------------------------------------------
+        */
+
+        if (
+          selectedDay &&
+          selectedYear &&
+          selectedMonth
+        ) {
+
+          params.append(
+            "date",
+            `${selectedYear}-${selectedMonth}-${selectedDay}`
+          );
         }
 
 
@@ -489,7 +636,9 @@ export default function ExpenseList() {
             url,
             {
               method: "GET",
-              credentials: "include",
+
+              credentials:
+                "include",
 
               headers: {
                 Accept:
@@ -524,26 +673,18 @@ export default function ExpenseList() {
             jsonError
           );
 
-          setExpenses([]);
-
-          setError(
+          throw new Error(
             "Expense API থেকে সঠিক JSON response পাওয়া যায়নি।"
           );
-
-          return;
         }
 
 
         if (!response.ok) {
 
-          setExpenses([]);
-
-          setError(
+          throw new Error(
             data.message ||
-              `Server Error: ${response.status}`
+            `Server Error: ${response.status}`
           );
-
-          return;
         }
 
 
@@ -553,7 +694,7 @@ export default function ExpenseList() {
 
           setError(
             data.message ||
-              "Expense data পাওয়া যায়নি।"
+            "Expense data পাওয়া যায়নি।"
           );
 
           return;
@@ -589,7 +730,6 @@ export default function ExpenseList() {
 
           records =
             data.expense;
-
         }
 
 
@@ -599,16 +739,13 @@ export default function ExpenseList() {
 
 
         /*
-        ===================================================
+        ---------------------------------------------------
         USER BRANCH
-
-        শুধু Teacher-এর ক্ষেত্রে branch ব্যবহার করা হবে।
-        Admin-এর ক্ষেত্রে ALL থাকবে।
-        ===================================================
+        ---------------------------------------------------
         */
 
         if (
-          !isAdminRole(userRole) &&
+          !admin &&
           data.user_branch &&
           data.user_branch !== "ALL"
         ) {
@@ -616,7 +753,6 @@ export default function ExpenseList() {
           setUserBranch(
             data.user_branch
           );
-
         }
 
 
@@ -630,13 +766,13 @@ export default function ExpenseList() {
         setExpenses([]);
 
         setError(
+          error.message ||
           "Expense server-এর সাথে সংযোগ করা যাচ্ছে না।"
         );
 
       } finally {
 
         setLoading(false);
-
       }
     };
 
@@ -647,17 +783,16 @@ export default function ExpenseList() {
 
   useEffect(() => {
 
-    /*
-    Admin হলে adminId থাকলেই load হবে।
+    if (!userRole) {
+      return;
+    }
 
-    Teacher হলে teacherId থাকলেই load হবে।
-    */
 
     if (
       isAdminRole(userRole)
     ) {
 
-      if (!userRole) {
+      if (!adminId) {
         return;
       }
 
@@ -666,11 +801,9 @@ export default function ExpenseList() {
       if (!teacherId) {
         return;
       }
-
     }
 
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchExpenses();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -678,6 +811,8 @@ export default function ExpenseList() {
     teacherId,
     adminId,
     userRole,
+    selectedYear,
+    selectedMonth,
     selectedDay,
   ]);
 
@@ -686,18 +821,27 @@ export default function ExpenseList() {
      DAYS
   ===================================================== */
 
-  const daysInCurrentMonth =
+  const daysInSelectedMonth =
     useMemo(() => {
 
+      const year =
+        selectedYear ||
+        currentDate.year;
+
+      const month =
+        selectedMonth ||
+        currentDate.month;
+
+
       return new Date(
-        currentDate.year,
-        Number(
-          currentDate.month
-        ),
+        Number(year),
+        Number(month),
         0
       ).getDate();
 
     }, [
+      selectedYear,
+      selectedMonth,
       currentDate.year,
       currentDate.month,
     ]);
@@ -707,17 +851,20 @@ export default function ExpenseList() {
     Array.from(
       {
         length:
-          daysInCurrentMonth,
+          daysInSelectedMonth,
       },
       (_, index) =>
         String(
           index + 1
-        ).padStart(2, "0")
+        ).padStart(
+          2,
+          "0"
+        )
     );
 
 
   /* =====================================================
-     SEARCH
+     FILTERED EXPENSES
   ===================================================== */
 
   const filteredExpenses =
@@ -732,6 +879,37 @@ export default function ExpenseList() {
       return expenses.filter(
         (item) => {
 
+          /*
+          -------------------------------------------------
+          ADMIN BRANCH
+          -------------------------------------------------
+          */
+
+          if (
+            isAdminRole(
+              userRole
+            ) &&
+            selectedBranch
+          ) {
+
+            if (
+              String(
+                item.branch || ""
+              ).trim() !==
+              selectedBranch
+            ) {
+
+              return false;
+            }
+          }
+
+
+          /*
+          -------------------------------------------------
+          SEARCH
+          -------------------------------------------------
+          */
+
           if (!searchText) {
             return true;
           }
@@ -741,7 +919,7 @@ export default function ExpenseList() {
 
             String(
               item.expense_type ||
-                ""
+              ""
             )
               .toLowerCase()
               .includes(
@@ -750,7 +928,7 @@ export default function ExpenseList() {
 
             String(
               item.description ||
-                ""
+              ""
             )
               .toLowerCase()
               .includes(
@@ -759,7 +937,7 @@ export default function ExpenseList() {
 
             String(
               item.payment_method ||
-                ""
+              ""
             )
               .toLowerCase()
               .includes(
@@ -768,7 +946,7 @@ export default function ExpenseList() {
 
             String(
               item.staff_id ||
-                ""
+              ""
             )
               .toLowerCase()
               .includes(
@@ -777,7 +955,7 @@ export default function ExpenseList() {
 
             String(
               item.staff_name ||
-                ""
+              ""
             )
               .toLowerCase()
               .includes(
@@ -786,13 +964,12 @@ export default function ExpenseList() {
 
             String(
               item.branch ||
-                ""
+              ""
             )
               .toLowerCase()
               .includes(
                 searchText
               )
-
           );
 
         }
@@ -801,11 +978,13 @@ export default function ExpenseList() {
     }, [
       expenses,
       search,
+      selectedBranch,
+      userRole,
     ]);
 
 
   /* =====================================================
-     TOTAL
+     TOTAL EXPENSE
   ===================================================== */
 
   const totalExpense =
@@ -839,43 +1018,29 @@ export default function ExpenseList() {
 
       try {
 
-        /*
-        ===================================================
-        DELETE DATA
-        ===================================================
-        */
-
         const deleteData = {
           id,
-          role: userRole,
+          role:
+            userRole,
         };
 
 
-        /*
-        Admin হলে teacher_id পাঠানো হবে না।
-        Teacher হলে teacher_id পাঠানো হবে।
-        */
-
         if (
-          !isAdminRole(userRole) &&
+          !isAdminRole(
+            userRole
+          ) &&
           teacherId
         ) {
 
           deleteData.teacher_id =
             teacherId;
-
         }
 
-
-        /*
-        Admin ID থাকলে পাঠানো হবে।
-        */
 
         if (adminId) {
 
           deleteData.admin_id =
             adminId;
-
         }
 
 
@@ -884,7 +1049,9 @@ export default function ExpenseList() {
             `${API_BASE_URL}/expense_delete.php`,
             {
               method: "POST",
-              credentials: "include",
+
+              credentials:
+                "include",
 
               headers: {
                 "Content-Type":
@@ -918,9 +1085,8 @@ export default function ExpenseList() {
 
           alert(
             data.message ||
-              "Expense delete করা যায়নি।"
+            "Expense delete করা যায়নি।"
           );
-
         }
 
       } catch (error) {
@@ -933,9 +1099,7 @@ export default function ExpenseList() {
         alert(
           "Server-এর সাথে সংযোগ করা যাচ্ছে না।"
         );
-
       }
-
     };
 
 
@@ -949,7 +1113,6 @@ export default function ExpenseList() {
       navigate(
         `/admin/expense-edit/${id}`
       );
-
     };
 
 
@@ -961,9 +1124,42 @@ export default function ExpenseList() {
     () => {
 
       setSearch("");
-
       setSelectedDay("");
+      setSelectedBranch("");
 
+
+      if (
+        isAdminRole(
+          userRole
+        )
+      ) {
+
+        /*
+        Admin:
+        empty year/month =
+        all historical data
+        */
+
+        setSelectedYear("");
+        setSelectedMonth("");
+
+      } else {
+
+        /*
+        Teacher:
+        current month fixed
+        */
+
+        setSelectedYear(
+          String(
+            currentDate.year
+          )
+        );
+
+        setSelectedMonth(
+          currentDate.month
+        );
+      }
     };
 
 
@@ -975,10 +1171,6 @@ export default function ExpenseList() {
 
     <div className="expense-list">
 
-      {/* =================================================
-          HEADER
-      ================================================= */}
-
       <div className="expense-list-header">
 
         <div>
@@ -987,60 +1179,71 @@ export default function ExpenseList() {
             Expense List
           </h1>
 
-          <p>
-            Current Month Expense
-          </p>
 
-
-          {/* =============================================
-              ONLY TEACHER BRANCH
-          ============================================= */}
-
-          {!isAdminRole(
+          {isAdminRole(
             userRole
-          ) &&
-            userBranch && (
+          ) ? (
 
             <p>
+              All Expense Records
+            </p>
 
-              Branch:{" "}
+          ) : (
 
-              <strong>
-                {userBranch}
-              </strong>
-
+            <p>
+              Current Month Expense
             </p>
 
           )}
 
 
-          {/* =============================================
-              ADMIN LABEL
-          ============================================= */}
-
           {isAdminRole(
             userRole
-          ) && (
+          ) ? (
 
             <p>
-
+              Branch:{" "}
               <strong>
-                All Branches
+                {
+                  selectedBranch ||
+                  "All Branches"
+                }
               </strong>
-
             </p>
+
+          ) : (
+
+            userBranch && (
+
+              <p>
+
+                Branch:{" "}
+
+                <strong>
+                  {userBranch}
+                </strong>
+
+              </p>
+
+            )
 
           )}
 
         </div>
 
+
         <button
           type="button"
           className="admin-list-add-button"
-          onClick={() => navigate("/admin/expense")}
+          onClick={() =>
+            navigate(
+              "/admin/expense"
+            )
+          }
         >
           + Add Expense
         </button>
+
 
         {/* =================================================
             TOTAL
@@ -1051,6 +1254,7 @@ export default function ExpenseList() {
           <span>
             Total Expense
           </span>
+
 
           <strong>
 
@@ -1106,17 +1310,186 @@ export default function ExpenseList() {
         />
 
 
-        <div className="expense-current-month">
+        {/* =================================================
+            ADMIN YEAR
+        ================================================= */}
 
-          {currentDate.year}-
-          {currentDate.month}
+        {isAdminRole(
+          userRole
+        ) ? (
 
-        </div>
+          <select
+            value={selectedYear}
+            onChange={(e) => {
 
+              setSelectedYear(
+                e.target.value
+              );
+
+              setSelectedDay("");
+
+            }}
+          >
+
+            <option value="">
+              All Years
+            </option>
+
+
+            {yearOptions.map(
+              (year) => (
+
+                <option
+                  key={year}
+                  value={year}
+                >
+                  {year}
+                </option>
+
+              )
+            )}
+
+          </select>
+
+        ) : (
+
+          <div className="expense-current-month">
+
+            {currentDate.year}-
+            {currentDate.month}
+
+          </div>
+
+        )}
+
+
+        {/* =================================================
+            ADMIN MONTH
+        ================================================= */}
+
+        {isAdminRole(
+          userRole
+        ) && (
+
+          <select
+            value={selectedMonth}
+            onChange={(e) => {
+
+              setSelectedMonth(
+                e.target.value
+              );
+
+              setSelectedDay("");
+
+            }}
+          >
+
+            <option value="">
+              All Months
+            </option>
+
+            <option value="01">
+              January
+            </option>
+
+            <option value="02">
+              February
+            </option>
+
+            <option value="03">
+              March
+            </option>
+
+            <option value="04">
+              April
+            </option>
+
+            <option value="05">
+              May
+            </option>
+
+            <option value="06">
+              June
+            </option>
+
+            <option value="07">
+              July
+            </option>
+
+            <option value="08">
+              August
+            </option>
+
+            <option value="09">
+              September
+            </option>
+
+            <option value="10">
+              October
+            </option>
+
+            <option value="11">
+              November
+            </option>
+
+            <option value="12">
+              December
+            </option>
+
+          </select>
+
+        )}
+
+
+        {/* =================================================
+            ADMIN BRANCH
+        ================================================= */}
+
+        {isAdminRole(
+          userRole
+        ) && (
+
+          <select
+            value={selectedBranch}
+            onChange={(e) =>
+              setSelectedBranch(
+                e.target.value
+              )
+            }
+          >
+
+            <option value="">
+              All Branches
+            </option>
+
+
+            {branchOptions.map(
+              (branch) => (
+
+                <option
+                  key={branch}
+                  value={branch}
+                >
+                  {branch}
+                </option>
+
+              )
+            )}
+
+          </select>
+
+        )}
+
+
+        {/* =================================================
+            DAY
+        ================================================= */}
 
         <select
-          value={
-            selectedDay
+          value={selectedDay}
+          disabled={
+            !selectedYear ||
+            !selectedMonth
           }
           onChange={(e) =>
             setSelectedDay(
@@ -1137,9 +1510,7 @@ export default function ExpenseList() {
                 key={day}
                 value={day}
               >
-
                 Day {Number(day)}
-
               </option>
 
             )
@@ -1155,9 +1526,7 @@ export default function ExpenseList() {
             clearFilters
           }
         >
-
           Clear
-
         </button>
 
       </div>
@@ -1172,17 +1541,13 @@ export default function ExpenseList() {
         {loading ? (
 
           <div className="expense-loading">
-
             Loading...
-
           </div>
 
         ) : filteredExpenses.length === 0 ? (
 
           <div className="expense-empty">
-
             No expense records found.
-
           </div>
 
         ) : (
@@ -1250,8 +1615,10 @@ export default function ExpenseList() {
 
 
                     <td>
-                      {item.expense_date ||
-                        "-"}
+                      {
+                        item.expense_date ||
+                        "-"
+                      }
                     </td>
 
 
@@ -1259,8 +1626,10 @@ export default function ExpenseList() {
 
                       <span className="expense-type">
 
-                        {item.expense_type ||
-                          "-"}
+                        {
+                          item.expense_type ||
+                          "-"
+                        }
 
                       </span>
 
@@ -1271,8 +1640,10 @@ export default function ExpenseList() {
 
                       <strong>
 
-                        {item.staff_id ||
-                          "-"}
+                        {
+                          item.staff_id ||
+                          "-"
+                        }
 
                       </strong>
 
@@ -1280,8 +1651,10 @@ export default function ExpenseList() {
 
                       <small>
 
-                        {item.staff_name ||
-                          ""}
+                        {
+                          item.staff_name ||
+                          ""
+                        }
 
                       </small>
 
@@ -1290,8 +1663,10 @@ export default function ExpenseList() {
 
                     <td>
 
-                      {item.description ||
-                        "-"}
+                      {
+                        item.description ||
+                        "-"
+                      }
 
                     </td>
 
@@ -1302,7 +1677,7 @@ export default function ExpenseList() {
 
                       {Number(
                         item.amount ||
-                          0
+                        0
                       ).toLocaleString(
                         "en-BD"
                       )}
@@ -1312,16 +1687,20 @@ export default function ExpenseList() {
 
                     <td>
 
-                      {item.payment_method ||
-                        "-"}
+                      {
+                        item.payment_method ||
+                        "-"
+                      }
 
                     </td>
 
 
                     <td>
 
-                      {item.branch ||
-                        "-"}
+                      {
+                        item.branch ||
+                        "-"
+                      }
 
                     </td>
 
@@ -1339,9 +1718,7 @@ export default function ExpenseList() {
                             )
                           }
                         >
-
                           ✏️
-
                         </button>
 
 
@@ -1354,9 +1731,7 @@ export default function ExpenseList() {
                             )
                           }
                         >
-
                           🗑️
-
                         </button>
 
                       </div>
@@ -1377,6 +1752,5 @@ export default function ExpenseList() {
       </div>
 
     </div>
-
   );
 }

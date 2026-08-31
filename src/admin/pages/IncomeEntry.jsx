@@ -380,9 +380,9 @@ export default function IncomeEntry() {
 
           const records =
             Array.isArray(
-              data.branches
+              data.branch
             )
-              ? data.branches
+              ? data.branch
               : Array.isArray(
                   data.data
                 )
