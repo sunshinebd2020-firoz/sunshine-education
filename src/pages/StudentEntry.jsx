@@ -368,7 +368,7 @@ export default function StudentEntry() {
   ========================================= */
 
   useEffect(() => {
-    const fetchBranches = async () => {
+    const fetchBranch = async () => {
       try {
         setBranchLoading(true);
 
@@ -388,7 +388,7 @@ export default function StudentEntry() {
 
         if (data.success) {
           setBranches(
-            data.branches || []
+            data.branch || []
           );
         }
       } catch (error) {
@@ -401,7 +401,7 @@ export default function StudentEntry() {
       }
     };
 
-    fetchBranches();
+    fetchBranch();
   }, []);
 
   /* =========================================
