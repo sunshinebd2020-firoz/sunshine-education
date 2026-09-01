@@ -755,3 +755,232 @@
     height: calc(100vh - 290px);
   }
 }
+
+/* =====================================================
+   ASSIGNED TEACHER
+===================================================== */
+
+.assigned-teacher {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #e8f7ee;
+  color: #176b3a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.teacher-not-assigned {
+  display: inline-flex;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =====================================================
+   ASSIGN BUTTON
+===================================================== */
+
+.assign-teacher-button {
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.assign-teacher-button:hover {
+  opacity: 0.9;
+}
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+
+.pending-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* =====================================================
+   ASSIGN TEACHER OVERLAY
+===================================================== */
+
+.assign-teacher-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+}
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.assign-teacher-modal {
+  width: 460px;
+  max-width: calc(100vw - 30px);
+
+  background: #fff;
+  border-radius: 12px;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.25);
+
+  overflow: hidden;
+}
+
+/* =====================================================
+   MODAL HEADER
+===================================================== */
+
+.assign-teacher-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  padding: 20px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.assign-teacher-header h2 {
+  margin: 0 0 5px;
+  font-size: 20px;
+}
+
+.assign-teacher-header p {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.assign-teacher-header small {
+  color: #6b7280;
+}
+
+.assign-close-button {
+  border: none;
+  background: transparent;
+  color: #555;
+
+  font-size: 18px;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+}
+
+.assign-close-button:hover {
+  background: #f3f4f6;
+}
+
+/* =====================================================
+   MODAL BODY
+===================================================== */
+
+.assign-teacher-body {
+  padding: 20px;
+}
+
+.assign-teacher-body label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.assign-teacher-body select {
+  width: 100%;
+
+  padding: 11px 12px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+
+  background: #fff;
+
+  font-size: 14px;
+
+  outline: none;
+}
+
+.assign-teacher-body select:focus {
+  border-color: #2563eb;
+}
+
+.teacher-loading-text,
+.teacher-empty-text {
+  margin-top: 10px;
+
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* =====================================================
+   MODAL FOOTER
+===================================================== */
+
+.assign-teacher-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  padding: 16px 20px;
+
+  background: #f9fafb;
+
+  border-top: 1px solid #e5e7eb;
+}
+
+.assign-cancel-button,
+.assign-save-button {
+  border: none;
+
+  padding: 10px 16px;
+
+  border-radius: 7px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+}
+
+.assign-cancel-button {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.assign-save-button {
+  background: #2563eb;
+  color: #fff;
+}
+
+.assign-save-button:hover {
+  opacity: 0.9;
+}
+
+.assign-cancel-button:disabled,
+.assign-save-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

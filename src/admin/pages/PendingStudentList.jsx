@@ -4,9 +4,17 @@ import API_BASE_URL, { API_ORIGIN } from "../../config/api";
 
 export default function PendingStudentList() {
   const [students, setStudents] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [teacherLoading, setTeacherLoading] = useState(false);
+  const [assigning, setAssigning] = useState(false);
+
   const [message, setMessage] = useState("");
+
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedTeacher, setSelectedTeacher] = useState("");
 
   const API = `${API_BASE_URL}/`;
   const UPLOADS = `${API_ORIGIN}/uploads/students/`;
@@ -42,7 +50,7 @@ export default function PendingStudentList() {
       try {
         data = JSON.parse(text);
       } catch (error) {
-        console.error("Invalid JSON:", text);
+        console.error("Pending student invalid JSON:", text);
         throw new Error(
           "Backend returned an invalid response."
         );
@@ -55,8 +63,19 @@ export default function PendingStudentList() {
         );
       }
 
-      if (data.success) {
-        const pendingStudents = Array.isArray(data.data)
+      if (!data.success) {
+        setStudents([]);
+
+        setMessage(
+          data.message ||
+            "Pending student data পাওয়া যায়নি।"
+        );
+
+        return;
+      }
+
+      const pendingStudents =
+        Array.isArray(data.data)
           ? data.data
           : Array.isArray(data.students)
             ? data.students
@@ -64,14 +83,8 @@ export default function PendingStudentList() {
               ? data.pending_students
               : [];
 
-        setStudents(pendingStudents);
-      } else {
-        setStudents([]);
-        setMessage(
-          data.message ||
-            "Pending student data পাওয়া যায়নি।"
-        );
-      }
+      setStudents(pendingStudents);
+
     } catch (error) {
       console.error(
         "Load pending students error:",
@@ -79,6 +92,7 @@ export default function PendingStudentList() {
       );
 
       setStudents([]);
+
       setMessage(
         error.message ||
           "Server connection failed."
@@ -89,26 +103,448 @@ export default function PendingStudentList() {
   };
 
   // =====================================================
+  // LOAD PRESENT TEACHERS
+  // =====================================================
+
+  const loadTeachers = async () => {
+    try {
+      setTeacherLoading(true);
+
+      const response = await fetch(
+        `${API}teacher_list.php`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const text = await response.text();
+
+      if (!text.trim()) {
+        throw new Error(
+          "Teacher API returned an empty response."
+        );
+      }
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch (error) {
+        console.error(
+          "Teacher API invalid JSON:",
+          text
+        );
+
+        throw new Error(
+          "Teacher API returned an invalid response."
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            `HTTP Error: ${response.status}`
+        );
+      }
+
+      if (!data.success) {
+        setTeachers([]);
+
+        throw new Error(
+          data.message ||
+            "Teacher list পাওয়া যায়নি।"
+        );
+      }
+
+      const teacherList =
+        Array.isArray(data.teachers)
+          ? data.teachers
+          : Array.isArray(data.data)
+            ? data.data
+            : [];
+
+      // =================================================
+      // ONLY PRESENT TEACHERS
+      // =================================================
+
+      const presentTeachers =
+        teacherList.filter((teacher) => {
+          const status = String(
+            teacher.status ?? ""
+          )
+            .trim()
+            .toLowerCase();
+
+          return status === "present";
+        });
+
+      console.log(
+        "All teachers:",
+        teacherList
+      );
+
+      console.log(
+        "Present teachers:",
+        presentTeachers
+      );
+
+      setTeachers(presentTeachers);
+
+    } catch (error) {
+      console.error(
+        "Load teachers error:",
+        error
+      );
+
+      setTeachers([]);
+
+      setMessage(
+        error.message ||
+          "Teacher list load করা যায়নি।"
+      );
+    } finally {
+      setTeacherLoading(false);
+    }
+  };
+
+  // =====================================================
   // INITIAL LOAD
   // =====================================================
 
   useEffect(() => {
     loadStudents();
+    loadTeachers();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // =====================================================
-  // APPROVE STUDENT
+  // REFRESH
   // =====================================================
 
-  const approveStudent = async (studentId) => {
+  const refreshAll = () => {
+    loadStudents();
+    loadTeachers();
+  };
+
+  // =====================================================
+  // OPEN ASSIGN TEACHER MODAL
+  // =====================================================
+
+  const openAssignTeacher = (student) => {
+    setMessage("");
+
+    setSelectedStudent(student);
+
+    const existingTeacher =
+      student.teacher_id ||
+      student.assigned_teacher_id ||
+      "";
+
+    setSelectedTeacher(
+      String(existingTeacher || "")
+    );
+  };
+
+  // =====================================================
+  // CLOSE MODAL
+  // =====================================================
+
+  const closeAssignTeacher = () => {
+    if (assigning) {
+      return;
+    }
+
+    setSelectedStudent(null);
+    setSelectedTeacher("");
+  };
+
+  // =====================================================
+  // GET TEACHER ID
+  // =====================================================
+
+  const getTeacherId = (teacher) => {
+    return (
+      teacher.teacher_id ||
+      teacher.id ||
+      ""
+    );
+  };
+
+  // =====================================================
+  // GET TEACHER NAME
+  // =====================================================
+
+  const getTeacherDisplayName = (teacher) => {
+    return (
+      teacher.name_en ||
+      teacher.name_bn ||
+      teacher.short_name ||
+      "Unnamed Teacher"
+    );
+  };
+
+  // =====================================================
+  // ASSIGN TEACHER
+  // =====================================================
+
+  const assignTeacher = async () => {
+    if (!selectedStudent) {
+      setMessage(
+        "Student নির্বাচন করা হয়নি।"
+      );
+      return;
+    }
+
+    if (!selectedTeacher) {
+      setMessage(
+        "অনুগ্রহ করে একজন Present teacher নির্বাচন করুন।"
+      );
+      return;
+    }
+
+    const studentId =
+      selectedStudent.student_id;
+
     if (!studentId) {
       setMessage(
         "Student ID পাওয়া যায়নি।"
       );
       return;
     }
+
+    // =================================================
+    // VERIFY SELECTED TEACHER IS PRESENT
+    // =================================================
+
+    const selectedTeacherObject =
+      teachers.find(
+        (teacher) =>
+          String(getTeacherId(teacher)) ===
+          String(selectedTeacher)
+      );
+
+    if (!selectedTeacherObject) {
+      setMessage(
+        "Selected teacher বর্তমানে Present নেই। অনুগ্রহ করে আবার teacher নির্বাচন করুন।"
+      );
+      return;
+    }
+
+    const selectedTeacherStatus =
+      String(
+        selectedTeacherObject.status ?? ""
+      )
+        .trim()
+        .toLowerCase();
+
+    if (selectedTeacherStatus !== "present") {
+      setMessage(
+        "Selected teacher বর্তমানে Present নেই।"
+      );
+      return;
+    }
+
+    try {
+      setAssigning(true);
+      setMessage("");
+
+      const formData = new FormData();
+
+      formData.append(
+        "student_id",
+        String(studentId)
+      );
+
+      formData.append(
+        "teacher_id",
+        String(selectedTeacher)
+      );
+
+      const response = await fetch(
+        `${API}assign_student_teacher.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const text = await response.text();
+
+      if (!text.trim()) {
+        throw new Error(
+          "Assign Teacher API returned an empty response."
+        );
+      }
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch (error) {
+        console.error(
+          "Assign Teacher invalid response:",
+          text
+        );
+
+        throw new Error(
+          "Assign Teacher API returned an invalid response."
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            `HTTP Error: ${response.status}`
+        );
+      }
+
+      if (!data.success) {
+        throw new Error(
+          data.message ||
+            "Teacher assignment failed."
+        );
+      }
+
+      // =================================================
+      // UPDATE LOCAL STUDENT
+      // =================================================
+
+      setStudents((prev) =>
+        prev.map((student) => {
+          if (
+            String(student.student_id) ===
+            String(studentId)
+          ) {
+            return {
+              ...student,
+
+              teacher_id:
+                data.teacher_id ||
+                selectedTeacher,
+
+              assigned_teacher_id:
+                data.teacher_id ||
+                selectedTeacher,
+
+              teacher_name_en:
+                data.teacher_name_en ||
+                selectedTeacherObject.name_en ||
+                "",
+
+              teacher_name_bn:
+                data.teacher_name_bn ||
+                selectedTeacherObject.name_bn ||
+                "",
+            };
+          }
+
+          return student;
+        })
+      );
+
+      setMessage(
+        data.message ||
+          "Teacher successfully assigned."
+      );
+
+      setSelectedStudent(null);
+      setSelectedTeacher("");
+
+    } catch (error) {
+      console.error(
+        "Assign teacher error:",
+        error
+      );
+
+      setMessage(
+        error.message ||
+          "Teacher assignment failed."
+      );
+    } finally {
+      setAssigning(false);
+    }
+  };
+
+  // =====================================================
+  // APPROVE STUDENT
+  // =====================================================
+
+  const approveStudent = async (student) => {
+    const studentId =
+      student.student_id;
+
+    if (!studentId) {
+      setMessage(
+        "Student ID পাওয়া যায়নি।"
+      );
+      return;
+    }
+
+    const teacherId =
+      student.teacher_id ||
+      student.assigned_teacher_id ||
+      "";
+
+    if (!teacherId) {
+      setMessage(
+        "প্রথমে এই student-এর জন্য একজন Present teacher assign করুন।"
+      );
+
+      openAssignTeacher(student);
+
+      return;
+    }
+
+    // =================================================
+    // VERIFY ASSIGNED TEACHER
+    // =================================================
+
+    const assignedTeacher =
+      teachers.find(
+        (teacher) =>
+          String(getTeacherId(teacher)) ===
+          String(teacherId)
+      );
+
+    if (!assignedTeacher) {
+      setMessage(
+        "Assigned teacher বর্তমানে Present নেই। Approve করার আগে একজন Present teacher assign করুন।"
+      );
+
+      openAssignTeacher(student);
+
+      return;
+    }
+
+    const teacherStatus =
+      String(
+        assignedTeacher.status ?? ""
+      )
+        .trim()
+        .toLowerCase();
+
+    if (teacherStatus !== "present") {
+      setMessage(
+        "Assigned teacher বর্তমানে Present নেই।"
+      );
+
+      openAssignTeacher(student);
+
+      return;
+    }
+
+    // =================================================
+    // CONFIRM
+    // =================================================
 
     const confirmApprove =
       window.confirm(
@@ -127,6 +563,11 @@ export default function PendingStudentList() {
       formData.append(
         "student_id",
         String(studentId)
+      );
+
+      formData.append(
+        "teacher_id",
+        String(teacherId)
       );
 
       const response = await fetch(
@@ -171,24 +612,30 @@ export default function PendingStudentList() {
         );
       }
 
-      if (data.success) {
-        setMessage(
-          "Student successfully approved."
-        );
-
-        setStudents((prev) =>
-          prev.filter(
-            (student) =>
-              String(student.student_id) !==
-              String(studentId)
-          )
-        );
-      } else {
-        setMessage(
+      if (!data.success) {
+        throw new Error(
           data.message ||
             "Failed to approve student."
         );
       }
+
+      // =================================================
+      // REMOVE FROM PENDING LIST
+      // =================================================
+
+      setStudents((prev) =>
+        prev.filter(
+          (item) =>
+            String(item.student_id) !==
+            String(studentId)
+        )
+      );
+
+      setMessage(
+        data.message ||
+          "Student successfully approved."
+      );
+
     } catch (error) {
       console.error(
         "Approve student error:",
@@ -275,24 +722,26 @@ export default function PendingStudentList() {
         );
       }
 
-      if (data.success) {
-        setMessage(
-          "Student application rejected."
-        );
-
-        setStudents((prev) =>
-          prev.filter(
-            (student) =>
-              String(student.student_id) !==
-              String(studentId)
-          )
-        );
-      } else {
-        setMessage(
+      if (!data.success) {
+        throw new Error(
           data.message ||
             "Failed to reject student."
         );
       }
+
+      setStudents((prev) =>
+        prev.filter(
+          (student) =>
+            String(student.student_id) !==
+            String(studentId)
+        )
+      );
+
+      setMessage(
+        data.message ||
+          "Student application rejected."
+      );
+
     } catch (error) {
       console.error(
         "Reject student error:",
@@ -394,11 +843,55 @@ export default function PendingStudentList() {
     });
 
   // =====================================================
+  // GET ASSIGNED TEACHER NAME
+  // =====================================================
+
+  const getTeacherName = (student) => {
+    const teacherId =
+      student.teacher_id ||
+      student.assigned_teacher_id ||
+      "";
+
+    if (!teacherId) {
+      return "";
+    }
+
+    // First use API response
+    if (
+      student.teacher_name_en ||
+      student.teacher_name_bn
+    ) {
+      return (
+        student.teacher_name_en ||
+        student.teacher_name_bn
+      );
+    }
+
+    // Then search Present teacher list
+    const teacher =
+      teachers.find(
+        (item) =>
+          String(getTeacherId(item)) ===
+          String(teacherId)
+      );
+
+    if (!teacher) {
+      return String(teacherId);
+    }
+
+    return getTeacherDisplayName(
+      teacher
+    );
+  };
+
+  // =====================================================
   // RENDER
   // =====================================================
 
   return (
     <div className="pending-student-list">
+
+      {/* HEADER */}
 
       <div className="pending-list-header">
 
@@ -419,6 +912,8 @@ export default function PendingStudentList() {
 
       </div>
 
+      {/* SEARCH */}
+
       <div className="pending-search">
 
         <input
@@ -433,13 +928,21 @@ export default function PendingStudentList() {
         <button
           type="button"
           className="pending-refresh"
-          onClick={loadStudents}
-          disabled={loading}
+          onClick={refreshAll}
+          disabled={
+            loading ||
+            teacherLoading
+          }
         >
-          🔄 {loading ? "Loading..." : "Refresh"}
+          🔄{" "}
+          {loading || teacherLoading
+            ? "Loading..."
+            : "Refresh"}
         </button>
 
       </div>
+
+      {/* MESSAGE */}
 
       {message && (
         <div className="pending-message">
@@ -447,14 +950,18 @@ export default function PendingStudentList() {
         </div>
       )}
 
+      {/* LOADING */}
+
       {loading ? (
 
         <div className="pending-loading">
+
           <div className="pending-spinner"></div>
 
           <p>
             Pending students loading...
           </p>
+
         </div>
 
       ) : (
@@ -464,45 +971,22 @@ export default function PendingStudentList() {
           <table>
 
             <thead>
+
               <tr>
 
-                <th>
-                  Photo
-                </th>
-
-                <th>
-                  ID No
-                </th>
-
-                <th>
-                  Name
-                </th>
-
-                <th>
-                  Language
-                </th>
-
-                <th>
-                  Level
-                </th>
-
-                <th>
-                  Branch
-                </th>
-
-                <th>
-                  Mobile
-                </th>
-
-                <th>
-                  Application Date
-                </th>
-
-                <th>
-                  Action
-                </th>
+                <th>Photo</th>
+                <th>ID No</th>
+                <th>Name</th>
+                <th>Language</th>
+                <th>Level</th>
+                <th>Branch</th>
+                <th>Mobile</th>
+                <th>Teacher</th>
+                <th>Application Date</th>
+                <th>Action</th>
 
               </tr>
+
             </thead>
 
             <tbody>
@@ -528,13 +1012,19 @@ export default function PendingStudentList() {
                       student.mobile ||
                       "-";
 
+                    const assignedTeacher =
+                      getTeacherName(student);
+
                     return (
+
                       <tr
                         key={
                           student.id ||
                           studentId
                         }
                       >
+
+                        {/* PHOTO */}
 
                         <td>
 
@@ -586,6 +1076,8 @@ export default function PendingStudentList() {
 
                         </td>
 
+                        {/* ID */}
+
                         <td>
 
                           <strong className="pending-student-id">
@@ -594,6 +1086,8 @@ export default function PendingStudentList() {
                           </strong>
 
                         </td>
+
+                        {/* NAME */}
 
                         <td>
 
@@ -615,24 +1109,55 @@ export default function PendingStudentList() {
 
                         </td>
 
+                        {/* LANGUAGE */}
+
                         <td>
                           {student.course ||
                             "-"}
                         </td>
+
+                        {/* LEVEL */}
 
                         <td>
                           {student.language_level ||
                             "-"}
                         </td>
 
+                        {/* BRANCH */}
+
                         <td>
                           {student.branch ||
                             "-"}
                         </td>
 
+                        {/* MOBILE */}
+
                         <td>
                           {mobile}
                         </td>
+
+                        {/* TEACHER */}
+
+                        <td>
+
+                          {assignedTeacher ? (
+
+                            <span className="assigned-teacher">
+                              👨‍🏫{" "}
+                              {assignedTeacher}
+                            </span>
+
+                          ) : (
+
+                            <span className="teacher-not-assigned">
+                              Not Assigned
+                            </span>
+
+                          )}
+
+                        </td>
+
+                        {/* DATE */}
 
                         <td>
                           {formatDate(
@@ -640,23 +1165,47 @@ export default function PendingStudentList() {
                           )}
                         </td>
 
+                        {/* ACTION */}
+
                         <td>
 
                           <div className="pending-actions">
+
+                            {/* ASSIGN */}
+
+                            <button
+                              type="button"
+                              className="assign-teacher-button"
+                              onClick={() =>
+                                openAssignTeacher(
+                                  student
+                                )
+                              }
+                              title="Assign Present Teacher"
+                            >
+                              👨‍🏫
+                            </button>
+
+                            {/* APPROVE */}
 
                             <button
                               type="button"
                               className="approve-button"
                               onClick={() =>
                                 approveStudent(
-                                  studentId
+                                  student
                                 )
                               }
-                              title="Approve Student"
-                              disabled={!studentId}
+                              title={
+                                assignedTeacher
+                                  ? "Approve Student"
+                                  : "Assign Present teacher first"
+                              }
                             >
                               ✓
                             </button>
+
+                            {/* REJECT */}
 
                             <button
                               type="button"
@@ -677,6 +1226,7 @@ export default function PendingStudentList() {
                         </td>
 
                       </tr>
+
                     );
                   }
                 )
@@ -686,7 +1236,7 @@ export default function PendingStudentList() {
                 <tr>
 
                   <td
-                    colSpan="9"
+                    colSpan="10"
                     className="pending-empty-cell"
                   >
                     {search.trim()
@@ -701,6 +1251,180 @@ export default function PendingStudentList() {
             </tbody>
 
           </table>
+
+        </div>
+
+      )}
+
+      {/* =================================================
+          ASSIGN TEACHER MODAL
+      ================================================= */}
+
+      {selectedStudent && (
+
+        <div
+          className="assign-teacher-overlay"
+          onClick={closeAssignTeacher}
+        >
+
+          <div
+            className="assign-teacher-modal"
+            onClick={(e) =>
+              e.stopPropagation()
+            }
+          >
+
+            {/* HEADER */}
+
+            <div className="assign-teacher-header">
+
+              <div>
+
+                <h2>
+                  Assign Teacher
+                </h2>
+
+                <p>
+                  {selectedStudent.student_name_en ||
+                    selectedStudent.student_name_bn ||
+                    selectedStudent.student_name ||
+                    "-"}
+                </p>
+
+                <small>
+                  ID:{" "}
+                  {
+                    selectedStudent.student_id
+                  }
+                </small>
+
+              </div>
+
+              <button
+                type="button"
+                className="assign-close-button"
+                onClick={closeAssignTeacher}
+                disabled={assigning}
+              >
+                ✕
+              </button>
+
+            </div>
+
+            {/* BODY */}
+
+            <div className="assign-teacher-body">
+
+              <label>
+                Select Present Teacher
+              </label>
+
+              <select
+                value={selectedTeacher}
+                onChange={(e) =>
+                  setSelectedTeacher(
+                    e.target.value
+                  )
+                }
+                disabled={
+                  teacherLoading ||
+                  assigning
+                }
+              >
+
+                <option value="">
+                  -- Select Present Teacher --
+                </option>
+
+                {teachers.map(
+                  (teacher) => {
+
+                    const teacherId =
+                      getTeacherId(
+                        teacher
+                      );
+
+                    const teacherName =
+                      getTeacherDisplayName(
+                        teacher
+                      );
+
+                    if (!teacherId) {
+                      return null;
+                    }
+
+                    return (
+
+                      <option
+                        key={teacherId}
+                        value={teacherId}
+                      >
+                        {teacherName}
+                        {" — "}
+                        {teacherId}
+
+                        {teacher.branch
+                          ? ` — ${teacher.branch}`
+                          : ""}
+
+                      </option>
+
+                    );
+                  }
+                )}
+
+              </select>
+
+              {teacherLoading && (
+
+                <p className="teacher-loading-text">
+                  Present teacher list loading...
+                </p>
+
+              )}
+
+              {!teacherLoading &&
+                teachers.length === 0 && (
+
+                  <p className="teacher-empty-text">
+                    বর্তমানে কোনো Present teacher পাওয়া যায়নি।
+                  </p>
+
+                )}
+
+            </div>
+
+            {/* FOOTER */}
+
+            <div className="assign-teacher-footer">
+
+              <button
+                type="button"
+                className="assign-cancel-button"
+                onClick={closeAssignTeacher}
+                disabled={assigning}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="assign-save-button"
+                onClick={assignTeacher}
+                disabled={
+                  assigning ||
+                  teacherLoading ||
+                  !selectedTeacher
+                }
+              >
+                {assigning
+                  ? "Assigning..."
+                  : "Assign Teacher"}
+              </button>
+
+            </div>
+
+          </div>
 
         </div>
 

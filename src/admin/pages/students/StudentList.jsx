@@ -133,14 +133,26 @@ export default function StudentList() {
       setMessage("");
 
       const params = new URLSearchParams();
-      params.set("role", userRole);
 
-      const response = await fetch(
-        `${API}/students.php?${params.toString()}`,
-        {
-          credentials: "include",
-        }
-      );
+params.set("role", userRole);
+
+if (String(userRole).toLowerCase() === "teacher") {
+
+  const teacherId =
+    currentUser?.teacher_id ||
+    currentUser?.teacherId ||
+    currentUser?.id ||
+    "";
+
+  params.set("teacher_id", teacherId);
+}
+
+const response = await fetch(
+  `${API}/students.php?${params.toString()}`,
+  {
+    credentials: "include",
+  }
+);
 
       const data = await parseJsonResponse(
         response,

@@ -580,9 +580,9 @@ export default function ExpenseEntry() {
 
           const records =
             Array.isArray(
-              data.branches
+              data.branch
             )
-              ? data.branches
+              ? data.branch
               : Array.isArray(
                   data.data
                 )
