@@ -307,6 +307,18 @@ export default function PendingStudentList() {
       return;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | NOTE
+    |--------------------------------------------------------------------------
+    | assign_student_teacher.php-এর existing contract না বদলানোর জন্য
+    | এখানে আপনার আগের student.student_id ব্যবহার করা হয়েছে।
+    |
+    | approve_student.php-এর ক্ষেত্রে নিচে আলাদাভাবে student.id ব্যবহার
+    | করা হয়েছে, কারণ ওই PHP file সরাসরি students.id দিয়ে lookup করে।
+    |--------------------------------------------------------------------------
+    */
+
     const studentId =
       selectedStudent.student_id;
 
@@ -479,12 +491,40 @@ export default function PendingStudentList() {
   // =====================================================
 
   const approveStudent = async (student) => {
-    const studentId =
+
+    /*
+    |--------------------------------------------------------------------------
+    | IMPORTANT ID FIX
+    |--------------------------------------------------------------------------
+    |
+    | student.student_id
+    |   = visible Student ID / Student Code
+    |
+    | student.id
+    |   = students table-এর database primary key
+    |
+    | approve_student.php:
+    |
+    |   SELECT ... FROM students WHERE id = ?
+    |
+    | তাই এখানে student.id পাঠাতে হবে।
+    |--------------------------------------------------------------------------
+    */
+
+    const databaseStudentId =
+      student.id;
+
+    const studentCode =
       student.student_id;
 
-    if (!studentId) {
+    if (
+      databaseStudentId === null ||
+      databaseStudentId === undefined ||
+      databaseStudentId === "" ||
+      Number(databaseStudentId) <= 0
+    ) {
       setMessage(
-        "Student ID পাওয়া যায়নি।"
+        "Student database ID পাওয়া যায়নি।"
       );
       return;
     }
@@ -560,9 +600,19 @@ export default function PendingStudentList() {
 
       const formData = new FormData();
 
+      /*
+      |--------------------------------------------------------------------------
+      | FIXED
+      |--------------------------------------------------------------------------
+      | আগে এখানে student.student_id যাচ্ছিল।
+      |
+      | এখন students.id যাচ্ছে।
+      |--------------------------------------------------------------------------
+      */
+
       formData.append(
         "student_id",
-        String(studentId)
+        String(databaseStudentId)
       );
 
       formData.append(
@@ -620,20 +670,27 @@ export default function PendingStudentList() {
       }
 
       // =================================================
-      // REMOVE FROM PENDING LIST
+      // REMOVE APPROVED STUDENT FROM PENDING LIST
       // =================================================
+      //
+      // IMPORTANT:
+      // এখানে student.student_id নয়,
+      // database student.id দিয়ে remove করা হচ্ছে।
+      //
 
       setStudents((prev) =>
         prev.filter(
           (item) =>
-            String(item.student_id) !==
-            String(studentId)
+            String(item.id) !==
+            String(databaseStudentId)
         )
       );
 
       setMessage(
         data.message ||
-          "Student successfully approved."
+          `Student ${
+            studentCode || databaseStudentId
+          } successfully approved.`
       );
 
     } catch (error) {
@@ -996,6 +1053,21 @@ export default function PendingStudentList() {
                 filteredStudents.map(
                   (student) => {
 
+                    /*
+                    |--------------------------------------------------------------------------
+                    | DATABASE PRIMARY KEY
+                    |--------------------------------------------------------------------------
+                    */
+
+                    const databaseStudentId =
+                      student.id;
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | VISIBLE STUDENT ID / CODE
+                    |--------------------------------------------------------------------------
+                    */
+
                     const studentId =
                       student.student_id;
 
@@ -1019,7 +1091,7 @@ export default function PendingStudentList() {
 
                       <tr
                         key={
-                          student.id ||
+                          databaseStudentId ||
                           studentId
                         }
                       >
@@ -1082,7 +1154,7 @@ export default function PendingStudentList() {
 
                           <strong className="pending-student-id">
                             {studentId ||
-                              `#${student.id}`}
+                              `#${databaseStudentId}`}
                           </strong>
 
                         </td>

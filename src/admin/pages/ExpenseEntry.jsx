@@ -867,16 +867,13 @@ export default function ExpenseEntry() {
     } = e.target;
 
 
-    if (
-      name === "branch" &&
-      !isAdminRole(
-        userRole
-      )
-    ) {
-
-      return;
-
-    }
+if (
+  name === "branch" &&
+  !isAdminRole(userRole) &&
+  branchScope !== "all"
+) {
+  return;
+}
 
 
     if (

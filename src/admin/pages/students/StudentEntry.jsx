@@ -476,67 +476,115 @@ export default function StudentEntry() {
   }, []);
 
 
-  useEffect(() => {
-    const fetchTeachers = async () => {
-      setTeacherLoading(true);
-      setTeacherError("");
+const loadTeachers = async () => {
+  try {
+    setTeacherLoading(true);
+    setTeacherError("");
 
-      try {
-        const response = await fetch(`${API_BASE_URL}/teacher_list.php`, {
-          credentials: "include",
-        });
-
-        const data = await response.json();
-
-        if (!response.ok || (data && data.success === false)) {
-          throw new Error(data?.message || "Teacher list could not be loaded.");
-        }
-
-        const teacherList = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.teachers)
-            ? data.teachers
-            : Array.isArray(data?.data)
-              ? data.data
-              : [];
-
-        const activeTeachers = teacherList.filter((teacher) => {
-          const status = String(
-            teacher?.status ?? teacher?.teacher_status ?? ""
-          )
-            .trim()
-            .toLowerCase();
-
-          const role = String(
-            teacher?.role ??
-              teacher?.user_role ??
-              teacher?.teacher_role ??
-              ""
-          )
-            .trim()
-            .toLowerCase();
-
-          return (
-            status === "active" ||
-            status === "present" ||
-            status === "1" ||
-            status === "" ||
-            role === "teacher"
-          );
-        });
-
-        setTeachers(activeTeachers);
-      } catch (error) {
-        console.error("Teacher loading error:", error);
-        setTeachers([]);
-        setTeacherError(error.message || "Teacher list could not be loaded.");
-      } finally {
-        setTeacherLoading(false);
+    const response = await fetch(
+      `${API_BASE_URL}/teacher_list.php`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+        },
       }
-    };
+    );
 
-    fetchTeachers();
-  }, []);
+    const text = await response.text();
+
+    if (!text.trim()) {
+      throw new Error(
+        "Teacher API returned an empty response."
+      );
+    }
+
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch (error) {
+      console.error(
+        "Teacher API invalid JSON:",
+        text
+      );
+
+      throw new Error(
+        "Teacher API returned an invalid response."
+      );
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data?.message ||
+        `HTTP Error: ${response.status}`
+      );
+    }
+
+    if (data?.success === false) {
+      throw new Error(
+        data?.message ||
+        "Teacher list could not be loaded."
+      );
+    }
+
+    const teacherList =
+      Array.isArray(data)
+        ? data
+        : Array.isArray(data?.teachers)
+          ? data.teachers
+          : Array.isArray(data?.data)
+            ? data.data
+            : [];
+
+    // ONLY PRESENT TEACHERS
+    const presentTeachers =
+      teacherList.filter((teacher) => {
+        const status = String(
+          teacher?.status ??
+          teacher?.teacher_status ??
+          ""
+        )
+          .trim()
+          .toLowerCase();
+
+        return status === "present";
+      });
+
+    console.log(
+      "All teachers:",
+      teacherList
+    );
+
+    console.log(
+      "Present teachers:",
+      presentTeachers
+    );
+
+    setTeachers(presentTeachers);
+  } catch (error) {
+    console.error(
+      "Load teachers error:",
+      error
+    );
+
+    setTeachers([]);
+
+    setTeacherError(
+      error.message ||
+      "Teacher list load করা যায়নি।"
+    );
+  } finally {
+    setTeacherLoading(false);
+  }
+};
+
+useEffect(() => {
+  loadTeachers();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
   /* =========================================
      SUBMIT
   ========================================= */

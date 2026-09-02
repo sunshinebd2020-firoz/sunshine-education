@@ -567,12 +567,13 @@ export default function IncomeEntry() {
         value,
       } = e.target;
 
-      if (
-        name === "branch" &&
-        !isAdminRole(userRole)
-      ) {
-        return;
-      }
+if (
+  name === "branch" &&
+  !isAdminRole(userRole) &&
+  branchScope !== "all"
+) {
+  return;
+}
 
       setForm((prev) => ({
         ...prev,

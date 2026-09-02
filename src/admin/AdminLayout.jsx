@@ -199,24 +199,20 @@ export default function AdminLayout() {
      MENU VIEW
   ===================================================== */
 
-  const canViewMenu = (menu) => {
-    if (isAdmin) {
-      return true;
-    }
+const canViewMenu = (menu) => {
+  if (isAdmin) {
+    return true;
+  }
 
-    if (isTeacher) {
-      return false;
-    }
+  if (menu === "accounts") {
+    return canViewAccounts;
+  }
 
-    if (menu === "accounts") {
-      return canViewAccounts;
-    }
-
-    return hasPermission(
-      permissionMap[menu],
-      "can_view"
-    );
-  };
+  return hasPermission(
+    permissionMap[menu],
+    "can_view"
+  );
+};
 
   /* =====================================================
      ACTIVE MENU
@@ -370,27 +366,39 @@ export default function AdminLayout() {
       return;
     }
 
-    if (isTeacher) {
-      if (
-        location.pathname === "/admin" ||
-        location.pathname === "/admin/dashboard" ||
-        (
-          location.pathname.startsWith("/admin/") &&
-          location.pathname !== "/admin/my-classroom"
-        )
-      ) {
-        navigate(
-          "/admin/my-classroom",
-          {
-            replace: true,
-          }
-        );
-
-        return;
+if (isTeacher) {
+  if (
+    location.pathname === "/admin" ||
+    location.pathname === "/admin/dashboard"
+  ) {
+    navigate(
+      "/admin/my-classroom",
+      {
+        replace: true,
       }
+    );
+    return;
+  }
 
-      return;
-    }
+  const teacherMenu = getActiveMenu(
+    location.pathname
+  );
+
+  if (!teacherMenu) {
+    return;
+  }
+
+  if (!canViewMenu(teacherMenu)) {
+    navigate(
+      "/admin/my-classroom",
+      {
+        replace: true,
+      }
+    );
+  }
+
+  return;
+}
 
     if (
       location.pathname ===
