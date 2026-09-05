@@ -116,6 +116,206 @@ const getDocumentName = (value) => {
   return fileName || "Uploaded";
 };
 
+/* =====================================================
+   PROFILE COMPLETION
+===================================================== */
+
+const isFilled = (value) => {
+  if (value === null || value === undefined) return false;
+  if (typeof value === "number") return !Number.isNaN(value);
+  if (typeof value === "boolean") return true;
+
+  const text = String(value).trim();
+  if (!text || text === "0000-00-00" || text === "—") {
+    return false;
+  }
+
+  return true;
+};
+
+const profileCompletionCategories = [
+  {
+    key: "personal",
+    icon: "👤",
+    title: "Personal Information",
+    target: "personal-information",
+    fields: [
+      ["student_name_bn", "বাংলা নাম"],
+      ["student_name_en", "English Name"],
+      ["date_of_birth", "Date of Birth"],
+      ["gender", "Gender"],
+      ["nationality", "Nationality"],
+      ["katakana_name", "Katakana Name"],
+    ],
+  },
+  {
+    key: "contact",
+    icon: "📞",
+    title: "Address & Contact",
+    target: "contact-information",
+    fields: [
+      ["student_mobile", "Student Mobile"],
+      ["email", "Email"],
+      ["present_village", "Present Village"],
+      ["present_post", "Present Post"],
+      ["present_thana", "Present Thana"],
+      ["present_district", "Present District"],
+      ["permanent_village", "Permanent Village"],
+      ["permanent_post", "Permanent Post"],
+      ["permanent_thana", "Permanent Thana"],
+      ["permanent_district", "Permanent District"],
+      ["emergency_contact", "Emergency Contact"],
+      ["emergency_relationship", "Emergency Relationship"],
+    ],
+  },
+  {
+    key: "family",
+    icon: "👨‍👩‍👧",
+    title: "Family Information",
+    target: "family-information",
+    fields: [
+      ["father_name", "Father's Name"],
+      ["mother_name", "Mother's Name"],
+      ["family_members", "Family Members"],
+    ],
+  },
+  {
+    key: "education",
+    icon: "🎓",
+    title: "Education",
+    target: "education-information",
+    fields: [
+      ["ssc_institute", "SSC Institute"],
+      ["ssc_board", "SSC Board"],
+      ["ssc_passing_year", "SSC Passing Year"],
+      ["ssc_gpa", "SSC GPA"],
+      ["hsc_institute", "HSC Institute"],
+      ["hsc_board", "HSC Board"],
+      ["hsc_passing_year", "HSC Passing Year"],
+      ["hsc_gpa", "HSC GPA"],
+    ],
+  },
+  {
+    key: "work_language",
+    icon: "💼",
+    title: "Work & Language",
+    target: "work-language-information",
+    fields: [
+      ["work_history", "Work History"],
+      ["japanese_test_history", "Japanese Test History"],
+      ["english_level", "English Level"],
+      ["strengths", "Strengths"],
+      ["weaknesses", "Weaknesses"],
+      ["hobby", "Hobby"],
+    ],
+  },
+  {
+    key: "japan",
+    icon: "🇯🇵",
+    title: "Japan / Future Plan",
+    target: "japan-future-information",
+    fields: [
+      ["japan_application_reason", "Japan Application Reason"],
+      ["family_opinion", "Family Opinion"],
+      ["remittance_plan", "Remittance Plan"],
+      ["post_japan_work_plan", "Post-Japan Work Plan"],
+      ["previous_coe_application", "Previous COE Application"],
+    ],
+  },
+  {
+    key: "skills",
+    icon: "🛠️",
+    title: "Skills & Lifestyle",
+    target: "skills-information",
+    fields: [
+      ["driving_license", "Driving License"],
+      ["international_driving_license", "International Driving License"],
+      ["bicycle_riding", "Bicycle Riding"],
+      ["cooking", "Cooking"],
+      ["group_living", "Group Living"],
+    ],
+  },
+  {
+    key: "documents",
+    icon: "📄",
+    title: "Passport & Documents",
+    target: "document-update",
+    fields: [
+      ["passport_no", "Passport No"],
+      ["passport_issue_date", "Passport Issue Date"],
+      ["passport_expiry_date", "Passport Expiry Date"],
+      ["passport_scan", "Passport Scan"],
+      ["nid_no", "NID No"],
+      ["nid_scan", "NID Scan"],
+      ["birth_registration_no", "Birth Registration No"],
+      ["birth_registration_scan", "Birth Registration Scan"],
+    ],
+  },
+  {
+    key: "financial",
+    icon: "💰",
+    title: "Financial Information",
+    target: "financial-information",
+    fields: [
+      ["debt", "Debt"],
+      ["household_monthly_income", "Household Monthly Income"],
+    ],
+  },
+  {
+    key: "other",
+    icon: "🕌",
+    title: "Other Information",
+    target: "other-information",
+    fields: [
+      ["religion", "Religion"],
+      ["worship", "Worship"],
+      ["fasting", "Fasting"],
+      ["marital_status", "Marital Status"],
+      ["blood_group", "Blood Group"],
+    ],
+  },
+  {
+    key: "resume",
+    icon: "📋",
+    title: "Resume / Consent",
+    target: "resume-information",
+    fields: [
+      ["resume_other", "Resume Other"],
+      ["resume_consent", "Resume Consent"],
+      ["resume_consent_date", "Consent Date"],
+    ],
+  },
+  {
+    key: "physical",
+    icon: "🧍",
+    title: "Physical / Personal",
+    target: "physical-information",
+    fields: [
+      ["height_cm", "Height"],
+      ["weight_kg", "Weight"],
+      ["dominant_hand", "Dominant Hand"],
+      ["tattoo", "Tattoo"],
+      ["eyesight", "Eyesight"],
+      ["smoking", "Smoking"],
+      ["alcohol", "Alcohol"],
+    ],
+  },
+  {
+    key: "admin",
+    icon: "🏫",
+    title: "Sunshine / Admin Information",
+    target: "course-information",
+    fields: [
+      ["student_id", "Student ID"],
+      ["admission_date", "Admission Date"],
+      ["branch", "Branch"],
+      ["course", "Course"],
+      ["language_level", "Language Level"],
+      ["assigned_teacher_id", "Assigned Teacher"],
+    ],
+  },
+];
+
 
 export default function StudentPortal() {
   const navigate = useNavigate();
@@ -288,6 +488,78 @@ export default function StudentPortal() {
 
   const currentStudent =
     profile || sessionStudent;
+
+
+  const completionData = useMemo(() => {
+    const categories = profileCompletionCategories.map((category) => {
+      const missing = category.fields
+        .filter(([field]) => !isFilled(currentStudent?.[field]))
+        .map(([, label]) => label);
+
+      const total = category.fields.length;
+      const completed = total - missing.length;
+      const percent = total
+        ? Math.round((completed / total) * 100)
+        : 0;
+
+      return {
+        ...category,
+        total,
+        completed,
+        percent,
+        missing,
+      };
+    });
+
+    const totalFields = categories.reduce(
+      (sum, category) => sum + category.total,
+      0
+    );
+
+    const completedFields = categories.reduce(
+      (sum, category) => sum + category.completed,
+      0
+    );
+
+    return {
+      categories,
+      overall: totalFields
+        ? Math.round((completedFields / totalFields) * 100)
+        : 0,
+    };
+  }, [currentStudent]);
+
+  const scrollToSection = (target) => {
+    const element = document.getElementById(target);
+
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  const getCompletionStatus = (percent) => {
+    if (percent >= 100) {
+      return {
+        text: "সম্পূর্ণ",
+        className: "complete",
+      };
+    }
+
+    if (percent > 0) {
+      return {
+        text: "অসম্পূর্ণ",
+        className: "incomplete",
+      };
+    }
+
+    return {
+      text: "তথ্য নেই",
+      className: "empty",
+    };
+  };
 
 
   /* =====================================================
@@ -851,10 +1123,123 @@ export default function StudentPortal() {
 
 
             {/* =================================================
+                PROFILE COMPLETION
+            ================================================= */}
+
+            <section className="student-completion-section no-print">
+              <div className="student-completion-header">
+                <div>
+                  <h3>Profile Completion</h3>
+                  <p>
+                    আপনার প্রোফাইলের কোন তথ্য সম্পূর্ণ এবং কোন তথ্য বাকি আছে
+                    তা এখানে দেখুন।
+                  </p>
+                </div>
+
+                <div className="student-completion-score">
+                  <strong>{completionData.overall}%</strong>
+                  <span>সম্পূর্ণ</span>
+                </div>
+              </div>
+
+              <div className="student-completion-progress">
+                <div
+                  className="student-completion-progress-bar"
+                  style={{
+                    width: `${completionData.overall}%`,
+                  }}
+                />
+              </div>
+
+              <div className="student-completion-grid">
+                {completionData.categories.map((category) => {
+                  const status =
+                    getCompletionStatus(category.percent);
+
+                  return (
+                    <div
+                      className={`student-completion-card ${status.className}`}
+                      key={category.key}
+                    >
+                      <div className="student-completion-card-top">
+                        <div className="student-completion-icon">
+                          {category.icon}
+                        </div>
+
+                        <div className="student-completion-title">
+                          <h4>{category.title}</h4>
+                          <span>
+                            {category.completed}/{category.total} তথ্য পূরণ
+                          </span>
+                        </div>
+
+                        <strong className="student-completion-percent">
+                          {category.percent}%
+                        </strong>
+                      </div>
+
+                      <div className="student-completion-mini-progress">
+                        <div
+                          style={{
+                            width: `${category.percent}%`,
+                          }}
+                        />
+                      </div>
+
+                      <div className="student-completion-status">
+                        <span className={`status-badge ${status.className}`}>
+                          {status.text}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            scrollToSection(category.target)
+                          }
+                        >
+                          {category.percent >= 100
+                            ? "দেখুন"
+                            : "এখনই পূরণ করুন"}
+                        </button>
+                      </div>
+
+                      {category.missing.length > 0 && (
+                        <div className="student-completion-missing">
+                          <strong>বাকি তথ্য:</strong>
+                          <div>
+                            {category.missing
+                              .slice(0, 4)
+                              .map((item) => (
+                                <span key={item}>
+                                  {item}
+                                </span>
+                              ))}
+                            {category.missing.length > 4 && (
+                              <span>
+                                +{category.missing.length - 4} আরও
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="student-completion-note">
+                ℹ️ 100% সম্পূর্ণ করার জন্য শুধু এই তালিকায় নির্ধারিত
+                প্রয়োজনীয় তথ্যগুলো পূরণ করা হয়েছে। Optional তথ্য খালি থাকলেও
+                Profile 100% হতে পারবে।
+              </div>
+            </section>
+
+
+            {/* =================================================
                 PERSONAL INFORMATION
             ================================================= */}
 
-            <section className="student-profile-section">
+            <section id="personal-information" className="student-profile-section">
 
               <h3>
                 Personal Information
@@ -892,7 +1277,7 @@ export default function StudentPortal() {
                 CONTACT
             ================================================= */}
 
-            <section className="student-profile-section">
+            <section id="contact-information" className="student-profile-section">
 
               <h3>
                 Contact Information
@@ -930,7 +1315,7 @@ export default function StudentPortal() {
                 COURSE
             ================================================= */}
 
-            <section className="student-profile-section">
+            <section id="course-information" className="student-profile-section">
 
               <h3>
                 Course Information
@@ -1010,7 +1395,7 @@ export default function StudentPortal() {
                 ADDRESS
             ================================================= */}
 
-            <section className="student-profile-section">
+            <section id="contact-information" className="student-profile-section">
 
               <h3>
                 Address Information
@@ -1117,7 +1502,7 @@ export default function StudentPortal() {
                 EDUCATION
             ================================================= */}
 
-            <section className="student-profile-section">
+            <section id="education-information" className="student-profile-section">
 
               <h3>
                 Educational Qualification
@@ -1357,7 +1742,7 @@ export default function StudentPortal() {
                 PASSPORT
             ================================================= */}
 
-            <section className="student-profile-section">
+            <section id="passport-information" className="student-profile-section">
 
               <h3>
                 Passport Information
@@ -1418,7 +1803,7 @@ export default function StudentPortal() {
                 NID / BIRTH REGISTRATION
             ================================================= */}
 
-            <section className="student-profile-section">
+            <section id="documents-information" className="student-profile-section">
 
               <h3>
                 Other Identification
@@ -1460,11 +1845,23 @@ export default function StudentPortal() {
             </section>
 
 
+
+            <div className="student-profile-completion-anchors no-print">
+              <div id="family-information" />
+              <div id="work-language-information" />
+              <div id="japan-future-information" />
+              <div id="skills-information" />
+              <div id="financial-information" />
+              <div id="other-information" />
+              <div id="resume-information" />
+              <div id="physical-information" />
+            </div>
+
             {/* =================================================
                 DOCUMENT UPDATE
             ================================================= */}
 
-            <section className="student-profile-section no-print">
+            <section id="document-update" className="student-profile-section no-print">
 
               <h3>
                 Document Update

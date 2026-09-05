@@ -1086,3 +1086,273 @@
   }
 
 }
+
+
+/* =====================================================
+   PROFILE COMPLETION
+===================================================== */
+
+.student-completion-section {
+  margin-top: 14px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #dbe3ec;
+  border-radius: 8px;
+  page-break-inside: avoid;
+}
+
+.student-completion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.student-completion-header h3 {
+  margin: 0 0 3px;
+  padding: 0;
+  background: transparent;
+  border-left: none;
+  color: #0f172a;
+  font-size: 15px;
+}
+
+.student-completion-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 9px;
+}
+
+.student-completion-score {
+  min-width: 66px;
+  text-align: center;
+}
+
+.student-completion-score strong {
+  display: block;
+  color: #2563eb;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.student-completion-score span {
+  display: block;
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 8px;
+}
+
+.student-completion-progress {
+  height: 9px;
+  margin-top: 10px;
+  overflow: hidden;
+  background: #e2e8f0;
+  border-radius: 20px;
+}
+
+.student-completion-progress-bar {
+  height: 100%;
+  background: #2563eb;
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+
+.student-completion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.student-completion-card {
+  min-width: 0;
+  padding: 9px;
+  background: #ffffff;
+  border: 1px solid #dbe3ec;
+  border-radius: 7px;
+}
+
+.student-completion-card.complete {
+  border-color: #bbf7d0;
+}
+
+.student-completion-card.incomplete {
+  border-color: #fde68a;
+}
+
+.student-completion-card.empty {
+  border-color: #e2e8f0;
+}
+
+.student-completion-card-top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.student-completion-icon {
+  width: 29px;
+  height: 29px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eff6ff;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+.student-completion-title {
+  min-width: 0;
+  flex: 1;
+}
+
+.student-completion-title h4 {
+  margin: 0 0 2px;
+  color: #1e293b;
+  font-size: 9px;
+  line-height: 1.25;
+}
+
+.student-completion-title span {
+  color: #94a3b8;
+  font-size: 7px;
+}
+
+.student-completion-percent {
+  color: #2563eb;
+  font-size: 10px;
+}
+
+.student-completion-mini-progress {
+  height: 5px;
+  margin-top: 7px;
+  overflow: hidden;
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.student-completion-mini-progress > div {
+  height: 100%;
+  background: #2563eb;
+  border-radius: inherit;
+}
+
+.student-completion-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.status-badge {
+  display: inline-flex;
+  padding: 3px 6px;
+  border-radius: 10px;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.status-badge.complete {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.incomplete {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.empty {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.student-completion-status button {
+  border: none;
+  padding: 4px 7px;
+  border-radius: 5px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 7px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.student-completion-status button:hover {
+  background: #1d4ed8;
+}
+
+.student-completion-missing {
+  margin-top: 7px;
+  padding-top: 6px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.student-completion-missing strong {
+  color: #475569;
+  font-size: 7px;
+}
+
+.student-completion-missing > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.student-completion-missing span {
+  padding: 2px 4px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  color: #64748b;
+  font-size: 6.5px;
+}
+
+.student-completion-note {
+  margin-top: 9px;
+  padding: 6px 8px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 5px;
+  color: #1e40af;
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+.student-profile-completion-anchors {
+  height: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .student-completion-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .student-completion-section {
+    padding: 10px;
+  }
+
+  .student-completion-header {
+    align-items: flex-start;
+  }
+
+  .student-completion-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-completion-score strong {
+    font-size: 20px;
+  }
+}
+
+@media print {
+  .student-completion-section {
+    display: none !important;
+  }
+}
