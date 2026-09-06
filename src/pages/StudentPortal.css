@@ -100,23 +100,15 @@
 ===================================================== */
 
 .student-portal-card {
-  width: 210mm;
-
-  min-height: 297mm;
-
+  width: 100%;
+  max-width: 100%;
+  min-height: auto;
   margin: 0 auto;
-
-  padding: 10mm;
-
+  padding: 22px;
   box-sizing: border-box;
-
   background: #ffffff;
-
-  border-radius: 5px;
-
-  box-shadow:
-    0 6px 22px
-    rgba(15, 23, 42, 0.10);
+  border-radius: 8px;
+  box-shadow: 0 6px 22px rgba(15, 23, 42, 0.10);
 }
 
 
@@ -1354,5 +1346,206 @@
 @media print {
   .student-completion-section {
     display: none !important;
+  }
+}
+/* =====================================================
+   STUDENT PROFILE TAB LAYOUT
+===================================================== */
+
+.student-tab-layout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  gap: 22px;
+  margin-top: 22px;
+  align-items: start;
+}
+
+.student-tab-sidebar {
+  position: sticky;
+  top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.student-tab-sidebar-title {
+  padding: 8px 10px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 4px;
+}
+
+.student-tab-button {
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #475569;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.student-tab-button:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.student-tab-button.active {
+  background: #2563eb;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.18);
+}
+
+.student-tab-content {
+  min-width: 0;
+}
+
+.student-active-tab-section {
+  margin-top: 0;
+  animation: studentTabFade 0.2s ease;
+}
+
+.student-tab-content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.student-tab-content-header h3 {
+  margin: 0;
+}
+
+.student-tab-content-header p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+@keyframes studentTabFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================================
+   EDIT MODE
+===================================================== */
+
+.student-tab-content .student-edit-group {
+  margin-top: 0;
+}
+
+.student-tab-content .student-edit-header {
+  margin-bottom: 15px;
+}
+
+/* =====================================================
+   HEADER ACTIONS
+===================================================== */
+
+.student-portal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.student-profile-edit-button {
+  border: 0;
+  padding: 9px 15px;
+  border-radius: 7px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.student-profile-edit-button:hover {
+  background: #1d4ed8;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 900px) {
+  .student-tab-layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 15px;
+  }
+
+  .student-tab-button {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 700px) {
+  .student-tab-layout {
+    display: block;
+  }
+
+  .student-tab-sidebar {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin-bottom: 15px;
+  }
+
+  .student-tab-sidebar-title {
+    grid-column: 1 / -1;
+  }
+
+  .student-tab-button {
+    min-height: 44px;
+  }
+
+  .student-tab-content {
+    width: 100%;
+  }
+
+  .student-tab-content-header {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .student-tab-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .student-tab-sidebar-title {
+    grid-column: auto;
+  }
+
+  .student-portal-header-actions {
+    width: 100%;
+  }
+
+  .student-profile-edit-button,
+  .student-portal-logout {
+    flex: 1;
   }
 }
