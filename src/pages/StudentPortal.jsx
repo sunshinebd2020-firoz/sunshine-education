@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import API_BASE_URL, { API_ORIGIN } from "../config/api";
+
 import {
   clearStudentAuthStorage,
   readStudentSession,
 } from "../admin/authStorage";
+
 import "./StudentPortal.css";
 
 /* =====================================================
@@ -48,7 +51,6 @@ const STUDENT_FIELDS = [
   ["email", "Email", "email"],
   ["emergency_contact", "Emergency Contact", "text"],
   ["emergency_relationship", "Emergency Relationship", "text"],
-
   ["course_fee", "Course Fee", "number"],
 
   ["ssc_institute", "SSC Institute", "text"],
@@ -201,7 +203,7 @@ const groups = [
   ["skills", "🛠️ Skills", STUDENT_FIELDS.slice(96, 101)],
   ["physical", "🧍 Physical Information", STUDENT_FIELDS.slice(101, 108)],
   ["family", "👨‍👩‍👧 Family Information", STUDENT_FIELDS.slice(108, 133)],
-  ["documents", "📄 Passport / Identification", STUDENT_FIELDS.slice(133)],
+  ["documents", "📄 Document Update", []],
 ];
 
 /* =====================================================
@@ -237,8 +239,8 @@ const getFileUrl = (file) => {
 
   const path = clean
     .replace(/^\/+/, "")
-    .replace(/^uploads\/students\//i, "")
-    .replace(/^uploads\//i, "")
+    .replace(/^uploads[\\/]+students[\\/]+/i, "")
+    .replace(/^uploads[\\/]+/i, "")
     .split(/[\\/]+/)
     .filter(Boolean)
     .map(encodeURIComponent)
@@ -250,6 +252,8 @@ const getFileUrl = (file) => {
 };
 
 const saveStudentStorage = (student) => {
+  if (!student) return;
+
   localStorage.setItem(
     "sunshine_student",
     JSON.stringify(student)
@@ -405,7 +409,14 @@ export default function StudentPortal() {
   ===================================================== */
 
   const startEdit = () => {
-    setForm({ ...currentStudent });
+    if (activeTab === "documents") {
+      return;
+    }
+
+    setForm({
+      ...currentStudent,
+    });
+
     setSaveMessage("");
     setSaveError("");
     setEditMode(true);
@@ -421,7 +432,10 @@ export default function StudentPortal() {
   };
 
   const cancelEdit = () => {
-    setForm({ ...currentStudent });
+    setForm({
+      ...currentStudent,
+    });
+
     setSaveMessage("");
     setSaveError("");
     setEditMode(false);
@@ -436,14 +450,14 @@ export default function StudentPortal() {
 
   /* =====================================================
      SAVE ALL PROFILE FIELDS
-  ===================================================== */
+===================================================== */
 
   const handleSave = async (event) => {
     event.preventDefault();
 
     const studentId =
-      currentStudent.student_id ||
-      currentStudent.username;
+      currentStudent?.student_id ||
+      currentStudent?.username;
 
     if (!studentId) {
       setSaveError(
@@ -475,8 +489,13 @@ export default function StudentPortal() {
         );
       });
 
+      /*
+       * IMPORTANT:
+       * Profile update এবং document update
+       * একই API ব্যবহার করছে।
+       */
       const response = await fetch(
-        `${API_BASE_URL}/student_update.php`,
+        `${API_BASE_URL}/student_update_documents.php`,
         {
           method: "POST",
           credentials: "include",
@@ -496,10 +515,14 @@ export default function StudentPortal() {
       const next =
         data.student ||
         data.profile ||
-        form;
+        {
+          ...currentStudent,
+          ...form,
+        };
 
       setProfile(next);
       setForm(next);
+
       saveStudentStorage(next);
 
       setSaveMessage(
@@ -543,7 +566,7 @@ export default function StudentPortal() {
   }, [currentStudent]);
 
   /* =====================================================
-     DOCUMENT UPLOAD
+     DOCUMENT CARDS
   ===================================================== */
 
   const documentCards = [
@@ -581,6 +604,10 @@ export default function StudentPortal() {
     },
   ];
 
+  /* =====================================================
+     DOCUMENT UPLOAD
+  ===================================================== */
+
   const handleDocumentUpload = async (
     card,
     file
@@ -588,8 +615,15 @@ export default function StudentPortal() {
     if (!file) return;
 
     const studentId =
-      currentStudent.student_id ||
-      currentStudent.username;
+      currentStudent?.student_id ||
+      currentStudent?.username;
+
+    if (!studentId) {
+      setUploadError(
+        "Student ID পাওয়া যায়নি। আবার login করুন।"
+      );
+      return;
+    }
 
     setUploadingDoc(card.key);
     setUploadMessage("");
@@ -657,10 +691,15 @@ export default function StudentPortal() {
 
   const handleTabChange = (groupKey) => {
     setActiveTab(groupKey);
+
     setSaveMessage("");
     setSaveError("");
     setUploadMessage("");
     setUploadError("");
+
+    if (groupKey === "documents") {
+      setEditMode(false);
+    }
   };
 
   /* =====================================================
@@ -680,12 +719,12 @@ export default function StudentPortal() {
   }
 
   const studentName =
-    currentStudent.student_name_en ||
-    currentStudent.student_name_bn ||
+    currentStudent?.student_name_en ||
+    currentStudent?.student_name_bn ||
     "Student";
 
   const photoUrl = getFileUrl(
-    currentStudent.student_photo
+    currentStudent?.student_photo
   );
 
   const activeGroup =
@@ -694,32 +733,41 @@ export default function StudentPortal() {
         groupKey === activeTab
     ) || groups[0];
 
-  const activeGroupKey = activeGroup[0];
-  const activeGroupTitle = activeGroup[1];
-  const activeFields = activeGroup[2];
+  const activeGroupKey =
+    activeGroup[0];
+
+  const activeGroupTitle =
+    activeGroup[1];
+
+  const activeFields =
+    activeGroup[2];
 
   return (
     <div className="student-portal">
 
       {/* HEADER */}
       <div className="student-portal-header no-print">
+
         <div>
           <h1>Student Portal</h1>
+
           <p>
             আপনার সম্পূর্ণ শিক্ষার্থী প্রোফাইল
           </p>
         </div>
 
         <div className="student-portal-header-actions">
-          {!editMode && (
-            <button
-              type="button"
-              className="student-profile-edit-button"
-              onClick={startEdit}
-            >
-              ✏️ Edit Profile
-            </button>
-          )}
+
+          {!editMode &&
+            activeTab !== "documents" && (
+              <button
+                type="button"
+                className="student-profile-edit-button"
+                onClick={startEdit}
+              >
+                ✏️ Edit Profile
+              </button>
+            )}
 
           <button
             type="button"
@@ -728,6 +776,7 @@ export default function StudentPortal() {
           >
             Logout
           </button>
+
         </div>
       </div>
 
@@ -745,11 +794,14 @@ export default function StudentPortal() {
 
       {!loadingProfile &&
         !profileError && (
+
           <div className="student-portal-card">
 
             {/* TOP PROFILE */}
             <div className="student-profile-top">
+
               <div className="student-profile-photo-box">
+
                 {photoUrl ? (
                   <img
                     src={photoUrl}
@@ -760,10 +812,14 @@ export default function StudentPortal() {
                     No Photo
                   </div>
                 )}
+
               </div>
 
               <div className="student-profile-basic">
-                <h2>{studentName}</h2>
+
+                <h2>
+                  {studentName}
+                </h2>
 
                 {currentStudent.student_name_bn && (
                   <p className="student-bangla-name">
@@ -772,15 +828,21 @@ export default function StudentPortal() {
                 )}
 
                 <div className="student-profile-id">
-                  <span>Student ID:</span>
+
+                  <span>
+                    Student ID:
+                  </span>
+
                   <strong>
                     {displayValue(
                       currentStudent.student_id
                     )}
                   </strong>
+
                 </div>
 
                 <div className="student-profile-tags">
+
                   <span>
                     {displayValue(
                       currentStudent.branch
@@ -798,7 +860,9 @@ export default function StudentPortal() {
                       currentStudent.language_level
                     )}
                   </span>
+
                 </div>
+
               </div>
             </div>
 
@@ -817,39 +881,55 @@ export default function StudentPortal() {
 
             {/* COMPLETION */}
             <section className="student-completion-section no-print">
+
               <div className="student-completion-header">
+
                 <div>
-                  <h3>Profile Completion</h3>
+
+                  <h3>
+                    Profile Completion
+                  </h3>
+
                   <p>
                     ১৪১টি database field-এর
                     profile information
                   </p>
+
                 </div>
 
                 <div className="student-completion-score">
-                  <strong>{completion}%</strong>
-                  <span>সম্পূর্ণ</span>
+
+                  <strong>
+                    {completion}%
+                  </strong>
+
+                  <span>
+                    সম্পূর্ণ
+                  </span>
+
                 </div>
+
               </div>
 
               <div className="student-completion-progress">
+
                 <div
                   className="student-completion-progress-bar"
                   style={{
                     width: `${completion}%`,
                   }}
                 />
+
               </div>
+
             </section>
 
-            {/* =================================================
-                TAB LAYOUT
-            ================================================= */}
-
+            {/* TAB LAYOUT */}
             <div className="student-tab-layout">
 
               {/* LEFT TAB MENU */}
               <aside className="student-tab-sidebar no-print">
+
                 <div className="student-tab-sidebar-title">
                   Profile Sections
                 </div>
@@ -874,19 +954,146 @@ export default function StudentPortal() {
                     </button>
                   )
                 )}
+
               </aside>
 
               {/* RIGHT CONTENT */}
               <main className="student-tab-content">
 
-                {/* EDIT MODE */}
-                {editMode ? (
+                {/* DOCUMENT TAB */}
+                {activeTab === "documents" ? (
+
+                  <section
+                    id="document-update"
+                    className="student-profile-section student-active-tab-section no-print"
+                  >
+
+                    <div className="student-tab-content-header">
+
+                      <div>
+
+                        <h3>
+                          📄 Document Update
+                        </h3>
+
+                        <p>
+                          আপনার প্রয়োজনীয়
+                          documents upload বা
+                          update করুন।
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                    {(uploadMessage ||
+                      uploadError) && (
+                      <div
+                        className={
+                          uploadError
+                            ? "student-document-message error"
+                            : "student-document-message success"
+                        }
+                      >
+                        {uploadError ||
+                          uploadMessage}
+                      </div>
+                    )}
+
+                    <div className="student-document-grid">
+
+                      {documentCards.map(
+                        (card) => (
+
+                          <div
+                            className="student-document-card"
+                            key={card.key}
+                          >
+
+                            <div className="student-document-icon">
+                              {card.icon}
+                            </div>
+
+                            <div className="student-document-content">
+
+                              <h4>
+                                {card.label}
+                              </h4>
+
+                              <p>
+                                {currentStudent[
+                                  card.field
+                                ]
+                                  ? String(
+                                      currentStudent[
+                                        card.field
+                                      ]
+                                    )
+                                      .split(/[\\/]/)
+                                      .pop()
+                                  : "Not uploaded"}
+                              </p>
+
+                              <label className="student-document-button">
+
+                                <input
+                                  type="file"
+                                  accept={card.accept}
+                                  hidden
+                                  disabled={
+                                    uploadingDoc ===
+                                    card.key
+                                  }
+                                  onChange={(e) => {
+
+                                    const file =
+                                      e.target.files?.[0];
+
+                                    if (file) {
+                                      handleDocumentUpload(
+                                        card,
+                                        file
+                                      );
+                                    }
+
+                                    e.target.value = "";
+                                  }}
+                                />
+
+                                {uploadingDoc ===
+                                card.key
+                                  ? "Uploading..."
+                                  : currentStudent[
+                                      card.field
+                                    ]
+                                  ? "Update"
+                                  : "Upload"}
+
+                              </label>
+
+                            </div>
+
+                          </div>
+                        )
+                      )}
+
+                    </div>
+
+                  </section>
+
+                ) : editMode ? (
+
+                  /* EDIT MODE */
+
                   <section
                     id="student-profile-edit"
                     className="student-profile-section"
                   >
+
                     <div className="student-edit-header">
+
                       <div>
+
                         <h3>
                           {activeGroupTitle}
                         </h3>
@@ -896,16 +1103,21 @@ export default function StudentPortal() {
                           information পরিবর্তন
                           করুন।
                         </p>
+
                       </div>
+
                     </div>
 
                     <form onSubmit={handleSave}>
+
                       <div className="student-edit-group">
+
                         <h4>
                           {activeGroupTitle}
                         </h4>
 
                         <div className="student-edit-grid">
+
                           {activeFields.map(
                             ([
                               field,
@@ -913,6 +1125,7 @@ export default function StudentPortal() {
                               type,
                               readonly,
                             ]) => (
+
                               <div
                                 className={
                                   type === "textarea"
@@ -921,12 +1134,14 @@ export default function StudentPortal() {
                                 }
                                 key={field}
                               >
+
                                 <label>
                                   {label}
                                 </label>
 
                                 {type ===
                                 "textarea" ? (
+
                                   <textarea
                                     value={
                                       form[field] ??
@@ -944,7 +1159,9 @@ export default function StudentPortal() {
                                     }
                                     rows={3}
                                   />
+
                                 ) : (
+
                                   <input
                                     type={type}
                                     value={
@@ -962,14 +1179,19 @@ export default function StudentPortal() {
                                       saving
                                     }
                                   />
+
                                 )}
+
                               </div>
                             )
                           )}
+
                         </div>
+
                       </div>
 
                       <div className="student-edit-actions">
+
                         <button
                           type="submit"
                           className="student-save-button"
@@ -988,17 +1210,26 @@ export default function StudentPortal() {
                         >
                           Cancel
                         </button>
+
                       </div>
+
                     </form>
+
                   </section>
+
                 ) : (
+
                   /* VIEW MODE */
+
                   <section
                     className="student-profile-section student-active-tab-section"
                     id={`profile-${activeGroupKey}`}
                   >
+
                     <div className="student-tab-content-header">
+
                       <div>
+
                         <h3>
                           {activeGroupTitle}
                         </h3>
@@ -1007,16 +1238,21 @@ export default function StudentPortal() {
                           Student profile
                           information
                         </p>
+
                       </div>
+
                     </div>
 
                     <div className="student-info-table">
+
                       {activeFields.map(
                         ([field, label]) => (
+
                           <div
                             className="student-info-row"
                             key={field}
                           >
+
                             <div className="student-info-label">
                               {label}
                             </div>
@@ -1028,108 +1264,23 @@ export default function StudentPortal() {
                                 ]
                               )}
                             </div>
+
                           </div>
                         )
                       )}
+
                     </div>
+
                   </section>
                 )}
 
               </main>
+
             </div>
-
-            {/* =================================================
-                DOCUMENT UPDATE
-            ================================================= */}
-
-            <section
-              id="document-update"
-              className="student-profile-section no-print"
-            >
-              <h3>Document Update</h3>
-
-              {(uploadMessage ||
-                uploadError) && (
-                <div
-                  className={
-                    uploadError
-                      ? "student-document-message error"
-                      : "student-document-message success"
-                  }
-                >
-                  {uploadError ||
-                    uploadMessage}
-                </div>
-              )}
-
-              <div className="student-document-grid">
-                {documentCards.map((card) => (
-                  <div
-                    className="student-document-card"
-                    key={card.key}
-                  >
-                    <div className="student-document-icon">
-                      {card.icon}
-                    </div>
-
-                    <div className="student-document-content">
-                      <h4>{card.label}</h4>
-
-                      <p>
-                        {currentStudent[
-                          card.field
-                        ]
-                          ? String(
-                              currentStudent[
-                                card.field
-                              ]
-                            )
-                              .split("/")
-                              .pop()
-                          : "Not uploaded"}
-                      </p>
-
-                      <label className="student-document-button">
-                        <input
-                          type="file"
-                          accept={card.accept}
-                          hidden
-                          disabled={
-                            uploadingDoc ===
-                            card.key
-                          }
-                          onChange={(e) => {
-                            const file =
-                              e.target.files?.[0];
-
-                            if (file) {
-                              handleDocumentUpload(
-                                card,
-                                file
-                              );
-                            }
-
-                            e.target.value = "";
-                          }}
-                        />
-
-                        {uploadingDoc ===
-                        card.key
-                          ? "Uploading..."
-                          : currentStudent[
-                              card.field
-                            ]
-                          ? "Update"
-                          : "Upload"}
-                      </label>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
 
             {/* FOOTER */}
             <div className="student-profile-footer">
+
               <span>
                 Sunshine Education
               </span>
@@ -1137,10 +1288,12 @@ export default function StudentPortal() {
               <span>
                 Student Portal
               </span>
+
             </div>
 
           </div>
         )}
+
     </div>
   );
 }
