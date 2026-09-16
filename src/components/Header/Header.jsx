@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./Header.css";
 import logo from "../../assets/logo/logo.png";
+import API_BASE_URL from "../../config/api";
 
 import {
   FaWhatsapp,
@@ -11,9 +12,10 @@ import {
 
 export default function Header() {
   const [hotline, setHotline] = useState("");
+  const [languages, setLanguages] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost/sunshine-api/api/get_hotline.php")
+    fetch(`${API_BASE_URL}/get_hotline.php`)
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP error! Status: ${res.status}`);
@@ -21,13 +23,80 @@ export default function Header() {
         return res.json();
       })
       .then((data) => {
-        console.log("Hotline API Response:", data); // কন্সোলে রেসপন্স চেক করার জন্য
-        if (data && data.hotline && data.hotline.trim() !== "") {
+        console.log("Hotline API Response:", data);
+
+        if (
+          data &&
+          data.hotline &&
+          data.hotline.trim() !== ""
+        ) {
           setHotline(data.hotline.trim());
         }
       })
-      .catch((err) => console.error("Error fetching hotline:", err));
+      .catch((err) =>
+        console.error("Error fetching hotline:", err)
+      );
   }, []);
+
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/language_list.php`,
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `HTTP error! Status: ${response.status}`
+          );
+        }
+
+        const result = await response.json();
+
+        let list = [];
+
+        if (
+          result.success &&
+          Array.isArray(result.data)
+        ) {
+          list = result.data;
+        } else if (Array.isArray(result)) {
+          list = result;
+        }
+
+        const activeLangs = list.filter((lang) => {
+          const status = String(
+            lang.status ?? ""
+          )
+            .trim()
+            .toLowerCase();
+
+          return (
+            status === "active" ||
+            status === "1"
+          );
+        });
+
+        setLanguages(activeLangs);
+      } catch (error) {
+        console.error(
+          "Language load error:",
+          error
+        );
+        setLanguages([]);
+      }
+    };
+
+    fetchLanguages();
+  }, []);
+
+  const languageNames = languages
+    .map((lang) => lang.name)
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <header className="header">
@@ -51,14 +120,16 @@ export default function Header() {
           </div>
 
           <p>
-            Japanese, German and Korean Language School
+            {languageNames
+              ? `${languageNames} Language School`
+              : "Language School"}
           </p>
         </div>
 
         {/* Social Links & Hotline */}
         <div className="social-links">
 
-          {/* Hotline Button (যদি হটলাইন নম্বরে ডেটা থাকে) */}
+          {/* Hotline Button */}
           {hotline && (
             <a
               href={`tel:${hotline}`}
@@ -66,7 +137,9 @@ export default function Header() {
               title="Call Hotline"
             >
               <FaPhoneAlt className="hotline-icon" />
-              <span className="hotline-number">{hotline}</span>
+              <span className="hotline-number">
+                {hotline}
+              </span>
             </a>
           )}
 
