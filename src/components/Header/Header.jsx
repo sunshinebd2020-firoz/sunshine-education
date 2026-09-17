@@ -93,10 +93,18 @@ export default function Header() {
     fetchLanguages();
   }, []);
 
-  const languageNames = languages
-    .map((lang) => lang.name)
-    .filter(Boolean)
-    .join(", ");
+const languageNames = languages
+  .map((lang) => lang.name)
+  .filter(Boolean);
+
+const formattedLanguageNames =
+  languageNames.length <= 1
+    ? languageNames.join("")
+    : languageNames.length === 2
+    ? languageNames.join(" & ")
+    : `${languageNames.slice(0, -1).join(", ")} & ${
+        languageNames[languageNames.length - 1]
+      }`;
 
   return (
     <header className="header">
@@ -119,11 +127,11 @@ export default function Header() {
             <span></span>
           </div>
 
-          <p>
-            {languageNames
-              ? `${languageNames} Language School`
-              : "Language School"}
-          </p>
+<p>
+  {formattedLanguageNames
+    ? `${formattedLanguageNames} Language School`
+    : "Language School"}
+</p>
         </div>
 
         {/* Social Links & Hotline */}
