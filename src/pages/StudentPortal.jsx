@@ -181,10 +181,6 @@ const FILE_FIELDS = [
 
 const READONLY_FIELDS = [
   "student_id",
-  "admission_date",
-  "assigned_teacher_id",
-  "teacher_id",
-  "teacher_name",
 ];
 
 /* =====================================================
@@ -205,6 +201,73 @@ const groups = [
   ["family", "👨‍👩‍👧 Family Information", STUDENT_FIELDS.slice(108, 133)],
   ["documents", "📄 Document Update", []],
 ];
+
+const UI_TEXT = {
+  en: {
+    logout: "Logout",
+    studentId: "Student ID",
+    loading: "Loading student profile...",
+    noPhoto: "No Photo",
+    profileCompletion: "Profile Completion",
+    completionInfo: "Profile information completion",
+    complete: "Complete",
+    profileSections: "Profile Sections",
+    documentUpdate: "Document Update",
+    documentDescription: "Upload or update your required documents.",
+    notUploaded: "Not uploaded",
+    uploading: "Uploading...",
+    update: "Update",
+    upload: "Upload",
+    editDescription: "Update the information in this section.",
+    saveSection: "Save This Section",
+    saving: "Saving...",
+    cancel: "Cancel",
+    profileInformation: "Student profile information",
+    editProfile: "Edit Profile",
+  },
+  bn: {
+    logout: "লগআউট",
+    studentId: "শিক্ষার্থী আইডি",
+    loading: "শিক্ষার্থীর প্রোফাইল লোড হচ্ছে...",
+    noPhoto: "ছবি নেই",
+    profileCompletion: "প্রোফাইল সম্পূর্ণতা",
+    completionInfo: "প্রোফাইল তথ্য সম্পূর্ণতার অবস্থা",
+    complete: "সম্পূর্ণ",
+    profileSections: "প্রোফাইল বিভাগসমূহ",
+    documentUpdate: "ডকুমেন্ট আপডেট",
+    documentDescription: "প্রয়োজনীয় ডকুমেন্ট আপলোড বা আপডেট করুন।",
+    notUploaded: "আপলোড করা হয়নি",
+    uploading: "আপলোড হচ্ছে...",
+    update: "আপডেট",
+    upload: "আপলোড",
+    editDescription: "এই বিভাগের তথ্য পরিবর্তন করুন।",
+    saveSection: "এই বিভাগ সংরক্ষণ করুন",
+    saving: "সংরক্ষণ হচ্ছে...",
+    cancel: "বাতিল",
+    profileInformation: "শিক্ষার্থীর প্রোফাইল তথ্য",
+    editProfile: "প্রোফাইল সম্পাদনা",
+  },
+};
+
+const GROUP_TITLES = {
+  basic: { en: "🏫 Basic / Course Information", bn: "🏫 প্রাথমিক / কোর্স তথ্য" },
+  personal: { en: "👤 Personal Information", bn: "👤 ব্যক্তিগত তথ্য" },
+  address: { en: "📍 Address Information", bn: "📍 ঠিকানা তথ্য" },
+  contact: { en: "📞 Contact Information", bn: "📞 যোগাযোগের তথ্য" },
+  education: { en: "🎓 Educational Qualification", bn: "🎓 শিক্ষাগত যোগ্যতা" },
+  work: { en: "💼 Work & Language", bn: "💼 কাজ ও ভাষা" },
+  lifestyle: { en: "🕌 Lifestyle & Financial", bn: "🕌 জীবনযাপন ও আর্থিক তথ্য" },
+  japan: { en: "🇯🇵 Japan / Future Plan", bn: "🇯🇵 জাপান / ভবিষ্যৎ পরিকল্পনা" },
+  skills: { en: "🛠️ Skills", bn: "🛠️ দক্ষতা" },
+  physical: { en: "🧍 Physical Information", bn: "🧍 শারীরিক তথ্য" },
+  family: { en: "👨‍👩‍👧 Family Information", bn: "👨‍👩‍👧 পারিবারিক তথ্য" },
+  documents: { en: "📄 Document Update", bn: "📄 ডকুমেন্ট আপডেট" },
+};
+
+const getGroupTitle = (groupKey, language) =>
+  GROUP_TITLES[groupKey]?.[language] ||
+  GROUP_TITLES[groupKey]?.en ||
+  groupKey;
 
 /* =====================================================
    HELPERS
@@ -291,6 +354,15 @@ const saveStudentStorage = (student) => {
 export default function StudentPortal() {
   const navigate = useNavigate();
 
+  const [language, setLanguage] = useState(
+    () =>
+      localStorage.getItem("sunshine_student_language") === "bn"
+        ? "bn"
+        : "en"
+  );
+
+  const text = UI_TEXT[language];
+
   const sessionStudent = useMemo(
     () => readStudentSession(),
     []
@@ -332,6 +404,13 @@ export default function StudentPortal() {
 
   const [activeTab, setActiveTab] =
     useState("basic");
+
+  useEffect(() => {
+    localStorage.setItem(
+      "sunshine_student_language",
+      language
+    );
+  }, [language]);
 
   const currentStudent =
     profile || sessionStudent;
@@ -701,6 +780,10 @@ export default function StudentPortal() {
   const handleTabChange = (groupKey) => {
     setActiveTab(groupKey);
 
+    // প্রতিটি sidebar section-এর edit state আলাদা থাকবে।
+    setEditMode(false);
+    setForm({});
+
     setSaveMessage("");
     setSaveError("");
     setUploadMessage("");
@@ -745,8 +828,10 @@ export default function StudentPortal() {
   const activeGroupKey =
     activeGroup[0];
 
-  const activeGroupTitle =
-    activeGroup[1];
+  const activeGroupTitle = getGroupTitle(
+    activeGroupKey,
+    language
+  );
 
   const activeFields =
     activeGroup[2];
@@ -754,44 +839,9 @@ export default function StudentPortal() {
   return (
     <div className="student-portal">
 
-      {/* HEADER */}
-      <div className="student-portal-header no-print">
-
-        <div>
-          <h1>Student Portal</h1>
-
-          <p>
-            আপনার সম্পূর্ণ শিক্ষার্থী প্রোফাইল
-          </p>
-        </div>
-
-        <div className="student-portal-header-actions">
-
-          {!editMode &&
-            activeTab !== "documents" && (
-              <button
-                type="button"
-                className="student-profile-edit-button"
-                onClick={startEdit}
-              >
-                ✏️ Edit Profile
-              </button>
-            )}
-
-          <button
-            type="button"
-            className="student-portal-logout"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
-
-        </div>
-      </div>
-
       {loadingProfile && (
         <div className="student-portal-message-card no-print">
-          Loading student profile...
+          {text.loading}
         </div>
       )}
 
@@ -818,7 +868,7 @@ export default function StudentPortal() {
                   />
                 ) : (
                   <div className="student-profile-no-photo">
-                    No Photo
+                    {text.noPhoto}
                   </div>
                 )}
 
@@ -896,12 +946,11 @@ export default function StudentPortal() {
                 <div>
 
                   <h3>
-                    Profile Completion
+                    {text.profileCompletion}
                   </h3>
 
                   <p>
-                    ১৪১টি database field-এর
-                    profile information
+                    {text.completionInfo}
                   </p>
 
                 </div>
@@ -913,7 +962,7 @@ export default function StudentPortal() {
                   </strong>
 
                   <span>
-                    সম্পূর্ণ
+                    {text.complete}
                   </span>
 
                 </div>
@@ -939,12 +988,61 @@ export default function StudentPortal() {
               {/* LEFT TAB MENU */}
               <aside className="student-tab-sidebar no-print">
 
+                <div className="student-sidebar-profile">
+                  <div className="student-sidebar-profile-main">
+                    <div className="student-sidebar-profile-photo">
+                      {photoUrl ? (
+                        <img src={photoUrl} alt={studentName} />
+                      ) : (
+                        <span>👤</span>
+                      )}
+                    </div>
+
+                    <div className="student-sidebar-profile-details">
+                      <strong>{studentName}</strong>
+                      <small>
+                        {text.studentId}: {displayValue(currentStudent?.student_id)}
+                      </small>
+                    </div>
+                  </div>
+
+                  <div className="student-sidebar-profile-actions">
+                    <div
+                      className="student-language-switcher"
+                      aria-label="Language selection"
+                    >
+                      <button
+                        type="button"
+                        className={language === "bn" ? "active" : ""}
+                        onClick={() => setLanguage("bn")}
+                      >
+                        বাংলা
+                      </button>
+                      <button
+                        type="button"
+                        className={language === "en" ? "active" : ""}
+                        onClick={() => setLanguage("en")}
+                      >
+                        English
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="student-portal-logout"
+                      onClick={handleLogout}
+                    >
+                      {text.logout}
+                    </button>
+                  </div>
+                </div>
+
                 <div className="student-tab-sidebar-title">
-                  Profile Sections
+                  {text.profileSections}
                 </div>
 
                 {groups.map(
-                  ([groupKey, title]) => (
+                  ([groupKey]) => (
                     <button
                       key={groupKey}
                       type="button"
@@ -959,7 +1057,7 @@ export default function StudentPortal() {
                         )
                       }
                     >
-                      {title}
+                      {getGroupTitle(groupKey, language)}
                     </button>
                   )
                 )}
@@ -982,13 +1080,11 @@ export default function StudentPortal() {
                       <div>
 
                         <h3>
-                          📄 Document Update
+                          {text.documentUpdate}
                         </h3>
 
                         <p>
-                          আপনার প্রয়োজনীয়
-                          documents upload বা
-                          update করুন।
+                          {text.documentDescription}
                         </p>
 
                       </div>
@@ -1040,7 +1136,7 @@ export default function StudentPortal() {
                                     )
                                       .split(/[\\/]/)
                                       .pop()
-                                  : "Not uploaded"}
+                                  : text.notUploaded}
                               </p>
 
                               <label className="student-document-button">
@@ -1071,12 +1167,12 @@ export default function StudentPortal() {
 
                                 {uploadingDoc ===
                                 card.key
-                                  ? "Uploading..."
+                                  ? text.uploading
                                   : currentStudent[
                                       card.field
                                     ]
-                                  ? "Update"
-                                  : "Upload"}
+                                  ? text.update
+                                  : text.upload}
 
                               </label>
 
@@ -1108,9 +1204,7 @@ export default function StudentPortal() {
                         </h3>
 
                         <p>
-                          এই section-এর
-                          information পরিবর্তন
-                          করুন।
+                          {text.editDescription}
                         </p>
 
                       </div>
@@ -1132,7 +1226,6 @@ export default function StudentPortal() {
                               field,
                               label,
                               type,
-                              readonly,
                             ]) => (
 
                               <div
@@ -1162,10 +1255,7 @@ export default function StudentPortal() {
                                         e.target.value
                                       )
                                     }
-                                    disabled={
-                                      readonly ||
-                                      saving
-                                    }
+                                    disabled={saving}
                                     rows={3}
                                   />
 
@@ -1183,10 +1273,7 @@ export default function StudentPortal() {
                                         e.target.value
                                       )
                                     }
-                                    disabled={
-                                      readonly ||
-                                      saving
-                                    }
+                                    disabled={saving}
                                   />
 
                                 )}
@@ -1207,8 +1294,8 @@ export default function StudentPortal() {
                           disabled={saving}
                         >
                           {saving
-                            ? "Saving..."
-                            : "💾 Save All Information"}
+                            ? text.saving
+                            : `💾 ${text.saveSection}`}
                         </button>
 
                         <button
@@ -1217,7 +1304,7 @@ export default function StudentPortal() {
                           onClick={cancelEdit}
                           disabled={saving}
                         >
-                          Cancel
+                          {text.cancel}
                         </button>
 
                       </div>
@@ -1244,11 +1331,18 @@ export default function StudentPortal() {
                         </h3>
 
                         <p>
-                          Student profile
-                          information
+                          {text.profileInformation}
                         </p>
 
                       </div>
+
+                      <button
+                        type="button"
+                        className="student-profile-edit-button"
+                        onClick={startEdit}
+                      >
+                        ✏️ {text.editProfile}
+                      </button>
 
                     </div>
 
