@@ -406,7 +406,7 @@ export default function StudentPortal() {
 
   /* =====================================================
      EDIT FORM
-  ===================================================== */
+===================================================== */
 
   const startEdit = () => {
     if (activeTab === "documents") {
@@ -449,7 +449,7 @@ export default function StudentPortal() {
   };
 
   /* =====================================================
-     SAVE ALL PROFILE FIELDS
+     SAVE PROFILE
 ===================================================== */
 
   const handleSave = async (event) => {
@@ -478,22 +478,28 @@ export default function StudentPortal() {
         studentId
       );
 
-      STUDENT_FIELDS.forEach(([field]) => {
-        if (READONLY_FIELDS.includes(field)) {
-          return;
-        }
-
-        formData.append(
-          field,
-          form[field] ?? ""
-        );
-      });
-
       /*
-       * IMPORTANT:
-       * Profile update এবং document update
-       * একই API ব্যবহার করছে।
+       * শুধু active/current section-এর fields পাঠানো হচ্ছে।
+       * ফলে অন্য section-এর data পরিবর্তন হবে না।
        */
+      activeFields.forEach(
+        ([field, label, type, readonly]) => {
+          if (
+            readonly ||
+            READONLY_FIELDS.includes(field)
+          ) {
+            return;
+          }
+
+          formData.append(
+            field,
+            form[field] ??
+              currentStudent?.[field] ??
+              ""
+          );
+        }
+      );
+
       const response = await fetch(
         `${API_BASE_URL}/student_update_documents.php`,
         {
@@ -531,7 +537,10 @@ export default function StudentPortal() {
 
       setEditMode(false);
     } catch (error) {
-      console.error(error);
+      console.error(
+        "PROFILE SAVE ERROR:",
+        error
+      );
 
       setSaveError(
         error.message ||
@@ -544,7 +553,7 @@ export default function StudentPortal() {
 
   /* =====================================================
      COMPLETION
-  ===================================================== */
+===================================================== */
 
   const completion = useMemo(() => {
     const fields = STUDENT_FIELDS.filter(
@@ -567,7 +576,7 @@ export default function StudentPortal() {
 
   /* =====================================================
      DOCUMENT CARDS
-  ===================================================== */
+===================================================== */
 
   const documentCards = [
     {
@@ -606,7 +615,7 @@ export default function StudentPortal() {
 
   /* =====================================================
      DOCUMENT UPLOAD
-  ===================================================== */
+===================================================== */
 
   const handleDocumentUpload = async (
     card,
@@ -687,7 +696,7 @@ export default function StudentPortal() {
 
   /* =====================================================
      TAB CHANGE
-  ===================================================== */
+===================================================== */
 
   const handleTabChange = (groupKey) => {
     setActiveTab(groupKey);
@@ -704,7 +713,7 @@ export default function StudentPortal() {
 
   /* =====================================================
      LOGOUT
-  ===================================================== */
+===================================================== */
 
   const handleLogout = () => {
     clearStudentAuthStorage();
