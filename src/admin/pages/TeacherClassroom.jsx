@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config/api";
 import "./TeacherClassroom.css";
 
@@ -306,6 +307,10 @@ const normalizeTransferRequest = (request = {}) => {
     status:
       request.status ??
       "pending",
+
+    from_teacher_id:
+      request.from_teacher_id ??
+      "",
   };
 };
 
@@ -317,6 +322,8 @@ const normalizeTransferRequest = (request = {}) => {
 
 const normalizeData = (payload = {}) => {
   return {
+    teacher_id: payload.teacher_id ?? "",
+
     students: asArray(payload.students).map(normalizeStudent),
 
     batches: asArray(payload.batches).map(normalizeBatch),
@@ -473,7 +480,9 @@ const parseJsonResponse = async (
 |--------------------------------------------------------------------------
 */
 
-export default function TeacherClassroom() {
+export default function TeacherClassroom({ section = "students" }) {
+  const navigate = useNavigate();
+
   /*
   |--------------------------------------------------------------------------
   | DATA
@@ -562,7 +571,7 @@ export default function TeacherClassroom() {
   */
 
   const [activeSection, setActiveSection] =
-    useState("students");
+    useState(section);
 
   /*
   |--------------------------------------------------------------------------
@@ -691,6 +700,10 @@ export default function TeacherClassroom() {
   | INITIAL LOAD
   |--------------------------------------------------------------------------
   */
+
+  useEffect(() => {
+    setActiveSection(section);
+  }, [section]);
 
   useEffect(() => {
     const timer =
@@ -835,6 +848,19 @@ export default function TeacherClassroom() {
     }
   };
 
+  const handleTransferAction = async (requestId, action) => {
+    try {
+      await post({
+        action,
+        request_id: Number(requestId),
+      });
+      await load();
+    } catch (error) {
+      console.error("Transfer action error:", error);
+      setMessage(error?.message || "Transfer request update failed.");
+    }
+  };
+
   /*
   |--------------------------------------------------------------------------
   | CREATE BATCH
@@ -894,9 +920,7 @@ export default function TeacherClassroom() {
         );
       }
 
-      setActiveSection(
-        "batches"
-      );
+      navigate("/admin/my-classroom/batches");
     } catch (error) {
       console.error(
         "Create batch error:",
@@ -1301,9 +1325,7 @@ export default function TeacherClassroom() {
 
       await load(selectedBatch);
 
-      setActiveSection(
-        "records"
-      );
+      navigate("/admin/my-classroom/records");
     } catch (error) {
       console.error(
         "Save class error:",
@@ -1433,8 +1455,8 @@ export default function TeacherClassroom() {
                       : "submenu-button"
                   }
                   onClick={() =>
-                    setActiveSection(
-                      tab.key
+                    navigate(
+                      `/admin/my-classroom/${tab.key}`
                     )
                   }
                 >
@@ -1584,6 +1606,8 @@ export default function TeacherClassroom() {
                           <th>
                             Status
                           </th>
+
+                          <th>Action</th>
                         </tr>
                       </thead>
 
@@ -1639,6 +1663,36 @@ export default function TeacherClassroom() {
                                   {request.status ||
                                     "pending"}
                                 </span>
+                              </td>
+
+                              <td>
+                                {String(request.status).toLowerCase() === "pending" &&
+                                String(request.to_teacher_id) === String(data.teacher_id) ? (
+                                  <div className="form-row">
+                                    <button
+                                      type="button"
+                                      className="small-button"
+                                      onClick={() =>
+                                        handleTransferAction(request.id, "accept_transfer")
+                                      }
+                                      disabled={saving}
+                                    >
+                                      Accept
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="small-button danger-button"
+                                      onClick={() =>
+                                        handleTransferAction(request.id, "reject_transfer")
+                                      }
+                                      disabled={saving}
+                                    >
+                                      Reject
+                                    </button>
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
                               </td>
                             </tr>
                           )
@@ -1894,6 +1948,33 @@ export default function TeacherClassroom() {
           {activeSection ===
             "attendance" && (
             <section className="selected-batch-section">
+
+              <div className="classroom-card">
+                <div className="card-heading">
+                  <div>
+                    <h2>Attendance</h2>
+                    <p>Select a batch and mark today&apos;s attendance.</p>
+                  </div>
+
+                  <select
+                    value={selectedBatch}
+                    onChange={(event) =>
+                      setSelectedBatch(event.target.value)
+                    }
+                    disabled={saving || !data.batches.length}
+                    aria-label="Select batch for attendance"
+                  >
+                    {!data.batches.length && (
+                      <option value="">No batches available</option>
+                    )}
+                    {data.batches.map((item) => (
+                      <option key={getId(item.id)} value={getId(item.id)}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
               {!selectedBatchData ? (
                 <section className="classroom-card">

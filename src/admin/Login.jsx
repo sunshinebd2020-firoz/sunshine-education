@@ -463,7 +463,7 @@ export default function Login() {
 
       navigate(
         isTeacherAccount
-          ? "/admin/my-classroom"
+          ? "/admin/my-classroom/students"
           : "/admin/dashboard",
         {
           replace: true

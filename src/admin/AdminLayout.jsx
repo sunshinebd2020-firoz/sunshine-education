@@ -14,6 +14,7 @@ import {
   clearAuthStorage,
   readStoredUser,
 } from "./authStorage";
+import { isProtectedAdministrator } from "./protectedAdmins";
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -64,6 +65,9 @@ export default function AdminLayout() {
     Boolean(
       String(user?.teacher_id || "").trim()
     );
+
+  const hasTeacherClassroom =
+    isTeacher || isProtectedAdministrator(user);
 
   /*
     IMPORTANT:
@@ -372,7 +376,7 @@ if (isTeacher) {
     location.pathname === "/admin/dashboard"
   ) {
     navigate(
-      "/admin/my-classroom",
+      "/admin/my-classroom/students",
       {
         replace: true,
       }
@@ -390,7 +394,7 @@ if (isTeacher) {
 
   if (!canViewMenu(teacherMenu)) {
     navigate(
-      "/admin/my-classroom",
+      "/admin/my-classroom/students",
       {
         replace: true,
       }
@@ -856,21 +860,40 @@ if (isTeacher) {
             </NavLink>
           )}
 
-          {isTeacher && (
-            <NavLink
-              to="/admin/my-classroom"
-              className={({ isActive }) =>
-                `sidebar-link ${
-                  isActive
-                    ? "active"
-                    : ""
-                }`
-              }
-            >
-              <span>
-                📚 My Batch
-              </span>
-            </NavLink>
+          {hasTeacherClassroom && (
+            <div className="sidebar-group">
+              <NavLink
+                to="/admin/my-classroom/students"
+                className={({ isActive }) =>
+                  `sidebar-link ${
+                    isActive && location.pathname === "/admin/my-classroom/students"
+                      ? "active"
+                      : ""
+                  }`
+                }
+              >
+                <span>📚 My Batch</span>
+              </NavLink>
+
+              <div className="sidebar-submenu">
+                {[
+                  ["students", "Students"],
+                  ["batches", "Batches"],
+                  ["attendance", "Attendance"],
+                  ["records", "Class Records"],
+                ].map(([path, label]) => (
+                  <NavLink
+                    key={path}
+                    to={`/admin/my-classroom/${path}`}
+                    className={({ isActive }) =>
+                      `sidebar-sublink ${isActive ? "active" : ""}`
+                    }
+                  >
+                    {label}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* =================================================

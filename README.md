@@ -38,3 +38,14 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Local domains
+
+The local development profile uses XAMPP and these host names:
+
+- Frontend: `http://sunshine.test`
+- API and uploads: `http://api.sunshine.test`
+
+Start the Vite server with `npm run dev`; Apache proxies `sunshine.test` to Vite on port 5173. The API is served directly by Apache from `C:/xampp/htdocs/sunshine-api`, including `/uploads`.
+
+The Apache configuration is in `local/apache/sunshine-vhosts.conf`. It enables CORS only for `http://sunshine.test`, keeps session cookies on `api.sunshine.test`, and passes the local MySQL defaults as environment variables. Change those `DB_*` values if your MySQL credentials differ.

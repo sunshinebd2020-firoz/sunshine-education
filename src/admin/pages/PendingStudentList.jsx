@@ -245,8 +245,23 @@ export default function PendingStudentList() {
       student.assigned_teacher_id ||
       "";
 
-    setSelectedTeacher(
-      String(existingTeacher || "")
+    const assignedTeacherId =
+      teacherListContainsTeacher(existingTeacher)
+        ? String(existingTeacher)
+        : "";
+
+    setSelectedTeacher(assignedTeacherId);
+  };
+
+  const teacherListContainsTeacher = (teacherId) => {
+    if (!teacherId) {
+      return false;
+    }
+
+    return teachers.some(
+      (teacher) =>
+        String(getTeacherId(teacher)) ===
+        String(teacherId)
     );
   };
 
@@ -1253,9 +1268,9 @@ export default function PendingStudentList() {
                                   student
                                 )
                               }
-                              title="Assign Present Teacher"
+                              title="Assign or change teacher"
                             >
-                              👨‍🏫
+                              Assign
                             </button>
 
                             {/* APPROVE */}
@@ -1386,6 +1401,36 @@ export default function PendingStudentList() {
             {/* BODY */}
 
             <div className="assign-teacher-body">
+
+              <div className="assign-current-teacher-box">
+                <strong>Currently assigned teacher:</strong>
+                <span>
+                  {(() => {
+                    const currentTeacherId =
+                      selectedStudent.teacher_id ||
+                      selectedStudent.assigned_teacher_id ||
+                      "";
+
+                    if (!currentTeacherId) {
+                      return "No teacher assigned yet";
+                    }
+
+                    const currentTeacher = teachers.find(
+                      (teacher) =>
+                        String(getTeacherId(teacher)) ===
+                        String(currentTeacherId)
+                    );
+
+                    if (currentTeacher) {
+                      return getTeacherDisplayName(
+                        currentTeacher
+                      );
+                    }
+
+                    return `Teacher ID: ${currentTeacherId}`;
+                  })()}
+                </span>
+              </div>
 
               <label>
                 Select Present Teacher

@@ -300,7 +300,40 @@ export default function App() {
 
               <Route
                 path="my-classroom"
-                element={<TeacherClassroom />}
+                element={
+                  <Navigate
+                    to="/admin/my-classroom/students"
+                    replace
+                  />
+                }
+              />
+
+              <Route
+                path="my-classroom/students"
+                element={
+                  <TeacherClassroom section="students" />
+                }
+              />
+
+              <Route
+                path="my-classroom/batches"
+                element={
+                  <TeacherClassroom section="batches" />
+                }
+              />
+
+              <Route
+                path="my-classroom/attendance"
+                element={
+                  <TeacherClassroom section="attendance" />
+                }
+              />
+
+              <Route
+                path="my-classroom/records"
+                element={
+                  <TeacherClassroom section="records" />
+                }
               />
 
               {/* =================================================
