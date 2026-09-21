@@ -32,25 +32,15 @@ export default function Home() {
     readStudentSession()
   );
 
-  const [studentUsername, setStudentUsername] =
-    useState("");
-
-  const [studentPassword, setStudentPassword] =
-    useState("");
-
-  const [studentLoginLoading, setStudentLoginLoading] =
-    useState(false);
-
-  const [studentLoginError, setStudentLoginError] =
-    useState("");
+  const [studentUsername, setStudentUsername] = useState("");
+  const [studentPassword, setStudentPassword] = useState("");
+  const [studentLoginLoading, setStudentLoginLoading] = useState(false);
+  const [studentLoginError, setStudentLoginError] = useState("");
 
   const [languages, setLanguages] = useState([]);
 
-  const [slideDirection, setSlideDirection] =
-    useState("next");
-
-  const [isAnimating, setIsAnimating] =
-    useState(false);
+  const [slideDirection, setSlideDirection] = useState("next");
+  const [isAnimating, setIsAnimating] = useState(false);
 
   /* ======================================================
      DEFAULT LANGUAGES
@@ -73,6 +63,56 @@ export default function Home() {
       desc: "Basic ও Skill Test প্রস্তুতি কোর্স।",
     },
   ];
+
+  /* ======================================================
+     LANGUAGE FLAGS
+  ====================================================== */
+
+  const getLanguageFlag = (name) => {
+    const lang = String(name || "").toLowerCase();
+
+    if (lang.includes("japan")) {
+      return "/flags/jp.svg";
+    }
+
+    if (
+      lang.includes("german") ||
+      lang.includes("germany")
+    ) {
+      return "/flags/de.svg";
+    }
+
+    if (
+      lang.includes("korean") ||
+      lang.includes("korea")
+    ) {
+      return "/flags/kr.svg";
+    }
+
+    if (
+      lang.includes("english") ||
+      lang.includes("england") ||
+      lang.includes("uk")
+    ) {
+      return "/flags/gb.svg";
+    }
+
+    if (
+      lang.includes("french") ||
+      lang.includes("france")
+    ) {
+      return "/flags/fr.svg";
+    }
+
+    if (
+      lang.includes("chinese") ||
+      lang.includes("china")
+    ) {
+      return "/flags/cn.svg";
+    }
+
+    return "";
+  };
 
   /* ======================================================
      FETCH BANNERS
@@ -110,10 +150,7 @@ export default function Home() {
           setPreviousSlide(null);
         }
       } catch (error) {
-        console.error(
-          "Banner load error:",
-          error
-        );
+        console.error("Banner load error:", error);
       } finally {
         setLoadingBanners(false);
       }
@@ -179,37 +216,6 @@ export default function Home() {
 
     fetchLanguages();
   }, []);
-
-  /* ======================================================
-     LANGUAGE ICON
-  ====================================================== */
-
-  const getLanguageIcon = (name) => {
-    const lang = String(name || "")
-      .toLowerCase();
-
-    if (lang.includes("japan")) return "🇯🇵";
-
-    if (
-      lang.includes("german") ||
-      lang.includes("germany")
-    ) {
-      return "🇩🇪";
-    }
-
-    if (
-      lang.includes("korean") ||
-      lang.includes("korea")
-    ) {
-      return "🇰🇷";
-    }
-
-    if (lang.includes("english")) return "🇬🇧";
-    if (lang.includes("french")) return "🇫🇷";
-    if (lang.includes("chinese")) return "🇨🇳";
-
-    return "🌐";
-  };
 
   /* ======================================================
      CHANGE SLIDE
@@ -490,16 +496,13 @@ export default function Home() {
             value === undefined ||
             value === ""
           ) {
-            localStorage.removeItem(
-              key
-            );
+            localStorage.removeItem(key);
             return;
           }
 
           localStorage.setItem(
             key,
-            typeof value ===
-              "string"
+            typeof value === "string"
               ? value
               : JSON.stringify(value)
           );
@@ -509,9 +512,7 @@ export default function Home() {
       STUDENT_STORAGE_KEYS.forEach(
         (key) => {
           if (!authState[key]) {
-            localStorage.removeItem(
-              key
-            );
+            localStorage.removeItem(key);
           }
         }
       );
@@ -538,9 +539,7 @@ export default function Home() {
           "Student login failed."
       );
     } finally {
-      setStudentLoginLoading(
-        false
-      );
+      setStudentLoginLoading(false);
     }
   };
 
@@ -699,32 +698,58 @@ export default function Home() {
             <div className="course-cards">
 
               {languages.map(
-                (lang) => (
-                  <div
-                    className="home-card"
-                    key={
-                      lang.id ||
+                (lang) => {
+
+                  const flag =
+                    getLanguageFlag(
                       lang.name
-                    }
-                  >
+                    );
 
-                    <div className="card-icon">
-                      {getLanguageIcon(
+                  return (
+                    <div
+                      className="home-card"
+                      key={
+                        lang.id ||
                         lang.name
-                      )}
+                      }
+                      onClick={() =>
+                        navigate(
+                          `/courses?language=${encodeURIComponent(
+                            lang.name
+                          )}`
+                        )
+                      }
+                      style={{
+                        cursor: "pointer",
+                      }}
+                    >
+
+                      <div className="card-icon">
+
+                        {flag ? (
+                          <img
+                            src={flag}
+                            alt={`${lang.name} flag`}
+                            className="language-flag"
+                          />
+                        ) : (
+                          "🌐"
+                        )}
+
+                      </div>
+
+                      <h3>
+                        {lang.name}
+                      </h3>
+
+                      <p>
+                        {lang.desc ||
+                          `${lang.name} প্রস্তুতি কোর্স।`}
+                      </p>
+
                     </div>
-
-                    <h3>
-                      {lang.name}
-                    </h3>
-
-                    <p>
-                      {lang.desc ||
-                        `${lang.name} প্রস্তুতি কোর্স।`}
-                    </p>
-
-                  </div>
-                )
+                  );
+                }
               )}
 
             </div>
@@ -924,9 +949,7 @@ export default function Home() {
 
                   {studentLoginError && (
                     <div className="student-login-error">
-                      {
-                        studentLoginError
-                      }
+                      {studentLoginError}
                     </div>
                   )}
 

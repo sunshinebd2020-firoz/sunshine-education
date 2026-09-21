@@ -5,6 +5,40 @@ import Header from "./components/Header/Header";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 
+// ================= GLOBAL STYLE =================
+const globalStyle = `
+  html,
+  body,
+  #root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+  }
+
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .app {
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+
+  .content {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+`;
+
 const Login = lazy(() => import("./admin/Login"));
 const AdminLayout = lazy(() => import("./admin/AdminLayout"));
 
@@ -180,415 +214,419 @@ export default function App() {
   const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
-    <div className="app">
+    <>
+      <style>{globalStyle}</style>
 
-      {/* ================= HEADER ================= */}
+      <div className="app">
 
-      {!isAdminRoute && <Header />}
+        {/* ================= HEADER ================= */}
 
-      {/* ================= NAVBAR ================= */}
+        {!isAdminRoute && <Header />}
 
-      {!isAdminRoute && <Navbar />}
+        {/* ================= NAVBAR ================= */}
 
-      {/* ================= MAIN CONTENT ================= */}
+        {!isAdminRoute && <Navbar />}
 
-      <main className="content">
+        {/* ================= MAIN CONTENT ================= */}
 
-        <Suspense fallback={<div>Loading...</div>}>
+        <main className="content">
 
-          <Routes>
+          <Suspense fallback={<div>Loading...</div>}>
 
-            {/* =====================================================
-                PUBLIC WEBSITE
-            ===================================================== */}
+            <Routes>
 
-            <Route
-              path="/"
-              element={<Home />}
-            />
-
-            <Route
-              path="/gallery"
-              element={<Gallery />}
-            />
-
-            <Route
-              path="/notice"
-              element={<Notice />}
-            />
-
-            <Route
-              path="/teachers"
-              element={<Teachers />}
-            />
-
-            <Route
-              path="/download"
-              element={<Download />}
-            />
-
-            <Route
-              path="/about"
-              element={<About />}
-            />
-
-            <Route
-              path="/courses"
-              element={<Courses />}
-            />
-
-            <Route
-              path="/admission"
-              element={<Admission />}
-            />
-
-            <Route
-              path="/contact"
-              element={<Contact />}
-            />
-
-            {/* =====================================================
-                PUBLIC STUDENT APPLICATION
-            ===================================================== */}
-
-            <Route
-              path="/student-entry"
-              element={<PublicStudentEntry />}
-            />
-
-            <Route
-              path="/student-portal"
-              element={<StudentPortal />}
-            />
-
-            <Route
-              path="/student"
-              element={<StudentPortal />}
-            />
-
-            {/* =====================================================
-                ADMIN LOGIN
-            ===================================================== */}
-
-            <Route
-              path="/admin/login"
-              element={<Login />}
-            />
-
-            {/* =====================================================
-                ADMIN PANEL
-            ===================================================== */}
-
-            <Route
-              path="/admin"
-              element={<AdminLayout />}
-            >
+              {/* =====================================================
+                  PUBLIC WEBSITE
+              ===================================================== */}
 
               <Route
-                index
-                element={<Navigate to="dashboard" replace />}
-              />
-
-              {/* ================= DASHBOARD ================= */}
-
-              <Route
-                path="dashboard"
-                element={<Dashboard />}
-              />
-
-              {/* ================= TEACHER CLASSROOM ================= */}
-
-              <Route
-                path="my-classroom"
-                element={
-                  <Navigate
-                    to="/admin/my-classroom/students"
-                    replace
-                  />
-                }
+                path="/"
+                element={<Home />}
               />
 
               <Route
-                path="my-classroom/students"
-                element={
-                  <TeacherClassroom section="students" />
-                }
+                path="/gallery"
+                element={<Gallery />}
               />
 
               <Route
-                path="my-classroom/batches"
-                element={
-                  <TeacherClassroom section="batches" />
-                }
+                path="/notice"
+                element={<Notice />}
               />
 
               <Route
-                path="my-classroom/attendance"
-                element={
-                  <TeacherClassroom section="attendance" />
-                }
+                path="/teachers"
+                element={<Teachers />}
               />
 
               <Route
-                path="my-classroom/records"
-                element={
-                  <TeacherClassroom section="records" />
-                }
-              />
-
-              {/* =================================================
-                  STUDENTS
-              ================================================= */}
-
-              <Route
-                path="students"
-                element={<StudentEntry />}
+                path="/download"
+                element={<Download />}
               />
 
               <Route
-                path="student-list"
-                element={<StudentList />}
+                path="/about"
+                element={<About />}
               />
 
               <Route
-                path="assign-student"
-                element={<AssignStudent />}
+                path="/courses"
+                element={<Courses />}
               />
 
               <Route
-                path="pending-students"
-                element={<PendingStudentList />}
+                path="/admission"
+                element={<Admission />}
               />
 
               <Route
-                path="student-profile/:id"
-                element={<StudentProfile />}
+                path="/contact"
+                element={<Contact />}
+              />
+
+              {/* =====================================================
+                  PUBLIC STUDENT APPLICATION
+              ===================================================== */}
+
+              <Route
+                path="/student-entry"
+                element={<PublicStudentEntry />}
               />
 
               <Route
-                path="student-edit/:id"
-                element={<StudentEdit />}
-              />
-
-              {/* ================= STUDENT DOCUMENT ================= */}
-
-              <Route
-                path="student-documents"
-                element={<StudentDocuments />}
+                path="/student-portal"
+                element={<StudentPortal />}
               />
 
               <Route
-                path="student-document/:id"
-                element={<StudentDocuments />}
+                path="/student"
+                element={<StudentPortal />}
               />
 
-              {/* =================================================
-                  TEACHERS
-              ================================================= */}
+              {/* =====================================================
+                  ADMIN LOGIN
+              ===================================================== */}
 
               <Route
-                path="teachers"
-                element={<TeacherEntry />}
+                path="/admin/login"
+                element={<Login />}
               />
+
+              {/* =====================================================
+                  ADMIN PANEL
+              ===================================================== */}
 
               <Route
-                path="teacher-list"
-                element={<TeacherList />}
-              />
+                path="/admin"
+                element={<AdminLayout />}
+              >
 
-              <Route
-                path="teacher-profile/:id"
-                element={<TeacherProfile />}
-              />
+                <Route
+                  index
+                  element={<Navigate to="dashboard" replace />}
+                />
 
-              <Route
-                path="teacher-edit/:id"
-                element={<TeacherEdit />}
-              />
+                {/* ================= DASHBOARD ================= */}
 
-              <Route
-                path="downloads"
-                element={<DownloadList />}
-              />
+                <Route
+                  path="dashboard"
+                  element={<Dashboard />}
+                />
 
-              <Route
-                path="download-entry"
-                element={<DownloadEntry />}
-              />
+                {/* ================= TEACHER CLASSROOM ================= */}
 
-              <Route
-                path="admin-users"
-                element={<AdminUsers />}
-              />
+                <Route
+                  path="my-classroom"
+                  element={
+                    <Navigate
+                      to="/admin/my-classroom/students"
+                      replace
+                    />
+                  }
+                />
 
-              {/* =================================================
-                  GALLERY
-              ================================================= */}
+                <Route
+                  path="my-classroom/students"
+                  element={
+                    <TeacherClassroom section="students" />
+                  }
+                />
 
-              <Route
-                path="gallery"
-                element={<GalleryEntry />}
-              />
+                <Route
+                  path="my-classroom/batches"
+                  element={
+                    <TeacherClassroom section="batches" />
+                  }
+                />
 
-              <Route
-                path="gallery-list"
-                element={<GalleryList />}
-              />
+                <Route
+                  path="my-classroom/attendance"
+                  element={
+                    <TeacherClassroom section="attendance" />
+                  }
+                />
 
-              {/* =================================================
-                  BANNER
-              ================================================= */}
+                <Route
+                  path="my-classroom/records"
+                  element={
+                    <TeacherClassroom section="records" />
+                  }
+                />
 
-              <Route
-                path="banner-entry"
-                element={<BannerEntry />}
-              />
+                {/* =================================================
+                    STUDENTS
+                ================================================= */}
 
-              <Route
-                path="banner-list"
-                element={<BannerList />}
-              />
+                <Route
+                  path="students"
+                  element={<StudentEntry />}
+                />
 
-              {/* =================================================
-                  INCOME
-              ================================================= */}
+                <Route
+                  path="student-list"
+                  element={<StudentList />}
+                />
 
-              <Route
-                path="income"
-                element={<IncomeEntry />}
-              />
+                <Route
+                  path="assign-student"
+                  element={<AssignStudent />}
+                />
 
-              <Route
-                path="income-list"
-                element={<IncomeList />}
-              />
+                <Route
+                  path="pending-students"
+                  element={<PendingStudentList />}
+                />
 
-              <Route
-                path="income-edit/:id"
-                element={<IncomeEdit />}
-              />
+                <Route
+                  path="student-profile/:id"
+                  element={<StudentProfile />}
+                />
 
-              {/* =================================================
-                  EXPENSE
-              ================================================= */}
+                <Route
+                  path="student-edit/:id"
+                  element={<StudentEdit />}
+                />
 
-              <Route
-                path="expense"
-                element={<ExpenseEntry />}
-              />
+                {/* ================= STUDENT DOCUMENT ================= */}
 
-              <Route
-                path="expense-list"
-                element={<ExpenseList />}
-              />
+                <Route
+                  path="student-documents"
+                  element={<StudentDocuments />}
+                />
 
-              <Route
-                path="expense-edit/:id"
-                element={<ExpenseEdit />}
-              />
+                <Route
+                  path="student-document/:id"
+                  element={<StudentDocuments />}
+                />
 
-              {/* =================================================
-                  NOTICE
-              ================================================= */}
+                {/* =================================================
+                    TEACHERS
+                ================================================= */}
 
-              <Route
-                path="notices"
-                element={<NoticeList />}
-              />
+                <Route
+                  path="teachers"
+                  element={<TeacherEntry />}
+                />
 
-              <Route
-                path="notice-entry"
-                element={<NoticeEntry />}
-              />
+                <Route
+                  path="teacher-list"
+                  element={<TeacherList />}
+                />
 
-              <Route
-                path="notice-edit/:id"
-                element={<NoticeEdit />}
-              />
+                <Route
+                  path="teacher-profile/:id"
+                  element={<TeacherProfile />}
+                />
 
-              {/* =================================================
-                  COURSE
-              ================================================= */}
+                <Route
+                  path="teacher-edit/:id"
+                  element={<TeacherEdit />}
+                />
 
-              <Route
-                path="courses"
-                element={<CourseList />}
-              />
+                <Route
+                  path="downloads"
+                  element={<DownloadList />}
+                />
 
-              <Route
-                path="AddCourse"
-                element={<AddCourse />}
-              />
+                <Route
+                  path="download-entry"
+                  element={<DownloadEntry />}
+                />
 
-              <Route
-                path="EditCourse"
-                element={<EditCourse />}
-              />
+                <Route
+                  path="admin-users"
+                  element={<AdminUsers />}
+                />
 
-              {/* =================================================
-                  BRANCH
-              ================================================= */}
+                {/* =================================================
+                    GALLERY
+                ================================================= */}
 
-              <Route
-                path="branch-entry"
-                element={<BranchEntry />}
-              />
+                <Route
+                  path="gallery"
+                  element={<GalleryEntry />}
+                />
 
-              <Route
-                path="branch-list"
-                element={<BranchList />}
-              />
+                <Route
+                  path="gallery-list"
+                  element={<GalleryList />}
+                />
 
-              <Route
-                path="branch-edit/:id"
-                element={<BranchEdit />}
-              />
+                {/* =================================================
+                    BANNER
+                ================================================= */}
 
-              {/* =================================================
-                  REPORTS
-              ================================================= */}
+                <Route
+                  path="banner-entry"
+                  element={<BannerEntry />}
+                />
 
-              <Route
-                path="income-expense-report"
-                element={<IncomeExpenseReport />}
-              />
+                <Route
+                  path="banner-list"
+                  element={<BannerList />}
+                />
 
-              <Route
-                path="due-list"
-                element={<DueList />}
-              />
+                {/* =================================================
+                    INCOME
+                ================================================= */}
 
-              <Route
-                path="income-voucher/:id"
-                element={<IncomeVoucher />}
-              />
+                <Route
+                  path="income"
+                  element={<IncomeEntry />}
+                />
 
-              {/* ================= ADMIN NOT FOUND ================= */}
+                <Route
+                  path="income-list"
+                  element={<IncomeList />}
+                />
+
+                <Route
+                  path="income-edit/:id"
+                  element={<IncomeEdit />}
+                />
+
+                {/* =================================================
+                    EXPENSE
+                ================================================= */}
+
+                <Route
+                  path="expense"
+                  element={<ExpenseEntry />}
+                />
+
+                <Route
+                  path="expense-list"
+                  element={<ExpenseList />}
+                />
+
+                <Route
+                  path="expense-edit/:id"
+                  element={<ExpenseEdit />}
+                />
+
+                {/* =================================================
+                    NOTICE
+                ================================================= */}
+
+                <Route
+                  path="notices"
+                  element={<NoticeList />}
+                />
+
+                <Route
+                  path="notice-entry"
+                  element={<NoticeEntry />}
+                />
+
+                <Route
+                  path="notice-edit/:id"
+                  element={<NoticeEdit />}
+                />
+
+                {/* =================================================
+                    COURSE
+                ================================================= */}
+
+                <Route
+                  path="courses"
+                  element={<CourseList />}
+                />
+
+                <Route
+                  path="AddCourse"
+                  element={<AddCourse />}
+                />
+
+                <Route
+                  path="EditCourse"
+                  element={<EditCourse />}
+                />
+
+                {/* =================================================
+                    BRANCH
+                ================================================= */}
+
+                <Route
+                  path="branch-entry"
+                  element={<BranchEntry />}
+                />
+
+                <Route
+                  path="branch-list"
+                  element={<BranchList />}
+                />
+
+                <Route
+                  path="branch-edit/:id"
+                  element={<BranchEdit />}
+                />
+
+                {/* =================================================
+                    REPORTS
+                ================================================= */}
+
+                <Route
+                  path="income-expense-report"
+                  element={<IncomeExpenseReport />}
+                />
+
+                <Route
+                  path="due-list"
+                  element={<DueList />}
+                />
+
+                <Route
+                  path="income-voucher/:id"
+                  element={<IncomeVoucher />}
+                />
+
+                {/* ================= ADMIN NOT FOUND ================= */}
+
+                <Route
+                  path="*"
+                  element={<NotFound />}
+                />
+
+              </Route>
+
+              {/* ================= PUBLIC NOT FOUND ================= */}
 
               <Route
                 path="*"
                 element={<NotFound />}
               />
 
-            </Route>
+            </Routes>
 
-            {/* ================= PUBLIC NOT FOUND ================= */}
+          </Suspense>
 
-            <Route
-              path="*"
-              element={<NotFound />}
-            />
+        </main>
 
-          </Routes>
+        {/* ================= FOOTER ================= */}
 
-        </Suspense>
+        {!isAdminRoute && <Footer />}
 
-      </main>
-
-      {/* ================= FOOTER ================= */}
-
-      {!isAdminRoute && <Footer />}
-
-    </div>
+      </div>
+    </>
   );
 }

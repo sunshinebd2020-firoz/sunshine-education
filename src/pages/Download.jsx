@@ -1,9 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+  FiAlertCircle,
+  FiBookOpen,
+  FiDownload,
+  FiFileText,
+  FiInbox,
+  FiLoader,
+} from "react-icons/fi";
 import API_BASE_URL, { API_ORIGIN } from "../config/api";
 import "./Download.css";
 
 export default function Download() {
   const [downloads, setDownloads] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -13,23 +22,122 @@ export default function Download() {
      LANGUAGE LIST
   ===================================================== */
 
-  const languages = [
-    {
-      name: "Japanese",
-      label: "Japanese",
-      flag: "🇯🇵",
-    },
-    {
-      name: "German",
-      label: "German",
-      flag: "🇩🇪",
-    },
-    {
-      name: "Korean",
-      label: "Korean",
-      flag: "🇰🇷",
-    },
-  ];
+  const [languages, setLanguages] = useState([]);
+
+  /* =====================================================
+     LOAD LANGUAGES FROM DATABASE
+  ===================================================== */
+
+  useEffect(() => {
+    const loadLanguages = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/language_list.php`,
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Language server error.");
+        }
+
+        const data = await response.json();
+
+        const languageList = Array.isArray(data)
+          ? data
+          : Array.isArray(data.data)
+          ? data.data
+          : [];
+
+        const activeLanguages = languageList.filter(
+          (language) =>
+            String(language.status || "")
+              .trim()
+              .toLowerCase() === "active" ||
+            String(language.status || "").trim() === "1"
+        );
+
+        const mappedLanguages = activeLanguages.map(
+          (language) => {
+            const languageName =
+              language.name ||
+              language.language_name ||
+              language.language ||
+              "";
+
+            const value = String(languageName)
+              .trim()
+              .toLowerCase();
+
+            let flag = "";
+
+            if (
+              value.includes("japanese") ||
+              value.includes("japan")
+            ) {
+              flag = "/flags/jp.svg";
+            } else if (
+              value.includes("german") ||
+              value.includes("germany")
+            ) {
+              flag = "/flags/de.svg";
+            } else if (
+              value.includes("korean") ||
+              value.includes("korea")
+            ) {
+              flag = "/flags/kr.svg";
+            } else if (
+              value.includes("english") ||
+              value.includes("england")
+            ) {
+              flag = "/flags/gb.svg";
+            } else if (
+              value.includes("french") ||
+              value.includes("france")
+            ) {
+              flag = "/flags/fr.svg";
+            } else if (
+              value.includes("chinese") ||
+              value.includes("china")
+            ) {
+              flag = "/flags/cn.svg";
+            }
+
+            return {
+              name: languageName,
+              label: languageName,
+              flag,
+            };
+          }
+        );
+
+        setLanguages(mappedLanguages);
+
+        if (mappedLanguages.length > 0) {
+          setActiveLanguage((current) => {
+            const exists = mappedLanguages.some(
+              (language) =>
+                language.name === current
+            );
+
+            return exists
+              ? current
+              : mappedLanguages[0].name;
+          });
+        }
+      } catch (err) {
+        console.error(
+          "Language fetch error:",
+          err
+        );
+
+        setLanguages([]);
+      }
+    };
+
+    loadLanguages();
+  }, []);
 
   /* =====================================================
      LOAD DOWNLOADS
@@ -41,29 +149,51 @@ export default function Download() {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          `${API_BASE_URL}/download_public.php`
-        );
+        const [downloadResponse, courseResponse] =
+          await Promise.all([
+            fetch(`${API_BASE_URL}/download_public.php`),
+            fetch(`${API_BASE_URL}/course_list.php`),
+          ]);
 
-        if (!response.ok) {
+        if (
+          !downloadResponse.ok ||
+          !courseResponse.ok
+        ) {
           throw new Error("Download server error.");
         }
 
-        const data = await response.json();
+        const [downloadData, courseData] =
+          await Promise.all([
+            downloadResponse.json(),
+            courseResponse.json(),
+          ]);
 
-        console.log("Download Public API:", data);
-
-        if (!data.success) {
+        if (!downloadData.success) {
           throw new Error(
-            data.message ||
+            downloadData.message ||
               "Download data could not be loaded."
           );
         }
 
         setDownloads(
-          Array.isArray(data.data)
-            ? data.data
+          Array.isArray(downloadData.data)
+            ? downloadData.data
             : []
+        );
+
+        const courseList = Array.isArray(courseData)
+          ? courseData
+          : Array.isArray(courseData.data)
+          ? courseData.data
+          : [];
+
+        setCourses(
+          courseList.filter(
+            (course) =>
+              String(course.status || "")
+                .trim()
+                .toLowerCase() === "active"
+          )
         );
       } catch (err) {
         console.error(
@@ -125,33 +255,34 @@ export default function Download() {
       return "Korean";
     }
 
-    return "Other";
-  };
-
-  /* =====================================================
-     GET COURSE NAME
-  ===================================================== */
-
-  const getCourseName = (download) => {
-    const courseName =
-      download?.course_name ||
-      download?.course ||
-      download?.course_title ||
-      download?.courseName;
-
-    if (courseName) {
-      return String(courseName).trim();
+    if (
+      value.includes("english") ||
+      value.includes("england") ||
+      value.includes("ইংরেজি") ||
+      value.includes("ইংলিশ")
+    ) {
+      return "English";
     }
 
     if (
-      download?.course_id !== undefined &&
-      download?.course_id !== null &&
-      String(download.course_id).trim() !== ""
+      value.includes("french") ||
+      value.includes("france") ||
+      value.includes("ফ্রেঞ্চ") ||
+      value.includes("ফরাসি")
     ) {
-      return `Course ${download.course_id}`;
+      return "French";
     }
 
-    return "Other Downloads";
+    if (
+      value.includes("chinese") ||
+      value.includes("china") ||
+      value.includes("চাইনিজ") ||
+      value.includes("চীনা")
+    ) {
+      return "Chinese";
+    }
+
+    return "Other";
   };
 
   /* =====================================================
@@ -192,32 +323,34 @@ export default function Download() {
   }, [downloads, activeLanguage]);
 
   /* =====================================================
-     GROUP BY COURSE
+     FILTER COURSES BY LANGUAGE
   ===================================================== */
 
-  const groupedDownloads = useMemo(() => {
-    const groups = {};
-
-    languageDownloads.forEach((download) => {
-      const courseName =
-        getCourseName(download);
-
-      if (!groups[courseName]) {
-        groups[courseName] = [];
-      }
-
-      groups[courseName].push(download);
-    });
-
-    return groups;
-  }, [languageDownloads]);
+  const languageCourses = useMemo(() => {
+    return courses.filter(
+      (course) =>
+        getLanguageName(course) ===
+        activeLanguage
+    );
+  }, [courses, activeLanguage]);
 
   /* =====================================================
      CATEGORY LIST
   ===================================================== */
 
-  const categories =
-    Object.keys(groupedDownloads);
+  const categories = useMemo(() => {
+    return languageCourses.map((course) => ({
+      id: String(course.id),
+      name:
+        course.course_name ||
+        `Course ${course.id}`,
+      downloads: languageDownloads.filter(
+        (download) =>
+          String(download.course_id) ===
+          String(course.id)
+      ),
+    }));
+  }, [languageCourses, languageDownloads]);
 
   /* =====================================================
      ACTIVE LANGUAGE DATA
@@ -237,24 +370,6 @@ export default function Download() {
     <div className="download">
 
       {/* =================================================
-          HEADER
-      ================================================= */}
-
-      <section className="download-header">
-
-        <h1>
-          ডাউনলোড
-        </h1>
-
-        <p>
-          প্রয়োজনীয় ফরম, নোটিশ ও শিক্ষামূলক
-          উপকরণ এখান থেকে ডাউনলোড করুন।
-        </p>
-
-      </section>
-
-
-      {/* =================================================
           LANGUAGE TABS
       ================================================= */}
 
@@ -266,10 +381,12 @@ export default function Download() {
             type="button"
             key={language.name}
             className={
-              activeLanguage ===
-              language.name
+              activeLanguage === language.name
                 ? "active"
                 : ""
+            }
+            aria-pressed={
+              activeLanguage === language.name
             }
             onClick={() =>
               setActiveLanguage(
@@ -279,7 +396,12 @@ export default function Download() {
           >
 
             <span className="download-tab-flag">
-              {language.flag}
+
+              <img
+                src={language.flag}
+                alt={`${language.label} flag`}
+              />
+
             </span>
 
             <span>
@@ -291,7 +413,6 @@ export default function Download() {
         ))}
 
       </div>
-
 
       {/* =================================================
           DOWNLOAD CONTENT
@@ -307,9 +428,10 @@ export default function Download() {
 
           <div className="download-message">
 
-            <span className="download-loading-icon">
-              ⏳
-            </span>
+            <FiLoader
+              className="download-loading-icon"
+              aria-hidden="true"
+            />
 
             <p>
               ডাউনলোড লোড হচ্ছে...
@@ -319,7 +441,6 @@ export default function Download() {
 
         )}
 
-
         {/* =================================================
             ERROR
         ================================================= */}
@@ -328,9 +449,9 @@ export default function Download() {
 
           <div className="download-message error">
 
-            <span>
-              ⚠️
-            </span>
+            <FiAlertCircle
+              aria-hidden="true"
+            />
 
             <p>
               {error}
@@ -340,26 +461,29 @@ export default function Download() {
 
         )}
 
-
         {/* =================================================
             LANGUAGE HEADER
         ================================================= */}
 
         {!loading &&
-          !error && (
+          !error &&
+          activeLanguageData && (
 
             <div className="download-selected-language">
 
               <div className="download-selected-language-icon">
-                {activeLanguageData.flag}
+
+                <img
+                  src={activeLanguageData.flag}
+                  alt={`${activeLanguageData.label} flag`}
+                />
+
               </div>
 
               <div>
 
                 <h2>
-                  {activeLanguageData.label}
-                  {" "}
-                  Downloads
+                  {activeLanguageData.label} Downloads
                 </h2>
 
                 <p>
@@ -373,20 +497,19 @@ export default function Download() {
 
           )}
 
-
         {/* =================================================
             NO DOWNLOAD
         ================================================= */}
 
         {!loading &&
           !error &&
-          languageDownloads.length === 0 && (
+          languageCourses.length === 0 && (
 
             <div className="download-message">
 
-              <span>
-                📂
-              </span>
+              <FiInbox
+                aria-hidden="true"
+              />
 
               <p>
                 এই ভাষার কোনো download
@@ -396,7 +519,6 @@ export default function Download() {
             </div>
 
           )}
-
 
         {/* =================================================
             COURSE CATEGORIES
@@ -408,68 +530,66 @@ export default function Download() {
 
             <div className="download-categories">
 
-              {categories.map(
-                (category) => {
+              {categories.map((category) => {
 
-                  const categoryDownloads =
-                    groupedDownloads[
-                      category
-                    ];
+                const categoryDownloads =
+                  category.downloads;
 
-                  return (
+                return (
 
-                    <section
-                      className="download-category"
-                      key={category}
-                    >
+                  <section
+                    className="download-category"
+                    key={category.id}
+                  >
 
-                      {/* ================================
-                          CATEGORY HEADER
-                      ================================= */}
+                    {/* ================================
+                        CATEGORY HEADER
+                    ================================= */}
 
-                      <div className="download-category-header">
+                    <div className="download-category-header">
 
-                        <div className="download-category-icon">
-                          📚
-                        </div>
+                      <div className="download-category-icon">
 
-                        <div className="download-category-title">
-
-                          <h2>
-                            {category}
-                          </h2>
-
-                          <p>
-                            {
-                              categoryDownloads.length
-                            }
-                            টি download
-                          </p>
-
-                        </div>
+                        <FiBookOpen
+                          aria-hidden="true"
+                        />
 
                       </div>
 
+                      <div className="download-category-title">
 
-                      {/* ================================
-                          DOWNLOAD ITEMS
-                      ================================= */}
+                        <h2>
+                          {category.name}
+                        </h2>
 
-                      <div className="download-category-list">
+                        <p>
+                          {categoryDownloads.length}
+                          টি download
+                        </p>
 
-                        {categoryDownloads.map(
+                      </div>
+
+                    </div>
+
+                    {/* ================================
+                        DOWNLOAD ITEMS
+                    ================================= */}
+
+                    <div className="download-category-list">
+
+                      {categoryDownloads.length > 0 ? (
+
+                        categoryDownloads.map(
                           (download) => {
 
                             const href =
-                              getFileUrl(
-                                download
-                              );
+                              getFileUrl(download);
 
                             return (
 
                               <article
                                 className="download-card"
-                                key={download.id}
+                                key={`${category.id}-${download.id}`}
                               >
 
                                 {/* ==========================
@@ -477,9 +597,12 @@ export default function Download() {
                                 =========================== */}
 
                                 <div className="download-card-icon">
-                                  📄
-                                </div>
 
+                                  <FiFileText
+                                    aria-hidden="true"
+                                  />
+
+                                </div>
 
                                 {/* ==========================
                                     CONTENT
@@ -488,28 +611,23 @@ export default function Download() {
                                 <div className="download-card-content">
 
                                   <h2>
-                                    {
-                                      download.title
-                                    }
+                                    {download.title}
                                   </h2>
 
                                   <p>
-                                    {
-                                      download.description ||
-                                      "Download resource"
-                                    }
+                                    {download.description ||
+                                      "Download resource"}
                                   </p>
 
                                   {download.file_name && (
+
                                     <small>
-                                      {
-                                        download.file_name
-                                      }
+                                      {download.file_name}
                                     </small>
+
                                   )}
 
                                 </div>
-
 
                                 {/* ==========================
                                     DOWNLOAD BUTTON
@@ -528,9 +646,10 @@ export default function Download() {
                                       Download
                                     </span>
 
-                                    <span className="download-button-icon">
-                                      ↓
-                                    </span>
+                                    <FiDownload
+                                      className="download-button-icon"
+                                      aria-hidden="true"
+                                    />
 
                                   </a>
 
@@ -540,15 +659,31 @@ export default function Download() {
 
                             );
                           }
-                        )}
+                        )
 
-                      </div>
+                      ) : (
 
-                    </section>
+                        <div className="download-category-empty">
 
-                  );
-                }
-              )}
+                          <FiInbox
+                            aria-hidden="true"
+                          />
+
+                          <span>
+                            এই category-তে কোনো
+                            download নেই।
+                          </span>
+
+                        </div>
+
+                      )}
+
+                    </div>
+
+                  </section>
+
+                );
+              })}
 
             </div>
 

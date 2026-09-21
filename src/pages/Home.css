@@ -1349,3 +1349,10 @@
   }
 
 }
+
+.language-flag {
+  width: 52px;
+  height: 35px;
+  object-fit: cover;
+  display: block;
+}

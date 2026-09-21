@@ -32,26 +32,46 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
   });
 
   // =========================================
-  // Edit Data Load Setup (ID গায়েব হওয়া রোধ করতে)
+  // Edit Data Load Setup
   // =========================================
   useEffect(() => {
     if (editData) {
       setFormData({
         id: editData.id || "",
-        teacherId: editData.teacher_id || editData.teacherId || "",
-        nameBn: editData.name_bn || editData.nameBn || "",
-        nameEn: editData.name_en || editData.nameEn || "",
-        shortName: editData.short_name || editData.shortName || "",
+        teacherId:
+          editData.teacher_id ||
+          editData.teacherId ||
+          "",
+        nameBn:
+          editData.name_bn ||
+          editData.nameBn ||
+          "",
+        nameEn:
+          editData.name_en ||
+          editData.nameEn ||
+          "",
+        shortName:
+          editData.short_name ||
+          editData.shortName ||
+          "",
         designation: editData.designation || "",
         course: editData.course || "",
         branch: editData.branch || "",
         mobile: editData.mobile || "",
         email: editData.email || "",
-        dateOfBirth: editData.date_of_birth || editData.dateOfBirth || "",
-        joiningDate: editData.joining_date || editData.joiningDate || "",
-        qualification: editData.qualification || "",
+        dateOfBirth:
+          editData.date_of_birth ||
+          editData.dateOfBirth ||
+          "",
+        joiningDate:
+          editData.joining_date ||
+          editData.joiningDate ||
+          "",
+        qualification:
+          editData.qualification || "",
         address: editData.address || "",
-        status: editData.status || "Present",
+        status:
+          editData.status || "Present",
       });
     }
   }, [editData]);
@@ -64,22 +84,60 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
       setBranchLoading(true);
 
       try {
-        const response = await fetch(`${API_BASE_URL}/branch_list.php`, {
-          method: "GET",
-          credentials: "include",
-        });
+        const response = await fetch(
+          `${API_BASE_URL}/branch_list.php`,
+          {
+            method: "GET",
+            credentials: "include",
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
 
-        if (!response.ok) throw new Error("Network error loading branches");
+        if (!response.ok) {
+          throw new Error(
+            "Network error loading branches"
+          );
+        }
 
-        const result = await response.json();
+        const result =
+          await response.json();
 
-        if (result.success && Array.isArray(result.branches)) {
-          setBranches(result.branches);
+        console.log(
+          "Branch List API:",
+          result
+        );
+
+        /*
+         * আপনার branch_list.php এর response:
+         *
+         * {
+         *   success: true,
+         *   message: "...",
+         *   branch: [...]
+         * }
+         */
+
+        if (
+          result.success &&
+          Array.isArray(result.branch)
+        ) {
+          setBranches(result.branch);
         } else {
+          console.error(
+            "Branch data not found:",
+            result
+          );
+
           setBranches([]);
         }
       } catch (error) {
-        console.error("Error loading branches:", error);
+        console.error(
+          "Error loading branches:",
+          error
+        );
+
         setBranches([]);
       } finally {
         setBranchLoading(false);
@@ -101,12 +159,20 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
         [name]: value,
       };
 
-      // শুধুমাত্র NEW ENTRY করার সময় joiningDate পরিবর্তন হলে Prefix তৈরি হবে।
-      // Edit Mode-এ (id থাকলে) teacherId পরিবর্তন হবে না।
-      if (name === "joiningDate" && !prev.id) {
+      // শুধুমাত্র NEW ENTRY করার সময়
+      // joiningDate পরিবর্তন হলে Prefix তৈরি হবে।
+      // Edit Mode-এ teacherId পরিবর্তন হবে না।
+      if (
+        name === "joiningDate" &&
+        !prev.id
+      ) {
         if (value) {
-          const cleanDate = value.replace(/-/g, "").substring(2);
-          updated.teacherId = `SE${cleanDate}`;
+          const cleanDate = value
+            .replace(/-/g, "")
+            .substring(2);
+
+          updated.teacherId =
+            `SE${cleanDate}`;
         } else {
           updated.teacherId = "";
         }
@@ -120,7 +186,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
   // Photo Change
   // =========================
   const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
+    if (
+      e.target.files &&
+      e.target.files[0]
+    ) {
       setPhoto(e.target.files[0]);
     }
   };
@@ -130,35 +199,51 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
   // =========================
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setLoading(true);
 
-    setMessage({ type: "", text: "" });
+    setMessage({
+      type: "",
+      text: "",
+    });
 
     const data = new FormData();
 
     Object.keys(formData).forEach((key) => {
-      data.append(key, formData[key] ?? "");
+      data.append(
+        key,
+        formData[key] ?? ""
+      );
     });
 
     if (photo) {
       data.append("photo", photo);
     }
 
-    const isEditMode = Boolean(formData.id);
+    const isEditMode =
+      Boolean(formData.id);
+
     const endpoint = isEditMode
       ? `${API_BASE_URL}/update_teacher.php`
       : `${API_BASE_URL}/teacher_entry.php`;
 
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        credentials: "include",
-        body: data,
-      });
+      const response = await fetch(
+        endpoint,
+        {
+          method: "POST",
+          credentials: "include",
+          body: data,
+        }
+      );
 
-      const result = await response.json();
+      const result =
+        await response.json();
 
-      if (response.ok && result.success) {
+      if (
+        response.ok &&
+        result.success
+      ) {
         setMessage({
           type: "success",
           text:
@@ -178,14 +263,21 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
       } else {
         setMessage({
           type: "error",
-          text: result.message || "Failed to process request.",
+          text:
+            result.message ||
+            "Failed to process request.",
         });
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error(
+        "Error submitting form:",
+        error
+      );
+
       setMessage({
         type: "error",
-        text: "Server connection failed! Please check PHP API.",
+        text:
+          "Server connection failed! Please check PHP API.",
       });
     } finally {
       setLoading(false);
@@ -216,7 +308,9 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
     setPhoto(null);
 
-    const photoInput = document.getElementById("photo");
+    const photoInput =
+      document.getElementById("photo");
+
     if (photoInput) {
       photoInput.value = "";
     }
@@ -226,7 +320,12 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
     <div className="teacher-entry">
       {/* Header */}
       <div className="teacher-entry-header">
-        <h2>{formData.id ? "Edit Teacher" : "Teacher Entry"}</h2>
+        <h2>
+          {formData.id
+            ? "Edit Teacher"
+            : "Teacher Entry"}
+        </h2>
+
         <p>
           {formData.id
             ? "Update teacher information"
@@ -236,18 +335,30 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
       {/* Alert Message */}
       {message.text && (
-        <div className={`alert-message ${message.type}`}>
+        <div
+          className={`alert-message ${message.type}`}
+        >
           {message.text}
         </div>
       )}
 
-      <form className="teacher-form" onSubmit={handleSubmit}>
+      <form
+        className="teacher-form"
+        onSubmit={handleSubmit}
+      >
         {/* Hidden Field for Database Primary Key ID */}
-        <input type="hidden" name="id" value={formData.id} />
+        <input
+          type="hidden"
+          name="id"
+          value={formData.id}
+        />
 
         {/* Teacher ID */}
         <div className="form-group">
-          <label htmlFor="teacherId">Teacher ID</label>
+          <label htmlFor="teacherId">
+            Teacher ID
+          </label>
+
           <input
             type="text"
             id="teacherId"
@@ -255,8 +366,12 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
             value={formData.teacherId}
             onChange={handleChange}
             placeholder="Teacher ID"
-            disabled={!formData.id && !formData.joiningDate}
+            disabled={
+              !formData.id &&
+              !formData.joiningDate
+            }
           />
+
           <small>
             {formData.id
               ? "শিক্ষকের ইউনিক ID"
@@ -266,7 +381,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* English Name */}
         <div className="form-group">
-          <label htmlFor="nameEn">Teacher Name (English) *</label>
+          <label htmlFor="nameEn">
+            Teacher Name (English) *
+          </label>
+
           <input
             type="text"
             id="nameEn"
@@ -280,7 +398,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* Bangla Name */}
         <div className="form-group">
-          <label htmlFor="nameBn">Teacher Name (Bangla)</label>
+          <label htmlFor="nameBn">
+            Teacher Name (Bangla)
+          </label>
+
           <input
             type="text"
             id="nameBn"
@@ -293,7 +414,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* Short Name */}
         <div className="form-group">
-          <label htmlFor="shortName">Short Name</label>
+          <label htmlFor="shortName">
+            Short Name
+          </label>
+
           <input
             type="text"
             id="shortName"
@@ -306,7 +430,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* Designation */}
         <div className="form-group">
-          <label htmlFor="designation">Designation</label>
+          <label htmlFor="designation">
+            Designation
+          </label>
+
           <input
             type="text"
             id="designation"
@@ -319,7 +446,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* Course */}
         <div className="form-group">
-          <label htmlFor="course">Course</label>
+          <label htmlFor="course">
+            Course
+          </label>
+
           <input
             type="text"
             id="course"
@@ -332,19 +462,31 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* Branch */}
         <div className="form-group">
-          <label htmlFor="branch">Branch</label>
+          <label htmlFor="branch">
+            Branch
+          </label>
+
           <select
             id="branch"
             name="branch"
             value={formData.branch}
             onChange={handleChange}
+            disabled={branchLoading}
           >
             <option value="">
-              {branchLoading ? "Loading branches..." : "Select Branch"}
+              {branchLoading
+                ? "Loading branches..."
+                : branches.length === 0
+                ? "No Branch Found"
+                : "Select Branch"}
             </option>
+
             {!branchLoading &&
               branches.map((item) => (
-                <option key={item.id} value={item.branch_name}>
+                <option
+                  key={item.id}
+                  value={item.branch_name}
+                >
                   {item.branch_name}
                 </option>
               ))}
@@ -353,7 +495,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* Mobile */}
         <div className="form-group">
-          <label htmlFor="mobile">Mobile Number</label>
+          <label htmlFor="mobile">
+            Mobile Number
+          </label>
+
           <input
             type="tel"
             id="mobile"
@@ -366,7 +511,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* Email */}
         <div className="form-group">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">
+            Email
+          </label>
+
           <input
             type="email"
             id="email"
@@ -379,7 +527,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* Date of Birth */}
         <div className="form-group">
-          <label htmlFor="dateOfBirth">Date of Birth</label>
+          <label htmlFor="dateOfBirth">
+            Date of Birth
+          </label>
+
           <input
             type="date"
             id="dateOfBirth"
@@ -391,7 +542,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* Joining Date */}
         <div className="form-group">
-          <label htmlFor="joiningDate">Joining Date *</label>
+          <label htmlFor="joiningDate">
+            Joining Date *
+          </label>
+
           <input
             type="date"
             id="joiningDate"
@@ -404,7 +558,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* Status */}
         <div className="form-group">
-          <label htmlFor="status">Status *</label>
+          <label htmlFor="status">
+            Status *
+          </label>
+
           <select
             id="status"
             name="status"
@@ -412,14 +569,22 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
             onChange={handleChange}
             required
           >
-            <option value="Present">Present</option>
-            <option value="Ex Teacher">Ex Teacher</option>
+            <option value="Present">
+              Present
+            </option>
+
+            <option value="Ex Teacher">
+              Ex Teacher
+            </option>
           </select>
         </div>
 
         {/* Qualification */}
         <div className="form-group">
-          <label htmlFor="qualification">Qualification</label>
+          <label htmlFor="qualification">
+            Qualification
+          </label>
+
           <input
             type="text"
             id="qualification"
@@ -432,7 +597,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* Address */}
         <div className="form-group full-width">
-          <label htmlFor="address">Address</label>
+          <label htmlFor="address">
+            Address
+          </label>
+
           <textarea
             id="address"
             name="address"
@@ -445,7 +613,10 @@ export default function TeacherEntry({ editData = null, onSuccess }) {
 
         {/* Photo */}
         <div className="form-group full-width">
-          <label htmlFor="photo">Teacher Photo</label>
+          <label htmlFor="photo">
+            Teacher Photo
+          </label>
+
           <input
             type="file"
             id="photo"

@@ -1,7 +1,10 @@
 import "./Courses.css";
 import API_BASE_URL from "../config/api";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
@@ -11,116 +14,22 @@ export default function Courses() {
   const [activeLanguage, setActiveLanguage] = useState("");
 
   const navigate = useNavigate();
-
-  /* =====================================================
-     LOAD COURSES
-  ===================================================== */
-
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        setLoading(true);
-        setError("");
-
-        // Fetching active course list
-        const response = await fetch(
-          `${API_BASE_URL}/course_list.php`
-        );
-
-        if (!response.ok) {
-          throw new Error("Server error");
-        }
-
-        const result = await response.json();
-
-        console.log("Course List API:", result);
-
-        let courseData = [];
-
-        if (Array.isArray(result)) {
-          courseData = result;
-        } else if (
-          result &&
-          Array.isArray(result.data)
-        ) {
-          courseData = result.data;
-        }
-
-        /* =================================================
-           ONLY ACTIVE COURSES
-        ================================================= */
-
-        const activeCourses = courseData.filter((course) => {
-          const status = String(
-            course.status ?? ""
-          )
-            .trim()
-            .toLowerCase();
-
-          return (
-            status === "active" ||
-            status === "1"
-          );
-        });
-
-        setCourses(activeCourses);
-
-        /* =================================================
-           EXTRACT DYNAMIC LANGUAGES FROM DB DATA
-        ================================================= */
-
-        const uniqueLanguages = [];
-
-        activeCourses.forEach((course) => {
-          const rawLang = String(course.language || "").trim();
-          if (rawLang) {
-            const normalized = getLanguageName(rawLang);
-            if (!uniqueLanguages.includes(normalized)) {
-              uniqueLanguages.push(normalized);
-            }
-          }
-        });
-
-        setLanguages(uniqueLanguages);
-
-        // Set the first language as default active language if available
-        if (uniqueLanguages.length > 0) {
-          setActiveLanguage(uniqueLanguages[0]);
-        }
-
-      } catch (err) {
-        console.error(
-          "Course API Error:",
-          err
-        );
-
-        setError(
-          "কোর্সের তথ্য লোড করা যাচ্ছে না।"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCourses();
-  }, []);
-
+  const [searchParams] = useSearchParams();
 
   /* =====================================================
      NORMALIZE LANGUAGE
   ===================================================== */
 
   const getLanguageName = (language) => {
-    const value = String(
-      language || ""
-    )
+    const value = String(language || "")
       .trim()
       .toLowerCase();
 
     if (
       value.includes("japanese") ||
       value.includes("japan") ||
-      value.includes("জাপানি")
+      value.includes("জাপানি") ||
+      value.includes("জাপানিজ")
     ) {
       return "Japanese";
     }
@@ -136,65 +45,316 @@ export default function Courses() {
     if (
       value.includes("korean") ||
       value.includes("korea") ||
-      value.includes("কোরিয়ান")
+      value.includes("কোরিয়ান") ||
+      value.includes("কোরিয়ান")
     ) {
       return "Korean";
     }
 
-    // capitalize first letter if it's another language from database
+    if (
+      value.includes("english") ||
+      value.includes("england") ||
+      value.includes("ইংরেজি") ||
+      value.includes("ইংলিশ")
+    ) {
+      return "English";
+    }
+
+    if (
+      value.includes("french") ||
+      value.includes("france") ||
+      value.includes("ফরাসি") ||
+      value.includes("ফ্রেঞ্চ")
+    ) {
+      return "French";
+    }
+
+    if (
+      value.includes("chinese") ||
+      value.includes("china") ||
+      value.includes("চীনা") ||
+      value.includes("চাইনিজ")
+    ) {
+      return "Chinese";
+    }
+
+    if (
+      value.includes("arabic") ||
+      value.includes("saudi") ||
+      value.includes("আরবি")
+    ) {
+      return "Arabic";
+    }
+
     if (value.length > 0) {
-      return value.charAt(0).toUpperCase() + value.slice(1);
+      return (
+        value.charAt(0).toUpperCase() +
+        value.slice(1)
+      );
     }
 
     return "Other";
   };
 
-
   /* =====================================================
-     LANGUAGE ICON
+     LOAD COURSES + LANGUAGES
   ===================================================== */
 
-  const getLanguageIcon = (language) => {
-    const lang = String(language).toLowerCase();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-    if (lang.includes("japanese") || lang.includes("japan")) {
-      return "🇯🇵";
+        /* =================================================
+           LOAD COURSES
+        ================================================= */
+
+        const courseResponse = await fetch(
+          `${API_BASE_URL}/course_list.php`
+        );
+
+        if (!courseResponse.ok) {
+          throw new Error("Course server error");
+        }
+
+        const courseResult =
+          await courseResponse.json();
+
+        console.log(
+          "Course List API:",
+          courseResult
+        );
+
+        let courseData = [];
+
+        if (Array.isArray(courseResult)) {
+          courseData = courseResult;
+        } else if (
+          courseResult &&
+          Array.isArray(courseResult.data)
+        ) {
+          courseData = courseResult.data;
+        }
+
+        /* =================================================
+           ONLY ACTIVE COURSES
+        ================================================= */
+
+        const activeCourses = courseData.filter(
+          (course) => {
+            const status = String(
+              course.status ?? ""
+            )
+              .trim()
+              .toLowerCase();
+
+            return (
+              status === "active" ||
+              status === "1"
+            );
+          }
+        );
+
+        setCourses(activeCourses);
+
+        /* =================================================
+           LOAD LANGUAGES
+           SAME SOURCE AS HOME.JSX
+        ================================================= */
+
+        const languageResponse = await fetch(
+          `${API_BASE_URL}/language_list.php`,
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!languageResponse.ok) {
+          throw new Error(
+            "Language server error"
+          );
+        }
+
+        const languageResult =
+          await languageResponse.json();
+
+        console.log(
+          "Language List API:",
+          languageResult
+        );
+
+        let languageData = [];
+
+        if (Array.isArray(languageResult)) {
+          languageData = languageResult;
+        } else if (
+          languageResult &&
+          Array.isArray(languageResult.data)
+        ) {
+          languageData =
+            languageResult.data;
+        }
+
+        /* =================================================
+           ONLY ACTIVE LANGUAGES
+           SAME LOGIC AS HOME.JSX
+        ================================================= */
+
+        const activeLanguages =
+          languageData.filter((language) => {
+            const status = String(
+              language.status ?? ""
+            )
+              .trim()
+              .toLowerCase();
+
+            return (
+              status === "active" ||
+              status === "1"
+            );
+          });
+
+        /* =================================================
+           LANGUAGE ORDER
+           language_list.php CURRENTLY RETURNS id ASC
+           SO KEEP THAT ORDER
+        ================================================= */
+
+        const uniqueLanguages = [];
+
+        activeLanguages.forEach((language) => {
+          const normalized =
+            getLanguageName(
+              language.name
+            );
+
+          if (
+            normalized &&
+            !uniqueLanguages.includes(
+              normalized
+            )
+          ) {
+            uniqueLanguages.push(
+              normalized
+            );
+          }
+        });
+
+        setLanguages(uniqueLanguages);
+
+        /* =================================================
+           SELECT LANGUAGE FROM URL
+        ================================================= */
+
+        const requestedLanguage =
+          searchParams.get("language");
+
+        if (
+          uniqueLanguages.length > 0
+        ) {
+          const matchedLanguage =
+            requestedLanguage
+              ? uniqueLanguages.find(
+                  (language) =>
+                    getLanguageName(
+                      language
+                    ) ===
+                    getLanguageName(
+                      requestedLanguage
+                    )
+                )
+              : null;
+
+          setActiveLanguage(
+            matchedLanguage ||
+              uniqueLanguages[0]
+          );
+        } else {
+          setActiveLanguage("");
+        }
+
+      } catch (err) {
+        console.error(
+          "Courses API Error:",
+          err
+        );
+
+        setError(
+          "কোর্সের তথ্য লোড করা যাচ্ছে না।"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [searchParams]);
+
+  /* =====================================================
+     LANGUAGE FLAG
+  ===================================================== */
+
+  const getLanguageFlag = (language) => {
+    const lang = String(language || "")
+      .trim()
+      .toLowerCase();
+
+    if (
+      lang.includes("japanese") ||
+      lang.includes("japan")
+    ) {
+      return "/flags/jp.svg";
     }
 
-    if (lang.includes("german") || lang.includes("germany")) {
-      return "🇩🇪";
+    if (
+      lang.includes("german") ||
+      lang.includes("germany")
+    ) {
+      return "/flags/de.svg";
     }
 
-    if (lang.includes("korean") || lang.includes("korea")) {
-      return "🇰🇷";
+    if (
+      lang.includes("korean") ||
+      lang.includes("korea")
+    ) {
+      return "/flags/kr.svg";
     }
 
-    if (lang.includes("english") || lang.includes("uk") || lang.includes("usa")) {
-      return "🇬🇧";
+    if (
+      lang.includes("english") ||
+      lang.includes("england") ||
+      lang.includes("uk") ||
+      lang.includes("usa")
+    ) {
+      return "/flags/gb.svg";
     }
 
-    if (lang.includes("french") || lang.includes("france")) {
-      return "🇫🇷";
+    if (
+      lang.includes("french") ||
+      lang.includes("france")
+    ) {
+      return "/flags/fr.svg";
     }
 
-    if (lang.includes("chinese") || lang.includes("china")) {
-      return "🇨🇳";
+    if (
+      lang.includes("chinese") ||
+      lang.includes("china")
+    ) {
+      return "/flags/cn.svg";
     }
 
-    if (lang.includes("arabic")) {
-      return "🇸🇦";
-    }
-
-    return "🌐";
+    return "";
   };
-
 
   /* =====================================================
      LANGUAGE DESCRIPTION
   ===================================================== */
 
   const getDescription = (language) => {
-    const lang = String(language).toLowerCase();
+    const lang = String(
+      language
+    ).toLowerCase();
 
     if (lang.includes("japanese")) {
       return (
@@ -224,14 +384,16 @@ export default function Courses() {
     );
   };
 
-
   /* =====================================================
      APPLY NOW
   ===================================================== */
 
   const handleApply = (course) => {
     const effectiveFee = Number(
-      course?.offer_price && Number(course.offer_price) > 0 && Number(course.offer_price) < Number(course.course_fee || 0)
+      course?.offer_price &&
+        Number(course.offer_price) > 0 &&
+        Number(course.offer_price) <
+          Number(course.course_fee || 0)
         ? course.offer_price
         : course.course_fee || 0
     );
@@ -275,17 +437,27 @@ export default function Courses() {
      CALCULATE DISCOUNT PERCENTAGE
   ===================================================== */
 
-  const getDiscountPercentage = (mainFee, offerFee) => {
+  const getDiscountPercentage = (
+    mainFee,
+    offerFee
+  ) => {
     const main = Number(mainFee);
     const offer = Number(offerFee);
 
-    if (main > 0 && offer > 0 && offer < main) {
-      const discount = Math.round(((main - offer) / main) * 100);
+    if (
+      main > 0 &&
+      offer > 0 &&
+      offer < main
+    ) {
+      const discount = Math.round(
+        ((main - offer) / main) * 100
+      );
+
       return `${discount}% OFF`;
     }
+
     return null;
   };
-
 
   /* =====================================================
      FILTER COURSES BY SELECTED LANGUAGE
@@ -304,6 +476,8 @@ export default function Courses() {
         Number(b.sort_order || 0)
     );
 
+  const activeLanguageFlag =
+    getLanguageFlag(activeLanguage);
 
   /* =====================================================
      RENDER
@@ -313,50 +487,55 @@ export default function Courses() {
     <div className="courses">
 
       {/* =================================================
-          PAGE HEADER
-      ================================================= */}
-
-      <section className="course-header">
-
-        <h1>
-          আমাদের কোর্সসমূহ
-        </h1>
-
-        <p>
-          আন্তর্জাতিক ভাষা শিক্ষার মাধ্যমে
-          শিক্ষার্থীদের বিদেশে উচ্চশিক্ষা,
-          চাকরি ও যোগাযোগের দক্ষতা বৃদ্ধিতে
-          আমরা সহায়তা করি।
-        </p>
-
-      </section>
-
-
-      {/* =================================================
           DYNAMIC LANGUAGE TABS
       ================================================= */}
 
-      {!loading && !error && languages.length > 0 && (
-        <div className="course-tabs">
-          {languages.map((lang) => (
-            <button
-              key={lang}
-              type="button"
-              className={activeLanguage === lang ? "active" : ""}
-              onClick={() => setActiveLanguage(lang)}
-            >
-              <span className="tab-flag">
-                {getLanguageIcon(lang)}
-              </span>
+      {!loading &&
+        !error &&
+        languages.length > 0 && (
+          <div className="course-tabs">
 
-              <span>
-                {lang}
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
+            {languages.map((lang) => {
+              const flag =
+                getLanguageFlag(lang);
 
+              return (
+                <button
+                  key={lang}
+                  type="button"
+                  className={
+                    activeLanguage === lang
+                      ? "active"
+                      : ""
+                  }
+                  onClick={() =>
+                    setActiveLanguage(lang)
+                  }
+                >
+
+                  <span className="tab-flag">
+
+                    {flag ? (
+                      <img
+                        src={flag}
+                        alt={`${lang} flag`}
+                      />
+                    ) : (
+                      "🌐"
+                    )}
+
+                  </span>
+
+                  <span>
+                    {lang}
+                  </span>
+
+                </button>
+              );
+            })}
+
+          </div>
+        )}
 
       {/* =================================================
           COURSE AREA
@@ -374,7 +553,6 @@ export default function Courses() {
           </div>
         )}
 
-
         {/* =================================================
             ERROR
         ================================================= */}
@@ -385,241 +563,245 @@ export default function Courses() {
           </div>
         )}
 
-
         {/* =================================================
             COURSE CONTENT
         ================================================= */}
 
-        {!loading && !error && activeLanguage && (
+        {!loading &&
+          !error &&
+          activeLanguage && (
 
-          <div className="course-card">
+            <div className="course-card">
 
-            {/* =============================================
-                LANGUAGE HEADER
-            ============================================= */}
+              {/* =============================================
+                  LANGUAGE HEADER
+              ============================================= */}
 
-            <div className="course-card-header">
+              <div className="course-card-header">
 
-              <div className="course-language-title">
+                <div className="course-language-title">
 
-                <span className="course-flag">
-                  {getLanguageIcon(
-                    activeLanguage
-                  )}
-                </span>
+                  <span className="course-flag">
 
-                <div>
-                  <h2>
-                    {activeLanguage} Language Course
-                  </h2>
-
-                  <p>
-                    {getDescription(
-                      activeLanguage
+                    {activeLanguageFlag ? (
+                      <img
+                        src={activeLanguageFlag}
+                        alt={`${activeLanguage} flag`}
+                      />
+                    ) : (
+                      "🌐"
                     )}
-                  </p>
+
+                  </span>
+
+                  <div>
+
+                    <h2>
+                      {activeLanguage} Language Course
+                    </h2>
+
+                    <p>
+                      {getDescription(
+                        activeLanguage
+                      )}
+                    </p>
+
+                  </div>
+
                 </div>
 
               </div>
 
-            </div>
+              {/* =============================================
+                  COURSE ITEMS
+              ============================================= */}
 
+              <div className="course-items">
 
-            {/* =============================================
-                COURSE ITEMS
-            ============================================= */}
+                {filteredCourses.length > 0 ? (
 
-            <div className="course-items">
+                  filteredCourses.map(
+                    (course) => {
 
-              {filteredCourses.length > 0 ? (
+                      const hasOffer =
+                        Number(
+                          course.offer_price || 0
+                        ) > 0 &&
+                        Number(
+                          course.offer_price
+                        ) <
+                          Number(
+                            course.course_fee || 0
+                          );
 
-                filteredCourses.map(
-                  (course) => {
-                    const hasOffer = Number(course.offer_price || 0) > 0 && Number(course.offer_price) < Number(course.course_fee || 0);
-                    const discountText = hasOffer ? getDiscountPercentage(course.course_fee, course.offer_price) : null;
-
-                    return (
-                      <div
-                        className={`course-item ${hasOffer ? "has-offer" : ""}`}
-                        key={course.id}
-                        style={{ position: "relative" }}
-                      >
-
-                        {/* OFFER BADGE */}
-                        {hasOffer && (
-                          <div className="offer-badge" style={badgeStyle}>
-                            🏷️ {discountText || "OFFER"}
-                          </div>
-                        )}
-
-                        {/* =================================
-                            COURSE NAME
-                        ================================= */}
-
-                        <div className="course-item-name">
-
-                          <h3>
-                            {course.course_name ||
-                              "Course"}
-                          </h3>
-
-                        </div>
-
-
-                        {/* =================================
-                            COURSE DETAILS
-                        ================================= */}
-
-                        <div className="course-details">
-
-                          {/* DURATION */}
-
-                          <div className="course-detail">
-
-                            <span className="detail-icon">
-                              ⏱
-                            </span>
-
-                            <div>
-
-                              <small>
-                                Duration
-                              </small>
-
-                              <strong>
-                                {course.duration ||
-                                  "N/A"}
-                              </strong>
-
-                            </div>
-
-                          </div>
-
-
-                          {/* COURSE FEE */}
-
-                          <div className="course-detail">
-
-                            <span className="detail-icon">
-                              ৳
-                            </span>
-
-                            <div>
-
-                              <small>
-                                Course Fee
-                              </small>
-
-                              <strong>
-                                {hasOffer ? (
-                                  <>
-                                    <span style={{ textDecoration: "line-through", opacity: 0.7, marginRight: 8 }}>
-                                      {formatFee(course.course_fee)}
-                                    </span>
-                                    {formatFee(course.offer_price)}
-                                  </>
-                                ) : (
-                                  formatFee(course.course_fee)
-                                )}
-                              </strong>
-
-                            </div>
-
-                          </div>
-
-                        </div>
-
-
-                        {/* =================================
-                            APPLY BUTTON
-                        ================================= */}
-
-                        <button
-                          type="button"
-                          className="apply-course-btn"
-                          onClick={() =>
-                            handleApply(
-                              course
+                      const discountText =
+                        hasOffer
+                          ? getDiscountPercentage(
+                              course.course_fee,
+                              course.offer_price
                             )
-                          }
+                          : null;
+
+                      return (
+                        <div
+                          className={`course-item ${
+                            hasOffer
+                              ? "has-offer"
+                              : ""
+                          }`}
+                          key={course.id}
                         >
 
-                          <span>
-                            Apply Now
-                          </span>
+                          {/* =================================
+                              COURSE NAME + OFFER BADGE
+                          ================================= */}
 
-                          <span>
-                            →
-                          </span>
+                          <div className="course-item-name">
 
-                        </button>
+                            <h3>
 
-                      </div>
+                              <span className="course-name-text">
+                                {course.course_name ||
+                                  "Course"}
+                              </span>
 
-                    );
-                  }
-                )
+                              {hasOffer && (
+                                <span className="offer-badge">
+                                  🏷️{" "}
+                                  {discountText ||
+                                    "OFFER"}
+                                </span>
+                              )}
 
-              ) : (
+                            </h3>
 
-                <div className="course-message">
-                  এই ভাষার কোনো Active course
-                  বর্তমানে পাওয়া যায়নি।
-                </div>
+                          </div>
 
-              )}
+                          {/* =================================
+                              COURSE DETAILS
+                          ================================= */}
+
+                          <div className="course-details">
+
+                            {/* DURATION */}
+
+                            <div className="course-detail">
+
+                              <span className="detail-icon">
+                                ⏱
+                              </span>
+
+                              <div>
+
+                                <small>
+                                  Duration
+                                </small>
+
+                                <strong>
+                                  {course.duration ||
+                                    "N/A"}
+                                </strong>
+
+                              </div>
+
+                            </div>
+
+                            {/* COURSE FEE */}
+
+                            <div className="course-detail">
+
+                              <span className="detail-icon">
+                                ৳
+                              </span>
+
+                              <div>
+
+                                <small>
+                                  Course Fee
+                                </small>
+
+                                <strong>
+
+                                  {hasOffer ? (
+                                    <>
+
+                                      <span
+                                        style={{
+                                          textDecoration:
+                                            "line-through",
+                                          opacity: 0.7,
+                                          marginRight: 8,
+                                        }}
+                                      >
+                                        {formatFee(
+                                          course.course_fee
+                                        )}
+                                      </span>
+
+                                      {formatFee(
+                                        course.offer_price
+                                      )}
+
+                                    </>
+                                  ) : (
+                                    formatFee(
+                                      course.course_fee
+                                    )
+                                  )}
+
+                                </strong>
+
+                              </div>
+
+                            </div>
+
+                          </div>
+
+                          {/* =================================
+                              APPLY BUTTON
+                          ================================= */}
+
+                          <button
+                            type="button"
+                            className="apply-course-btn"
+                            onClick={() =>
+                              handleApply(
+                                course
+                              )
+                            }
+                          >
+
+                            <span>
+                              Apply Now
+                            </span>
+
+                            <span>
+                              →
+                            </span>
+
+                          </button>
+
+                        </div>
+                      );
+                    }
+                  )
+
+                ) : (
+
+                  <div className="course-message">
+                    এই ভাষার কোনো Active course
+                    বর্তমানে পাওয়া যায়নি।
+                  </div>
+
+                )}
+
+              </div>
 
             </div>
-
-          </div>
-
-        )}
-
-      </section>
-
-
-      {/* =================================================
-          WHY OUR COURSE
-      ================================================= */}
-
-      <section className="why-course">
-
-        <h2>
-          কেন আমাদের কোর্স করবেন?
-        </h2>
-
-        <p>
-          ✔ অভিজ্ঞ প্রশিক্ষক দ্বারা পাঠদান
-          <br />
-
-          ✔ নিয়মিত Speaking Practice
-          <br />
-
-          ✔ আধুনিক শিক্ষা পদ্ধতি
-          <br />
-
-          ✔ পরীক্ষার প্রস্তুতির বিশেষ সহযোগিতা
-        </p>
+          )}
 
       </section>
 
     </div>
   );
 }
-
-/* =====================================================
-   INLINE STYLES FOR OFFER BADGE (or add to Courses.css)
-===================================================== */
-const badgeStyle = {
-  position: "absolute",
-  top: "-10px",
-  right: "12px",
-  backgroundColor: "#e63946",
-  color: "#ffffff",
-  fontSize: "12px",
-  fontWeight: "bold",
-  padding: "4px 10px",
-  borderRadius: "12px",
-  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
-  zIndex: 2,
-};
