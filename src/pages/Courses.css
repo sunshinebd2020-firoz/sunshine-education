@@ -268,7 +268,7 @@
   white-space: nowrap;
   box-shadow:
     0 5px 12px rgba(225, 29, 72, 0.22);
-  animation: offerPulse 2.4s ease-in-out infinite;
+  animation: offerPulse 1.50s ease-in-out infinite;
 }
 
 @keyframes offerPulse {
@@ -277,7 +277,7 @@
   }
 
   50% {
-    transform: scale(1.04);
+    transform: scale(1.2);
   }
 
   100% {
