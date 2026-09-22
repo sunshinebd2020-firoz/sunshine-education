@@ -39,6 +39,10 @@ export default function Home() {
 
   const [languages, setLanguages] = useState([]);
 
+  const [notices, setNotices] = useState([]);
+  const [loadingNotices, setLoadingNotices] = useState(true);
+  const [noticeError, setNoticeError] = useState("");
+
   const [slideDirection, setSlideDirection] = useState("next");
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -71,9 +75,7 @@ export default function Home() {
   const getLanguageFlag = (name) => {
     const lang = String(name || "").toLowerCase();
 
-    if (lang.includes("japan")) {
-      return "/flags/jp.svg";
-    }
+    if (lang.includes("japan")) return "/flags/jp.svg";
 
     if (
       lang.includes("german") ||
@@ -131,7 +133,7 @@ export default function Home() {
         const data = await response.json();
 
         if (data.success) {
-          const activeBanners = data.data
+          const activeBanners = (data.data || [])
             .filter(
               (banner) =>
                 banner.status === "Active" ||
@@ -150,7 +152,10 @@ export default function Home() {
           setPreviousSlide(null);
         }
       } catch (error) {
-        console.error("Banner load error:", error);
+        console.error(
+          "Banner load error:",
+          error
+        );
       } finally {
         setLoadingBanners(false);
       }
@@ -218,6 +223,83 @@ export default function Home() {
   }, []);
 
   /* ======================================================
+     FETCH NOTICES
+  ====================================================== */
+
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        setLoadingNotices(true);
+        setNoticeError("");
+
+        const response = await fetch(
+          `${API}/notices.php`,
+          {
+            credentials: "include",
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Notice load করা যায়নি"
+          );
+        }
+
+        if (data.success) {
+          const activeNotices = (
+            data.data || []
+          ).filter(
+            (notice) =>
+              String(
+                notice.status || ""
+              ).toLowerCase() === "active"
+          );
+
+          setNotices(activeNotices);
+        } else {
+          setNoticeError(
+            data.message ||
+              "Notice load করা যায়নি"
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Notice fetch error:",
+          error
+        );
+
+        setNoticeError(
+          error.message ||
+            "Server-এর সাথে সংযোগ করা যাচ্ছে না"
+        );
+      } finally {
+        setLoadingNotices(false);
+      }
+    };
+
+    fetchNotices();
+  }, []);
+
+  /* ======================================================
+     DATE FORMAT
+  ====================================================== */
+
+  const formatDate = (date) => {
+    if (!date) return "";
+
+    const parts = String(date).split("-");
+
+    if (parts.length === 3) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+
+    return date;
+  };
+
+  /* ======================================================
      CHANGE SLIDE
   ====================================================== */
 
@@ -271,7 +353,10 @@ export default function Home() {
         ? banners.length - 1
         : currentSlide - 1;
 
-    changeSlide(previousIndex, "previous");
+    changeSlide(
+      previousIndex,
+      "previous"
+    );
   };
 
   /* ======================================================
@@ -662,6 +747,14 @@ export default function Home() {
       </section>
 
       {/* =================================================
+          COURSES
+      ================================================= */}
+
+      <section className="home-section courses-section">
+
+      </section>
+
+      {/* =================================================
           MAIN TWO COLUMN AREA
       ================================================= */}
 
@@ -672,6 +765,8 @@ export default function Home() {
         ================================================= */}
 
         <main className="home-main">
+
+          {/* WELCOME */}
 
           <section className="welcome">
 
@@ -687,74 +782,81 @@ export default function Home() {
 
           </section>
 
-          {/* COURSES */}
+                  <h2 className="section-title">
+          আমাদের কোর্সসমূহ
+        </h2>
 
-          <section className="home-section">
+        <div className="course-cards">
 
-            <h2 className="section-title">
-              আমাদের কোর্সসমূহ
-            </h2>
+          {languages.map((lang) => {
+            const flag =
+              getLanguageFlag(
+                lang.name
+              );
 
-            <div className="course-cards">
-
-              {languages.map(
-                (lang) => {
-
-                  const flag =
-                    getLanguageFlag(
-                      lang.name
-                    );
-
-                  return (
-                    <div
-                      className="home-card"
-                      key={
-                        lang.id ||
-                        lang.name
-                      }
-                      onClick={() =>
-                        navigate(
-                          `/courses?language=${encodeURIComponent(
-                            lang.name
-                          )}`
-                        )
-                      }
-                      style={{
-                        cursor: "pointer",
-                      }}
-                    >
-
-                      <div className="card-icon">
-
-                        {flag ? (
-                          <img
-                            src={flag}
-                            alt={`${lang.name} flag`}
-                            className="language-flag"
-                          />
-                        ) : (
-                          "🌐"
-                        )}
-
-                      </div>
-
-                      <h3>
-                        {lang.name}
-                      </h3>
-
-                      <p>
-                        {lang.desc ||
-                          `${lang.name} প্রস্তুতি কোর্স।`}
-                      </p>
-
-                    </div>
-                  );
+            return (
+              <div
+                className="home-card"
+                key={
+                  lang.id ||
+                  lang.name
                 }
-              )}
+                onClick={() =>
+                  navigate(
+                    `/courses?language=${encodeURIComponent(
+                      lang.name
+                    )}`
+                  )
+                }
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (
+                    event.key === "Enter" ||
+                    event.key === " "
+                  ) {
+                    event.preventDefault();
 
-            </div>
+                    navigate(
+                      `/courses?language=${encodeURIComponent(
+                        lang.name
+                      )}`
+                    );
+                  }
+                }}
+                style={{
+                  cursor: "pointer",
+                }}
+              >
 
-          </section>
+                <div className="card-icon">
+
+                  {flag ? (
+                    <img
+                      src={flag}
+                      alt={`${lang.name} flag`}
+                      className="language-flag"
+                    />
+                  ) : (
+                    "🌐"
+                  )}
+
+                </div>
+
+                <h3>
+                  {lang.name}
+                </h3>
+
+                <p>
+                  {lang.desc ||
+                    `${lang.name} প্রস্তুতি কোর্স।`}
+                </p>
+
+              </div>
+            );
+          })}
+
+        </div>
 
           {/* NOTICE */}
 
@@ -764,41 +866,65 @@ export default function Home() {
               📢 নোটিশ
             </h2>
 
-            <div className="notice-box">
-
-              <div className="notice-item">
-                <span className="notice-date">
-                  10 Aug 2026
-                </span>
-
-                <p>
-                  নতুন ব্যাচে ভর্তি কার্যক্রম শুরু হয়েছে।
-                </p>
+            {loadingNotices && (
+              <div className="notice-loading">
+                Notice loading হচ্ছে...
               </div>
+            )}
 
-              <div className="notice-item">
-                <span className="notice-date">
-                  08 Aug 2026
-                </span>
+            {!loadingNotices &&
+              noticeError && (
+                <div className="notice-error">
+                  {noticeError}
+                </div>
+              )}
 
-                <p>
-                  Japanese Language নতুন ক্লাসের
-                  সময়সূচি প্রকাশ করা হয়েছে।
-                </p>
-              </div>
+            {!loadingNotices &&
+              !noticeError &&
+              notices.length > 0 && (
+                <div className="notice-box">
 
-              <div className="notice-item">
-                <span className="notice-date">
-                  05 Aug 2026
-                </span>
+                  {notices.map(
+                    (notice) => (
+                      <div
+                        className="notice-item"
+                        key={notice.id}
+                      >
 
-                <p>
-                  শিক্ষার্থীদের প্রয়োজনীয় কাগজপত্র
-                  অফিসে জমা দেওয়ার জন্য অনুরোধ করা হলো।
-                </p>
-              </div>
+                        <span className="notice-date">
+                          📅{" "}
+                          {formatDate(
+                            notice.notice_date
+                          )}
+                        </span>
 
-            </div>
+                        <p>
+                          <strong>
+                            {notice.title ||
+                              "Important Notice"}
+                          </strong>
+                        </p>
+
+                        {notice.description && (
+                          <p>
+                            {notice.description}
+                          </p>
+                        )}
+
+                      </div>
+                    )
+                  )}
+
+                </div>
+              )}
+
+            {!loadingNotices &&
+              !noticeError &&
+              notices.length === 0 && (
+                <div className="notice-empty">
+                  বর্তমানে কোনো Notice নেই।
+                </div>
+              )}
 
           </section>
 
@@ -960,9 +1086,7 @@ export default function Home() {
 
           </section>
 
-          {/* =================================================
-              FACEBOOK
-          ================================================= */}
+          {/* FACEBOOK */}
 
           <section className="sidebar-section facebook-section">
 
@@ -980,9 +1104,7 @@ export default function Home() {
 
           </section>
 
-          {/* =================================================
-              YOUTUBE
-          ================================================= */}
+          {/* YOUTUBE */}
 
           <section className="sidebar-section">
 
