@@ -1939,6 +1939,39 @@ export default function StudentPortal() {
     </div>
   );
 
+  const renderAddressView = () => (
+    <div className="student-education-view">
+      <div className="student-education-table-wrap">
+        <table className="student-education-table">
+          <thead>
+            <tr>
+              <th>Address Type</th>
+              <th>Village</th>
+              <th>Post</th>
+              <th>Thana</th>
+              <th>District</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {[
+              ["Present", "present"],
+              ["Permanent", "permanent"],
+            ].map(([label, prefix]) => (
+              <tr key={prefix}>
+                <td><strong>{label}</strong></td>
+                <td>{displayValue(currentStudent?.[`${prefix}_village`])}</td>
+                <td>{displayValue(currentStudent?.[`${prefix}_post`])}</td>
+                <td>{displayValue(currentStudent?.[`${prefix}_thana`])}</td>
+                <td>{displayValue(currentStudent?.[`${prefix}_district`])}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
   /* =====================================================
      EDUCATION EDIT
   ===================================================== */
@@ -3540,6 +3573,7 @@ export default function StudentPortal() {
                     </div>
 
                     {activeTab ===
+                    "address" ? renderAddressView() : activeTab ===
                     "education" ? (
                       <div className="student-education-view">
                         <div className="student-education-table-wrap">
