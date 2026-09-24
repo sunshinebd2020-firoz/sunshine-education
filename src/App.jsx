@@ -224,8 +224,17 @@ const StudentPortal = lazy(() =>
 export default function App() {
   const location = useLocation();
 
-  const isAdminRoute =
-    location.pathname.startsWith("/admin");
+  // ================= LAYOUT CONTROL =================
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
+  const isStudentPortalRoute =
+    location.pathname.startsWith("/student-portal") ||
+    location.pathname.startsWith("/student");
+
+  // Admin এবং Student Portal উভয়ের জন্য
+  // Public Header, Navbar এবং Footer বন্ধ থাকবে
+  const hidePublicLayout =
+    isAdminRoute || isStudentPortalRoute;
 
   return (
     <>
@@ -235,11 +244,11 @@ export default function App() {
 
         {/* ================= HEADER ================= */}
 
-        {!isAdminRoute && <Header />}
+        {!hidePublicLayout && <Header />}
 
         {/* ================= NAVBAR ================= */}
 
-        {!isAdminRoute && <Navbar />}
+        {!hidePublicLayout && <Navbar />}
 
         {/* ================= MAIN CONTENT ================= */}
 
@@ -651,7 +660,7 @@ export default function App() {
 
         {/* ================= FOOTER ================= */}
 
-        {!isAdminRoute && <Footer />}
+        {!hidePublicLayout && <Footer />}
 
       </div>
     </>
