@@ -6,6 +6,134 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
+/* =====================================================
+   EXTERNAL FLAG SERVICE
+   REST COUNTRIES FLAG CDN
+===================================================== */
+
+const FLAG_CDN =
+  "https://flags.restcountries.com/v5/w160";
+
+/* =====================================================
+   LANGUAGE → COUNTRY ISO CODE
+===================================================== */
+
+const LANGUAGE_COUNTRY_CODES = {
+  japanese: "jp",
+  japan: "jp",
+
+  german: "de",
+  germany: "de",
+
+  korean: "kr",
+  korea: "kr",
+  "south korea": "kr",
+
+  english: "gb",
+  england: "gb",
+  uk: "gb",
+  "united kingdom": "gb",
+
+  french: "fr",
+  france: "fr",
+
+  chinese: "cn",
+  china: "cn",
+
+  arabic: "sa",
+  "saudi arabia": "sa",
+
+  spanish: "es",
+  spain: "es",
+
+  italian: "it",
+  italy: "it",
+
+  russian: "ru",
+  russia: "ru",
+
+  turkish: "tr",
+  turkey: "tr",
+
+  hindi: "in",
+  india: "in",
+
+  bengali: "bd",
+  bangla: "bd",
+  bangladesh: "bd",
+
+  portuguese: "pt",
+  portugal: "pt",
+
+  dutch: "nl",
+  netherlands: "nl",
+
+  thai: "th",
+  thailand: "th",
+
+  vietnamese: "vn",
+  vietnam: "vn",
+
+  indonesian: "id",
+  indonesia: "id",
+
+  malay: "my",
+  malaysia: "my",
+
+  urdu: "pk",
+  pakistan: "pk",
+
+  persian: "ir",
+  iran: "ir",
+
+  greek: "gr",
+  greece: "gr",
+
+  polish: "pl",
+  poland: "pl",
+
+  swedish: "se",
+  sweden: "se",
+
+  danish: "dk",
+  denmark: "dk",
+
+  norwegian: "no",
+  norway: "no",
+
+  finnish: "fi",
+  finland: "fi",
+
+  hebrew: "il",
+  israel: "il",
+
+  ukrainian: "ua",
+  ukraine: "ua",
+
+  romanian: "ro",
+  romania: "ro",
+
+  czech: "cz",
+  czechia: "cz",
+
+  hungarian: "hu",
+  hungary: "hu",
+
+  filipino: "ph",
+  philippines: "ph",
+};
+
+/* =====================================================
+   NORMALIZE LANGUAGE
+===================================================== */
+
+const normalizeLanguage = (language) => {
+  return String(language || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+};
+
 export default function Courses() {
   const [courses, setCourses] = useState([]);
   const [languages, setLanguages] = useState([]);
@@ -17,13 +145,11 @@ export default function Courses() {
   const [searchParams] = useSearchParams();
 
   /* =====================================================
-     NORMALIZE LANGUAGE
+     NORMALIZE LANGUAGE NAME
   ===================================================== */
 
   const getLanguageName = (language) => {
-    const value = String(language || "")
-      .trim()
-      .toLowerCase();
+    const value = normalizeLanguage(language);
 
     if (
       value.includes("japanese") ||
@@ -97,6 +223,23 @@ export default function Courses() {
   };
 
   /* =====================================================
+     GET FLAG FROM WEB
+  ===================================================== */
+
+  const getLanguageFlag = (language) => {
+    const normalized = normalizeLanguage(language);
+
+    const countryCode =
+      LANGUAGE_COUNTRY_CODES[normalized];
+
+    if (!countryCode) {
+      return "";
+    }
+
+    return `${FLAG_CDN}/${countryCode}.png`;
+  };
+
+  /* =====================================================
      LOAD COURSES + LANGUAGES
   ===================================================== */
 
@@ -115,7 +258,9 @@ export default function Courses() {
         );
 
         if (!courseResponse.ok) {
-          throw new Error("Course server error");
+          throw new Error(
+            "Course server error"
+          );
         }
 
         const courseResult =
@@ -160,7 +305,6 @@ export default function Courses() {
 
         /* =================================================
            LOAD LANGUAGES
-           SAME SOURCE AS HOME.JSX
         ================================================= */
 
         const languageResponse = await fetch(
@@ -198,7 +342,6 @@ export default function Courses() {
 
         /* =================================================
            ONLY ACTIVE LANGUAGES
-           SAME LOGIC AS HOME.JSX
         ================================================= */
 
         const activeLanguages =
@@ -216,9 +359,7 @@ export default function Courses() {
           });
 
         /* =================================================
-           LANGUAGE ORDER
-           language_list.php CURRENTLY RETURNS id ASC
-           SO KEEP THAT ORDER
+           UNIQUE LANGUAGES
         ================================================= */
 
         const uniqueLanguages = [];
@@ -290,62 +431,6 @@ export default function Courses() {
 
     fetchData();
   }, [searchParams]);
-
-  /* =====================================================
-     LANGUAGE FLAG
-  ===================================================== */
-
-  const getLanguageFlag = (language) => {
-    const lang = String(language || "")
-      .trim()
-      .toLowerCase();
-
-    if (
-      lang.includes("japanese") ||
-      lang.includes("japan")
-    ) {
-      return "/flags/jp.svg";
-    }
-
-    if (
-      lang.includes("german") ||
-      lang.includes("germany")
-    ) {
-      return "/flags/de.svg";
-    }
-
-    if (
-      lang.includes("korean") ||
-      lang.includes("korea")
-    ) {
-      return "/flags/kr.svg";
-    }
-
-    if (
-      lang.includes("english") ||
-      lang.includes("england") ||
-      lang.includes("uk") ||
-      lang.includes("usa")
-    ) {
-      return "/flags/gb.svg";
-    }
-
-    if (
-      lang.includes("french") ||
-      lang.includes("france")
-    ) {
-      return "/flags/fr.svg";
-    }
-
-    if (
-      lang.includes("chinese") ||
-      lang.includes("china")
-    ) {
-      return "/flags/cn.svg";
-    }
-
-    return "";
-  };
 
   /* =====================================================
      LANGUAGE DESCRIPTION
@@ -434,7 +519,7 @@ export default function Courses() {
   };
 
   /* =====================================================
-     CALCULATE DISCOUNT PERCENTAGE
+     DISCOUNT
   ===================================================== */
 
   const getDiscountPercentage = (
@@ -460,7 +545,7 @@ export default function Courses() {
   };
 
   /* =====================================================
-     FILTER COURSES BY SELECTED LANGUAGE
+     FILTER COURSES
   ===================================================== */
 
   const filteredCourses = courses
@@ -487,7 +572,7 @@ export default function Courses() {
     <div className="courses">
 
       {/* =================================================
-          DYNAMIC LANGUAGE TABS
+          LANGUAGE TABS
       ================================================= */}
 
       {!loading &&
@@ -519,6 +604,11 @@ export default function Courses() {
                       <img
                         src={flag}
                         alt={`${lang} flag`}
+                        loading="lazy"
+                        onError={(event) => {
+                          event.currentTarget.style.display =
+                            "none";
+                        }}
                       />
                     ) : (
                       "🌐"
@@ -543,9 +633,7 @@ export default function Courses() {
 
       <section className="course-list">
 
-        {/* =================================================
-            LOADING
-        ================================================= */}
+        {/* LOADING */}
 
         {loading && (
           <div className="course-message">
@@ -553,9 +641,7 @@ export default function Courses() {
           </div>
         )}
 
-        {/* =================================================
-            ERROR
-        ================================================= */}
+        {/* ERROR */}
 
         {!loading && error && (
           <div className="course-message error">
@@ -563,9 +649,7 @@ export default function Courses() {
           </div>
         )}
 
-        {/* =================================================
-            COURSE CONTENT
-        ================================================= */}
+        {/* COURSE CONTENT */}
 
         {!loading &&
           !error &&
@@ -573,9 +657,7 @@ export default function Courses() {
 
             <div className="course-card">
 
-              {/* =============================================
-                  LANGUAGE HEADER
-              ============================================= */}
+              {/* LANGUAGE HEADER */}
 
               <div className="course-card-header">
 
@@ -587,6 +669,7 @@ export default function Courses() {
                       <img
                         src={activeLanguageFlag}
                         alt={`${activeLanguage} flag`}
+                        loading="lazy"
                       />
                     ) : (
                       "🌐"
@@ -612,9 +695,7 @@ export default function Courses() {
 
               </div>
 
-              {/* =============================================
-                  COURSE ITEMS
-              ============================================= */}
+              {/* COURSE ITEMS */}
 
               <div className="course-items">
 
@@ -652,9 +733,7 @@ export default function Courses() {
                           key={course.id}
                         >
 
-                          {/* =================================
-                              COURSE NAME + OFFER BADGE
-                          ================================= */}
+                          {/* COURSE NAME */}
 
                           <div className="course-item-name">
 
@@ -677,13 +756,9 @@ export default function Courses() {
 
                           </div>
 
-                          {/* =================================
-                              COURSE DETAILS
-                          ================================= */}
+                          {/* COURSE DETAILS */}
 
                           <div className="course-details">
-
-                            {/* DURATION */}
 
                             <div className="course-detail">
 
@@ -705,8 +780,6 @@ export default function Courses() {
                               </div>
 
                             </div>
-
-                            {/* COURSE FEE */}
 
                             <div className="course-detail">
 
@@ -757,9 +830,7 @@ export default function Courses() {
 
                           </div>
 
-                          {/* =================================
-                              APPLY BUTTON
-                          ================================= */}
+                          {/* APPLY BUTTON */}
 
                           <button
                             type="button"

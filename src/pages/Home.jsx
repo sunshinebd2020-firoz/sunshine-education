@@ -20,31 +20,123 @@ const STUDENT_STORAGE_KEYS = [
   "student_status",
 ];
 
+/* ======================================================
+   LANGUAGE FLAG CDN
+====================================================== */
+
+const FLAG_CDN =
+  "https://flags.restcountries.com/v5/w160";
+
+/* ======================================================
+   LANGUAGE → COUNTRY CODE
+====================================================== */
+
+const LANGUAGE_COUNTRY_CODES = {
+  japanese: "jp",
+  german: "de",
+  korean: "kr",
+  english: "gb",
+  french: "fr",
+  chinese: "cn",
+  arabic: "sa",
+  spanish: "es",
+  italian: "it",
+  portuguese: "pt",
+  russian: "ru",
+  turkish: "tr",
+  hindi: "in",
+  bengali: "bd",
+  bangla: "bd",
+  urdu: "pk",
+  persian: "ir",
+  dutch: "nl",
+  thai: "th",
+  vietnamese: "vn",
+  indonesian: "id",
+  malay: "my",
+  greek: "gr",
+  polish: "pl",
+  swedish: "se",
+  danish: "dk",
+  norwegian: "no",
+  finnish: "fi",
+  hebrew: "il",
+  ukrainian: "ua",
+  romanian: "ro",
+  czech: "cz",
+  hungarian: "hu",
+  filipino: "ph",
+};
+
+/* ======================================================
+   NORMALIZE LANGUAGE
+====================================================== */
+
+const normalizeLanguage = (value) => {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+};
+
+/* ======================================================
+   GET LANGUAGE FLAG
+====================================================== */
+
+const getLanguageFlag = (name) => {
+  const language = normalizeLanguage(name);
+
+  for (const [key, code] of Object.entries(
+    LANGUAGE_COUNTRY_CODES
+  )) {
+    if (
+      language === key ||
+      language.includes(key)
+    ) {
+      return `${FLAG_CDN}/${code}.png`;
+    }
+  }
+
+  return "";
+};
+
 export default function Home() {
   const navigate = useNavigate();
 
   const [banners, setBanners] = useState([]);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [previousSlide, setPreviousSlide] = useState(null);
-  const [loadingBanners, setLoadingBanners] = useState(true);
+  const [currentSlide, setCurrentSlide] =
+    useState(0);
+  const [previousSlide, setPreviousSlide] =
+    useState(null);
+  const [loadingBanners, setLoadingBanners] =
+    useState(true);
 
-  const [studentDetails, setStudentDetails] = useState(() =>
-    readStudentSession()
-  );
+  const [studentDetails, setStudentDetails] =
+    useState(() => readStudentSession());
 
-  const [studentUsername, setStudentUsername] = useState("");
-  const [studentPassword, setStudentPassword] = useState("");
-  const [studentLoginLoading, setStudentLoginLoading] = useState(false);
-  const [studentLoginError, setStudentLoginError] = useState("");
+  const [studentUsername, setStudentUsername] =
+    useState("");
+  const [studentPassword, setStudentPassword] =
+    useState("");
+  const [studentLoginLoading, setStudentLoginLoading] =
+    useState(false);
+  const [studentLoginError, setStudentLoginError] =
+    useState("");
 
-  const [languages, setLanguages] = useState([]);
+  const [languages, setLanguages] =
+    useState([]);
 
-  const [notices, setNotices] = useState([]);
-  const [loadingNotices, setLoadingNotices] = useState(true);
-  const [noticeError, setNoticeError] = useState("");
+  const [notices, setNotices] =
+    useState([]);
+  const [loadingNotices, setLoadingNotices] =
+    useState(true);
+  const [noticeError, setNoticeError] =
+    useState("");
 
-  const [slideDirection, setSlideDirection] = useState("next");
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [slideDirection, setSlideDirection] =
+    useState("next");
+  const [isAnimating, setIsAnimating] =
+    useState(false);
 
   /* ======================================================
      DEFAULT LANGUAGES
@@ -69,54 +161,6 @@ export default function Home() {
   ];
 
   /* ======================================================
-     LANGUAGE FLAGS
-  ====================================================== */
-
-  const getLanguageFlag = (name) => {
-    const lang = String(name || "").toLowerCase();
-
-    if (lang.includes("japan")) return "/flags/jp.svg";
-
-    if (
-      lang.includes("german") ||
-      lang.includes("germany")
-    ) {
-      return "/flags/de.svg";
-    }
-
-    if (
-      lang.includes("korean") ||
-      lang.includes("korea")
-    ) {
-      return "/flags/kr.svg";
-    }
-
-    if (
-      lang.includes("english") ||
-      lang.includes("england") ||
-      lang.includes("uk")
-    ) {
-      return "/flags/gb.svg";
-    }
-
-    if (
-      lang.includes("french") ||
-      lang.includes("france")
-    ) {
-      return "/flags/fr.svg";
-    }
-
-    if (
-      lang.includes("chinese") ||
-      lang.includes("china")
-    ) {
-      return "/flags/cn.svg";
-    }
-
-    return "";
-  };
-
-  /* ======================================================
      FETCH BANNERS
   ====================================================== */
 
@@ -130,24 +174,34 @@ export default function Home() {
           }
         );
 
-        const data = await response.json();
+        const data =
+          await response.json();
 
         if (data.success) {
-          const activeBanners = (data.data || [])
-            .filter(
-              (banner) =>
-                banner.status === "Active" ||
-                banner.status === "active" ||
-                banner.status === 1 ||
-                banner.status === "1"
-            )
-            .sort(
-              (a, b) =>
-                Number(a.sort_order || 0) -
-                Number(b.sort_order || 0)
-            );
+          const activeBanners =
+            (data.data || [])
+              .filter(
+                (banner) =>
+                  banner.status ===
+                    "Active" ||
+                  banner.status ===
+                    "active" ||
+                  banner.status === 1 ||
+                  banner.status === "1"
+              )
+              .sort(
+                (a, b) =>
+                  Number(
+                    a.sort_order || 0
+                  ) -
+                  Number(
+                    b.sort_order || 0
+                  )
+              );
 
-          setBanners(activeBanners);
+          setBanners(
+            activeBanners
+          );
           setCurrentSlide(0);
           setPreviousSlide(null);
         }
@@ -171,43 +225,63 @@ export default function Home() {
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
-        const response = await fetch(
-          `${API}/language_list.php`,
-          {
-            credentials: "include",
-          }
-        );
+        const response =
+          await fetch(
+            `${API}/language_list.php`,
+            {
+              credentials: "include",
+            }
+          );
 
-        const result = await response.json();
+        const result =
+          await response.json();
 
         let list = [];
 
         if (
           result.success &&
-          Array.isArray(result.data)
+          Array.isArray(
+            result.data
+          )
         ) {
-          list = result.data;
-        } else if (Array.isArray(result)) {
+          list =
+            result.data;
+        } else if (
+          Array.isArray(result)
+        ) {
           list = result;
         }
 
-        const activeLangs = list.filter((lang) => {
-          const status = String(
-            lang.status ?? ""
-          )
-            .trim()
-            .toLowerCase();
+        const activeLangs =
+          list.filter(
+            (lang) => {
+              const status =
+                String(
+                  lang.status ??
+                    ""
+                )
+                  .trim()
+                  .toLowerCase();
 
-          return (
-            status === "active" ||
-            status === "1"
+              return (
+                status ===
+                  "active" ||
+                status === "1"
+              );
+            }
           );
-        });
 
-        if (activeLangs.length > 0) {
-          setLanguages(activeLangs);
+        if (
+          activeLangs.length >
+          0
+        ) {
+          setLanguages(
+            activeLangs
+          );
         } else {
-          setLanguages(defaultLanguages);
+          setLanguages(
+            defaultLanguages
+          );
         }
       } catch (error) {
         console.error(
@@ -215,7 +289,9 @@ export default function Home() {
           error
         );
 
-        setLanguages(defaultLanguages);
+        setLanguages(
+          defaultLanguages
+        );
       }
     };
 
@@ -229,17 +305,21 @@ export default function Home() {
   useEffect(() => {
     const fetchNotices = async () => {
       try {
-        setLoadingNotices(true);
+        setLoadingNotices(
+          true
+        );
         setNoticeError("");
 
-        const response = await fetch(
-          `${API}/notices.php`,
-          {
-            credentials: "include",
-          }
-        );
+        const response =
+          await fetch(
+            `${API}/notices.php`,
+            {
+              credentials: "include",
+            }
+          );
 
-        const data = await response.json();
+        const data =
+          await response.json();
 
         if (!response.ok) {
           throw new Error(
@@ -249,16 +329,20 @@ export default function Home() {
         }
 
         if (data.success) {
-          const activeNotices = (
-            data.data || []
-          ).filter(
-            (notice) =>
-              String(
-                notice.status || ""
-              ).toLowerCase() === "active"
-          );
+          const activeNotices =
+            (data.data || [])
+              .filter(
+                (notice) =>
+                  String(
+                    notice.status ||
+                      ""
+                  ).toLowerCase() ===
+                  "active"
+              );
 
-          setNotices(activeNotices);
+          setNotices(
+            activeNotices
+          );
         } else {
           setNoticeError(
             data.message ||
@@ -276,7 +360,9 @@ export default function Home() {
             "Server-এর সাথে সংযোগ করা যাচ্ছে না"
         );
       } finally {
-        setLoadingNotices(false);
+        setLoadingNotices(
+          false
+        );
       }
     };
 
@@ -290,9 +376,12 @@ export default function Home() {
   const formatDate = (date) => {
     if (!date) return "";
 
-    const parts = String(date).split("-");
+    const parts =
+      String(date).split("-");
 
-    if (parts.length === 3) {
+    if (
+      parts.length === 3
+    ) {
       return `${parts[2]}-${parts[1]}-${parts[0]}`;
     }
 
@@ -310,19 +399,35 @@ export default function Home() {
     if (
       banners.length <= 1 ||
       isAnimating ||
-      newIndex === currentSlide
+      newIndex ===
+        currentSlide
     ) {
       return;
     }
 
-    setPreviousSlide(currentSlide);
-    setSlideDirection(direction);
-    setIsAnimating(true);
-    setCurrentSlide(newIndex);
+    setPreviousSlide(
+      currentSlide
+    );
+
+    setSlideDirection(
+      direction
+    );
+
+    setIsAnimating(
+      true
+    );
+
+    setCurrentSlide(
+      newIndex
+    );
 
     setTimeout(() => {
-      setPreviousSlide(null);
-      setIsAnimating(false);
+      setPreviousSlide(
+        null
+      );
+      setIsAnimating(
+        false
+      );
     }, 800);
   };
 
@@ -331,14 +436,23 @@ export default function Home() {
   ====================================================== */
 
   const nextSlide = () => {
-    if (banners.length === 0) return;
+    if (
+      banners.length ===
+      0
+    ) {
+      return;
+    }
 
     const nextIndex =
-      currentSlide === banners.length - 1
+      currentSlide ===
+      banners.length - 1
         ? 0
         : currentSlide + 1;
 
-    changeSlide(nextIndex, "next");
+    changeSlide(
+      nextIndex,
+      "next"
+    );
   };
 
   /* ======================================================
@@ -346,7 +460,12 @@ export default function Home() {
   ====================================================== */
 
   const previousBanner = () => {
-    if (banners.length === 0) return;
+    if (
+      banners.length ===
+      0
+    ) {
+      return;
+    }
 
     const previousIndex =
       currentSlide === 0
@@ -364,20 +483,34 @@ export default function Home() {
   ====================================================== */
 
   useEffect(() => {
-    if (banners.length <= 1) return;
+    if (
+      banners.length <= 1
+    ) {
+      return;
+    }
 
-    const interval = setInterval(() => {
-      if (!isAnimating) {
-        const nextIndex =
-          currentSlide === banners.length - 1
-            ? 0
-            : currentSlide + 1;
+    const interval =
+      setInterval(() => {
+        if (
+          !isAnimating
+        ) {
+          const nextIndex =
+            currentSlide ===
+            banners.length - 1
+              ? 0
+              : currentSlide + 1;
 
-        changeSlide(nextIndex, "next");
-      }
-    }, 5000);
+          changeSlide(
+            nextIndex,
+            "next"
+          );
+        }
+      }, 5000);
 
-    return () => clearInterval(interval);
+    return () =>
+      clearInterval(
+        interval
+      );
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -390,9 +523,12 @@ export default function Home() {
      GO TO SLIDE
   ====================================================== */
 
-  const goToSlide = (index) => {
+  const goToSlide = (
+    index
+  ) => {
     if (
-      index === currentSlide ||
+      index ===
+        currentSlide ||
       isAnimating
     ) {
       return;
@@ -403,7 +539,10 @@ export default function Home() {
         ? "next"
         : "previous";
 
-    changeSlide(index, direction);
+    changeSlide(
+      index,
+      direction
+    );
   };
 
   /* ======================================================
@@ -422,224 +561,271 @@ export default function Home() {
      STUDENT LOGIN
   ====================================================== */
 
-  const handleStudentLogin = async (event) => {
-    event.preventDefault();
+  const handleStudentLogin =
+    async (event) => {
+      event.preventDefault();
 
-    setStudentLoginError("");
-
-    const username =
-      studentUsername.trim();
-
-    const password =
-      studentPassword;
-
-    if (!username) {
       setStudentLoginError(
-        "Student ID is required."
-      );
-      return;
-    }
-
-    if (!password) {
-      setStudentLoginError(
-        "Password is required."
-      );
-      return;
-    }
-
-    setStudentLoginLoading(true);
-
-    try {
-      const response = await fetch(
-        `${API}/student_login.php`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type":
-              "application/json",
-            Accept:
-              "application/json",
-          },
-          body: JSON.stringify({
-            username,
-            password,
-          }),
-        }
+        ""
       );
 
-      const text =
-        await response.text();
+      const username =
+        studentUsername.trim();
 
-      let data = null;
+      const password =
+        studentPassword;
+
+      if (!username) {
+        setStudentLoginError(
+          "Student ID is required."
+        );
+        return;
+      }
+
+      if (!password) {
+        setStudentLoginError(
+          "Password is required."
+        );
+        return;
+      }
+
+      setStudentLoginLoading(
+        true
+      );
 
       try {
-        data = JSON.parse(text);
-      } catch {
-        throw new Error(
-          "Server response was invalid."
-        );
-      }
+        const response =
+          await fetch(
+            `${API}/student_login.php`,
+            {
+              method: "POST",
+              credentials:
+                "include",
+              headers: {
+                "Content-Type":
+                  "application/json",
+                Accept:
+                  "application/json",
+              },
+              body: JSON.stringify(
+                {
+                  username,
+                  password,
+                }
+              ),
+            }
+          );
 
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-        throw new Error(
-          data.message ||
-            "Student login failed."
-        );
-      }
+        const text =
+          await response.text();
 
-      const studentPayload =
-        data.profile ||
-        data.student ||
-        data.user ||
-        {};
+        let data = null;
 
-      const normalizedStudent = {
-        ...studentPayload,
-
-        id:
-          studentPayload.id ||
-          studentPayload.student_id ||
-          username,
-
-        student_id:
-          studentPayload.student_id ||
-          studentPayload.username ||
-          username,
-
-        username:
-          studentPayload.username ||
-          studentPayload.student_id ||
-          username,
-
-        full_name:
-          studentPayload.full_name ||
-          studentPayload.name ||
-          studentPayload.student_name_en ||
-          studentPayload.student_name_bn ||
-          studentPayload.student_name ||
-          studentPayload.student_full_name ||
-          "",
-
-        name:
-          studentPayload.full_name ||
-          studentPayload.name ||
-          studentPayload.student_name_en ||
-          studentPayload.student_name_bn ||
-          studentPayload.student_name ||
-          studentPayload.student_full_name ||
-          "",
-
-        phone:
-          studentPayload.phone ||
-          studentPayload.mobile ||
-          studentPayload.student_mobile ||
-          "",
-
-        email:
-          studentPayload.email || "",
-
-        role: "student",
-
-        status:
-          studentPayload.status ||
-          studentPayload.student_status ||
-          "active",
-      };
-
-      const authState = {
-        sunshine_student:
-          normalizedStudent,
-
-        sunshine_student_user:
-          normalizedStudent,
-
-        sunshine_student_logged_in:
-          "1",
-
-        student_id:
-          normalizedStudent.student_id,
-
-        student_username:
-          normalizedStudent.username,
-
-        student_role: "student",
-
-        student_status:
-          normalizedStudent.status,
-      };
-
-      Object.entries(
-        authState
-      ).forEach(
-        ([key, value]) => {
-          if (
-            value === null ||
-            value === undefined ||
-            value === ""
-          ) {
-            localStorage.removeItem(key);
-            return;
-          }
-
-          localStorage.setItem(
-            key,
-            typeof value === "string"
-              ? value
-              : JSON.stringify(value)
+        try {
+          data =
+            JSON.parse(
+              text
+            );
+        } catch {
+          throw new Error(
+            "Server response was invalid."
           );
         }
-      );
 
-      STUDENT_STORAGE_KEYS.forEach(
-        (key) => {
-          if (!authState[key]) {
-            localStorage.removeItem(key);
+        if (
+          !response.ok ||
+          !data.success
+        ) {
+          throw new Error(
+            data.message ||
+              "Student login failed."
+          );
+        }
+
+        const studentPayload =
+          data.profile ||
+          data.student ||
+          data.user ||
+          {};
+
+        const normalizedStudent =
+          {
+            ...studentPayload,
+
+            id:
+              studentPayload.id ||
+              studentPayload.student_id ||
+              username,
+
+            student_id:
+              studentPayload.student_id ||
+              studentPayload.username ||
+              username,
+
+            username:
+              studentPayload.username ||
+              studentPayload.student_id ||
+              username,
+
+            full_name:
+              studentPayload.full_name ||
+              studentPayload.name ||
+              studentPayload.student_name_en ||
+              studentPayload.student_name_bn ||
+              studentPayload.student_name ||
+              studentPayload.student_full_name ||
+              "",
+
+            name:
+              studentPayload.full_name ||
+              studentPayload.name ||
+              studentPayload.student_name_en ||
+              studentPayload.student_name_bn ||
+              studentPayload.student_name ||
+              studentPayload.student_full_name ||
+              "",
+
+            phone:
+              studentPayload.phone ||
+              studentPayload.mobile ||
+              studentPayload.student_mobile ||
+              "",
+
+            email:
+              studentPayload.email ||
+              "",
+
+            role: "student",
+
+            status:
+              studentPayload.status ||
+              studentPayload.student_status ||
+              "active",
+          };
+
+        const authState = {
+          sunshine_student:
+            normalizedStudent,
+
+          sunshine_student_user:
+            normalizedStudent,
+
+          sunshine_student_logged_in:
+            "1",
+
+          student_id:
+            normalizedStudent.student_id,
+
+          student_username:
+            normalizedStudent.username,
+
+          student_role:
+            "student",
+
+          student_status:
+            normalizedStudent.status,
+        };
+
+        Object.entries(
+          authState
+        ).forEach(
+          ([key, value]) => {
+            if (
+              value === null ||
+              value ===
+                undefined ||
+              value === ""
+            ) {
+              localStorage.removeItem(
+                key
+              );
+              return;
+            }
+
+            localStorage.setItem(
+              key,
+              typeof value ===
+                "string"
+                ? value
+                : JSON.stringify(
+                    value
+                  )
+            );
           }
-        }
-      );
+        );
 
-      setStudentDetails(
-        normalizedStudent
-      );
+        STUDENT_STORAGE_KEYS.forEach(
+          (key) => {
+            if (
+              !authState[key]
+            ) {
+              localStorage.removeItem(
+                key
+              );
+            }
+          }
+        );
 
-      setStudentUsername("");
-      setStudentPassword("");
+        setStudentDetails(
+          normalizedStudent
+        );
 
-      navigate(
-        "/student-portal",
-        {
-          replace: true,
-        }
-      );
-    } catch (error) {
-      clearStudentAuthStorage();
-      setStudentDetails(null);
+        setStudentUsername(
+          ""
+        );
 
-      setStudentLoginError(
-        error.message ||
-          "Student login failed."
-      );
-    } finally {
-      setStudentLoginLoading(false);
-    }
-  };
+        setStudentPassword(
+          ""
+        );
+
+        navigate(
+          "/student-portal",
+          {
+            replace: true,
+          }
+        );
+      } catch (error) {
+        clearStudentAuthStorage();
+
+        setStudentDetails(
+          null
+        );
+
+        setStudentLoginError(
+          error.message ||
+            "Student login failed."
+        );
+      } finally {
+        setStudentLoginLoading(
+          false
+        );
+      }
+    };
 
   /* ======================================================
      STUDENT LOGOUT
   ====================================================== */
 
-  const handleStudentLogout = () => {
-    clearStudentAuthStorage();
+  const handleStudentLogout =
+    () => {
+      clearStudentAuthStorage();
 
-    setStudentDetails(null);
-    setStudentUsername("");
-    setStudentPassword("");
-    setStudentLoginError("");
-  };
+      setStudentDetails(
+        null
+      );
+
+      setStudentUsername(
+        ""
+      );
+
+      setStudentPassword(
+        ""
+      );
+
+      setStudentLoginError(
+        ""
+      );
+    };
 
   /* ======================================================
      RETURN
@@ -662,7 +848,8 @@ export default function Home() {
                 <div
                   key={`old-${oldBanner.id}`}
                   className={`banner-slide banner-old ${
-                    slideDirection === "next"
+                    slideDirection ===
+                    "next"
                       ? "slide-old-left"
                       : "slide-old-right"
                   }`}
@@ -678,7 +865,8 @@ export default function Home() {
                   key={`current-${currentBanner.id}`}
                   className={`banner-slide banner-current ${
                     isAnimating
-                      ? slideDirection === "next"
+                      ? slideDirection ===
+                        "next"
                         ? "slide-new-from-right"
                         : "slide-new-from-left"
                       : "slide-new-normal"
@@ -690,47 +878,68 @@ export default function Home() {
                 />
               )}
 
-              {banners.length > 1 && (
+              {banners.length >
+                1 && (
                 <button
                   type="button"
                   className="banner-arrow banner-prev"
-                  onClick={previousBanner}
-                  disabled={isAnimating}
+                  onClick={
+                    previousBanner
+                  }
+                  disabled={
+                    isAnimating
+                  }
                   aria-label="Previous Banner"
                 >
                   ❮
                 </button>
               )}
 
-              {banners.length > 1 && (
+              {banners.length >
+                1 && (
                 <button
                   type="button"
                   className="banner-arrow banner-next"
-                  onClick={nextSlide}
-                  disabled={isAnimating}
+                  onClick={
+                    nextSlide
+                  }
+                  disabled={
+                    isAnimating
+                  }
                   aria-label="Next Banner"
                 >
                   ❯
                 </button>
               )}
 
-              {banners.length > 1 && (
+              {banners.length >
+                1 && (
                 <div className="banner-dots">
 
                   {banners.map(
-                    (banner, index) => (
+                    (
+                      banner,
+                      index
+                    ) => (
                       <button
-                        key={banner.id}
+                        key={
+                          banner.id
+                        }
                         type="button"
                         className={
-                          index === currentSlide
+                          index ===
+                          currentSlide
                             ? "banner-dot active"
                             : "banner-dot"
                         }
                         onClick={() =>
-                          goToSlide(index)
+                          goToSlide(
+                            index
+                          )
                         }
-                        disabled={isAnimating}
+                        disabled={
+                          isAnimating
+                        }
                         aria-label={`Banner ${
                           index + 1
                         }`}
@@ -747,10 +956,99 @@ export default function Home() {
       </section>
 
       {/* =================================================
-          COURSES
+          COURSES — DIRECTLY AFTER BANNER
       ================================================= */}
 
       <section className="home-section courses-section">
+
+        <div className="course-cards">
+
+          {languages.map(
+            (lang) => {
+
+              const flag =
+                getLanguageFlag(
+                  lang.name
+                );
+
+              return (
+                <div
+                  className="home-card"
+                  key={
+                    lang.id ||
+                    lang.name
+                  }
+                  onClick={() =>
+                    navigate(
+                      `/courses?language=${encodeURIComponent(
+                        lang.name
+                      )}`
+                    )
+                  }
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(
+                    event
+                  ) => {
+                    if (
+                      event.key ===
+                        "Enter" ||
+                      event.key ===
+                        " "
+                    ) {
+                      event.preventDefault();
+
+                      navigate(
+                        `/courses?language=${encodeURIComponent(
+                          lang.name
+                        )}`
+                      );
+                    }
+                  }}
+                >
+
+                  {/* LANGUAGE FLAG */}
+
+                  <div className="card-icon">
+
+                    {flag ? (
+                      <img
+                        src={flag}
+                        alt={`${lang.name} flag`}
+                        className="language-flag"
+                        loading="lazy"
+                        onError={(
+                          event
+                        ) => {
+                          event.currentTarget.style.display =
+                            "none";
+                        }}
+                      />
+                    ) : (
+                      <span
+                        aria-hidden="true"
+                      >
+                        🌐
+                      </span>
+                    )}
+
+                  </div>
+
+                  <h3>
+                    {lang.name}
+                  </h3>
+
+                  <p>
+                    {lang.desc ||
+                      `${lang.name} প্রস্তুতি কোর্স।`}
+                  </p>
+
+                </div>
+              );
+            }
+          )}
+
+        </div>
 
       </section>
 
@@ -782,82 +1080,6 @@ export default function Home() {
 
           </section>
 
-                  <h2 className="section-title">
-          আমাদের কোর্সসমূহ
-        </h2>
-
-        <div className="course-cards">
-
-          {languages.map((lang) => {
-            const flag =
-              getLanguageFlag(
-                lang.name
-              );
-
-            return (
-              <div
-                className="home-card"
-                key={
-                  lang.id ||
-                  lang.name
-                }
-                onClick={() =>
-                  navigate(
-                    `/courses?language=${encodeURIComponent(
-                      lang.name
-                    )}`
-                  )
-                }
-                role="button"
-                tabIndex={0}
-                onKeyDown={(event) => {
-                  if (
-                    event.key === "Enter" ||
-                    event.key === " "
-                  ) {
-                    event.preventDefault();
-
-                    navigate(
-                      `/courses?language=${encodeURIComponent(
-                        lang.name
-                      )}`
-                    );
-                  }
-                }}
-                style={{
-                  cursor: "pointer",
-                }}
-              >
-
-                <div className="card-icon">
-
-                  {flag ? (
-                    <img
-                      src={flag}
-                      alt={`${lang.name} flag`}
-                      className="language-flag"
-                    />
-                  ) : (
-                    "🌐"
-                  )}
-
-                </div>
-
-                <h3>
-                  {lang.name}
-                </h3>
-
-                <p>
-                  {lang.desc ||
-                    `${lang.name} প্রস্তুতি কোর্স।`}
-                </p>
-
-              </div>
-            );
-          })}
-
-        </div>
-
           {/* NOTICE */}
 
           <section className="home-section notice-section">
@@ -888,7 +1110,9 @@ export default function Home() {
                     (notice) => (
                       <div
                         className="notice-item"
-                        key={notice.id}
+                        key={
+                          notice.id
+                        }
                       >
 
                         <span className="notice-date">
@@ -907,7 +1131,9 @@ export default function Home() {
 
                         {notice.description && (
                           <p>
-                            {notice.description}
+                            {
+                              notice.description
+                            }
                           </p>
                         )}
 
@@ -954,7 +1180,7 @@ export default function Home() {
                 <div className="student-login-welcome">
 
                   <p>
-                    Welcome,{" "}
+                    Welcome{" "}
                     <strong>
                       {studentDetails.full_name ||
                         studentDetails.name ||
@@ -1022,10 +1248,15 @@ export default function Home() {
                     <input
                       id="student-username"
                       type="text"
-                      value={studentUsername}
-                      onChange={(event) =>
+                      value={
+                        studentUsername
+                      }
+                      onChange={(
+                        event
+                      ) =>
                         setStudentUsername(
-                          event.target.value
+                          event.target
+                            .value
                         )
                       }
                       placeholder="Enter student ID"
@@ -1046,10 +1277,15 @@ export default function Home() {
                     <input
                       id="student-password"
                       type="password"
-                      value={studentPassword}
-                      onChange={(event) =>
+                      value={
+                        studentPassword
+                      }
+                      onChange={(
+                        event
+                      ) =>
                         setStudentPassword(
-                          event.target.value
+                          event.target
+                            .value
                         )
                       }
                       placeholder="Enter password"
@@ -1075,7 +1311,9 @@ export default function Home() {
 
                   {studentLoginError && (
                     <div className="student-login-error">
-                      {studentLoginError}
+                      {
+                        studentLoginError
+                      }
                     </div>
                   )}
 

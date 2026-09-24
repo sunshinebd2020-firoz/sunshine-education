@@ -18,7 +18,8 @@ const globalStyle = `
 
   html,
   body {
-    overflow-x: hidden;
+    overflow-x: clip;
+    overflow-y: auto;
   }
 
   * {
@@ -30,12 +31,14 @@ const globalStyle = `
     min-height: 100vh;
     margin: 0;
     padding: 0;
+    overflow: visible;
   }
 
   .content {
     width: 100%;
     margin: 0;
     padding: 0;
+    overflow: visible;
   }
 `;
 
@@ -45,11 +48,21 @@ const AdminLayout = lazy(() => import("./admin/AdminLayout"));
 const Dashboard = lazy(() => import("./admin/pages/Dashboard"));
 
 // ================= STUDENTS =================
-const StudentEntry = lazy(() => import("./admin/pages/students/StudentEntry"));
-const StudentList = lazy(() => import("./admin/pages/students/StudentList"));
-const AssignStudent = lazy(() => import("./admin/pages/students/AssignStudent"));
-const StudentEdit = lazy(() => import("./admin/pages/students/StudentEdit"));
-const StudentProfile = lazy(() => import("./admin/pages/students/StudentProfile"));
+const StudentEntry = lazy(() =>
+  import("./admin/pages/students/StudentEntry")
+);
+const StudentList = lazy(() =>
+  import("./admin/pages/students/StudentList")
+);
+const AssignStudent = lazy(() =>
+  import("./admin/pages/students/AssignStudent")
+);
+const StudentEdit = lazy(() =>
+  import("./admin/pages/students/StudentEdit")
+);
+const StudentProfile = lazy(() =>
+  import("./admin/pages/students/StudentProfile")
+);
 const StudentDocuments = lazy(() =>
   import("./admin/pages/students/StudentDocuments")
 );
@@ -211,7 +224,8 @@ const StudentPortal = lazy(() =>
 export default function App() {
   const location = useLocation();
 
-  const isAdminRoute = location.pathname.startsWith("/admin");
+  const isAdminRoute =
+    location.pathname.startsWith("/admin");
 
   return (
     <>
@@ -323,7 +337,12 @@ export default function App() {
 
                 <Route
                   index
-                  element={<Navigate to="dashboard" replace />}
+                  element={
+                    <Navigate
+                      to="dashboard"
+                      replace
+                    />
+                  }
                 />
 
                 {/* ================= DASHBOARD ================= */}
@@ -348,28 +367,36 @@ export default function App() {
                 <Route
                   path="my-classroom/students"
                   element={
-                    <TeacherClassroom section="students" />
+                    <TeacherClassroom
+                      section="students"
+                    />
                   }
                 />
 
                 <Route
                   path="my-classroom/batches"
                   element={
-                    <TeacherClassroom section="batches" />
+                    <TeacherClassroom
+                      section="batches"
+                    />
                   }
                 />
 
                 <Route
                   path="my-classroom/attendance"
                   element={
-                    <TeacherClassroom section="attendance" />
+                    <TeacherClassroom
+                      section="attendance"
+                    />
                   }
                 />
 
                 <Route
                   path="my-classroom/records"
                   element={
-                    <TeacherClassroom section="records" />
+                    <TeacherClassroom
+                      section="records"
+                    />
                   }
                 />
 
