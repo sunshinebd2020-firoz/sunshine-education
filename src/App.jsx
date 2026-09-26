@@ -366,10 +366,7 @@ export default function App() {
                 <Route
                   path="my-classroom"
                   element={
-                    <Navigate
-                      to="/admin/my-classroom/students"
-                      replace
-                    />
+                    <TeacherClassroom section="home" />
                   }
                 />
 
@@ -378,6 +375,15 @@ export default function App() {
                   element={
                     <TeacherClassroom
                       section="students"
+                    />
+                  }
+                />
+
+                <Route
+                  path="my-classroom/transfers"
+                  element={
+                    <TeacherClassroom
+                      section="transfers"
                     />
                   }
                 />

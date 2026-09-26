@@ -863,10 +863,10 @@ if (isTeacher) {
           {hasTeacherClassroom && (
             <div className="sidebar-group">
               <NavLink
-                to="/admin/my-classroom/students"
+                to="/admin/my-classroom"
                 className={({ isActive }) =>
                   `sidebar-link ${
-                    isActive && location.pathname === "/admin/my-classroom/students"
+                    isActive && location.pathname === "/admin/my-classroom"
                       ? "active"
                       : ""
                   }`
@@ -876,8 +876,26 @@ if (isTeacher) {
               </NavLink>
 
               <div className="sidebar-submenu">
+                <div className="sidebar-submenu-group">
+                  <span className="sidebar-submenu-label">Students</span>
+                  <NavLink
+                    to="/admin/my-classroom/students"
+                    className={({ isActive }) =>
+                      `sidebar-sublink ${isActive ? "active" : ""}`
+                    }
+                  >
+                    Assigned Students
+                  </NavLink>
+                  <NavLink
+                    to="/admin/my-classroom/transfers"
+                    className={({ isActive }) =>
+                      `sidebar-sublink ${isActive ? "active" : ""}`
+                    }
+                  >
+                    My Transfer Requests
+                  </NavLink>
+                </div>
                 {[
-                  ["students", "Students"],
                   ["batches", "Batches"],
                   ["attendance", "Attendance"],
                   ["records", "Class Records"],

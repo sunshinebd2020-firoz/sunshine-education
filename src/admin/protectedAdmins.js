@@ -1,6 +1,6 @@
 const PROTECTED_ADMIN_NAMES = new Set([
   //"firozmahmud",
-  "abdulmuhaimine",
+  //"abdulmuhaimine",
 ]);
 
 const normalizeName = (value) => String(value || "")

@@ -480,7 +480,7 @@ const parseJsonResponse = async (
 |--------------------------------------------------------------------------
 */
 
-export default function TeacherClassroom({ section = "students" }) {
+export default function TeacherClassroom({ section = "home" }) {
   const navigate = useNavigate();
 
   /*
@@ -578,25 +578,6 @@ export default function TeacherClassroom({ section = "students" }) {
   | TABS
   |--------------------------------------------------------------------------
   */
-
-  const sectionTabs = [
-    {
-      key: "students",
-      label: "Students",
-    },
-    {
-      key: "batches",
-      label: "Batches",
-    },
-    {
-      key: "attendance",
-      label: "Attendance",
-    },
-    {
-      key: "records",
-      label: "Class Records",
-    },
-  ];
 
   /*
   |--------------------------------------------------------------------------
@@ -1370,7 +1351,7 @@ export default function TeacherClassroom({ section = "students" }) {
           }
           disabled={loading || saving}
         >
-          রিফ্রেশ
+          Refresh
         </button>
       </header>
 
@@ -1401,7 +1382,8 @@ export default function TeacherClassroom({ section = "students" }) {
               SUMMARY
           ----------------------------------------------------------- */}
 
-          <section className="classroom-summary">
+          {activeSection === "home" && (
+            <section className="classroom-summary">
 
             <div>
               <span>
@@ -1433,38 +1415,8 @@ export default function TeacherClassroom({ section = "students" }) {
               </strong>
             </div>
 
-          </section>
-
-          {/* -----------------------------------------------------------
-              SUB MENU
-          ----------------------------------------------------------- */}
-
-          <div
-            className="classroom-submenu"
-            aria-label="My Batch submenu"
-          >
-            {sectionTabs.map(
-              (tab) => (
-                <button
-                  key={tab.key}
-                  type="button"
-                  className={
-                    activeSection ===
-                    tab.key
-                      ? "submenu-button active"
-                      : "submenu-button"
-                  }
-                  onClick={() =>
-                    navigate(
-                      `/admin/my-classroom/${tab.key}`
-                    )
-                  }
-                >
-                  {tab.label}
-                </button>
-              )
-            )}
-          </div>
+            </section>
+          )}
 
           {/* ===========================================================
               STUDENTS
@@ -1574,19 +1526,23 @@ export default function TeacherClassroom({ section = "students" }) {
                 )}
               </section>
 
+            </>
+          )}
+
+          {activeSection === "transfers" && (
+            <>
               {/* -------------------------------------------------------
-                  TRANSFER HISTORY
+                  TRANSFER REQUESTS
               ------------------------------------------------------- */}
 
-              {data.transfer_requests
-                .length > 0 && (
                 <section className="classroom-card transfer-history">
 
                   <h2>
-                    আমার Transfer Requests
+                    My Transfer Requests
                   </h2>
 
-                  <div className="table-wrap">
+                  {data.transfer_requests.length ? (
+                    <div className="table-wrap">
                     <table className="classroom-table">
 
                       <thead>
@@ -1700,9 +1656,13 @@ export default function TeacherClassroom({ section = "students" }) {
                       </tbody>
 
                     </table>
-                  </div>
+                    </div>
+                  ) : (
+                    <p className="empty-state">
+                      No transfer requests yet.
+                    </p>
+                  )}
                 </section>
-              )}
             </>
           )}
 
