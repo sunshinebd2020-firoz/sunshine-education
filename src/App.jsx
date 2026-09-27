@@ -95,6 +95,12 @@ const DownloadEntry = lazy(() =>
 const AdminUsers = lazy(() =>
   import("./admin/pages/AdminUsers")
 );
+const Settings = lazy(() =>
+  import("./admin/pages/Settings")
+);
+const DirectorSettings = lazy(() =>
+  import("./admin/pages/DirectorSettings")
+);
 
 // ================= GALLERY =================
 const GalleryEntry = lazy(() =>
@@ -146,6 +152,12 @@ const IncomeVoucher = lazy(() =>
 );
 const TeacherClassroom = lazy(() =>
   import("./admin/pages/TeacherClassroom")
+);
+const BatchMonitoring = lazy(() =>
+  import("./admin/pages/BatchMonitoring")
+);
+const ContactMessages = lazy(() =>
+  import("./admin/pages/ContactMessages")
 );
 
 // ================= NOTICE =================
@@ -380,15 +392,6 @@ export default function App() {
                 />
 
                 <Route
-                  path="my-classroom/transfers"
-                  element={
-                    <TeacherClassroom
-                      section="transfers"
-                    />
-                  }
-                />
-
-                <Route
                   path="my-classroom/batches"
                   element={
                     <TeacherClassroom
@@ -413,6 +416,18 @@ export default function App() {
                       section="records"
                     />
                   }
+                />
+
+                {/* ================= BATCH MONITORING (ADMIN) ================= */}
+
+                <Route
+                  path="batch-monitoring"
+                  element={<BatchMonitoring />}
+                />
+
+                <Route
+                  path="contact-messages"
+                  element={<ContactMessages />}
                 />
 
                 {/* =================================================
@@ -498,6 +513,16 @@ export default function App() {
                 <Route
                   path="admin-users"
                   element={<AdminUsers />}
+                />
+
+                <Route
+                  path="settings"
+                  element={<Settings />}
+                />
+
+                <Route
+                  path="settings/director-message"
+                  element={<DirectorSettings />}
                 />
 
                 {/* =================================================

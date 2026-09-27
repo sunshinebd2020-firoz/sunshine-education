@@ -16,6 +16,69 @@ export default function BannerList() {
 
   const [message, setMessage] = useState("");
 
+  const [bannerEnabled, setBannerEnabled] = useState(true);
+  const [togglingBanner, setTogglingBanner] = useState(false);
+
+  /* ===============================
+     LOAD BANNER TOGGLE
+  =============================== */
+
+  const fetchBannerToggle = async () => {
+    try {
+      const response = await fetch(
+        `${API}/get_site_settings.php`
+      );
+
+      const data = await response.json();
+
+      if (data.success && data.settings) {
+        setBannerEnabled(
+          String(data.settings.banner_enabled ?? "1") !== "0"
+        );
+      }
+    } catch (error) {
+      console.error("Banner toggle load error:", error);
+    }
+  };
+
+  /* ===============================
+     SAVE BANNER TOGGLE
+  =============================== */
+
+  const handleToggleBanner = async (e) => {
+    const nextValue = e.target.checked;
+
+    setBannerEnabled(nextValue);
+    setTogglingBanner(true);
+
+    try {
+      const response = await fetch(
+        `${API}/update_site_settings.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            banner_enabled: nextValue ? "1" : "0",
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.success) {
+        setBannerEnabled(!nextValue);
+        setMessage(data.message || "Banner visibility পরিবর্তন করা যায়নি");
+      }
+    } catch (error) {
+      console.error("Banner toggle save error:", error);
+      setBannerEnabled(!nextValue);
+      setMessage("Server-এর সাথে যোগাযোগ করা যাচ্ছে না");
+    } finally {
+      setTogglingBanner(false);
+    }
+  };
+
   /* ===============================
      LOAD BANNERS
   =============================== */
@@ -47,6 +110,7 @@ export default function BannerList() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchBanners();
+    fetchBannerToggle();
   }, []);
 
 
@@ -284,9 +348,23 @@ export default function BannerList() {
           </p>
         </div>
 
-        <NavLink to="/admin/banner-entry" className="admin-list-add-button">
-          + Add Banner
-        </NavLink>
+        <div className="banner-list-header-actions">
+
+          <label className="banner-toggle-label">
+            <input
+              type="checkbox"
+              checked={bannerEnabled}
+              onChange={handleToggleBanner}
+              disabled={togglingBanner}
+            />
+            Show Home Banner ({bannerEnabled ? "ON" : "OFF"})
+          </label>
+
+          <NavLink to="/admin/banner-entry" className="admin-list-add-button">
+            + Add Banner
+          </NavLink>
+
+        </div>
 
       </div>
 

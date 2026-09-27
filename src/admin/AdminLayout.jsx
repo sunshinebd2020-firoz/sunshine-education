@@ -283,6 +283,12 @@ const canViewMenu = (menu) => {
     }
 
     if (
+      pathname === "/admin/batch-monitoring"
+    ) {
+      return "batch-monitoring";
+    }
+
+    if (
       pathname === "/admin/notices" ||
       pathname === "/admin/notice-entry" ||
       pathname.startsWith(
@@ -314,6 +320,12 @@ const canViewMenu = (menu) => {
     }
 
     if (
+      pathname === "/admin/contact-messages"
+    ) {
+      return "contact-messages";
+    }
+
+    if (
       pathname === "/admin/branch-list" ||
       pathname === "/admin/branch-entry" ||
       pathname.startsWith(
@@ -325,6 +337,7 @@ const canViewMenu = (menu) => {
 
     if (
       pathname === "/admin/settings" ||
+      pathname === "/admin/settings/director-message" ||
       pathname === "/admin/admin-users"
     ) {
       return "settings";
@@ -373,7 +386,8 @@ const canViewMenu = (menu) => {
 if (isTeacher) {
   if (
     location.pathname === "/admin" ||
-    location.pathname === "/admin/dashboard"
+    location.pathname === "/admin/dashboard" ||
+    location.pathname === "/admin/batch-monitoring"
   ) {
     navigate(
       "/admin/my-classroom/students",
@@ -860,6 +874,21 @@ if (isTeacher) {
             </NavLink>
           )}
 
+          {isAdmin && (
+            <NavLink
+              to="/admin/batch-monitoring"
+              className={({ isActive }) =>
+                `sidebar-link ${
+                  isActive ? "active" : ""
+                }`
+              }
+            >
+              <span>
+                🗂️ Batch Monitoring
+              </span>
+            </NavLink>
+          )}
+
           {hasTeacherClassroom && (
             <div className="sidebar-group">
               <NavLink
@@ -876,26 +905,8 @@ if (isTeacher) {
               </NavLink>
 
               <div className="sidebar-submenu">
-                <div className="sidebar-submenu-group">
-                  <span className="sidebar-submenu-label">Students</span>
-                  <NavLink
-                    to="/admin/my-classroom/students"
-                    className={({ isActive }) =>
-                      `sidebar-sublink ${isActive ? "active" : ""}`
-                    }
-                  >
-                    Assigned Students
-                  </NavLink>
-                  <NavLink
-                    to="/admin/my-classroom/transfers"
-                    className={({ isActive }) =>
-                      `sidebar-sublink ${isActive ? "active" : ""}`
-                    }
-                  >
-                    My Transfer Requests
-                  </NavLink>
-                </div>
                 {[
+                  ["students", "Students"],
                   ["batches", "Batches"],
                   ["attendance", "Attendance"],
                   ["records", "Class Records"],
@@ -1287,6 +1298,27 @@ if (isTeacher) {
           )}
 
           {/* =================================================
+              CONTACT MESSAGES
+          ================================================= */}
+
+          {isAdmin && (
+            <NavLink
+              to="/admin/contact-messages"
+              className={({ isActive }) =>
+                `sidebar-link ${
+                  isActive
+                    ? "active"
+                    : ""
+                }`
+              }
+            >
+              <span>
+                📩 Contact Messages
+              </span>
+            </NavLink>
+          )}
+
+          {/* =================================================
               SETTINGS
           ================================================= */}
 
@@ -1335,6 +1367,22 @@ if (isTeacher) {
                       }
                     >
                       ⚙️ General Settings
+                    </NavLink>
+                  )}
+
+                  {hasPermission(
+                    "setting",
+                    "can_view"
+                  ) && (
+                    <NavLink
+                      to="/admin/settings/director-message"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "active"
+                          : ""
+                      }
+                    >
+                      🖼️ Director Photo & Message
                     </NavLink>
                   )}
 

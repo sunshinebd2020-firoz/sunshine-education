@@ -1526,11 +1526,6 @@ export default function TeacherClassroom({ section = "home" }) {
                 )}
               </section>
 
-            </>
-          )}
-
-          {activeSection === "transfers" && (
-            <>
               {/* -------------------------------------------------------
                   TRANSFER REQUESTS
               ------------------------------------------------------- */}

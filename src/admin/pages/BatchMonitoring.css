@@ -1,0 +1,38 @@
+.batch-monitoring-page { min-height: 100vh; padding: 28px; background: #f5f7fb; color: #172033; }
+.batch-monitoring-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.batch-monitoring-header h1 { margin: 0; }
+.batch-monitoring-header p { margin: 6px 0 0; color: #687386; }
+.batch-monitoring-message { padding: 12px; margin-bottom: 16px; border-radius: 8px; background: #fee2e2; color: #991b1b; }
+.batch-monitoring-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+.batch-monitoring-summary > div { padding: 16px 18px; background: #172f5f; border-radius: 12px; color: #fff; }
+.batch-monitoring-summary span { display: block; font-size: 13px; opacity: .78; }
+.batch-monitoring-summary strong { display: block; margin-top: 5px; font-size: 26px; }
+.batch-monitoring-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+.batch-monitoring-filters select,
+.batch-monitoring-filters input { padding: 10px 12px; border: 1px solid #cfd7e3; border-radius: 7px; font: inherit; background: #fff; min-width: 160px; }
+.batch-monitoring-card { padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(15, 23, 42, .06); }
+.batch-monitoring-page button { border: 0; border-radius: 7px; padding: 10px 15px; background: #1f6feb; color: #fff; font-weight: 600; cursor: pointer; }
+.batch-monitoring-page button:disabled { cursor: not-allowed; opacity: .58; }
+.batch-monitoring-page .secondary-button { background: #e8eef8; color: #1f417b; }
+.batch-monitoring-page .small-button { padding: 7px 10px; font-size: 13px; }
+.table-wrap { overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+.batch-monitoring-table { width: 100%; border-collapse: collapse; min-width: 760px; font-size: 14px; }
+.batch-monitoring-table th, .batch-monitoring-table td { padding: 11px 12px; border-bottom: 1px solid #e7edf5; text-align: left; vertical-align: top; }
+.batch-monitoring-table th { background: #f7f9fc; color: #526174; font-size: 12px; white-space: nowrap; }
+.batch-status { padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.batch-status.active { background: #dcfce7; color: #166534; }
+.batch-status.inactive { background: #fee2e2; color: #991b1b; }
+.batch-detail-row td { background: #f7faff; }
+.batch-detail-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.batch-detail-columns h3 { margin: 0 0 8px; font-size: 14px; color: #35507a; }
+.batch-detail-list { display: grid; gap: 7px; padding: 0; margin: 0 0 16px; list-style: none; }
+.batch-detail-list li { display: flex; flex-direction: column; gap: 2px; border: 1px solid #e2e8f0; border-radius: 7px; padding: 9px 11px; background: #fff; }
+.batch-detail-list small { color: #687386; font-size: 12px; }
+.attendance-summary { margin: 0 0 14px; color: #35507a; font-weight: 600; }
+.empty-state { margin: 0; color: #687386; }
+@media (max-width: 720px) {
+  .batch-monitoring-page { padding: 16px; }
+  .batch-monitoring-header { align-items: flex-start; flex-direction: column; }
+  .batch-monitoring-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .batch-detail-columns { grid-template-columns: 1fr; }
+}

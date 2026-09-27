@@ -133,6 +133,12 @@ export default function Home() {
   const [noticeError, setNoticeError] =
     useState("");
 
+  const [director, setDirector] =
+    useState(null);
+
+  const [bannerEnabled, setBannerEnabled] =
+    useState(true);
+
   const [slideDirection, setSlideDirection] =
     useState("next");
   const [isAnimating, setIsAnimating] =
@@ -159,6 +165,35 @@ export default function Home() {
       desc: "Basic ও Skill Test প্রস্তুতি কোর্স।",
     },
   ];
+
+  /* ======================================================
+     FETCH BANNER TOGGLE
+  ====================================================== */
+
+  useEffect(() => {
+    const fetchSiteSettings = async () => {
+      try {
+        const response = await fetch(
+          `${API}/get_site_settings.php`
+        );
+
+        const data = await response.json();
+
+        if (data.success && data.settings) {
+          setBannerEnabled(
+            String(data.settings.banner_enabled ?? "1") !== "0"
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Site settings load error:",
+          error
+        );
+      }
+    };
+
+    fetchSiteSettings();
+  }, []);
 
   /* ======================================================
      FETCH BANNERS
@@ -216,6 +251,33 @@ export default function Home() {
     };
 
     fetchBanners();
+  }, []);
+
+  /* ======================================================
+     FETCH DIRECTOR INFO
+  ====================================================== */
+
+  useEffect(() => {
+    const fetchDirectorInfo = async () => {
+      try {
+        const response = await fetch(
+          `${API}/get_director_info.php`
+        );
+
+        const data = await response.json();
+
+        if (data.success && data.director) {
+          setDirector(data.director);
+        }
+      } catch (error) {
+        console.error(
+          "Director info load error:",
+          error
+        );
+      }
+    };
+
+    fetchDirectorInfo();
   }, []);
 
   /* ======================================================
@@ -840,7 +902,8 @@ export default function Home() {
 
       <section className="home-banner">
 
-        {!loadingBanners &&
+        {bannerEnabled &&
+          !loadingBanners &&
           banners.length > 0 && (
             <div className="banner-slider">
 
@@ -1417,6 +1480,69 @@ export default function Home() {
         </div>
 
       </section>
+
+      {/* =================================================
+          DIRECTOR'S MESSAGE
+      ================================================= */}
+
+      {director &&
+        (director.director_message ||
+          director.director_photo) && (
+          <section className="director-message-section">
+
+            <h2 className="section-title">
+              পরিচালকের বার্তা
+            </h2>
+
+            <div className="director-message-card">
+
+              {director.director_photo && (
+                <div className="director-photo">
+                  <img
+                    src={`${IMAGE_URL}${director.director_photo}`}
+                    alt={
+                      director.director_name ||
+                      "Director"
+                    }
+                  />
+                </div>
+              )}
+
+              <div className="director-content">
+
+                {director.director_message && (
+                  <p className="director-text">
+                    {director.director_message}
+                  </p>
+                )}
+
+                {(director.director_name ||
+                  director.director_designation) && (
+                  <div className="director-signature">
+
+                    {director.director_name && (
+                      <strong>
+                        {director.director_name}
+                      </strong>
+                    )}
+
+                    {director.director_designation && (
+                      <span>
+                        {
+                          director.director_designation
+                        }
+                      </span>
+                    )}
+
+                  </div>
+                )}
+
+              </div>
+
+            </div>
+
+          </section>
+        )}
 
       {/* =================================================
           ABOUT
