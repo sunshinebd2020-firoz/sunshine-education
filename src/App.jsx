@@ -7,7 +7,33 @@ import Footer from "./components/Footer/Footer";
 
 // ================= GLOBAL STYLE =================
 const globalStyle = `
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@100..900&display=swap');
+  /* =====================================================
+     LOCAL FONTS
+  ===================================================== */
+
+  @font-face {
+    font-family: "Inter";
+    src: url("/fonts/InterVariable.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Inter";
+    src: url("/fonts/InterVariable-Italic.ttf") format("truetype");
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Noto Serif Bengali";
+    src: url("/fonts/NotoSerifBengali-VariableFont_wdth,wght.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+  }
 
   html,
   body,
@@ -28,19 +54,35 @@ const globalStyle = `
     box-sizing: border-box;
   }
 
-  /* ================= GLOBAL FONT ================= */
+  /* =====================================================
+     GLOBAL FONT
+     English → Inter
+     Bengali → Noto Serif Bengali fallback
+  ===================================================== */
 
   body {
     font-family:
+      "Inter",
       "Noto Serif Bengali",
       Arial,
       Helvetica,
       sans-serif;
     font-size: 17px;
     line-height: 1.65;
+    font-weight: 400;
   }
 
-  /* ================= APP ================= */
+  /* Bengali text */
+  :lang(bn) {
+    font-family:
+      "Noto Serif Bengali",
+      "Inter",
+      sans-serif;
+  }
+
+  /* =====================================================
+     APP
+  ===================================================== */
 
   .app {
     width: 100%;
@@ -255,7 +297,8 @@ export default function App() {
   const location = useLocation();
 
   // ================= LAYOUT CONTROL =================
-  const isAdminRoute = location.pathname.startsWith("/admin");
+  const isAdminRoute =
+    location.pathname.startsWith("/admin");
 
   const isStudentPortalRoute =
     location.pathname.startsWith("/student-portal") ||
@@ -394,7 +437,9 @@ export default function App() {
                 <Route
                   path="my-classroom"
                   element={
-                    <TeacherClassroom section="home" />
+                    <TeacherClassroom
+                      section="home"
+                    />
                   }
                 />
 

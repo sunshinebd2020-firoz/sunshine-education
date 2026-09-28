@@ -286,3 +286,27 @@
     min-width: 640px;
   }
 }
+.language-name-with-flag{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.language-flag{
+  width:28px;
+  height:20px;
+  object-fit:cover;
+  border-radius:3px;
+  border:1px solid #e5e7eb;
+  flex-shrink:0;
+}
+
+.language-flag-placeholder{
+  width:28px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  flex-shrink:0;
+}

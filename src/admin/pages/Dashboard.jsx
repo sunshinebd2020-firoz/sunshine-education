@@ -35,6 +35,8 @@ const readCount = (data, fallback = 0) => {
     data?.count ??
     data?.count_total ??
     data?.total_count ??
+    data?.branch?.length ??
+    data?.batches?.length ??
     data?.data?.length ??
     data?.items?.length ??
     data?.result?.length ??
@@ -46,14 +48,17 @@ const readCount = (data, fallback = 0) => {
 export default function Dashboard() {
   const [studentCount, setStudentCount] = useState(0);
   const [courseCount, setCourseCount] = useState(0);
+  const [batchCount, setBatchCount] = useState(0);
   const [teacherCount, setTeacherCount] = useState(0);
   const [noticeCount, setNoticeCount] = useState(0);
 
   const [downloadCount, setDownloadCount] = useState(0);
   const [branchCount, setBranchCount] = useState(0);
+  const [languageCount, setLanguageCount] = useState(0);
   const [galleryCount, setGalleryCount] = useState(0);
   const [bannerCount, setBannerCount] = useState(0);
   const [financialSummary, setFinancialSummary] = useState({});
+  const [contactMessageCount, setContactMessageCount] = useState(0);
   const [pendingMessages, setPendingMessages] = useState(0);
   const [recentMessages, setRecentMessages] = useState([]);
 
@@ -134,6 +139,20 @@ export default function Dashboard() {
         console.error("Course count error:", error);
       });
 
+    fetch(`${API_BASE_URL}/admin_batch_monitoring.php`, {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+    })
+      .then(async (response) => {
+        const data = await parseJsonResponse(response, "Batch count could not be loaded.");
+        if (response.ok && data.success) {
+          setBatchCount(readCount(data));
+        }
+      })
+      .catch((error) => {
+        console.error("Batch count error:", error);
+      });
+
     /* =====================================================
        NOTICE COUNT
     ===================================================== */
@@ -156,7 +175,7 @@ export default function Dashboard() {
        DOWNLOAD COUNT
     ===================================================== */
 
-    fetch(`${API_BASE_URL}/downloads.php`, {
+    fetch(`${API_BASE_URL}/download_list.php`, {
       credentials: "include",
       headers: { Accept: "application/json" },
     })
@@ -192,7 +211,7 @@ export default function Dashboard() {
        GALLERY COUNT
     ===================================================== */
 
-    fetch(`${API_BASE_URL}/gallery.php`, {
+    fetch(`${API_BASE_URL}/gallery_list.php`, {
       credentials: "include",
       headers: { Accept: "application/json" },
     })
@@ -210,7 +229,7 @@ export default function Dashboard() {
        BANNER COUNT
     ===================================================== */
 
-    fetch(`${API_BASE_URL}/banners.php`, {
+    fetch(`${API_BASE_URL}/banner_list.php`, {
       credentials: "include",
       headers: { Accept: "application/json" },
     })
@@ -222,6 +241,20 @@ export default function Dashboard() {
       })
       .catch((error) => {
         console.error("Banner count error:", error);
+      });
+
+    fetch(`${API_BASE_URL}/language_list.php`, {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+    })
+      .then(async (response) => {
+        const data = await parseJsonResponse(response, "Language count could not be loaded.");
+        if (response.ok && data.success) {
+          setLanguageCount(readCount(data));
+        }
+      })
+      .catch((error) => {
+        console.error("Language count error:", error);
       });
 
     const currentYear = new Date().getFullYear();
@@ -251,6 +284,7 @@ export default function Dashboard() {
         if (response.ok && data.success) {
           const messages = Array.isArray(data.data) ? data.data : [];
           const unanswered = messages.filter((item) => !item.reply_message);
+          setContactMessageCount(messages.length);
           setPendingMessages(unanswered.length);
           setRecentMessages(
             [...unanswered]
@@ -279,6 +313,20 @@ export default function Dashboard() {
       maximumFractionDigits: 2,
     })}`;
 
+  const today = new Date();
+  const todayIso = today.toISOString().slice(0, 10);
+  const bengaliDate = new Intl.DateTimeFormat("bn-BD", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(today);
+  const hijriDate = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(today);
+
   return (
     <div className="dashboard-content">
 
@@ -294,14 +342,18 @@ export default function Dashboard() {
             Welcome, <strong>{userName}</strong>
           </p>
         </div>
-        <time className="dashboard-today" dateTime={new Date().toISOString().slice(0, 10)}>
-          {new Date().toLocaleDateString("en-US", {
+        <div className="dashboard-date-stack">
+          <time className="dashboard-today" dateTime={todayIso}>
+            {today.toLocaleDateString("en-US", {
             weekday: "long",
             year: "numeric",
             month: "long",
             day: "numeric",
-          })}
-        </time>
+            })}
+          </time>
+          <span className="dashboard-bengali-date">{bengaliDate}</span>
+          <span className="dashboard-hijri-date">Hijri: {hijriDate}</span>
+        </div>
       </header>
 
       {/* =================================================
@@ -310,12 +362,20 @@ export default function Dashboard() {
 
       <section className="dashboard-cards">
 
-        {/* STUDENTS */}
+        {/* BRANCHES */}
 
-        <Link to="/admin/student-list" className="dashboard-card dashboard-card-students">
-          <h3>👨‍🎓 Students</h3>
-          <p>{studentCount}</p>
-          <span>View student list →</span>
+        <Link to="/admin/branch-list" className="dashboard-card dashboard-card-branches">
+          <h3>🏢 Branches</h3>
+          <p>{branchCount}</p>
+          <span>Manage branches →</span>
+        </Link>
+
+        {/* LANGUAGES */}
+
+        <Link to="/admin/languages" className="dashboard-card dashboard-card-languages">
+          <h3>🌐 Languages</h3>
+          <p>{languageCount}</p>
+          <span>Manage languages →</span>
         </Link>
 
         {/* COURSES */}
@@ -326,12 +386,28 @@ export default function Dashboard() {
           <span>Manage courses →</span>
         </Link>
 
+        {/* BATCHES */}
+
+        <Link to="/admin/batch-monitoring" className="dashboard-card dashboard-card-batches">
+          <h3>🗂️ Batches</h3>
+          <p>{batchCount}</p>
+          <span>Monitor batches →</span>
+        </Link>
+
         {/* TEACHERS */}
 
         <Link to="/admin/teacher-list" className="dashboard-card dashboard-card-teachers">
           <h3>👨‍🏫 Teachers</h3>
           <p>{teacherCount}</p>
           <span>View teacher list →</span>
+        </Link>
+
+        {/* STUDENTS */}
+
+        <Link to="/admin/student-list" className="dashboard-card dashboard-card-students">
+          <h3>👨‍🎓 Students</h3>
+          <p>{studentCount}</p>
+          <span>View student list →</span>
         </Link>
 
         {/* NOTICES */}
@@ -342,20 +418,20 @@ export default function Dashboard() {
           <span>Manage notices →</span>
         </Link>
 
+        {/* CONTACT MESSAGES */}
+
+        <Link to="/admin/contact-messages" className="dashboard-card dashboard-card-messages">
+          <h3>✉️ Contact Messages</h3>
+          <p>{contactMessageCount}</p>
+          <span>Open contact inbox →</span>
+        </Link>
+
         {/* DOWNLOADS */}
 
         <Link to="/admin/downloads" className="dashboard-card dashboard-card-downloads">
           <h3>📥 Downloads</h3>
           <p>{downloadCount}</p>
           <span>Manage downloads →</span>
-        </Link>
-
-        {/* BRANCHES */}
-
-        <Link to="/admin/branch-list" className="dashboard-card dashboard-card-branches">
-          <h3>🏢 Branches</h3>
-          <p>{branchCount}</p>
-          <span>Manage branches →</span>
         </Link>
 
         {/* GALLERY */}

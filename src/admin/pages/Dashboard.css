@@ -1,7 +1,7 @@
 .dashboard-content {
   width: 100%;
   min-height: 100%;
-  padding: 30px;
+  padding: 0px;
   box-sizing: border-box;
   background: #f5f7fb;
 }
@@ -16,8 +16,8 @@
   justify-content: space-between;
   align-items: center;
 
-  margin-bottom: 30px;
-  padding: 25px 30px;
+  margin-bottom: 15px;
+  padding: 15px 30px;
 
   background: #ffffff;
   border-radius: 12px;
@@ -52,6 +52,20 @@
 
 .dashboard-today {
   color: #64748b;
+  font-size: 16px;
+}
+
+.dashboard-date-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+}
+
+.dashboard-bengali-date,
+.dashboard-hijri-date {
+  color: #64748b;
   font-size: 14px;
 }
 
@@ -65,7 +79,7 @@
 
   grid-template-columns: repeat(4, 1fr);
 
-  gap: 20px;
+  gap: 10px;
 
   width: 100%;
 }
@@ -82,9 +96,9 @@
 
   border-radius: 12px;
 
-  padding: 25px;
+  padding: 20px;
 
-  min-height: 140px;
+  min-height: 100px;
 
   box-sizing: border-box;
 
@@ -146,7 +160,7 @@
 .dashboard-card h3 {
   margin: 0;
 
-  font-size: 17px;
+  font-size: 16px;
 
   font-weight: 600;
 
@@ -161,7 +175,7 @@
 .dashboard-card p {
   margin: 15px 0 0 0;
 
-  font-size: 32px;
+  font-size: 24px;
 
   font-weight: 700;
 
@@ -269,6 +283,7 @@
 
 .dashboard-finance-item small a {
   font-size: 12px;
+}
 
 .dashboard-message-list {
   margin: 0;
@@ -302,6 +317,7 @@
   color: #64748b;
   font-size: 13px;
   overflow-wrap: anywhere;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -390,6 +406,11 @@
     padding: 20px;
 
     margin-bottom: 20px;
+  }
+
+  .dashboard-date-stack {
+    align-items: flex-start;
+    text-align: left;
   }
 
 

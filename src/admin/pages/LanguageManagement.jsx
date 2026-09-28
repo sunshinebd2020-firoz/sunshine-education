@@ -2,66 +2,197 @@ import { useEffect, useState } from "react";
 import API_BASE_URL from "../../config/api";
 import "./LanguageManagement.css";
 
+/* =====================================================
+   WEB FLAG CDN
+===================================================== */
+
+const FLAG_CDN =
+  "https://flags.restcountries.com/v5/w160";
+
+/* =====================================================
+   NORMALIZE TEXT
+===================================================== */
+
+const normalizeText = (value) => {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+};
+
+/* =====================================================
+   LANGUAGE → COUNTRY CODE
+   Used for flags
+===================================================== */
+
+const LANGUAGE_COUNTRY_CODES = {
+  japanese: "jp",
+  german: "de",
+  korean: "kr",
+  english: "gb",
+  french: "fr",
+  chinese: "cn",
+  arabic: "sa",
+  spanish: "es",
+  italian: "it",
+  portuguese: "pt",
+  russian: "ru",
+  turkish: "tr",
+  hindi: "in",
+  bengali: "bd",
+  bangla: "bd",
+  urdu: "pk",
+  persian: "ir",
+  dutch: "nl",
+  thai: "th",
+  vietnamese: "vn",
+  indonesian: "id",
+  malay: "my",
+  greek: "gr",
+  polish: "pl",
+  swedish: "se",
+  danish: "dk",
+  norwegian: "no",
+  finnish: "fi",
+  hebrew: "il",
+  ukrainian: "ua",
+  romanian: "ro",
+  czech: "cz",
+  hungarian: "hu",
+  filipino: "ph",
+  nepali: "np",
+};
+
+/* =====================================================
+   LANGUAGE FLAG
+===================================================== */
+
+const getLanguageFlag = (language) => {
+  const value = normalizeText(language);
+
+  const code =
+    LANGUAGE_COUNTRY_CODES[value];
+
+  if (!code) {
+    return "";
+  }
+
+  return `${FLAG_CDN}/${code}.png`;
+};
+
+/* =====================================================
+   API RESPONSE
+===================================================== */
+
 const requestJson = async (response) => {
   const data = await response.json();
 
   if (!response.ok || !data.success) {
-    throw new Error(data.message || "Language request failed.");
+    throw new Error(
+      data.message || "Language request failed."
+    );
   }
 
   return data;
 };
 
+/* =====================================================
+   FETCH LANGUAGE LIST
+===================================================== */
+
 const fetchLanguageList = async () => {
-  const response = await fetch(`${API_BASE_URL}/language_list.php`, {
-    credentials: "include",
-    headers: { Accept: "application/json" },
-  });
+  const response = await fetch(
+    `${API_BASE_URL}/language_list.php`,
+    {
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+
   const data = await requestJson(response);
-  return Array.isArray(data.data) ? data.data : [];
+
+  return Array.isArray(data.data)
+    ? data.data
+    : [];
 };
+
+/* =====================================================
+   COMPONENT
+===================================================== */
 
 export default function LanguageManagement() {
   const [languages, setLanguages] = useState([]);
   const [search, setSearch] = useState("");
   const [name, setName] = useState("");
-  const [editingLanguage, setEditingLanguage] = useState(null);
+  const [editingLanguage, setEditingLanguage] =
+    useState(null);
   const [formOpen, setFormOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
+  const [deletingId, setDeletingId] =
+    useState(null);
   const [notice, setNotice] = useState(null);
+
+  /* =====================================================
+     LOAD LANGUAGES
+  ===================================================== */
 
   const loadLanguages = async () => {
     try {
       const rows = await fetchLanguageList();
+
       setLanguages(rows);
     } catch (error) {
-      setNotice({ type: "error", text: error.message || "Languages could not be loaded." });
+      setNotice({
+        type: "error",
+        text:
+          error.message ||
+          "Languages could not be loaded.",
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  /* =====================================================
+     INITIAL LOAD
+  ===================================================== */
+
   useEffect(() => {
     let active = true;
+
     fetchLanguageList()
       .then((rows) => {
-        if (active) setLanguages(rows);
+        if (active) {
+          setLanguages(rows);
+        }
       })
       .catch((error) => {
         if (active) {
-          setNotice({ type: "error", text: error.message || "Languages could not be loaded." });
+          setNotice({
+            type: "error",
+            text:
+              error.message ||
+              "Languages could not be loaded.",
+          });
         }
       })
       .finally(() => {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       });
 
     return () => {
       active = false;
     };
   }, []);
+
+  /* =====================================================
+     ADD FORM
+  ===================================================== */
 
   const openAddForm = () => {
     setEditingLanguage(null);
@@ -70,6 +201,10 @@ export default function LanguageManagement() {
     setFormOpen(true);
   };
 
+  /* =====================================================
+     EDIT FORM
+  ===================================================== */
+
   const openEditForm = (language) => {
     setEditingLanguage(language);
     setName(language.name || "");
@@ -77,158 +212,346 @@ export default function LanguageManagement() {
     setFormOpen(true);
   };
 
+  /* =====================================================
+     CLOSE FORM
+  ===================================================== */
+
   const closeForm = () => {
-    if (saving) return;
+    if (saving) {
+      return;
+    }
+
     setFormOpen(false);
     setEditingLanguage(null);
     setName("");
   };
 
+  /* =====================================================
+     ADD / UPDATE LANGUAGE
+  ===================================================== */
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     const trimmedName = name.trim();
 
     if (!trimmedName) {
-      setNotice({ type: "error", text: "Enter a language name." });
+      setNotice({
+        type: "error",
+        text: "Enter a language name.",
+      });
+
       return;
     }
 
     try {
       setSaving(true);
       setNotice(null);
-      const isEditing = Boolean(editingLanguage);
+
+      const isEditing =
+        Boolean(editingLanguage);
+
       const response = await fetch(
-        `${API_BASE_URL}/${isEditing ? "language_update.php" : "language_add.php"}`,
+        `${API_BASE_URL}/${
+          isEditing
+            ? "language_update.php"
+            : "language_add.php"
+        }`,
         {
           method: "POST",
           credentials: "include",
           headers: {
             Accept: "application/json",
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
           body: JSON.stringify({
-            ...(isEditing ? { id: editingLanguage.id } : {}),
+            ...(isEditing
+              ? {
+                  id: editingLanguage.id,
+                }
+              : {}),
             name: trimmedName,
           }),
         }
       );
-      const data = await requestJson(response);
+
+      const data =
+        await requestJson(response);
+
       setFormOpen(false);
       setEditingLanguage(null);
       setName("");
+
       await loadLanguages();
-      setNotice({ type: "success", text: data.message || "Language saved successfully." });
+
+      setNotice({
+        type: "success",
+        text:
+          data.message ||
+          "Language saved successfully.",
+      });
     } catch (error) {
-      setNotice({ type: "error", text: error.message || "Language could not be saved." });
+      setNotice({
+        type: "error",
+        text:
+          error.message ||
+          "Language could not be saved.",
+      });
     } finally {
       setSaving(false);
     }
   };
 
+  /* =====================================================
+     DELETE LANGUAGE
+  ===================================================== */
+
   const handleDelete = async (language) => {
-    if (!window.confirm(`Delete ${language.name}? Languages used by courses or students cannot be deleted.`)) {
+    if (
+      !window.confirm(
+        `Delete ${language.name}? Languages used by courses or students cannot be deleted.`
+      )
+    ) {
       return;
     }
 
     try {
       setDeletingId(language.id);
       setNotice(null);
-      const response = await fetch(`${API_BASE_URL}/language_delete.php`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: language.id }),
-      });
-      const data = await requestJson(response);
+
+      const response = await fetch(
+        `${API_BASE_URL}/language_delete.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            id: language.id,
+          }),
+        }
+      );
+
+      const data =
+        await requestJson(response);
+
       await loadLanguages();
-      setNotice({ type: "success", text: data.message || "Language deleted successfully." });
+
+      setNotice({
+        type: "success",
+        text:
+          data.message ||
+          "Language deleted successfully.",
+      });
     } catch (error) {
-      setNotice({ type: "error", text: error.message || "Language could not be deleted." });
+      setNotice({
+        type: "error",
+        text:
+          error.message ||
+          "Language could not be deleted.",
+      });
     } finally {
       setDeletingId(null);
     }
   };
 
-  const filteredLanguages = languages.filter((language) =>
-    String(language.name || "").toLowerCase().includes(search.trim().toLowerCase())
-  );
+  /* =====================================================
+     SEARCH
+  ===================================================== */
+
+  const filteredLanguages =
+    languages.filter((language) =>
+      normalizeText(language.name).includes(
+        normalizeText(search)
+      )
+    );
+
+  /* =====================================================
+     RENDER
+  ===================================================== */
 
   return (
     <main className="language-admin-page">
+
+      {/* =================================================
+          HEADER
+      ================================================= */}
+
       <header className="language-page-header">
+
         <div>
           <h1>Languages</h1>
-          <p>Manage the languages used by courses and student records.</p>
+
+          <p>
+            Manage the languages used by
+            courses and student records.
+          </p>
         </div>
-        <button type="button" className="language-add-button" onClick={openAddForm}>
+
+        <button
+          type="button"
+          className="language-add-button"
+          onClick={openAddForm}
+        >
           + Add Language
         </button>
+
       </header>
 
+      {/* =================================================
+          NOTICE
+      ================================================= */}
+
       {notice && (
-        <div className={`language-notice ${notice.type}`} role="status">
+        <div
+          className={`language-notice ${notice.type}`}
+          role="status"
+        >
           {notice.text}
         </div>
       )}
 
+      {/* =================================================
+          ADD / EDIT FORM
+      ================================================= */}
+
       {formOpen && (
-        <form className="language-form" onSubmit={handleSubmit}>
+        <form
+          className="language-form"
+          onSubmit={handleSubmit}
+        >
+
           <div className="language-form-heading">
+
             <div>
-              <h2>{editingLanguage ? "Edit language" : "Add language"}</h2>
-              <p>{editingLanguage ? "Renaming also updates linked course and student records." : "Add a language to the existing language list."}</p>
+
+              <h2>
+                {editingLanguage
+                  ? "Edit language"
+                  : "Add language"}
+              </h2>
+
+              <p>
+                {editingLanguage
+                  ? "Renaming also updates linked course and student records."
+                  : "Add a language to the existing language list."}
+              </p>
+
             </div>
+
           </div>
-          <label htmlFor="language-name">Language name</label>
+
+          <label htmlFor="language-name">
+            Language name
+          </label>
+
           <input
             id="language-name"
             name="name"
             autoFocus
             maxLength={100}
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) =>
+              setName(event.target.value)
+            }
             placeholder="Enter language name"
             required
           />
+
           <div className="language-form-actions">
-            <button type="button" className="language-cancel-button" onClick={closeForm} disabled={saving}>
+
+            <button
+              type="button"
+              className="language-cancel-button"
+              onClick={closeForm}
+              disabled={saving}
+            >
               Cancel
             </button>
-            <button type="submit" className="language-save-button" disabled={saving || !name.trim()}>
-              {saving ? "Saving..." : editingLanguage ? "Save changes" : "Add language"}
+
+            <button
+              type="submit"
+              className="language-save-button"
+              disabled={
+                saving || !name.trim()
+              }
+            >
+              {saving
+                ? "Saving..."
+                : editingLanguage
+                ? "Save changes"
+                : "Add language"}
             </button>
+
           </div>
+
         </form>
       )}
 
-      <section className="language-list-section" aria-label="Language list">
+      {/* =================================================
+          LANGUAGE LIST
+      ================================================= */}
+
+      <section
+        className="language-list-section"
+        aria-label="Language list"
+      >
+
         <div className="language-list-toolbar">
+
           <div>
+
             <h2>Language list</h2>
-            <span>{filteredLanguages.length} of {languages.length}</span>
+
+            <span>
+              {filteredLanguages.length} of{" "}
+              {languages.length}
+            </span>
+
           </div>
+
           <input
             type="search"
             aria-label="Search languages"
             placeholder="Search languages..."
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) =>
+              setSearch(event.target.value)
+            }
           />
+
         </div>
 
+        {/* =================================================
+            LOADING
+        ================================================= */}
+
         {loading ? (
-          <div className="language-list-state">Loading languages...</div>
-        ) : filteredLanguages.length === 0 ? (
+
           <div className="language-list-state">
-            {search ? "No matching languages." : "No languages have been added yet."}
+            Loading languages...
           </div>
+
+        ) : filteredLanguages.length === 0 ? (
+
+          <div className="language-list-state">
+            {search
+              ? "No matching languages."
+              : "No languages have been added yet."}
+          </div>
+
         ) : (
+
           <div className="language-table-wrap">
+
             <table className="language-table">
+
               <thead>
+
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Language</th>
@@ -236,46 +559,188 @@ export default function LanguageManagement() {
                   <th scope="col">Added</th>
                   <th scope="col">Actions</th>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredLanguages.map((language, index) => {
-                  const isActive = ["1", "active", "enabled", "true"].includes(
-                    String(language.status ?? "1").trim().toLowerCase()
-                  );
 
-                  return (
-                    <tr key={language.id}>
-                      <td>{index + 1}</td>
-                      <td className="language-name-cell">{language.name}</td>
-                      <td>
-                        <span className={`language-status ${isActive ? "active" : "inactive"}`}>
-                          {isActive ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                      <td>{language.created_at ? new Date(language.created_at).toLocaleDateString() : "—"}</td>
-                      <td>
-                        <div className="language-row-actions">
-                          <button type="button" className="language-edit-button" onClick={() => openEditForm(language)}>
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            className="language-delete-button"
-                            onClick={() => handleDelete(language)}
-                            disabled={deletingId === language.id}
+              </thead>
+
+              <tbody>
+
+                {filteredLanguages.map(
+                  (language, index) => {
+
+                    const isActive = [
+                      "1",
+                      "active",
+                      "enabled",
+                      "true",
+                    ].includes(
+                      String(
+                        language.status ?? "1"
+                      )
+                        .trim()
+                        .toLowerCase()
+                    );
+
+                    const languageFlag =
+                      getLanguageFlag(
+                        language.name
+                      );
+
+                    return (
+
+                      <tr
+                        key={language.id}
+                      >
+
+                        {/* SL */}
+
+                        <td>
+                          {index + 1}
+                        </td>
+
+                        {/* LANGUAGE + FLAG */}
+
+                        <td className="language-name-cell">
+
+                          <span
+                            className="language-badge"
+                            style={{
+                              display:
+                                "inline-flex",
+                              alignItems:
+                                "center",
+                              gap: "8px",
+                            }}
                           >
-                            {deletingId === language.id ? "Deleting..." : "Delete"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+
+                            {languageFlag ? (
+
+                              <img
+                                src={
+                                  languageFlag
+                                }
+                                alt={`${language.name} flag`}
+                                loading="lazy"
+                                style={{
+                                  width:
+                                    "28px",
+                                  height:
+                                    "19px",
+                                  objectFit:
+                                    "cover",
+                                  borderRadius:
+                                    "3px",
+                                }}
+                                onError={(
+                                  event
+                                ) => {
+                                  event.currentTarget.style.display =
+                                    "none";
+                                }}
+                              />
+
+                            ) : (
+
+                              <span>
+                                🌐
+                              </span>
+
+                            )}
+
+                            <span>
+                              {
+                                language.name
+                              }
+                            </span>
+
+                          </span>
+
+                        </td>
+
+                        {/* STATUS */}
+
+                        <td>
+
+                          <span
+                            className={`language-status ${
+                              isActive
+                                ? "active"
+                                : "inactive"
+                            }`}
+                          >
+                            {isActive
+                              ? "Active"
+                              : "Inactive"}
+                          </span>
+
+                        </td>
+
+                        {/* ADDED */}
+
+                        <td>
+                          {language.created_at
+                            ? new Date(
+                                language.created_at
+                              ).toLocaleDateString()
+                            : "—"}
+                        </td>
+
+                        {/* ACTIONS */}
+
+                        <td>
+
+                          <div className="language-row-actions">
+
+                            <button
+                              type="button"
+                              className="language-edit-button"
+                              onClick={() =>
+                                openEditForm(
+                                  language
+                                )
+                              }
+                            >
+                              Edit
+                            </button>
+
+                            <button
+                              type="button"
+                              className="language-delete-button"
+                              onClick={() =>
+                                handleDelete(
+                                  language
+                                )
+                              }
+                              disabled={
+                                deletingId ===
+                                language.id
+                              }
+                            >
+                              {deletingId ===
+                              language.id
+                                ? "Deleting..."
+                                : "Delete"}
+                            </button>
+
+                          </div>
+
+                        </td>
+
+                      </tr>
+
+                    );
+                  }
+                )}
+
               </tbody>
+
             </table>
+
           </div>
+
         )}
+
       </section>
+
     </main>
   );
 }
