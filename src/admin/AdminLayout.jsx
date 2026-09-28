@@ -249,7 +249,8 @@ const canViewMenu = (menu) => {
     if (
       pathname === "/admin/courses" ||
       pathname === "/admin/AddCourse" ||
-      pathname === "/admin/course-entry"
+      pathname === "/admin/course-entry" ||
+      pathname === "/admin/languages"
     ) {
       return "courses";
     }
@@ -1049,20 +1050,32 @@ if (isTeacher) {
           ================================================= */}
 
           {canViewMenu("courses") && (
-            <NavLink
-              to="/admin/courses"
-              className={({ isActive }) =>
-                `sidebar-link ${
-                  isActive
-                    ? "active"
-                    : ""
-                }`
-              }
-            >
-              <span>
-                📚 Courses
-              </span>
-            </NavLink>
+            <>
+              <NavLink
+                to="/admin/courses"
+                className={({ isActive }) =>
+                  `sidebar-link ${
+                    isActive && location.pathname === "/admin/courses"
+                      ? "active"
+                      : ""
+                  }`
+                }
+              >
+                <span>
+                  📚 Courses
+                </span>
+              </NavLink>
+              <NavLink
+                to="/admin/languages"
+                className={({ isActive }) =>
+                  `sidebar-link ${isActive ? "active" : ""}`
+                }
+              >
+                <span>
+                  🌐 Languages
+                </span>
+              </NavLink>
+            </>
           )}
 
           {/* =================================================

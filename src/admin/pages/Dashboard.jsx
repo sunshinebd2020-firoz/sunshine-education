@@ -1,6 +1,7 @@
 import "./Dashboard.css";
 import API_BASE_URL from "../../config/api";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const parseJsonResponse = async (response, fallbackMessage) => {
   const text = await response.text();
@@ -52,6 +53,9 @@ export default function Dashboard() {
   const [branchCount, setBranchCount] = useState(0);
   const [galleryCount, setGalleryCount] = useState(0);
   const [bannerCount, setBannerCount] = useState(0);
+  const [financialSummary, setFinancialSummary] = useState({});
+  const [pendingMessages, setPendingMessages] = useState(0);
+  const [recentMessages, setRecentMessages] = useState([]);
 
   // Logged-in user
   const [user, setUser] = useState(null);
@@ -219,6 +223,45 @@ export default function Dashboard() {
       .catch((error) => {
         console.error("Banner count error:", error);
       });
+
+    const currentYear = new Date().getFullYear();
+    fetch(
+      `${API_BASE_URL}/income_expense_report.php?year=${currentYear}&month=all&branch=all`,
+      {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      }
+    )
+      .then(async (response) => {
+        const data = await parseJsonResponse(response, "Financial summary could not be loaded.");
+        if (response.ok && data.success) {
+          setFinancialSummary(data.summary || {});
+        }
+      })
+      .catch((error) => {
+        console.error("Financial summary error:", error);
+      });
+
+    fetch(`${API_BASE_URL}/contact_messages_list.php`, {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+    })
+      .then(async (response) => {
+        const data = await parseJsonResponse(response, "Contact messages could not be loaded.");
+        if (response.ok && data.success) {
+          const messages = Array.isArray(data.data) ? data.data : [];
+          const unanswered = messages.filter((item) => !item.reply_message);
+          setPendingMessages(unanswered.length);
+          setRecentMessages(
+            [...unanswered]
+              .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+              .slice(0, 4)
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("Contact messages error:", error);
+      });
   }, []);
 
   /* =====================================================
@@ -229,6 +272,12 @@ export default function Dashboard() {
     user?.full_name ||
     user?.username ||
     "User";
+
+  const formatCurrency = (amount) =>
+    `৳ ${Number(amount || 0).toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    })}`;
 
   return (
     <div className="dashboard-content">
@@ -245,6 +294,14 @@ export default function Dashboard() {
             Welcome, <strong>{userName}</strong>
           </p>
         </div>
+        <time className="dashboard-today" dateTime={new Date().toISOString().slice(0, 10)}>
+          {new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </time>
       </header>
 
       {/* =================================================
@@ -255,61 +312,137 @@ export default function Dashboard() {
 
         {/* STUDENTS */}
 
-        <div className="dashboard-card dashboard-card-students">
+        <Link to="/admin/student-list" className="dashboard-card dashboard-card-students">
           <h3>👨‍🎓 Students</h3>
           <p>{studentCount}</p>
-        </div>
+          <span>View student list →</span>
+        </Link>
 
         {/* COURSES */}
 
-        <div className="dashboard-card dashboard-card-courses">
+        <Link to="/admin/courses" className="dashboard-card dashboard-card-courses">
           <h3>📚 Courses</h3>
           <p>{courseCount}</p>
-        </div>
+          <span>Manage courses →</span>
+        </Link>
 
         {/* TEACHERS */}
 
-        <div className="dashboard-card dashboard-card-teachers">
+        <Link to="/admin/teacher-list" className="dashboard-card dashboard-card-teachers">
           <h3>👨‍🏫 Teachers</h3>
           <p>{teacherCount}</p>
-        </div>
+          <span>View teacher list →</span>
+        </Link>
 
         {/* NOTICES */}
 
-        <div className="dashboard-card dashboard-card-notices">
+        <Link to="/admin/notices" className="dashboard-card dashboard-card-notices">
           <h3>📢 Notices</h3>
           <p>{noticeCount}</p>
-        </div>
+          <span>Manage notices →</span>
+        </Link>
 
         {/* DOWNLOADS */}
 
-        <div className="dashboard-card dashboard-card-downloads">
+        <Link to="/admin/downloads" className="dashboard-card dashboard-card-downloads">
           <h3>📥 Downloads</h3>
           <p>{downloadCount}</p>
-        </div>
+          <span>Manage downloads →</span>
+        </Link>
 
         {/* BRANCHES */}
 
-        <div className="dashboard-card dashboard-card-branches">
+        <Link to="/admin/branch-list" className="dashboard-card dashboard-card-branches">
           <h3>🏢 Branches</h3>
           <p>{branchCount}</p>
-        </div>
+          <span>Manage branches →</span>
+        </Link>
 
         {/* GALLERY */}
 
-        <div className="dashboard-card dashboard-card-gallery">
+        <Link to="/admin/gallery-list" className="dashboard-card dashboard-card-gallery">
           <h3>🖼️ Gallery</h3>
           <p>{galleryCount}</p>
-        </div>
+          <span>Manage gallery →</span>
+        </Link>
 
         {/* BANNERS */}
 
-        <div className="dashboard-card dashboard-card-banners">
+        <Link to="/admin/banner-list" className="dashboard-card dashboard-card-banners">
           <h3>🖼️ Banners</h3>
           <p>{bannerCount}</p>
-        </div>
+          <span>Manage banners →</span>
+        </Link>
 
       </section>
+
+      <section className="dashboard-overview-grid" aria-label="Operational overview">
+        <div className="dashboard-panel dashboard-finance-panel">
+          <div className="dashboard-panel-heading">
+            <div>
+              <h2>Financial overview</h2>
+              <p>{new Date().getFullYear()} totals</p>
+            </div>
+            <Link to="/admin/income-expense-report">Full report →</Link>
+          </div>
+          <div className="dashboard-finance-grid">
+            <div className="dashboard-finance-item income">
+              <span>Income</span>
+              <strong>{formatCurrency(financialSummary.total_income)}</strong>
+              <small>{Number(financialSummary.income_transactions || 0).toLocaleString("en-US")} transactions</small>
+            </div>
+            <div className="dashboard-finance-item expense">
+              <span>Expenses</span>
+              <strong>{formatCurrency(financialSummary.total_expense)}</strong>
+              <small>{Number(financialSummary.expense_transactions || 0).toLocaleString("en-US")} transactions</small>
+            </div>
+            <div className="dashboard-finance-item balance">
+              <span>Net balance</span>
+              <strong>{formatCurrency(financialSummary.net_balance)}</strong>
+              <small>Income minus expenses</small>
+            </div>
+            <div className="dashboard-finance-item due">
+              <span>Outstanding fees</span>
+              <strong>{formatCurrency(financialSummary.total_due)}</strong>
+              <small><Link to="/admin/due-list">Review student dues →</Link></small>
+            </div>
+          </div>
+        </div>
+
+        <div className="dashboard-panel dashboard-messages-panel">
+          <div className="dashboard-panel-heading">
+            <div>
+              <h2>Contact inbox</h2>
+              <p>{pendingMessages} awaiting a reply</p>
+            </div>
+            <Link to="/admin/contact-messages">Open inbox →</Link>
+          </div>
+          {recentMessages.length ? (
+            <ul className="dashboard-message-list">
+              {recentMessages.map((item) => (
+                <li key={item.id}>
+                  <div>
+                    <strong>{item.name || "Website visitor"}</strong>
+                    <p>{item.message || "No message text"}</p>
+                  </div>
+                  <time dateTime={item.created_at || undefined}>
+                    {item.created_at ? new Date(item.created_at).toLocaleDateString() : "New"}
+                  </time>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="dashboard-empty-inbox">No unanswered messages.</p>
+          )}
+        </div>
+      </section>
+
+      <nav className="dashboard-quick-links" aria-label="Quick actions">
+        <Link to="/admin/students">Add student <span>→</span></Link>
+        <Link to="/admin/income">Record income <span>→</span></Link>
+        <Link to="/admin/expense">Record expense <span>→</span></Link>
+        <Link to="/admin/my-classroom">Classroom <span>→</span></Link>
+      </nav>
     </div>
   );
 }

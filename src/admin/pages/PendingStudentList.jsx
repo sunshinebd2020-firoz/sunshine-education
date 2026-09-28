@@ -1270,7 +1270,7 @@ export default function PendingStudentList() {
                               }
                               title="Assign or change teacher"
                             >
-                              Assign
+                              👨‍🏫
                             </button>
 
                             {/* APPROVE */}

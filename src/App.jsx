@@ -7,6 +7,8 @@ import Footer from "./components/Footer/Footer";
 
 // ================= GLOBAL STYLE =================
 const globalStyle = `
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@100..900&display=swap');
+
   html,
   body,
   #root {
@@ -25,6 +27,20 @@ const globalStyle = `
   * {
     box-sizing: border-box;
   }
+
+  /* ================= GLOBAL FONT ================= */
+
+  body {
+    font-family:
+      "Noto Serif Bengali",
+      Arial,
+      Helvetica,
+      sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+  }
+
+  /* ================= APP ================= */
 
   .app {
     width: 100%;
@@ -67,7 +83,6 @@ const StudentDocuments = lazy(() =>
   import("./admin/pages/students/StudentDocuments")
 );
 
-// Pending Student List
 const PendingStudentList = lazy(() =>
   import("./admin/pages/PendingStudentList")
 );
@@ -181,6 +196,9 @@ const AddCourse = lazy(() =>
 const EditCourse = lazy(() =>
   import("./admin/pages/EditCourse")
 );
+const LanguageManagement = lazy(() =>
+  import("./admin/pages/LanguageManagement")
+);
 
 // ================= BRANCH =================
 const BranchEntry = lazy(() =>
@@ -243,8 +261,6 @@ export default function App() {
     location.pathname.startsWith("/student-portal") ||
     location.pathname.startsWith("/student");
 
-  // Admin এবং Student Portal উভয়ের জন্য
-  // Public Header, Navbar এবং Footer বন্ধ থাকবে
   const hidePublicLayout =
     isAdminRoute || isStudentPortalRoute;
 
@@ -418,7 +434,7 @@ export default function App() {
                   }
                 />
 
-                {/* ================= BATCH MONITORING (ADMIN) ================= */}
+                {/* ================= BATCH MONITORING ================= */}
 
                 <Route
                   path="batch-monitoring"
@@ -627,6 +643,11 @@ export default function App() {
                 <Route
                   path="EditCourse"
                   element={<EditCourse />}
+                />
+
+                <Route
+                  path="languages"
+                  element={<LanguageManagement />}
                 />
 
                 {/* =================================================

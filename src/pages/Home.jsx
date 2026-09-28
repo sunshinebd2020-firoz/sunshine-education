@@ -1485,64 +1485,84 @@ export default function Home() {
           DIRECTOR'S MESSAGE
       ================================================= */}
 
-      {director &&
-        (director.director_message ||
-          director.director_photo) && (
-          <section className="director-message-section">
 
-            <h2 className="section-title">
-              পরিচালকের বার্তা
-            </h2>
+{director &&
+  (director.director_message || director.director_photo) && (
+    <section className="director-message-section">
 
-            <div className="director-message-card">
+      <div className="director-message-container">
 
-              {director.director_photo && (
-                <div className="director-photo">
-                  <img
-                    src={`${IMAGE_URL}${director.director_photo}`}
-                    alt={
-                      director.director_name ||
-                      "Director"
-                    }
-                  />
-                </div>
-              )}
+        <div className="director-section-heading">
+          <span className="director-heading-line"></span>
 
-              <div className="director-content">
+          <h2 className="section-title">
+            পরিচালকের বার্তা
+          </h2>
 
-                {director.director_message && (
-                  <p className="director-text">
-                    {director.director_message}
-                  </p>
+          <span className="director-heading-line"></span>
+        </div>
+
+        <div className="director-message-card">
+
+          {/* ================= DIRECTOR PHOTO ================= */}
+          {director.director_photo && (
+            <div className="director-photo-wrapper">
+              <div className="director-photo">
+                <img
+                  src={`${IMAGE_URL}${director.director_photo}`}
+                  alt={
+                    director.director_name ||
+                    "Director"
+                  }
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ================= DIRECTOR CONTENT ================= */}
+          <div className="director-content">
+
+            {director.director_message && (
+              <div className="director-text-wrapper">
+
+                <span className="director-quote">
+                  “
+                </span>
+
+                <p className="director-text">
+                  {director.director_message}
+                </p>
+
+              </div>
+            )}
+
+            {(director.director_name ||
+              director.director_designation) && (
+              <div className="director-signature">
+
+                {director.director_name && (
+                  <strong className="director-name">
+                    {director.director_name}
+                  </strong>
                 )}
 
-                {(director.director_name ||
-                  director.director_designation) && (
-                  <div className="director-signature">
-
-                    {director.director_name && (
-                      <strong>
-                        {director.director_name}
-                      </strong>
-                    )}
-
-                    {director.director_designation && (
-                      <span>
-                        {
-                          director.director_designation
-                        }
-                      </span>
-                    )}
-
-                  </div>
+                {director.director_designation && (
+                  <span className="director-designation">
+                    {director.director_designation}
+                  </span>
                 )}
 
               </div>
+            )}
 
-            </div>
+          </div>
 
-          </section>
-        )}
+        </div>
+
+      </div>
+
+    </section>
+  )}
 
       {/* =================================================
           ABOUT
