@@ -313,6 +313,17 @@ const UI_TEXT = {
     number: "Number",
     issueDate: "Issue Date",
     expiryDate: "Expiry Date",
+    koreanName: "Korean Name",
+    courseNameEnglish: "Course Name (English)",
+    emailVerified: "Verified",
+    emailNotVerified: "Not verified",
+    emailVerificationHelp: "Verify this email to use it for password resets.",
+    sendEmailCode: "Send verification code",
+    verifyEmailCode: "Verify email",
+    verificationCode: "Verification code",
+    emailCodeSent: "Code sent. Check your inbox.",
+    emailVerificationFailed: "Email verification failed.",
+    emailVerifiedSuccess: "Email verified successfully.",
   },
   bn: {
     logout: "লগআউট",
@@ -349,6 +360,17 @@ const UI_TEXT = {
     number: "নম্বর",
     issueDate: "ইস্যু তারিখ",
     expiryDate: "মেয়াদ শেষের তারিখ",
+    koreanName: "কোরিয়ান নাম",
+    courseNameEnglish: "কোর্সের নাম (ইংরেজি)",
+    emailVerified: "যাচাইকৃত",
+    emailNotVerified: "যাচাই করা হয়নি",
+    emailVerificationHelp: "পাসওয়ার্ড রিসেটের জন্য এই ইমেইল যাচাই করুন।",
+    sendEmailCode: "যাচাইকরণ কোড পাঠান",
+    verifyEmailCode: "ইমেইল যাচাই করুন",
+    verificationCode: "যাচাইকরণ কোড",
+    emailCodeSent: "কোড পাঠানো হয়েছে। ইনবক্স দেখুন।",
+    emailVerificationFailed: "ইমেইল যাচাই করা যায়নি।",
+    emailVerifiedSuccess: "ইমেইল সফলভাবে যাচাই হয়েছে।",
   },
 };
 
@@ -533,6 +555,165 @@ const englishToKatakana = (name) => {
   return words.map(convertWord).join("・");
 };
 
+const getCourseNameScript = (course) => {
+  const normalized = String(course || "").trim().toLowerCase();
+  if (normalized.includes("japan") || normalized.includes("日本")) {
+    return "japanese";
+  }
+  if (normalized.includes("korea") || normalized.includes("한국")) {
+    return "korean";
+  }
+  return "english";
+};
+
+const getCourseNameLabel = (course, language) => {
+  const script = getCourseNameScript(course);
+  if (script === "japanese") {
+    return language === "bn" ? "কাতাকানা নাম" : "Katakana Name";
+  }
+  if (script === "korean") {
+    return UI_TEXT[language].koreanName;
+  }
+  return UI_TEXT[language].courseNameEnglish;
+};
+
+const englishToHangul = (name) => {
+  const words = String(name || "")
+    .toLowerCase()
+    .match(/[a-z]+/g) || [];
+
+  const vowelTokens = [
+    "eigh", "igh", "ee", "ea", "ai", "ay", "oi", "oy",
+    "oo", "ou", "ow", "au", "aw", "ar", "er", "ir", "or", "ur",
+    "a", "e", "i", "o", "u",
+  ];
+  const consonantTokens = ["ch", "sh", "th", "ph", "wh", "qu", "ng"];
+  const initialIndexes = {
+    b: 7, v: 7, c: 15, k: 15, q: 15, g: 0, d: 3, t: 16,
+    f: 17, p: 17, j: 12, s: 9, z: 9, r: 5, l: 5, m: 6,
+    n: 2, h: 18, w: 11, y: 11, ch: 14, sh: 9, th: 16,
+    ph: 17, wh: 11, qu: 15, ng: 2,
+  };
+  const finalIndexes = {
+    b: 17, v: 17, p: 17, f: 17, g: 1, c: 1, k: 1, q: 1,
+    d: 7, t: 7, n: 4, m: 16, r: 8, l: 8, s: 19, z: 19,
+    ng: 21, ch: 22, sh: 19, th: 19,
+  };
+  const vowelIndexes = {
+    eigh: 5, igh: 20, ee: 20, ea: 20, ai: 1, ay: 1,
+    oi: 11, oy: 11, oo: 13, ou: 13, ow: 13, au: 8, aw: 8,
+    ar: 0, er: 4, ir: 4, or: 8, ur: 4,
+    a: 0, e: 5, i: 20, o: 8, u: 13,
+  };
+  const vowelIndexesAfterGlide = {
+    y: { a: 2, e: 7, i: 20, o: 12, u: 17 },
+    w: { a: 9, e: 14, i: 16, o: 8, u: 13 },
+  };
+  const finalVowel = 18;
+
+  const readVowel = (word, index) => {
+    if (word[index] === "y" && "aeiou".includes(word[index + 1] || "")) {
+      return null;
+    }
+    const token = vowelTokens.find((item) =>
+      word.startsWith(item, index) &&
+      !(item === "ay" && "aeiou".includes(word[index + 2] || ""))
+    );
+    return token ? { token, length: token.length } : null;
+  };
+
+  const readConsonant = (word, index) => {
+    const token = consonantTokens.find((item) => word.startsWith(item, index));
+    return token
+      ? { token, length: token.length }
+      : { token: word[index], length: 1 };
+  };
+
+  const compose = (initial, vowel, final = 0) =>
+    String.fromCharCode(0xac00 + (initial * 21 + vowel) * 28 + final);
+
+  const toInitial = (token, nextVowel) => {
+    if (token === "c" && ["e", "i", "ee", "ea", "y"].includes(nextVowel)) return 9;
+    if (token === "g" && ["e", "i", "ee", "ea", "y"].includes(nextVowel)) return 12;
+    return initialIndexes[token] ?? 11;
+  };
+
+  const convertWord = (word) => {
+    let result = "";
+    let index = 0;
+
+    while (index < word.length) {
+      const consonants = [];
+      while (index < word.length && !readVowel(word, index)) {
+        const consonant = readConsonant(word, index);
+        consonants.push(consonant);
+        index += consonant.length;
+      }
+
+      if (index >= word.length) {
+        consonants.forEach(({ token }) => {
+          result += compose(toInitial(token), finalVowel);
+        });
+        break;
+      }
+
+      while (consonants.length > 1) {
+        result += compose(toInitial(consonants.shift().token), finalVowel);
+      }
+
+      const onsetToken = consonants[0]?.token || "";
+      const vowel = readVowel(word, index);
+      let vowelIndex = vowelIndexes[vowel.token] ?? 20;
+      if (vowelIndexesAfterGlide[onsetToken]?.[vowel.token] !== undefined) {
+        vowelIndex = vowelIndexesAfterGlide[onsetToken][vowel.token];
+      }
+      const initialIndex = onsetToken ? toInitial(onsetToken, vowel.token) : 11;
+      index += vowel.length;
+
+      let runIndex = index;
+      const followingConsonants = [];
+      while (runIndex < word.length && !readVowel(word, runIndex)) {
+        const consonant = readConsonant(word, runIndex);
+        followingConsonants.push(consonant);
+        runIndex += consonant.length;
+      }
+
+      let finalIndex = 0;
+      if (followingConsonants.length > 1 && runIndex < word.length) {
+        const firstConsonant = followingConsonants[0];
+        finalIndex = finalIndexes[firstConsonant.token] ?? 0;
+        if (finalIndex) index += firstConsonant.length;
+      } else if (followingConsonants.length && runIndex >= word.length) {
+        const lastConsonant = followingConsonants[followingConsonants.length - 1];
+        if (
+          followingConsonants.length === 1 &&
+          ["s", "z", "sh", "th", "ch"].includes(lastConsonant.token)
+        ) {
+          result += compose(initialIndex, vowelIndex);
+          result += compose(toInitial(lastConsonant.token), finalVowel);
+          index = runIndex;
+          continue;
+        }
+        finalIndex = finalIndexes[lastConsonant.token] ?? 0;
+        index = runIndex;
+      }
+
+      result += compose(initialIndex, vowelIndex, finalIndex);
+    }
+
+    return result;
+  };
+
+  return words.map(convertWord).join(" ");
+};
+
+const convertNameForCourse = (name, course) => {
+  const script = getCourseNameScript(course);
+  if (script === "japanese") return englishToKatakana(name);
+  if (script === "korean") return englishToHangul(name);
+  return String(name || "").trim();
+};
+
 const calculateAge = (date) => {
   if (!date) return "";
 
@@ -655,6 +836,9 @@ export default function StudentPortal() {
   const [activeTab, setActiveTab] =
     useState("basic");
 
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
+
   const [sameAddress, setSameAddress] =
     useState(false);
 
@@ -675,6 +859,16 @@ export default function StudentPortal() {
 
   const [documentSaving, setDocumentSaving] =
     useState("");
+
+  const [emailVerification, setEmailVerification] =
+    useState({
+      code: "",
+      requestedEmail: "",
+      sent: false,
+      loading: false,
+      error: "",
+      message: "",
+    });
 
   useEffect(() => {
     localStorage.setItem(
@@ -718,10 +912,17 @@ export default function StudentPortal() {
         );
       }
 
-      const next =
+      const profileData =
         data.student ||
         data.profile ||
         sessionStudent;
+      const next = {
+        ...profileData,
+        katakana_name: convertNameForCourse(
+          profileData?.student_name_en,
+          profileData?.course
+        ),
+      };
 
       setProfile(next);
       saveStudentStorage(next);
@@ -765,12 +966,24 @@ export default function StudentPortal() {
 
     const nextForm = {
       ...currentStudent,
+      katakana_name: convertNameForCourse(
+        currentStudent?.student_name_en,
+        currentStudent?.course
+      ),
     };
 
     setForm(nextForm);
     setSaveMessage("");
     setSaveError("");
     setEditMode(true);
+    setEmailVerification({
+      code: "",
+      requestedEmail: "",
+      sent: false,
+      loading: false,
+      error: "",
+      message: "",
+    });
 
     if (activeTab === "address") {
       const isSame =
@@ -860,6 +1073,14 @@ export default function StudentPortal() {
     setSaveMessage("");
     setSaveError("");
     setEditMode(false);
+    setEmailVerification({
+      code: "",
+      requestedEmail: "",
+      sent: false,
+      loading: false,
+      error: "",
+      message: "",
+    });
   };
 
   const handleChange = (
@@ -869,7 +1090,145 @@ export default function StudentPortal() {
     setForm((prev) => ({
       ...prev,
       [field]: value,
+      ...(field === "course"
+        ? {
+            katakana_name: convertNameForCourse(
+              prev.student_name_en,
+              value
+            ),
+          }
+        : {}),
     }));
+  };
+
+  const handleEmailChange = (value) => {
+    handleChange("email", value);
+    setEmailVerification((current) => {
+      if (
+        !current.requestedEmail ||
+        current.requestedEmail === value.trim().toLowerCase()
+      ) {
+        return current;
+      }
+
+      return {
+        code: "",
+        requestedEmail: "",
+        sent: false,
+        loading: false,
+        error: "",
+        message: "",
+      };
+    });
+  };
+
+  const requestEmailVerificationCode = async () => {
+    const email = String(form.email || "").trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailVerification((current) => ({
+        ...current,
+        error: "Enter a valid email address.",
+        message: "",
+      }));
+      return;
+    }
+
+    setEmailVerification((current) => ({
+      ...current,
+      loading: true,
+      error: "",
+      message: "",
+    }));
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/student_email_verification.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ action: "request_code", email }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || text.emailVerificationFailed);
+      }
+
+      setEmailVerification({
+        code: "",
+        requestedEmail: email,
+        sent: true,
+        loading: false,
+        error: "",
+        message: data.message || text.emailCodeSent,
+      });
+    } catch (error) {
+      setEmailVerification((current) => ({
+        ...current,
+        loading: false,
+        error: error.message || text.emailVerificationFailed,
+      }));
+    }
+  };
+
+  const verifyStudentEmail = async () => {
+    const email = String(form.email || "").trim().toLowerCase();
+    setEmailVerification((current) => ({
+      ...current,
+      loading: true,
+      error: "",
+      message: "",
+    }));
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/student_email_verification.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            action: "verify_code",
+            email,
+            code: emailVerification.code.trim(),
+          }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || text.emailVerificationFailed);
+      }
+
+      const next = {
+        ...currentStudent,
+        email: data.email || email,
+        email_verified: true,
+      };
+      setProfile(next);
+      setForm((current) => ({ ...current, email: next.email }));
+      saveStudentStorage(next);
+      setEmailVerification({
+        code: "",
+        requestedEmail: "",
+        sent: false,
+        loading: false,
+        error: "",
+        message: data.message || text.emailVerifiedSuccess,
+      });
+    } catch (error) {
+      setEmailVerification((current) => ({
+        ...current,
+        loading: false,
+        error: error.message || text.emailVerificationFailed,
+      }));
+    }
   };
 
   const handleEnglishNameChange = (
@@ -878,8 +1237,10 @@ export default function StudentPortal() {
     setForm((prev) => ({
       ...prev,
       student_name_en: value,
-      katakana_name:
-        englishToKatakana(value),
+      katakana_name: convertNameForCourse(
+        value,
+        prev.course || currentStudent?.course
+      ),
     }));
   };
 
@@ -1097,6 +1458,10 @@ export default function StudentPortal() {
         ].forEach(
           appendField
         );
+      } else if (activeTab === "contact") {
+        GROUP_FIELDS.contact
+          .filter((field) => field !== "email")
+          .forEach(appendField);
       } else {
         (
           GROUP_FIELDS[
@@ -1105,6 +1470,10 @@ export default function StudentPortal() {
         ).forEach(
           appendField
         );
+
+        if (activeTab === "basic") {
+          appendField("katakana_name");
+        }
       }
 
       const response =
@@ -1130,13 +1499,15 @@ export default function StudentPortal() {
         );
       }
 
-      const next =
-        data.student ||
-        data.profile ||
-        {
-          ...currentStudent,
-          ...saveForm,
-        };
+      const next = {
+        ...currentStudent,
+        ...(data.student || data.profile || saveForm),
+        email_verified: Boolean(currentStudent?.email_verified),
+        katakana_name: convertNameForCourse(
+          saveForm.student_name_en ?? currentStudent?.student_name_en,
+          saveForm.course ?? currentStudent?.course
+        ),
+      };
 
       setProfile(next);
       setForm(next);
@@ -1181,8 +1552,14 @@ export default function StudentPortal() {
       fields.filter(
         ([field]) =>
           isFilled(
-            currentStudent?.[field]
-          )
+            field === "katakana_name"
+              ? convertNameForCourse(
+                  currentStudent?.student_name_en,
+                  currentStudent?.course
+                )
+              : currentStudent?.[field]
+          ) &&
+          (field !== "email" || currentStudent?.email_verified)
       ).length;
 
     return fields.length
@@ -1548,6 +1925,7 @@ export default function StudentPortal() {
     groupKey
   ) => {
     setActiveTab(groupKey);
+    setMobileMenuOpen(false);
     setEditMode(false);
     setForm({});
     setSaveMessage("");
@@ -1557,6 +1935,14 @@ export default function StudentPortal() {
     setSameAddress(false);
     setDocumentEdit({});
     setDocumentSaving("");
+    setEmailVerification({
+      code: "",
+      requestedEmail: "",
+      sent: false,
+      loading: false,
+      error: "",
+      message: "",
+    });
   };
 
   /* =====================================================
@@ -1611,7 +1997,16 @@ export default function StudentPortal() {
             name === field
         )
       )
-      .filter(Boolean);
+      .filter(Boolean)
+      .map((definition) =>
+        definition[0] === "katakana_name"
+          ? [
+              definition[0],
+              getCourseNameLabel(currentStudent?.course, language),
+              ...definition.slice(2),
+            ]
+          : definition
+      );
 
   /* =====================================================
      SELECT OPTIONS
@@ -1933,11 +2328,125 @@ export default function StudentPortal() {
 
       <div className="student-info-value">
         {displayValue(
-          currentStudent?.[field]
+          field === "katakana_name"
+            ? convertNameForCourse(
+                currentStudent?.student_name_en,
+                currentStudent?.course
+              )
+            : currentStudent?.[field]
         )}
       </div>
     </div>
   );
+
+  const renderEmailView = () => (
+    <div className="student-info-row" key="email">
+      <div className="student-info-label">Email</div>
+      <div className="student-info-value student-email-value">
+        <span>{displayValue(currentStudent?.email)}</span>
+        <span
+          className={`student-email-status ${
+            currentStudent?.email_verified ? "verified" : "unverified"
+          }`}
+        >
+          {currentStudent?.email_verified
+            ? text.emailVerified
+            : text.emailNotVerified}
+        </span>
+      </div>
+    </div>
+  );
+
+  const renderEmailEdit = () => {
+    const email = String(form.email || "").trim().toLowerCase();
+    const isVerified = Boolean(
+      currentStudent?.email_verified &&
+      String(currentStudent?.email || "").trim().toLowerCase() === email
+    );
+
+    return (
+      <div className="student-edit-field student-email-edit-field" key="email">
+        <label htmlFor="student-contact-email">Email</label>
+        <input
+          id="student-contact-email"
+          type="email"
+          value={form.email || ""}
+          onChange={(event) => handleEmailChange(event.target.value)}
+          autoComplete="email"
+          maxLength={254}
+          disabled={saving || emailVerification.loading}
+        />
+
+        <span
+          className={`student-email-status ${
+            isVerified ? "verified" : "unverified"
+          }`}
+        >
+          {isVerified ? text.emailVerified : text.emailNotVerified}
+        </span>
+        <p className="student-email-help">{text.emailVerificationHelp}</p>
+
+        {!isVerified && (
+          <div className="student-email-verification">
+            {emailVerification.sent &&
+              emailVerification.requestedEmail === email && (
+                <>
+                  <p>{emailVerification.message || text.emailCodeSent}</p>
+                  <label htmlFor="student-email-verification-code">
+                    {text.verificationCode}
+                  </label>
+                  <input
+                    id="student-email-verification-code"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    pattern="[0-9]{6}"
+                    maxLength={6}
+                    value={emailVerification.code}
+                    onChange={(event) =>
+                      setEmailVerification((current) => ({
+                        ...current,
+                        code: event.target.value.replace(/\D/g, "").slice(0, 6),
+                      }))
+                    }
+                    disabled={emailVerification.loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={verifyStudentEmail}
+                    disabled={emailVerification.loading || emailVerification.code.length !== 6}
+                  >
+                    {text.verifyEmailCode}
+                  </button>
+                </>
+              )}
+
+            {(!emailVerification.sent || emailVerification.requestedEmail !== email) && (
+              <button
+                type="button"
+                onClick={requestEmailVerificationCode}
+                disabled={emailVerification.loading || saving}
+              >
+                {emailVerification.loading ? text.saving : text.sendEmailCode}
+              </button>
+            )}
+
+            {emailVerification.error && (
+              <p className="student-email-verification-error">
+                {emailVerification.error}
+              </p>
+            )}
+          </div>
+        )}
+
+        {isVerified && emailVerification.message && (
+          <p className="student-email-verification-success">
+            {emailVerification.message}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   const renderAddressView = () => (
     <div className="student-education-view">
@@ -3078,6 +3587,27 @@ export default function StudentPortal() {
       {!loadingProfile &&
         !profileError && (
           <div className="student-portal-card">
+            <div
+              className={`student-sidebar-backdrop ${
+                mobileMenuOpen ? "visible" : ""
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            />
+
+            <div className="student-mobile-toolbar no-print">
+              <button
+                type="button"
+                className="student-mobile-menu-toggle"
+                onClick={() =>
+                  setMobileMenuOpen((current) => !current)
+                }
+                aria-label="Toggle student menu"
+                aria-expanded={mobileMenuOpen}
+              >
+                ☰
+              </button>
+            </div>
+
             {/* TOP PROFILE */}
             <div className="student-profile-top">
               <div className="student-profile-photo-box">
@@ -3138,6 +3668,52 @@ export default function StudentPortal() {
                   </span>
                 </div>
               </div>
+
+              <div className="student-account-panel-actions no-print">
+                <div className="student-account-completion">
+                  <div className="student-account-completion-heading">
+                    <div>
+                      <strong>{text.profileCompletion}</strong>
+                      <small>{text.completionInfo}</small>
+                    </div>
+                    <strong>{completion}%</strong>
+                  </div>
+                  <div className="student-completion-progress">
+                    <div
+                      className="student-completion-progress-bar"
+                      style={{ width: `${completion}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div
+                  className="student-language-switcher"
+                  aria-label="Language selection"
+                >
+                  <button
+                    type="button"
+                    className={language === "bn" ? "active" : ""}
+                    onClick={() => setLanguage("bn")}
+                  >
+                    বাংলা
+                  </button>
+                  <button
+                    type="button"
+                    className={language === "en" ? "active" : ""}
+                    onClick={() => setLanguage("en")}
+                  >
+                    English
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  className="student-portal-logout"
+                  onClick={handleLogout}
+                >
+                  {text.logout}
+                </button>
+              </div>
             </div>
 
             {/* MESSAGES */}
@@ -3155,172 +3731,50 @@ export default function StudentPortal() {
               </div>
             )}
 
-            {/* COMPLETION */}
-            <section className="student-completion-section no-print">
-              <div className="student-completion-header">
-                <div>
-                  <h3>
-                    {
-                      text.profileCompletion
-                    }
-                  </h3>
-
-                  <p>
-                    {
-                      text.completionInfo
-                    }
-                  </p>
-                </div>
-
-                <div className="student-completion-score">
-                  <strong>
-                    {completion}%
-                  </strong>
-
-                  <span>
-                    {text.complete}
-                  </span>
-                </div>
-              </div>
-
-              <div className="student-completion-progress">
-                <div
-                  className="student-completion-progress-bar"
-                  style={{
-                    width: `${completion}%`,
-                  }}
-                />
-              </div>
-            </section>
-
             {/* TAB LAYOUT */}
             <div className="student-tab-layout">
               {/* LEFT TAB MENU */}
-              <aside className="student-tab-sidebar no-print">
-                <div className="student-sidebar-profile">
-                  <div className="student-sidebar-profile-main">
-                    <div className="student-sidebar-profile-photo">
-                      {photoUrl ? (
-                        <img
-                          src={
-                            photoUrl
-                          }
-                          alt={
-                            studentName
-                          }
-                        />
-                      ) : (
-                        <span>
-                          👤
-                        </span>
-                      )}
+              <aside
+                className={`student-tab-sidebar no-print ${
+                  mobileMenuOpen ? "mobile-open" : ""
+                }`}
+              >
+                <nav className="student-sidebar-menu">
+                    <div className="student-tab-sidebar-title">
+                      {
+                        text.profileSections
+                      }
                     </div>
 
-                    <div className="student-sidebar-profile-details">
-                      <strong>
-                        {
-                          studentName
-                        }
-                      </strong>
-
-                      <small>
-                        {
-                          text.studentId
-                        }
-                        :{" "}
-                        {displayValue(
-                          currentStudent?.student_id
-                        )}
-                      </small>
-                    </div>
-                  </div>
-
-                  <div className="student-sidebar-profile-actions">
-                    <div
-                      className="student-language-switcher"
-                      aria-label="Language selection"
-                    >
-                      <button
-                        type="button"
-                        className={
-                          language ===
-                          "bn"
-                            ? "active"
-                            : ""
-                        }
-                        onClick={() =>
-                          setLanguage(
-                            "bn"
-                          )
-                        }
-                      >
-                        বাংলা
-                      </button>
-
-                      <button
-                        type="button"
-                        className={
-                          language ===
-                          "en"
-                            ? "active"
-                            : ""
-                        }
-                        onClick={() =>
-                          setLanguage(
-                            "en"
-                          )
-                        }
-                      >
-                        English
-                      </button>
-                    </div>
-
-                    <button
-                      type="button"
-                      className="student-portal-logout"
-                      onClick={
-                        handleLogout
-                      }
-                    >
-                      {text.logout}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="student-tab-sidebar-title">
-                  {
-                    text.profileSections
-                  }
-                </div>
-
-                {groups.map(
-                  ([
-                    groupKey,
-                  ]) => (
-                    <button
-                      key={
-                        groupKey
-                      }
-                      type="button"
-                      className={
-                        activeTab ===
-                        groupKey
-                          ? "student-tab-button active"
-                          : "student-tab-button"
-                      }
-                      onClick={() =>
-                        handleTabChange(
-                          groupKey
-                        )
-                      }
-                    >
-                      {getGroupTitle(
+                    {groups.map(
+                      ([
                         groupKey,
-                        language
-                      )}
-                    </button>
-                  )
-                )}
+                      ]) => (
+                        <button
+                          key={
+                            groupKey
+                          }
+                          type="button"
+                          className={
+                            activeTab ===
+                            groupKey
+                              ? "student-tab-button active"
+                              : "student-tab-button"
+                          }
+                          onClick={() =>
+                            handleTabChange(
+                              groupKey
+                            )
+                          }
+                        >
+                          {getGroupTitle(
+                            groupKey,
+                            language
+                          )}
+                        </button>
+                      )
+                    )}
+                </nav>
               </aside>
 
               {/* RIGHT CONTENT */}
@@ -3497,11 +3951,13 @@ export default function StudentPortal() {
                                     label,
                                     type,
                                   ]) =>
-                                    renderEditField(
-                                      field,
-                                      label,
-                                      type
-                                    )
+                                    field === "email"
+                                      ? renderEmailEdit()
+                                      : renderEditField(
+                                          field,
+                                          label,
+                                          type
+                                        )
                                 )}
                               </div>
                             </div>
@@ -3937,10 +4393,12 @@ export default function StudentPortal() {
                             field,
                             label,
                           ]) =>
-                            renderViewField(
-                              field,
-                              label
-                            )
+                            field === "email"
+                              ? renderEmailView()
+                              : renderViewField(
+                                  field,
+                                  label
+                                )
                         )}
                       </div>
                     )}

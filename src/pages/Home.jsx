@@ -122,6 +122,22 @@ export default function Home() {
     useState(false);
   const [studentLoginError, setStudentLoginError] =
     useState("");
+  const [studentResetMode, setStudentResetMode] =
+    useState(false);
+  const [studentResetCodeSent, setStudentResetCodeSent] =
+    useState(false);
+  const [studentResetCode, setStudentResetCode] =
+    useState("");
+  const [studentResetNewPassword, setStudentResetNewPassword] =
+    useState("");
+  const [studentResetConfirmPassword, setStudentResetConfirmPassword] =
+    useState("");
+  const [studentResetLoading, setStudentResetLoading] =
+    useState(false);
+  const [studentResetError, setStudentResetError] =
+    useState("");
+  const [studentResetMessage, setStudentResetMessage] =
+    useState("");
 
   const [languages, setLanguages] =
     useState([]);
@@ -864,6 +880,108 @@ export default function Home() {
       }
     };
 
+    const requestStudentPasswordReset = async () => {
+      const studentId = studentUsername.trim();
+      if (!studentId) {
+        setStudentResetError("Student ID is required.");
+        return;
+      }
+
+      setStudentResetLoading(true);
+      setStudentResetError("");
+      setStudentResetMessage("");
+
+      try {
+        const response = await fetch(
+          `${API}/student_password_reset.php`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              action: "request_code",
+              student_id: studentId,
+            }),
+          }
+        );
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "Could not request a verification code.");
+        }
+
+        setStudentResetCodeSent(true);
+        setStudentResetMessage(data.message);
+      } catch (error) {
+        setStudentResetError(error.message || "Could not request a verification code.");
+      } finally {
+        setStudentResetLoading(false);
+      }
+    };
+
+    const handleStudentResetRequest = (event) => {
+      event.preventDefault();
+      requestStudentPasswordReset();
+    };
+
+    const handleStudentPasswordReset = async (event) => {
+      event.preventDefault();
+      setStudentResetLoading(true);
+      setStudentResetError("");
+      setStudentResetMessage("");
+
+      try {
+        const response = await fetch(
+          `${API}/student_password_reset.php`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              action: "reset",
+              student_id: studentUsername.trim(),
+              code: studentResetCode.trim(),
+              new_password: studentResetNewPassword,
+              confirm_password: studentResetConfirmPassword,
+            }),
+          }
+        );
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "Password reset failed.");
+        }
+
+        setStudentResetMode(false);
+        setStudentResetCodeSent(false);
+        setStudentPassword("");
+        setStudentResetCode("");
+        setStudentResetNewPassword("");
+        setStudentResetConfirmPassword("");
+        setStudentResetMessage(data.message);
+      } catch (error) {
+        setStudentResetError(error.message || "Password reset failed.");
+      } finally {
+        setStudentResetLoading(false);
+      }
+    };
+
+    const closeStudentPasswordReset = () => {
+      setStudentResetMode(false);
+      setStudentResetCodeSent(false);
+      setStudentResetCode("");
+      setStudentResetNewPassword("");
+      setStudentResetConfirmPassword("");
+      setStudentResetError("");
+      setStudentResetMessage("");
+    };
+
   /* ======================================================
      STUDENT LOGOUT
   ====================================================== */
@@ -1295,12 +1413,133 @@ export default function Home() {
 
                 </div>
               ) : (
-                <form
-                  className="student-login-form"
-                  onSubmit={
-                    handleStudentLogin
-                  }
-                >
+                  studentResetMode ? (
+                    <form
+                      className="student-login-form"
+                      onSubmit={studentResetCodeSent ? handleStudentPasswordReset : handleStudentResetRequest}
+                    >
+                      <div className="student-login-field">
+                        <label htmlFor="student-reset-id">
+                          Student ID
+                        </label>
+                        <input
+                          id="student-reset-id"
+                          type="text"
+                          value={studentUsername}
+                          onChange={(event) => setStudentUsername(event.target.value)}
+                          placeholder="Enter student ID"
+                          autoComplete="username"
+                          disabled={studentResetLoading || studentResetCodeSent}
+                          required
+                        />
+                      </div>
+
+                      {studentResetCodeSent && (
+                        <>
+                          <div className="student-login-reset-info">
+                            {studentResetMessage}
+                            <br />
+                            If no code arrives, contact the school office to add or update your email.
+                          </div>
+
+                          <div className="student-login-field">
+                            <label htmlFor="student-reset-code">
+                              Verification code
+                            </label>
+                            <input
+                              id="student-reset-code"
+                              type="text"
+                              value={studentResetCode}
+                              onChange={(event) => setStudentResetCode(event.target.value)}
+                              inputMode="numeric"
+                              autoComplete="one-time-code"
+                              maxLength={6}
+                              pattern="[0-9]{6}"
+                              placeholder="6-digit code"
+                              disabled={studentResetLoading}
+                              required
+                            />
+                          </div>
+
+                          <div className="student-login-field">
+                            <label htmlFor="student-reset-password">
+                              New password
+                            </label>
+                            <input
+                              id="student-reset-password"
+                              type="password"
+                              value={studentResetNewPassword}
+                              onChange={(event) => setStudentResetNewPassword(event.target.value)}
+                              autoComplete="new-password"
+                              minLength={8}
+                              placeholder="At least 8 characters"
+                              disabled={studentResetLoading}
+                              required
+                            />
+                          </div>
+
+                          <div className="student-login-field">
+                            <label htmlFor="student-reset-confirm-password">
+                              Confirm new password
+                            </label>
+                            <input
+                              id="student-reset-confirm-password"
+                              type="password"
+                              value={studentResetConfirmPassword}
+                              onChange={(event) => setStudentResetConfirmPassword(event.target.value)}
+                              autoComplete="new-password"
+                              minLength={8}
+                              placeholder="Re-enter new password"
+                              disabled={studentResetLoading}
+                              required
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      <button
+                        type="submit"
+                        className="student-login-submit"
+                        disabled={studentResetLoading}
+                      >
+                        {studentResetLoading
+                          ? "Please wait..."
+                          : studentResetCodeSent
+                            ? "Reset password"
+                            : "Send verification code"}
+                      </button>
+
+                      {studentResetCodeSent && (
+                        <button
+                          type="button"
+                          className="student-login-forgot"
+                          onClick={requestStudentPasswordReset}
+                          disabled={studentResetLoading}
+                        >
+                          Resend code
+                        </button>
+                      )}
+
+                      {studentResetError && (
+                        <div className="student-login-error">
+                          {studentResetError}
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        className="student-login-back"
+                        onClick={closeStudentPasswordReset}
+                        disabled={studentResetLoading}
+                      >
+                        Back to login
+                      </button>
+                    </form>
+                  ) : (
+                  <form
+                    className="student-login-form"
+                    onSubmit={handleStudentLogin}
+                  >
 
                   <div className="student-login-field">
 
@@ -1361,6 +1600,19 @@ export default function Home() {
                   </div>
 
                   <button
+                    type="button"
+                    className="student-login-forgot"
+                    onClick={() => {
+                      setStudentResetMode(true);
+                      setStudentResetError("");
+                      setStudentResetMessage("");
+                      setStudentResetCodeSent(false);
+                    }}
+                  >
+                    Forgot password?
+                  </button>
+
+                  <button
                     type="submit"
                     className="student-login-submit"
                     disabled={
@@ -1380,7 +1632,14 @@ export default function Home() {
                     </div>
                   )}
 
+                  {studentResetMessage && (
+                    <div className="student-login-success">
+                      {studentResetMessage}
+                    </div>
+                  )}
+
                 </form>
+                )
               )}
 
             </div>

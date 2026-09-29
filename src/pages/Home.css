@@ -590,6 +590,52 @@
   transform: none;
 }
 
+.student-login-forgot,
+.student-login-back {
+  align-self: flex-end;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #2563eb;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: right;
+  text-decoration: underline;
+}
+
+.student-login-back {
+  align-self: flex-start;
+  text-align: left;
+}
+
+.student-login-forgot:disabled,
+.student-login-back:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.student-login-reset-info,
+.student-login-success {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+
+.student-login-success {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+
 .student-login-error {
   width: 100%;
   padding: 10px 12px;

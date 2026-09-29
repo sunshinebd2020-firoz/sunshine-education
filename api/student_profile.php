@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/student_verified_email_helpers.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
@@ -45,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 try {
     $connection = sunshineDbConnect();
     $sessionStudentId = trim((string) ($_SESSION['student_id'] ?? $_SESSION['username'] ?? ''));
+    sunshineEnsureStudentVerifiedEmailTable($connection);
     $studentId = trim((string) ($_GET['student_id'] ?? ''));
     $id = trim((string) ($_GET['id'] ?? ''));
 
@@ -80,6 +82,7 @@ try {
         $statement->close();
 
         if ($student) {
+            $student = sunshineAttachStudentEmailVerification($connection, $student, $sessionStudentId);
             sunshineRespondJson(200, [
                 'success' => true,
                 'student' => $student,
@@ -98,6 +101,7 @@ try {
         $statement->close();
 
         if ($student) {
+            $student = sunshineAttachStudentEmailVerification($connection, $student, $sessionStudentId);
             sunshineRespondJson(200, [
                 'success' => true,
                 'student' => $student,
@@ -116,6 +120,7 @@ try {
         $statement->close();
 
         if ($student) {
+            $student = sunshineAttachStudentEmailVerification($connection, $student, $sessionStudentId);
             sunshineRespondJson(200, [
                 'success' => true,
                 'student' => $student,

@@ -195,6 +195,10 @@
   margin-top: 24px;
 }
 
+.dashboard-branch-overview {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .dashboard-panel {
   min-width: 0;
   padding: 24px;

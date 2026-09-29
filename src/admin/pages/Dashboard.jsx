@@ -45,6 +45,13 @@ const readCount = (data, fallback = 0) => {
   return Number(value || 0);
 };
 
+const ADMIN_ROLES = new Set([
+  "admin",
+  "administrator",
+  "super admin",
+  "superadmin",
+]);
+
 export default function Dashboard() {
   const [studentCount, setStudentCount] = useState(0);
   const [courseCount, setCourseCount] = useState(0);
@@ -71,10 +78,11 @@ export default function Dashboard() {
     ===================================================== */
 
     const savedUser = localStorage.getItem("sunshine_user");
+    let loggedInUser = null;
 
     if (savedUser) {
       try {
-        const loggedInUser = JSON.parse(savedUser);
+        loggedInUser = JSON.parse(savedUser);
 
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setUser(loggedInUser);
@@ -83,6 +91,37 @@ export default function Dashboard() {
       } catch (error) {
         console.error("User data parse error:", error);
       }
+    }
+
+    const loggedInRole = String(loggedInUser?.role || "")
+      .trim()
+      .toLowerCase();
+    const loggedInIsAdmin = ADMIN_ROLES.has(loggedInRole);
+    const currentYear = new Date().getFullYear();
+    const loadFinancialSummary = () => {
+      const branch = loggedInIsAdmin
+        ? "all"
+        : String(loggedInUser?.branch || loggedInUser?.branch_name || "").trim();
+      return fetch(
+        `${API_BASE_URL}/income_expense_report.php?year=${currentYear}&month=all&branch=${encodeURIComponent(branch || "all")}`,
+        {
+          credentials: "include",
+          headers: { Accept: "application/json" },
+        }
+      )
+        .then(async (response) => {
+          const data = await parseJsonResponse(response, "Financial summary could not be loaded.");
+          if (response.ok && data.success) {
+            setFinancialSummary(data.summary || {});
+          }
+        })
+        .catch((error) => {
+          console.error("Financial summary error:", error);
+        });
+    };
+
+    if (loggedInIsAdmin) {
+      loadFinancialSummary();
     }
 
     /* =====================================================
@@ -139,7 +178,7 @@ export default function Dashboard() {
         console.error("Course count error:", error);
       });
 
-    fetch(`${API_BASE_URL}/admin_batch_monitoring.php`, {
+    if (loggedInIsAdmin) fetch(`${API_BASE_URL}/admin_batch_monitoring.php`, {
       credentials: "include",
       headers: { Accept: "application/json" },
     })
@@ -175,7 +214,7 @@ export default function Dashboard() {
        DOWNLOAD COUNT
     ===================================================== */
 
-    fetch(`${API_BASE_URL}/download_list.php`, {
+    if (loggedInIsAdmin) fetch(`${API_BASE_URL}/download_list.php`, {
       credentials: "include",
       headers: { Accept: "application/json" },
     })
@@ -257,25 +296,7 @@ export default function Dashboard() {
         console.error("Language count error:", error);
       });
 
-    const currentYear = new Date().getFullYear();
-    fetch(
-      `${API_BASE_URL}/income_expense_report.php?year=${currentYear}&month=all&branch=all`,
-      {
-        credentials: "include",
-        headers: { Accept: "application/json" },
-      }
-    )
-      .then(async (response) => {
-        const data = await parseJsonResponse(response, "Financial summary could not be loaded.");
-        if (response.ok && data.success) {
-          setFinancialSummary(data.summary || {});
-        }
-      })
-      .catch((error) => {
-        console.error("Financial summary error:", error);
-      });
-
-    fetch(`${API_BASE_URL}/contact_messages_list.php`, {
+    if (loggedInIsAdmin) fetch(`${API_BASE_URL}/contact_messages_list.php`, {
       credentials: "include",
       headers: { Accept: "application/json" },
     })
@@ -306,6 +327,10 @@ export default function Dashboard() {
     user?.full_name ||
     user?.username ||
     "User";
+
+  const isAdmin = ADMIN_ROLES.has(
+    String(user?.role || "").trim().toLowerCase()
+  );
 
   const formatCurrency = (amount) =>
     `৳ ${Number(amount || 0).toLocaleString("en-US", {
@@ -420,11 +445,11 @@ export default function Dashboard() {
 
         {/* CONTACT MESSAGES */}
 
-        <Link to="/admin/contact-messages" className="dashboard-card dashboard-card-messages">
+        {isAdmin && <Link to="/admin/contact-messages" className="dashboard-card dashboard-card-messages">
           <h3>✉️ Contact Messages</h3>
           <p>{contactMessageCount}</p>
           <span>Open contact inbox →</span>
-        </Link>
+        </Link>}
 
         {/* DOWNLOADS */}
 
@@ -452,14 +477,18 @@ export default function Dashboard() {
 
       </section>
 
-      <section className="dashboard-overview-grid" aria-label="Operational overview">
+      {isAdmin && <section className="dashboard-overview-grid" aria-label="Operational overview">
         <div className="dashboard-panel dashboard-finance-panel">
           <div className="dashboard-panel-heading">
             <div>
               <h2>Financial overview</h2>
-              <p>{new Date().getFullYear()} totals</p>
+              <p>
+                {isAdmin
+                  ? `${new Date().getFullYear()} totals`
+                  : `${userBranch} branch · ${new Date().getFullYear()} totals`}
+              </p>
             </div>
-            <Link to="/admin/income-expense-report">Full report →</Link>
+            {isAdmin && <Link to="/admin/income-expense-report">Full report →</Link>}
           </div>
           <div className="dashboard-finance-grid">
             <div className="dashboard-finance-item income">
@@ -511,12 +540,12 @@ export default function Dashboard() {
             <p className="dashboard-empty-inbox">No unanswered messages.</p>
           )}
         </div>
-      </section>
+      </section>}
 
       <nav className="dashboard-quick-links" aria-label="Quick actions">
         <Link to="/admin/students">Add student <span>→</span></Link>
-        <Link to="/admin/income">Record income <span>→</span></Link>
-        <Link to="/admin/expense">Record expense <span>→</span></Link>
+        {isAdmin && <Link to="/admin/income">Record income <span>→</span></Link>}
+        {isAdmin && <Link to="/admin/expense">Record expense <span>→</span></Link>}
         <Link to="/admin/my-classroom">Classroom <span>→</span></Link>
       </nav>
     </div>

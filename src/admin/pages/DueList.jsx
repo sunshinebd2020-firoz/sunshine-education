@@ -120,6 +120,9 @@ export default function DueList() {
   const [message, setMessage] =
     useState("");
 
+  const [sendingWhatsAppId, setSendingWhatsAppId] =
+    useState("");
+
   const [, setTeacherId] =
     useState("");
 
@@ -544,70 +547,44 @@ export default function DueList() {
   };
 
 
-  const normalizeWhatsAppNumber = (phone) => {
-
-    if (!phone) return "";
-
-    // শুধু ডিজিটগুলো রেখে বাকি সব ক্যারেক্টার বাদ দিচ্ছি
-    let digits = String(phone).replace(/\D/g, "");
-
-    if (!digits) return "";
-
-    // যদি নম্বরটির শুরুতে ৮৮ থাকে (যেমন 88017...)
-    if (digits.startsWith("88")) {
-      return digits;
-    }
-
-    // যদি নম্বরটির শুরুতে ০ থাকে (যেমন 017...)
-    if (digits.startsWith("0")) {
-      return `88${digits}`;
-    }
-
-    // যদি ১০ ডিজিট হয় (যেমন 1712345678 - অর্থাৎ শুরুর ০ বাদ পড়েছে)
-    if (digits.length === 10) {
-      return `880${digits}`;
-    }
-
-    // যদি ১১ ডিজিট হয় (যেমন 01712345678)
-    if (digits.length === 11) {
-      return `88${digits}`;
-    }
-
-    return digits;
-
-  };
-
-
-  const handleWhatsAppPayment = (student) => {
-
-    const rawPhone = student?.student_mobile || student?.mobile || "";
-    const phone = normalizeWhatsAppNumber(rawPhone);
-
-    if (!phone) {
-
-      setMessage("Student mobile number available নেই। WhatsApp payment শুরু করা যাবে না।");
-
+  const handleWhatsAppPayment = async (student) => {
+    const studentId = String(student?.student_id || "").trim();
+    if (!studentId) {
+      setMessage("Student ID is missing; the WhatsApp reminder was not sent.");
       return;
-
     }
 
-    const studentName =
-      student?.student_name_en ||
-      student?.student_name_bn ||
-      "Student";
+    setSendingWhatsAppId(studentId);
+    setMessage("");
 
-    const amount = Number(student?.due_amount || student?.due || 0);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/send_due_whatsapp.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            student_id: studentId,
+            hotline,
+          }),
+        }
+      );
+      const data = await response.json();
 
-    let messageText = `Assalamu Alaikum ${studentName}.\n\nYour due payment is BDT ${formatMoney(amount)}.\nPlease confirm the payment and send the payment confirmation.\n\nStudent ID: ${student?.student_id || student?.id || "N/A"}`;
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "WhatsApp reminder could not be sent.");
+      }
 
-    if (hotline) {
-      messageText += `\n\nFor any query, contact Hotline: ${hotline}`;
+      setMessage(data.message || "WhatsApp reminder sent successfully.");
+    } catch (error) {
+      setMessage(error.message || "WhatsApp reminder could not be sent.");
+    } finally {
+      setSendingWhatsAppId("");
     }
-
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(messageText)}`;
-
-    window.open(url, "_blank", "noopener,noreferrer");
-
   };
 
 
@@ -1022,12 +999,15 @@ export default function DueList() {
                         <button
                           type="button"
                           className="due-whatsapp-button"
+                          disabled={sendingWhatsAppId === String(student.student_id || "")}
                           onClick={() =>
                             handleWhatsAppPayment(student)
                           }
-                          title="Send WhatsApp payment message"
+                          title="Send WhatsApp reminder directly"
                         >
-                          WhatsApp Pay
+                          {sendingWhatsAppId === String(student.student_id || "")
+                            ? "Sending..."
+                            : "Send WhatsApp"}
                         </button>
 
                       </td>

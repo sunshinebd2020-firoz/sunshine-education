@@ -78,7 +78,11 @@ $recipientEmail = trim((string) ($row['email'] ?? ''));
 if ($recipientEmail !== '' && filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) {
     $subject = "Reply from Sunshine Education";
     $body = "Dear " . ($row['name'] ?? '') . ",\n\n" . $reply . "\n\nRegards,\nSunshine Education";
-    $headers = "From: Sunshine Education <no-reply@sunshine.test>\r\n";
+    $mailFrom = str_replace(["\r", "\n"], '', (string) (getenv('SUNSHINE_MAIL_FROM') ?: 'sunshinebd2020@gmail.com'));
+    if (!filter_var($mailFrom, FILTER_VALIDATE_EMAIL)) {
+        $mailFrom = 'sunshinebd2020@gmail.com';
+    }
+    $headers = "From: Sunshine Education <{$mailFrom}>\r\n";
 
     $emailSent = @mail($recipientEmail, $subject, $body, $headers);
 }

@@ -384,10 +384,17 @@ const canViewMenu = (menu) => {
       return;
     }
 
+    if (
+      location.pathname === "/admin/income-expense-report" &&
+      !isAdmin
+    ) {
+      navigate("/admin/dashboard", { replace: true });
+      return;
+    }
+
 if (isTeacher) {
   if (
     location.pathname === "/admin" ||
-    location.pathname === "/admin/dashboard" ||
     location.pathname === "/admin/batch-monitoring"
   ) {
     navigate(
@@ -858,22 +865,20 @@ if (isTeacher) {
               DASHBOARD
           ================================================= */}
 
-          {!isTeacher && (
-            <NavLink
-              to="/admin/dashboard"
-              className={({ isActive }) =>
-                `sidebar-link ${
-                  isActive
-                    ? "active"
-                    : ""
-                }`
-              }
-            >
-              <span>
-                🏠 Dashboard
-              </span>
-            </NavLink>
-          )}
+          <NavLink
+            to="/admin/dashboard"
+            className={({ isActive }) =>
+              `sidebar-link ${
+                isActive
+                  ? "active"
+                  : ""
+              }`
+            }
+          >
+            <span>
+              🏠 Dashboard
+            </span>
+          </NavLink>
 
           {isAdmin && (
             <NavLink
@@ -1162,10 +1167,7 @@ if (isTeacher) {
                     </NavLink>
                   )}
 
-                  {hasPermission(
-                    "report",
-                    "can_view"
-                  ) && (
+                  {isAdmin && (
                     <NavLink
                       to="/admin/income-expense-report"
                       className={({ isActive }) =>

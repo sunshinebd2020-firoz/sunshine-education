@@ -255,6 +255,11 @@
   background: #1ebe5b;
 }
 
+.due-whatsapp-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .due-whatsapp-button:active {
   transform: translateY(1px);
 }
